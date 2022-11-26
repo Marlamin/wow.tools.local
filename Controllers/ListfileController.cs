@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Services;
+using wow.tools.Services;
 
 namespace wow.tools.local.Controllers
 {
@@ -7,6 +8,13 @@ namespace wow.tools.local.Controllers
     [ApiController]
     public class ListfileController : Controller
     {
+        private readonly DBCManager dbcManager;
+
+        public ListfileController(IDBCManager dbcManager)
+        {
+            this.dbcManager = dbcManager as DBCManager;
+        }
+        
         [Route("datatables")]
         [HttpGet]
         public DataTablesResult DataTables(int draw, int start, int length)
@@ -77,7 +85,13 @@ namespace wow.tools.local.Controllers
                     return "";
                 }
             }
-            
+        }
+
+        [Route("db2s")]
+        [HttpGet]
+        public List<string> DB2s()
+        {
+            return dbcManager.GetDBCNames();
         }
     }
 

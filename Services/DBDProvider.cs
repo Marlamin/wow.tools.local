@@ -7,8 +7,9 @@ namespace wow.tools.Services
     public class DBDProvider : IDBDProvider
     {
         private readonly DBDReader dbdReader;
-        private Dictionary<string, (string FilePath, Structs.DBDefinition Definition)> definitionLookup;
-
+        public Dictionary<string, (string FilePath, Structs.DBDefinition Definition)> definitionLookup;
+        private Dictionary<string, List<string>> relationshipMap;
+        
         public DBDProvider()
         {
             dbdReader = new DBDReader();
@@ -26,6 +27,32 @@ namespace wow.tools.Services
             definitionLookup = definitionFiles.ToDictionary(x => Path.GetFileNameWithoutExtension(x), x => (x, dbdReader.Read(x)), StringComparer.OrdinalIgnoreCase);
 
             Console.WriteLine("Loaded " + definitionLookup.Count + " definitions!");
+
+            Console.WriteLine("Reloading relationship map");
+
+            relationshipMap = new Dictionary<string, List<string>>();
+
+            foreach (var definition in definitionLookup)
+            {
+                foreach (var column in definition.Value.Definition.columnDefinitions)
+                {
+                    if (column.Value.foreignTable == null)
+                        continue;
+
+                    var currentName = definition.Key + "::" + column.Key;
+                    var foreignName = column.Value.foreignTable + "::" + column.Value.foreignColumn;
+                    if (relationshipMap.ContainsKey(foreignName))
+                    {
+                        relationshipMap[foreignName].Add(currentName);
+                    }
+                    else
+                    {
+                        relationshipMap.Add(foreignName, new List<string>() { currentName });
+                    }
+                }
+            }
+
+            Console.WriteLine("Reloaded relationship map: " + relationshipMap.Count + " relations");
 
             return definitionLookup.Count;
         }
@@ -50,6 +77,35 @@ namespace wow.tools.Services
 
             definition = default;
             return false;
+        }
+
+        public Dictionary<string, List<string>> GetAllRelations()
+        {
+            return relationshipMap;
+        }
+
+        public List<string> GetRelationsToColumn(string foreignColumn, bool fixCase = false)
+        {
+            if (fixCase)
+            {
+                var splitCol = foreignColumn.Split("::");
+                if (splitCol.Length == 2)
+                {
+                    var results = definitionLookup.Where(x => x.Key.ToLower() == splitCol[0].ToLower()).Select(x => x.Key);
+                    if (results.Any())
+                    {
+                        splitCol[0] = results.First();
+                    }
+                }
+                foreignColumn = string.Join("::", splitCol);
+            }
+
+            if (!relationshipMap.TryGetValue(foreignColumn, out List<string> relations))
+            {
+                return new List<string>();
+            }
+
+            return relations;
         }
     }
 }

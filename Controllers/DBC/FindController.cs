@@ -1,20 +1,16 @@
 ﻿using DBCD;
-using wow.tools.local.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using wow.tools.local.Services;
 
-namespace wow.tools.local.Controllers
+namespace wow.tools.local.Controllers.DBC
 {
     [Route("dbc/find")]
     [ApiController]
-    public class DBCFindController : ControllerBase
+    public class FindController : ControllerBase
     {
         private readonly DBCManager dbcManager;
 
-        public DBCFindController(IDBCManager dbcManager) => this.dbcManager = (DBCManager)dbcManager;
+        public FindController(IDBCManager dbcManager) => this.dbcManager = (DBCManager)dbcManager;
 
         // GET: find/
         [HttpGet]

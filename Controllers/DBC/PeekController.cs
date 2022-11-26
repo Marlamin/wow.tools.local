@@ -1,21 +1,16 @@
-﻿using DBCD;
-using wow.tools.local.Services;
+﻿using CASCLib;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CASCLib;
+using wow.tools.local.Services;
 
-namespace wow.tools.local.Controllers
+namespace wow.tools.local.Controllers.DBC
 {
     [Route("dbc/peek")]
     [ApiController]
-    public class DBCPeekController : ControllerBase
+    public class PeekController : ControllerBase
     {
         private readonly DBCManager dbcManager;
 
-        public DBCPeekController(IDBCManager dbcManager)
+        public PeekController(IDBCManager dbcManager)
         {
             this.dbcManager = dbcManager as DBCManager;
         }

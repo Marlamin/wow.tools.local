@@ -9,8 +9,11 @@ namespace wow.tools.local.Controllers
     {
         [Route("fdid")]
         [HttpGet]
-        public FileStreamResult File(uint fileDataID)
+        public ActionResult File(uint fileDataID)
         {
+            if (!CASC.FileExists(fileDataID))
+                return NotFound();
+
             return new FileStreamResult(CASC.GetFileByID(fileDataID), "application/octet-stream")
             {
                 FileDownloadName = fileDataID.ToString()
@@ -21,10 +24,8 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string BuildName()
         {
-            // WOW-46801patch10.0.2_PTR
             var splitName= CASC.BuildName.Replace("WOW-", "").Split("patch");
             var buildName = splitName[1].Split("_")[0] + "." + splitName[0];
-            Console.WriteLine("Set modelviewer build name as " + buildName);
             return buildName;
         }
     }

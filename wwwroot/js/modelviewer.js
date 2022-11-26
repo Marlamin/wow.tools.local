@@ -472,7 +472,7 @@ function loadModel(type, filedataid){
             updateURLs();
 
             if (!embeddedMode){
-                history.pushState({id: 'modelviewer'}, 'Model Viewer', '/?filedataid=' + Current.fileDataID + '&type=' + Current.type);
+                history.pushState({id: 'modelviewer'}, 'Model Viewer', '/mv/?filedataid=' + Current.fileDataID);
             }
 
             $("#animationSelect").hide();

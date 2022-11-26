@@ -136,6 +136,20 @@ namespace wow.tools.local.Services
             Cache = new MemoryCache(new MemoryCacheOptions() { SizeLimit = 250 });
         }
 
+        public List<string> GetDBCNames()
+        {
+            var db2s = dbdProvider.definitionLookup.Keys;
+            var existingDB2s = new List<string>();
+            
+            foreach(var db2 in db2s)
+            {
+                if (CASC.FileExists("DBFilesClient/" + db2 + ".db2"))
+                    existingDB2s.Add(db2);
+            }
+            
+            return existingDB2s;
+        }
+        
         public async Task<List<DBCDRow>> FindRecords(string name, string build, string col, int val, bool single = false)
         {
             var rowList = new List<DBCDRow>();

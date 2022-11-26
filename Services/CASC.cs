@@ -102,5 +102,20 @@ namespace wow.tools.local.Services
             
             throw new FileNotFoundException("Could not find " + filename + " in listfile");
         }
+
+        public static bool FileExists(string filename)
+        {
+            if (ListfileReverse.TryGetValue(filename.ToLower(), out int fileDataID))
+            {
+                return cascHandler.FileExists(fileDataID);
+            }
+
+            return false;
+        }
+        
+        public static bool FileExists(uint filedataid)
+        {
+            return cascHandler.FileExists((int)filedataid);
+        }
     }
 }

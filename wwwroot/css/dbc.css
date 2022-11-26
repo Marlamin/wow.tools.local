@@ -1,0 +1,139 @@
+#tableContainer{
+	clear: both;
+	margin-top: 15px;
+}
+
+#dbcform{
+	float: left;
+}
+
+#fileFilter{
+	float: left;
+	width: 270px;
+	display: inline-block;
+	margin-left: 5px;
+	margin-bottom: 5px;
+}
+
+.buildFilter{
+	float: left;
+	width: 130px;
+	display: inline-block;
+	margin-left: 5px;
+	margin-bottom: 5px;
+}
+
+#browseButton{
+	float: left;
+	width: 75px;
+	display: inline-block;
+	margin-left: 5px;
+	color: #fff !important;
+    background-color: #007bff !important;
+    border-color: #007bff !important;
+}
+
+#downloadCSVButton{
+	float: left;
+	width: 75px;
+	display: inline-block;
+	margin-left: 5px;
+}
+
+#dbtable{
+	margin: auto;
+}
+
+.colHasComment{
+	border-bottom: 2px dashed var(--border-color) !important;
+	cursor: help;
+}
+
+.added, .diff-added {
+	background: var(--diff-added-color) !important;
+	text-decoration: none;
+}
+
+.removed, .diff-removed {
+	background: var(--diff-removed-color) !important;
+	text-decoration: line-through;
+}
+
+thead input { width: 100% }
+/* Mobile Devices */
+@media screen and (max-width: 767px) {
+	#fileFilter, #buildFilter, #dbcform {
+		width: 100%; /* asthetic reasons */
+	}
+
+	#dbtable_length, #dbtable_filter {
+		text-align: left; /* float pagination sizes left */
+	}
+
+	#dbcform {
+		margin-bottom: .5em;
+	}
+}
+
+.encounterJournalHolder{
+	display: flex;
+}
+
+.encounterJournalInstance{
+	width: 512px;
+	height: 512px;
+	float: left;
+}
+
+.encounterJournalInstance h4{
+	position: relative;
+	top: 15px;
+	left: 20px;
+	z-index: 1;
+}
+
+.encounterJournalInstance p{
+	position: relative;
+	top: 15px;
+	left: 20px;
+	max-width: 325px;
+	font-size: 14px;
+	width: 100%;
+	height: 60%;
+	z-index: 1;
+}
+
+.ejButton{
+	position: relative;
+	left: 20px;
+	width: 350px;
+}
+
+.encounterBackground{
+   position: absolute;
+   z-index: 0;
+   opacity: 0.65;
+}
+
+.resultHolder{
+	max-height: 200px;
+	overflow-x: hidden;
+	min-width: 700px;
+}
+
+.diffTable tr td{
+    padding: 2px;
+}
+
+.form-control:disabled{
+    opacity: 0.4;
+}
+
+#fkSearchDB{
+    width: 250px;
+}
+
+.dbtableholder{
+    max-width: 100%;
+    overflow-x: auto;
+}
