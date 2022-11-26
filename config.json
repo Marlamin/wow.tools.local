@@ -1,0 +1,8 @@
+﻿{
+  "config": {
+    "definitionDir": "WoWDBDefs/definitions",
+    "listfileURL": "https://github.com/wowdev/wow-listfile/raw/master/community-listfile.csv",
+    "wowFolder": "C:/World of Warcraft",
+    "wowProduct": "wowt"
+  }
+}

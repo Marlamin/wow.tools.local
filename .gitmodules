@@ -1,0 +1,9 @@
+[submodule "CascLib"]
+	path = CascLib
+	url = https://github.com/WoW-Tools/CascLib
+[submodule "DBCD"]
+	path = DBCD
+	url = https://github.com/wowdev/DBCD
+[submodule "WoWDBDefs"]
+	path = WoWDBDefs
+	url = https://github.com/wowdev/WoWDBDefs
