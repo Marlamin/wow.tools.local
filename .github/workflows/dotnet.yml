@@ -46,7 +46,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet publish -c Release -r ${{ matrix.target }} --self-contained
+      run: dotnet publish -c Release -r ${{ matrix.target }} --self-contained -f net7.0
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Archive Release
