@@ -46,7 +46,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet publish -c Release -r ${{ matrix.target }} -p:PublishReadyToRun=true --no-restore
+      run: dotnet publish -c Release -r ${{ matrix.target }} --self-contained
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Archive Release
