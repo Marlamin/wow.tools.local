@@ -52,7 +52,7 @@ jobs:
     - name: Archive Release
       uses: thedoctor0/zip-release@main
       with:
-        directory: ${{ github.workspace }}/wow.tools.local/bin/Release/net7.0/publish
+        directory: ${{ github.workspace }}/wow.tools.local/bin/Release/net7.0/${{ matrix.target }}/publish
         type: 'zip'
         filename: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
     - name: Release
