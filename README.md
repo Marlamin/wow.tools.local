@@ -1,5 +1,5 @@
 # WoW.tools but local
-This contains a very slimmed down version of the WoW.tools site (currently modelviewer for M2s only and partial DBC browsing features) meant for local use.
+This contains a very slimmed down version of the WoW.tools site (currently modelviewer for M2s only and partial DBC browsing features) meant for local use without relying on anything from the main WoW.tools website (or the internet in general, after a listfile has been downloaded, see below).
 
 ## Requirements
 All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory.
