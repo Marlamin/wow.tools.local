@@ -22,6 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="WoWDBDefs\definitions\**" LinkBase="definitions\" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <ProjectReference Include="CascLib\CascLib\CascLib.csproj" />
     <ProjectReference Include="DBCD\DBCD\DBCD.csproj" />
   </ItemGroup>
