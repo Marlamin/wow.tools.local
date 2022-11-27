@@ -56,6 +56,6 @@ jobs:
         type: 'zip'
         filename: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v0.1.13
       with:
         files: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
