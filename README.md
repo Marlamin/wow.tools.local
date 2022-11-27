@@ -5,7 +5,7 @@ This contains a very slimmed down version of the WoW.tools site (currently model
 All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory.
 
 ### Definitions
-While definitions are included in releases, these are likely to go out of date quickly. Hopefully up-to-date definitions can be found on [here](https://github.com/wowdev/WoWDBDefs) (to download, click Code -> Download ZIP), to update definitions overwrite the `WoWDBDefs/definitions` folder with the `WoWDBDefs/definitions` folder from the downloaded version of the WoWDBDefs repo.
+While definitions are included in releases, these are likely to go out of date quickly. Hopefully up-to-date definitions can be found on [here](https://github.com/wowdev/WoWDBDefs) (to download, click Code -> Download ZIP), to update definitions overwrite the `definitions` folder with the `WoWDBDefs/definitions` folder from the downloaded version of the WoWDBDefs repo.
 
 ### Listfile
 The application downloads [this listfile](https://github.com/wowdev/wow-listfile/blob/master/community-listfile.csv) on first start, but this can go out of date in time. Simply remove the listfile to force a redownload on next startup or update it manually. The listfile URL can also be changed in the config.
