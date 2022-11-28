@@ -1,14 +1,9 @@
-﻿using DBCD;
+﻿using CASCLib;
+using DBCD;
 using DBCD.Providers;
-using wow.tools.local.Controllers;
 using DBFileReaderLib;
 using Microsoft.Extensions.Caching.Memory;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using CASCLib;
 using wow.tools.Services;
 
 namespace wow.tools.local.Services
@@ -140,16 +135,16 @@ namespace wow.tools.local.Services
         {
             var db2s = dbdProvider.definitionLookup.Keys;
             var existingDB2s = new List<string>();
-            
-            foreach(var db2 in db2s)
+
+            foreach (var db2 in db2s)
             {
                 if (CASC.FileExists("DBFilesClient/" + db2 + ".db2"))
                     existingDB2s.Add(db2);
             }
-            
-            return existingDB2s;
+
+            return existingDB2s.Order().ToList();
         }
-        
+
         public async Task<List<DBCDRow>> FindRecords(string name, string build, string col, int val, bool single = false)
         {
             var rowList = new List<DBCDRow>();

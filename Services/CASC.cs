@@ -31,8 +31,9 @@ namespace wow.tools.local.Services
                 cascHandler = CASCHandler.OpenLocalStorage(basedir, program, worker);
             }
 
-            BuildName = cascHandler.Config.BuildName;
-
+            var splitName = cascHandler.Config.BuildName.Replace("WOW-", "").Split("patch");
+            BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
+            
             cascHandler.Root.SetFlags(locale);
             
             IsCASCInit = true;
@@ -60,9 +61,6 @@ namespace wow.tools.local.Services
             foreach (var line in File.ReadAllLines("listfile.csv"))
             {
                 if (string.IsNullOrEmpty(line))
-                    continue;
-
-                if (!line.EndsWith(".blp") && !line.EndsWith(".m2") && !line.EndsWith(".db2"))
                     continue;
 
                 var splitLine = line.Split(";");

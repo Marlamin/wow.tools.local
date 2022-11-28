@@ -4,6 +4,7 @@ using wow.tools.local.Controllers;
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Reflection.Metadata.Ecma335;
 
 namespace wow.tools.local.Services
 {
@@ -21,8 +22,36 @@ namespace wow.tools.local.Services
 
             tableName = tableName.ToLower();
 
-            var fullFileName = "dbfilesclient/" + tableName + ".db2";
-            return CASC.GetFileByName(fullFileName);
+            if(build == CASC.BuildName)
+            {
+                // Load from CASC
+                var fullFileName = "dbfilesclient/" + tableName + ".db2";
+                return CASC.GetFileByName(fullFileName);
+            }
+            else
+            {
+                // Try from disk
+                if (string.IsNullOrEmpty(SettingsManager.dbcFolder))
+                {
+                    Console.WriteLine("DBC folder not set up, can't load DB2 " + tableName + " for build " + build + " from disk");
+                    throw new FileNotFoundException($"Unable to find {tableName}");
+                }
+                    
+                string fileName = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", $"{tableName}.db2");
+
+                // if the db2 variant doesn't exist try dbc
+                if (File.Exists(fileName))
+                    return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+                fileName = Path.ChangeExtension(fileName, ".dbc");
+
+                // if the dbc variant doesn't exist throw
+                if (!File.Exists(fileName))
+                    throw new FileNotFoundException($"Unable to find {tableName}");
+
+                return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            }
+      
         }
     }
 }

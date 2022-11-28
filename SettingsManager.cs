@@ -5,6 +5,7 @@
         public static string definitionDir;
         public static string listfileURL;
         public static string? wowFolder;
+        public static string? dbcFolder;
         public static string wowProduct;
 
         static SettingsManager()
@@ -18,6 +19,7 @@
             definitionDir = config.GetSection("config")["definitionDir"];
             listfileURL = config.GetSection("config")["listfileURL"];
 
+            dbcFolder = config.GetSection("config")["dbcFolder"];
             wowFolder = config.GetSection("config")["wowFolder"];
             if (string.IsNullOrEmpty(wowFolder))
                 wowFolder = null;

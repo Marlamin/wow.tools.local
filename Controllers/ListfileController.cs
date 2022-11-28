@@ -93,6 +93,36 @@ namespace wow.tools.local.Controllers
         {
             return dbcManager.GetDBCNames();
         }
+
+        [HttpGet("db2/{databaseName}/versions")]
+        public List<string> BuildsForDatabase(string databaseName, bool uniqueOnly = false)
+        {
+            var versionList = new List<Version>();
+            versionList.Add(new Version(CASC.BuildName));
+
+            if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && Directory.Exists(SettingsManager.dbcFolder))
+            {
+                var dbcFolder = new DirectoryInfo(SettingsManager.dbcFolder);
+                var dbcFiles = dbcFolder.GetFiles("*" + databaseName + ".db*", SearchOption.AllDirectories);
+                foreach (var dbcFile in dbcFiles)
+                {
+                    var splitFolders = dbcFile.DirectoryName.Split(Path.DirectorySeparatorChar);
+                    foreach(var splitFolder in splitFolders)
+                    {
+                        var buildTest = splitFolder.Split(".");
+                        if (buildTest.Length == 4 && buildTest.All(s => s.All(char.IsDigit)))
+                        {
+                            if (!versionList.Contains(new Version(splitFolder)))
+                            {
+                                versionList.Add(new Version(splitFolder));
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+            return versionList.OrderDescending().Select(v => v.ToString()).ToList();
+        }
     }
 
     public struct DataTablesResult

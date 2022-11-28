@@ -24,6 +24,10 @@
   <ItemGroup>
     <Content Include="WoWDBDefs\definitions\**" LinkBase="definitions\" CopyToOutputDirectory="Always" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="debug.log" />
+  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="CascLib\CascLib\CascLib.csproj" />

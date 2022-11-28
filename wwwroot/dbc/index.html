@@ -64,7 +64,7 @@
     <div class="container-fluid">
         <form id='dbcform' action='/dbc/' method='GET'>
             <select id='fileFilter' class='form-control form-control-sm'></select>
-            <!--<select id='buildFilter' name='build' class='form-control form-control-sm buildFilter'></select>-->
+            <select id='buildFilter' name='build' class='form-control form-control-sm buildFilter'></select>
             <!--<select id='localeSelection' name='locale' class='form-control form-control-sm buildFilter'>
                 <option value=''>enUS (Default)</option>
             </select>-->
@@ -534,70 +534,70 @@
                 });
         }
 
-        //function refreshVersions() {
-        //    if (currentParams["dbc"] == "")
-        //        return;
+        function refreshVersions() {
+            if (currentParams["dbc"] == "")
+                return;
 
-        //    console.log("Refreshing versions");
-        //    var versionAPIURL = APIBase + "databases/" + currentParams["dbc"] + "/versions";
-        //    if (Settings.changedVersionsOnly)
-        //        versionAPIURL += "?uniqueOnly=true";
+            console.log("Refreshing versions");
+            var versionAPIURL = "/listfile/db2/" + currentParams["dbc"] + "/versions";
+            if (Settings.changedVersionsOnly)
+                versionAPIURL += "?uniqueOnly=true";
 
-        //    fetch(versionAPIURL)
-        //        .then(function (versionResponse) {
-        //            return versionResponse.json();
-        //        }).then(function (data) {
-        //            var buildFilter = document.getElementById('buildFilter');
-        //            buildFilter.innerHTML = "";
+            fetch(versionAPIURL)
+                .then(function (versionResponse) {
+                    return versionResponse.json();
+                }).then(function (data) {
+                    var buildFilter = document.getElementById('buildFilter');
+                    buildFilter.innerHTML = "";
 
-        //            var preselected = false;
-        //            if (Settings.lockedBuild != null && Settings.lockedBuild != "none" && (!data.includes(Settings
-        //                .lockedBuild))) {
-        //                console.log("Locked build is not in dropdown");
+                    var preselected = false;
+                    if (Settings.lockedBuild != null && Settings.lockedBuild != "none" && (!data.includes(Settings
+                        .lockedBuild))) {
+                        console.log("Locked build is not in dropdown");
 
-        //                var option = document.createElement("option");
-        //                option.value = Settings.lockedBuild;
-        //                option.text = Settings.lockedBuild;
-        //                option.selected = true;
-        //                preselected = true;
-        //                buildFilter.appendChild(option);
-        //            }
+                        var option = document.createElement("option");
+                        option.value = Settings.lockedBuild;
+                        option.text = Settings.lockedBuild;
+                        option.selected = true;
+                        preselected = true;
+                        buildFilter.appendChild(option);
+                    }
 
-        //            data.forEach((version) => {
-        //                var option = document.createElement("option");
-        //                option.value = version;
-        //                option.text = version;
-        //                if (!preselected && (option.value == currentParams["build"] || option.value == Settings
-        //                    .lockedBuild)) {
-        //                    option.selected = true;
-        //                }
+                    data.forEach((version) => {
+                        var option = document.createElement("option");
+                        option.value = version;
+                        option.text = version;
+                        if (!preselected && (option.value == currentParams["build"] || option.value == Settings
+                            .lockedBuild)) {
+                            option.selected = true;
+                        }
 
-        //                buildFilter.appendChild(option);
-        //            });
+                        buildFilter.appendChild(option);
+                    });
 
-        //            if (currentParams["build"] == "" || !data.includes(currentParams["build"])) {
-        //                // No build was selected, load table with the latest build
-        //                if (Settings.lockedBuild !== null) {
-        //                    currentParams["build"] = Settings.lockedBuild;
-        //                } else {
-        //                    currentParams["build"] = data[0];
-        //                }
-        //                loadTable();
-        //            }
+                    if (currentParams["build"] == "" || !data.includes(currentParams["build"])) {
+                        // No build was selected, load table with the latest build
+                        if (Settings.lockedBuild !== null) {
+                            currentParams["build"] = Settings.lockedBuild;
+                        } else {
+                            currentParams["build"] = data[0];
+                        }
+                        loadTable();
+                    }
 
-        //            if (Settings.lockedBuild != null && Settings.lockedBuild != "none") {
-        //                buildFilter.disabled = true;
-        //                buildFilter.classList.add("disabled");
-        //                buildFilter.title = "Build locked in settings";
-        //            } else {
-        //                buildFilter.disabled = false;
-        //                buildFilter.classList.remove("disabled");
-        //                buildFilter.title = "";
-        //            }
-        //        }).catch(function (error) {
-        //            console.log("An error occurred retrieving versions: " + error);
-        //        });
-        //}
+                    if (Settings.lockedBuild != null && Settings.lockedBuild != "none") {
+                        buildFilter.disabled = true;
+                        buildFilter.classList.add("disabled");
+                        buildFilter.title = "Build locked in settings";
+                    } else {
+                        buildFilter.disabled = false;
+                        buildFilter.classList.remove("disabled");
+                        buildFilter.title = "";
+                    }
+                }).catch(function (error) {
+                    console.log("An error occurred retrieving versions: " + error);
+                });
+        }
 
         function fkDBSearchChange() {
             // Load headers and fill columns options
@@ -1244,7 +1244,7 @@
             //}
 
             refreshFiles();
-            //refreshVersions();
+            refreshVersions();
             loadTable();
 
             $('#fileFilter').on('change', function () {
@@ -1252,7 +1252,7 @@
                     currentParams["dbc"] = $(this).val();
                     if (document.getElementById("buildFilter")) {
                         clearState = true;
-                        //refreshVersions();
+                        refreshVersions();
                         loadTable();
                         updateDBDButton();
                     } else {
@@ -1261,10 +1261,10 @@
                 }
             });
 
-            //$('#buildFilter').on('change', function () {
-            //    currentParams["build"] = $('#buildFilter').val();
-            //    loadTable();
-            //});
+            $('#buildFilter').on('change', function () {
+                currentParams["build"] = $('#buildFilter').val();
+                loadTable();
+            });
 
             //$('#localeSelection').on('change', function () {
             //    currentParams["locale"] = $('#localeSelection').val();

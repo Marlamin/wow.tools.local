@@ -24,9 +24,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string BuildName()
         {
-            var splitName= CASC.BuildName.Replace("WOW-", "").Split("patch");
-            var buildName = splitName[1].Split("_")[0] + "." + splitName[0];
-            return buildName;
+            return CASC.BuildName;
         }
     }
 }
