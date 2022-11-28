@@ -103,10 +103,12 @@ namespace wow.tools.Local.Controllers
 
         [Route("all")]
         [HttpGet]
-        public async Task<ActionResult> ExportAllCSV(string build, bool useHotfixes = false, bool newLinesInStrings = true, LocaleFlags locale = LocaleFlags.All_WoW)
+        public async Task<ActionResult> ExportAllCSV(string? build, bool useHotfixes = false, bool newLinesInStrings = true, LocaleFlags locale = LocaleFlags.All_WoW)
         {
             Console.WriteLine("Exporting all DBCs build " + build + " and locale " + locale);
-
+            if (build == null)
+                build = CASC.BuildName;
+            
             using (var zip = new MemoryStream())
             {
                 using (var archive = new ZipArchive(zip, ZipArchiveMode.Create))
