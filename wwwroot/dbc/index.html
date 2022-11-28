@@ -68,20 +68,20 @@
             <!--<select id='localeSelection' name='locale' class='form-control form-control-sm buildFilter'>
                 <option value=''>enUS (Default)</option>
             </select>-->
-            <!--<div class='btn-group' style='margin-top: -8px'>-->
-            <!-- data-content='<span class="badge badge-danger">WARNING!</span> CSV exports are going away soon (see link in footer for alternative)!' -->
-            <!--<a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true' data-content='<span class="badge badge-danger">CSV/DB2 exports have been disabled due to excessive scraping.'><i class='fa fa-download'></i> CSV</a>
+            <div class='btn-group'>
+                <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true'><i class='fa fa-download'></i> CSV</a>
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
-                <div class="dropdown-menu">
-                    <a href="" id='downloadDB2Link'><i class='fa fa-download'></i> DB2</a>
+                <div class="dropdown-menu" style="width: 500px">
+                    &nbsp;<a href="" id='downloadDB2Link'><i class='fa fa-download'></i> Download DB2 file</a><br />
+                    &nbsp;<a href="" id='downloadallCSVLink'><i class='fa fa-download'></i> Download ZIP of all DB2s as CSV for this build (will take a bit)</a>
                 </div>
-            </div>-->
+            </div>
             <!--<label class="btn btn-sm btn-info active" style='margin-left: 5px;'>
                 <input type="checkbox" autocomplete="off" id="hotfixToggle"> Use hotfixes?
             </label>-->
-            &nbsp;<a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-toggle='modal' href=''
+            <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-toggle='modal' href=''
                      data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
             <a id='dbdButton' style='vertical-align: top; display: none;' class='btn btn-secondary btn-sm disabled' href=''
                target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
@@ -755,15 +755,11 @@
             $("#dbtable").html(
                 "<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>"
             );
-            //document.getElementById('downloadCSVButton').href = buildURL(currentParams).replace("/dbc/?dbc=", "/dbc/api/export/?name=");
+            document.getElementById('downloadCSVButton').href = buildURL(currentParams).replace("/dbc/?dbc=", "/dbc/export/?name=");
+            document.getElementById('downloadallCSVLink').href = "/dbc/export/all/?build=" + currentParams["build"];
+            document.getElementById('downloadDB2Link').href = "/dbc/export/db2/?tableName=" + currentParams["dbc"] + "&fullBuild=" + currentParams["build"];
 
-            //if (currentParams["locale"] != "") {
-            //    // document.getElementById('downloadDB2Link').href = "/casc/file/db2/?tableName=" + currentParams["dbc"] + "&fullBuild=" + currentParams["build"] + "&locale=" + currentParams["locale"];
-            //} else {
-            //    // document.getElementById('downloadDB2Link').href = "/dbc/api/export/db2/?tableName=" + currentParams["dbc"] + "&fullBuild=" + currentParams["build"];
-            //}
-
-            // document.getElementById('downloadCSVButton').classList.remove("disabled");
+            document.getElementById('downloadCSVButton').classList.remove("disabled");
             $("#loadingMessage").html("Loading..");
 
             let apiArgs = currentParams["dbc"] + "/?build=" + currentParams["build"];
@@ -774,7 +770,7 @@
 
             if (currentParams["hotfixes"]) {
                 apiArgs += "&useHotfixes=true";
-                //document.getElementById('downloadCSVButton').href = document.getElementById('downloadCSVButton').href.replace("&hotfixes=", "&useHotfixes=");
+                document.getElementById('downloadCSVButton').href = document.getElementById('downloadCSVButton').href.replace("&hotfixes=", "&useHotfixes=");
             }
 
             let tableHeaders = "";

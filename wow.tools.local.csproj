@@ -7,17 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="cache\**" />
     <Compile Remove="CascLib\**" />
     <Compile Remove="DBCD\**" />
+    <Compile Remove="dbcs\**" />
     <Compile Remove="WoWDBDefs\**" />
+    <Content Remove="cache\**" />
     <Content Remove="CascLib\**" />
     <Content Remove="DBCD\**" />
+    <Content Remove="dbcs\**" />
     <Content Remove="WoWDBDefs\**" />
+    <EmbeddedResource Remove="cache\**" />
     <EmbeddedResource Remove="CascLib\**" />
     <EmbeddedResource Remove="DBCD\**" />
+    <EmbeddedResource Remove="dbcs\**" />
     <EmbeddedResource Remove="WoWDBDefs\**" />
+    <None Remove="cache\**" />
     <None Remove="CascLib\**" />
     <None Remove="DBCD\**" />
+    <None Remove="dbcs\**" />
     <None Remove="WoWDBDefs\**" />
   </ItemGroup>
 

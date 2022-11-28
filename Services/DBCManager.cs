@@ -131,15 +131,30 @@ namespace wow.tools.local.Services
             Cache = new MemoryCache(new MemoryCacheOptions() { SizeLimit = 250 });
         }
 
-        public List<string> GetDBCNames()
+        public List<string> GetDBCNames(string? build = null)
         {
             var db2s = dbdProvider.definitionLookup.Keys;
             var existingDB2s = new List<string>();
 
             foreach (var db2 in db2s)
             {
-                if (CASC.FileExists("DBFilesClient/" + db2 + ".db2"))
-                    existingDB2s.Add(db2);
+                if(string.IsNullOrEmpty(build) || build == CASC.BuildName)
+                {
+                    if (CASC.FileExists("DBFilesClient/" + db2 + ".db2"))
+                        existingDB2s.Add(db2);
+                }
+                else if(!string.IsNullOrEmpty(SettingsManager.dbcFolder))
+                {
+                    string fileName = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", db2 + ".db2");
+
+                    if (File.Exists(fileName))
+                        existingDB2s.Add(db2);
+
+                    fileName = Path.ChangeExtension(fileName, ".dbc");
+
+                    if (File.Exists(fileName))
+                        existingDB2s.Add(db2);
+                }
             }
 
             return existingDB2s.Order().ToList();

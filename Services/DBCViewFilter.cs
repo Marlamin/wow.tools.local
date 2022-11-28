@@ -83,6 +83,8 @@ namespace wow.tools.local.Services
         /// </summary>
         private void Initialise()
         {
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            
             var param = Expression.Parameter(typeof(DBCDRow), "row");
             var properties = new List<Expression>();
             var filters = new Dictionary<Expression, Predicate<object>>(); // [DBCDRow.Property, Predicate]
