@@ -16,7 +16,8 @@ The latest version can be downloaded [here](https://github.com/Marlamin/wow.tool
 ## Configuration
 1. Open `config.json` in your favorite text editor.
 2. Set `wowFolder` to the directory your WoW is installed to. Do NOT point it to a subdirectory like `_retail_` or anything like that, just the main "World of Warcraft" folder. You can also leave this empty, but this will stream all required files from the internet, which will be rather slow.
-2. Set `wowProduct` to the product you wish to load. For example, Mainline Retail WoW (the default) would be `wow`, Mainline PTR `wowt`, Mainline Beta `wow_beta`, Classic Retail would be `wow_classic`, etc. You can view a full list of product [here](https://wowdev.wiki/TACT#Products).
+3. Set `wowProduct` to the product you wish to load. For example, Mainline Retail WoW (the default) would be `wow`, Mainline PTR `wowt`, Mainline Beta `wow_beta`, Classic Retail would be `wow_classic`, etc. You can view a full list of product [here](https://wowdev.wiki/TACT#Products).  
+4. _**(Optional)**_ If you want to have DBCs/DB2s from other versions be available to the table browser, you can set `dbcFolder` to the path where these files can be found. The contents of this directory **MUST** be structured as follows: `<folder set in dbcFolder>/<x.y.z.build>/dbfilesclient/`, e.g. achievement.dbc for 3.2.0.10192 needs to be in this location: `<folder set in dbcFolder>/3.2.0.10192/dbfilesclient/achievement.dbc`. Depending on system, this DBC/DB2 names might need to be lowercase.
 
 ## Running
 Make sure WoW is closed and Battle.net is idle/closed before starting it and make sure to close it before starting WoW again to make sure you won't run into issues with files being locked and such.
