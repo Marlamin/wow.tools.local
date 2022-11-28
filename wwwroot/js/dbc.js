@@ -213,7 +213,7 @@ function getFlagDescriptions(db, field, value, targetFlags = 0){
     let usedFlags = Array();
     if (targetFlags == 0){
         // eslint-disable-next-line no-undef
-        targetFlags = flagMap.get(db + '.' + field);
+        targetFlags = flagMap.get(db.toLowerCase() + '.' + field);
     }
 
     if (BigInt === undefined){
@@ -253,7 +253,7 @@ function fancyFlagTable(flagArrs){
 
 function getEnum(db, field, value){
     // eslint-disable-next-line no-undef
-    const targetEnum = enumMap.get(db + '.' + field);
+    const targetEnum = enumMap.get(db.toLowerCase() + '.' + field);
     return getEnumVal(targetEnum, value);
 }
 
