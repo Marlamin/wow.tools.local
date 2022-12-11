@@ -54,9 +54,16 @@ namespace wow.tools.local.Controllers.DBC
                 }
             }
 
+            var result = new PeekResult { values = new Dictionary<string, string>() };
+
+            if (name == "filedata")
+            {
+                result.values.Add("Sorry", "File tooltips not yet implemented");
+                return result;
+            }
+
             var storage = await dbcManager.GetOrLoad(name, build, useHotfixes, LocaleFlags.All_WoW, pushIDList);
 
-            var result = new PeekResult { values = new Dictionary<string, string>() };
 
             if (!storage.Values.Any())
             {
