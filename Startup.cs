@@ -44,7 +44,12 @@ namespace wow.tools.local
 
             app.UseStaticFiles(new StaticFileOptions
             {
-                ContentTypeProvider = extensionProvider
+                ContentTypeProvider = extensionProvider,
+                OnPrepareResponse = sfrContext =>
+                {
+                    sfrContext.Context.Response.Headers.Add("Expires", "-1");
+                    sfrContext.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
+                }
             });
         }
     }
