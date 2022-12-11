@@ -302,7 +302,7 @@ footer{
 	background-color: var(--background-color);
 	font-weight: 500;
 	border-top: 1px solid var(--border-color);
-	height: 55px;
+	height: 30px;
 }
 
 footer p{
