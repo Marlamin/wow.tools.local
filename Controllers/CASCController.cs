@@ -9,14 +9,20 @@ namespace wow.tools.local.Controllers
     {
         [Route("fdid")]
         [HttpGet]
-        public ActionResult File(uint fileDataID)
+        public ActionResult File(uint fileDataID, string filename = "")
         {
             if (!CASC.FileExists(fileDataID))
                 return NotFound();
 
+            if (string.IsNullOrEmpty(filename))
+            {
+                // TODO: Guess extension
+                filename = fileDataID.ToString();
+            }
+
             return new FileStreamResult(CASC.GetFileByID(fileDataID), "application/octet-stream")
             {
-                FileDownloadName = fileDataID.ToString()
+                FileDownloadName = filename
             };
         }
 
