@@ -72,7 +72,7 @@
             <!--<select id='localeSelection' name='locale' class='form-control form-control-sm buildFilter'>
                 <option value=''>enUS (Default)</option>
             </select>-->
-            <div class='btn-group'>
+            <div class='btn-group' style="margin-top: -7px">
                 <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true'><i class='fa fa-download'></i> CSV</a>
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     <span class="sr-only">Toggle Dropdown</span>
@@ -82,7 +82,7 @@
                     &nbsp;<a href="" id='downloadallCSVLink'><i class='fa fa-download'></i> Download ZIP of all DB2s as CSV for this build (will take a bit)</a>
                 </div>
             </div>
-            <label class="btn btn-sm btn-info active" style='margin-left: 5px;'>
+            <label class="btn btn-sm btn-info active" >
                 <input type="checkbox" autocomplete="off" id="hotfixToggle"> Use hotfixes?
             </label>
             <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-toggle='modal' href=''
@@ -269,8 +269,15 @@
             enableTooltips: true,
             showDBDButton: false,
             showFKButton: false,
-            lockedBuild: null
-        }
+            lockedBuild: null,
+            localBuildName: ""
+        };
+
+        (async () => {
+            const response = await fetch("/casc/buildname");
+            Settings.localBuildName = await response.text();
+        })();
+      
 
         var Locales = {
             koKR: "Korean",
@@ -285,7 +292,7 @@
             ptBR: "Brazilian Portugese",
             itIT: "Italian",
             ptPT: "Portugese"
-        }
+        };
 
         let clearState = false;
 
@@ -570,7 +577,11 @@
                     data.forEach((version) => {
                         var option = document.createElement("option");
                         option.value = version;
-                        option.text = version;
+                        if (version == Settings.localBuildName) {
+                            option.text = version;
+                        } else {
+                            option.text = version + " (disk)";
+                        }
                         if (!preselected && (option.value == currentParams["build"] || option.value == Settings
                             .lockedBuild)) {
                             option.selected = true;
@@ -1236,12 +1247,12 @@
             currentParams["build"] = await response.text();
 
             currentParams["hotfixes"] = false;
-            //if (vars["hotfixes"] == "true") {
-            //    currentParams["hotfixes"] = true;
-            //    document.getElementById('hotfixToggle').checked = true;
-            //} else {
-            //    document.getElementById('hotfixToggle').checked = false;
-            //}
+            if (vars["hotfixes"] == "true") {
+                currentParams["hotfixes"] = true;
+                document.getElementById('hotfixToggle').checked = true;
+            } else {
+                document.getElementById('hotfixToggle').checked = false;
+            }
 
             refreshFiles();
             refreshVersions();
