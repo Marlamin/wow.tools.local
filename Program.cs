@@ -17,15 +17,6 @@ namespace wow.tools.local
                 Console.WriteLine("Exception initializing CASC: " + e.Message);
             }
 
-            try
-            {
-                await CASC.LoadListfile();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception loading listfile: " + e.Message);
-            }
-
             CreateWebHostBuilder(args).Build().Run();
         }
 

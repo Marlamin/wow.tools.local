@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Services;
-using wow.tools.Services;
 
 namespace wow.tools.local.Controllers
 {
@@ -27,7 +26,6 @@ namespace wow.tools.local.Controllers
             };
 
             var listfileResults = new Dictionary<int, string>();
-
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
@@ -74,7 +72,7 @@ namespace wow.tools.local.Controllers
             };
 
             var listfileResults = new Dictionary<int, string>();
-            
+
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
@@ -86,13 +84,13 @@ namespace wow.tools.local.Controllers
                 listfileResults = CASC.M2Listfile.ToDictionary(x => x.Key, x => x.Value);
                 result.recordsFiltered = CASC.M2Listfile.Count;
             }
-            
+
             var rows = new List<string>();
 
             foreach (var listfileResult in listfileResults.Skip(start).Take(length))
             {
                 result.data.Add(
-                    new List<string>() { 
+                    new List<string>() {
                         listfileResult.Key.ToString(), // ID
                         listfileResult.Value, // Filename 
                         "", // Lookup
@@ -109,9 +107,9 @@ namespace wow.tools.local.Controllers
         public string Info(int filename, string filedataid)
         {
             var split = filedataid.Split(",");
-            if(split.Length > 1)
+            if (split.Length > 1)
             {
-                foreach(var id in split)
+                foreach (var id in split)
                 {
                     if (CASC.Listfile.TryGetValue(int.Parse(id), out string name))
                     {
@@ -154,7 +152,7 @@ namespace wow.tools.local.Controllers
                 foreach (var dbcFile in dbcFiles)
                 {
                     var splitFolders = dbcFile.DirectoryName.Split(Path.DirectorySeparatorChar);
-                    foreach(var splitFolder in splitFolders)
+                    foreach (var splitFolder in splitFolders)
                     {
                         var buildTest = splitFolder.Split(".");
                         if (buildTest.Length == 4 && buildTest.All(s => s.All(char.IsDigit)))

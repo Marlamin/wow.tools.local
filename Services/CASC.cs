@@ -1,7 +1,4 @@
 ﻿using CASCLib;
-using System;
-using System.Net;
-using System.Reflection.Metadata.Ecma335;
 
 namespace wow.tools.local.Services
 {
@@ -13,8 +10,10 @@ namespace wow.tools.local.Services
         public static Dictionary<int, string> Listfile = new();
         public static Dictionary<string, int> ListfileReverse = new();
         public static SortedDictionary<int, string> M2Listfile = new();
+        public static List<int> AvailableFDIDs = new();
+
         private static HttpClient WebClient = new HttpClient();
-        public static void InitCasc(string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
+        public static async void InitCasc(string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
         {
             CASCConfig.LoadFlags &= ~(LoadFlags.Download | LoadFlags.Install);
             CASCConfig.ValidateData = false;
@@ -34,9 +33,25 @@ namespace wow.tools.local.Services
 
             var splitName = cascHandler.Config.BuildName.Replace("WOW-", "").Split("patch");
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
-            
+
             cascHandler.Root.SetFlags(locale);
-            
+
+            if (cascHandler.Root is WowTVFSRootHandler wtrh)
+            {
+                AvailableFDIDs = wtrh.RootEntries.Keys.ToList();
+            }
+            else if (cascHandler.Root is WowRootHandler wrh)
+            {
+                AvailableFDIDs = wrh.RootEntries.Keys.ToList();
+            }
+
+            Listfile = new Dictionary<int, string>();
+            ListfileReverse = new Dictionary<string, int>();
+            M2Listfile = new SortedDictionary<int, string>();
+
+            AvailableFDIDs.ForEach(x => Listfile.Add(x, ""));
+            await LoadListfile();
+
             IsCASCInit = true;
             Console.WriteLine("Finished loading " + BuildName);
         }
@@ -67,15 +82,14 @@ namespace wow.tools.local.Services
                 var splitLine = line.Split(";");
                 var fdid = int.Parse(splitLine[0]);
 
-                if (!cascHandler.FileExists(fdid))
-                    continue;
+                if (Listfile.ContainsKey(fdid))
+                {
+                    Listfile[fdid] = splitLine[1];
+                    ListfileReverse.Add(splitLine[1], fdid);
 
-                Listfile.Add(fdid, splitLine[1]);
-                ListfileReverse.Add(splitLine[1], fdid);
-
-                // Pre-filtered M2 list
-                if (line.EndsWith(".m2"))
-                    M2Listfile.Add(fdid, splitLine[1]);
+                    if (line.EndsWith(".m2"))
+                        M2Listfile.Add(fdid, splitLine[1]);
+                }
             }
 
             return true;
@@ -87,7 +101,7 @@ namespace wow.tools.local.Services
             {
                 return cascHandler.OpenFile((int)filedataid);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("Exception retrieving FileDataID " + filedataid + ": " + e.Message);
                 return new MemoryStream();
@@ -100,7 +114,7 @@ namespace wow.tools.local.Services
             {
                 return cascHandler.OpenFile(fileDataID);
             }
-            
+
             throw new FileNotFoundException("Could not find " + filename + " in listfile");
         }
 
@@ -113,7 +127,7 @@ namespace wow.tools.local.Services
 
             return false;
         }
-        
+
         public static bool FileExists(uint filedataid)
         {
             return cascHandler.FileExists((int)filedataid);

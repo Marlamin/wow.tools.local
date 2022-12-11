@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers
@@ -40,9 +39,9 @@ namespace wow.tools.local.Controllers
                 result.data = new List<List<string>>();
             }
 
-            if(SettingsManager.wowFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.wowFolder, ".build.info")))
+            if (SettingsManager.wowFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.wowFolder, ".build.info")))
             {
-                foreach(var line in System.IO.File.ReadAllLines(Path.Combine(SettingsManager.wowFolder, ".build.info")))
+                foreach (var line in System.IO.File.ReadAllLines(Path.Combine(SettingsManager.wowFolder, ".build.info")))
                 {
                     var splitLine = line.Split("|");
                     if (splitLine[0] == "Branch!STRING:0")
