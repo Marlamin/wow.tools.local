@@ -65,16 +65,14 @@
         </div>
     </nav>
     <div class="container-fluid">
-        <h3 style="float: left">1688 builds in DB</h3>
         <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-            <div class="row"><div class="col-sm-12 col-md-6"><div class="dataTables_length" id="buildtable_length"><label>Show <select name="buildtable_length" aria-controls="buildtable" class="custom-select custom-select-sm form-control form-control-sm"><option value="25">25</option><option value="100">100</option><option value="500">500</option><option value="1000">1,000</option></select> entries</label></div></div><div class="col-sm-12 col-md-6"><div id="buildtable_filter" class="dataTables_filter"><label>Search:<input type="search" class="form-control form-control-sm" placeholder="" aria-controls="buildtable"></label></div></div></div><div class="row">
                 <div class="col-sm-12">
                     <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
-                        <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Build config</th><th>Patch config</th><th>CDN config</th><th>Compiled at (PT)</th><th>Detected at (CEST)<th>&nbsp;</th></tr></thead>
+                        <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Build config</th><th>CDN config</th><th>&nbsp;</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
-            </div><div class="row"><div class="col-sm-12 col-md-5"><div class="dataTables_info" id="buildtable_info" role="status" aria-live="polite">Showing 1 to 25 of 1,688 entries</div></div><div class="col-sm-12 col-md-7"><div class="dataTables_paginate paging_input" id="buildtable_paginate"><span class="first paginate_button page-item disabled" id="buildtable_first">First</span><span class="previous paginate_button page-item disabled" id="buildtable_previous">Previous</span><span>Page </span><input class="paginate_input" type="text"><span> of </span><span class="paginate_total">68</span><span></span><span class="next paginate_button page-item" id="buildtable_next">Next</span><span class="last paginate_button page-item" id="buildtable_last">Last</span></div></div></div>
+            </div>
         </div>
     </div>
     <footer>
@@ -86,14 +84,45 @@
         var table = $('#buildtable').DataTable({
             "pagingType": "input",
             "pageLength": 25,
+            "searching": false,
+            "serverSide": true,
+            "ajax": {
+                url: "/casc/builds",
+                type: "POST"
+            },
             "order": [[1, 'desc']],
             "lengthMenu": [[25, 100, 500, 1000], [25, 100, 500, 1000]],
             "columnDefs": [
                 {
-                    "targets": [2, 3, 4, 5, 8],
+                    "targets": [2, 3, 4],
                     "orderable": false,
-                }],
+                },
+                {
+                    "targets": 5,
+                    "render": function (data, type, full, meta) {
+                        let isActive = data == "True";
+
+                        if (isActive) {
+                            return '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a>';
+                        } else {
+                            return '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Switch to build</a>';
+                        }
+                    }
+                }
+            ],
         });
+
+        async function switchToProduct(product) {
+            var button = document.querySelector('[data-product="' + product + '"]');
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Switching, please wait!";
+            button.classList.remove("btn-success");
+            button.classList.add("btn-danger");
+            const response = await fetch("/casc/switchProduct?product=" + product);
+            var result = await response.text();
+            if (result == "true") {
+                location.reload();
+            }
+        }
     </script>
 </body>
 </html>

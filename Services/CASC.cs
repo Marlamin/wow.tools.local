@@ -14,7 +14,7 @@ namespace wow.tools.local.Services
         public static Dictionary<string, int> ListfileReverse = new();
         public static SortedDictionary<int, string> M2Listfile = new();
         private static HttpClient WebClient = new HttpClient();
-        public static void InitCasc(BackgroundWorkerEx worker = null, string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
+        public static void InitCasc(string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
         {
             CASCConfig.LoadFlags &= ~(LoadFlags.Download | LoadFlags.Install);
             CASCConfig.ValidateData = false;
@@ -23,13 +23,13 @@ namespace wow.tools.local.Services
             if (basedir == null)
             {
                 Console.WriteLine("Initializing CASC from web for program " + program);
-                cascHandler = CASCHandler.OpenOnlineStorage(program, "eu", worker);
+                cascHandler = CASCHandler.OpenOnlineStorage(program, SettingsManager.region);
             }
             else
             {
                 basedir = basedir.Replace("_retail_", "").Replace("_ptr_", "");
                 Console.WriteLine("Initializing CASC from local disk with basedir " + basedir + " and program " + program);
-                cascHandler = CASCHandler.OpenLocalStorage(basedir, program, worker);
+                cascHandler = CASCHandler.OpenLocalStorage(basedir, program);
             }
 
             var splitName = cascHandler.Config.BuildName.Replace("WOW-", "").Split("patch");

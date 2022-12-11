@@ -10,7 +10,7 @@ namespace wow.tools.local
         {
             try
             {
-                CASC.InitCasc(new BackgroundWorkerEx(), SettingsManager.wowFolder, SettingsManager.wowProduct);
+                CASC.InitCasc(SettingsManager.wowFolder, SettingsManager.wowProduct);
             }
             catch (Exception e)
             {
