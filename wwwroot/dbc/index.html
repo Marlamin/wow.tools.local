@@ -82,9 +82,9 @@
                     &nbsp;<a href="" id='downloadallCSVLink'><i class='fa fa-download'></i> Download ZIP of all DB2s as CSV for this build (will take a bit)</a>
                 </div>
             </div>
-            <!--<label class="btn btn-sm btn-info active" style='margin-left: 5px;'>
+            <label class="btn btn-sm btn-info active" style='margin-left: 5px;'>
                 <input type="checkbox" autocomplete="off" id="hotfixToggle"> Use hotfixes?
-            </label>-->
+            </label>
             <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-toggle='modal' href=''
                data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
             <a id='dbdButton' style='vertical-align: top; display: none;' class='btn btn-secondary btn-sm disabled' href=''
@@ -785,14 +785,14 @@
 
             let hotfixedIDs = [];
 
-            if (currentParams["hotfixes"]) {
-                fetch(APIBase + "databases/" + currentParams["dbc"] + "/hotfixes?build=" + buildOnly)
-                    .then(function (response) {
-                        return response.json();
-                    }).then(function (data) {
-                        hotfixedIDs = data;
-                    });
-            }
+            //if (currentParams["hotfixes"]) {
+            //    fetch(APIBase + "databases/" + currentParams["dbc"] + "/hotfixes?build=" + buildOnly)
+            //        .then(function (response) {
+            //            return response.json();
+            //        }).then(function (data) {
+            //            hotfixedIDs = data;
+            //        });
+            //}
 
             $.ajax({
                 "url": "/dbc/header/" + currentParams["dbc"] + "/?build=" + currentParams["build"],

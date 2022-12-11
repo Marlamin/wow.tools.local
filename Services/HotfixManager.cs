@@ -10,69 +10,23 @@ namespace wow.tools.local.Services
     {
         public static Dictionary<uint, HotfixReader> hotfixReaders = new Dictionary<uint, HotfixReader>();
 
-        public static Dictionary<uint, List<string>> GetHotfixDBsPerBuild(uint targetBuild = 0)
+        public static void LoadCaches()
         {
-            Console.WriteLine("Listing hotfixes for build " + targetBuild);
-            if (targetBuild == 0)
-                throw new Exception("Tried reloading hotfixes for invalid build " + targetBuild);
-
-            var filesPerBuild = new Dictionary<uint, List<string>>();
-
-            if (!filesPerBuild.ContainsKey(targetBuild))
+            if (SettingsManager.wowFolder == null)
             {
-                filesPerBuild.Add(targetBuild, Directory.GetFiles("caches", "DBCache-" + targetBuild + "-*.bin").ToList());
+                Console.WriteLine("No WoW folder set, skipping hotfix load");
+                return;
             }
 
-            return filesPerBuild;
-        }
+            Console.WriteLine("Reloading all hotfixes..");
+            hotfixReaders.Clear();
 
-        public static void LoadCaches(uint targetBuild = 0)
-        {
-            var filesPerBuild = GetHotfixDBsPerBuild(targetBuild);
-
-            if (targetBuild != 0)
+            foreach (var file in Directory.GetFiles(SettingsManager.wowFolder, "DBCache.bin", SearchOption.AllDirectories))
             {
-                Console.WriteLine("Reloading hotfixes for build " + targetBuild + "..");
-                hotfixReaders.Remove(targetBuild);
+                var reader = new HotfixReader(file);
+                hotfixReaders.Add((uint)reader.BuildId, reader);
+                Console.WriteLine("Loaded hotfixes for build " + reader.BuildId);
             }
-            else
-            {
-                Console.WriteLine("Reloading all hotfixes..");
-                hotfixReaders.Clear();
-            }
-
-            foreach (var fileList in filesPerBuild)
-            {
-                if (fileList.Value.Count == 0)
-                    continue;
-                hotfixReaders.Add(fileList.Key, new HotfixReader(fileList.Value[0]));
-                hotfixReaders[fileList.Key].CombineCaches(fileList.Value.ToArray());
-                Console.WriteLine("Loaded " + fileList.Value.Count + " hotfix DBs for build " + fileList.Key + "!");
-            }
-        }
-
-        public static void LoadCache(uint targetBuild, string file)
-        {
-            if (!hotfixReaders.ContainsKey(targetBuild))
-            {
-                LoadCaches(targetBuild);
-            }
-            else
-            {
-                Console.WriteLine("Adding " + file + " for " + targetBuild + " to loaded caches");
-                hotfixReaders[targetBuild].CombineCache(file);
-            }
-        }
-
-        public static void AddCache(MemoryStream cache, uint build, int userID)
-        {
-            var filename = Path.Combine("caches", "DBCache-" + build + "-" + userID + "-" + ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds() + "-" + DateTime.Now.Millisecond + ".bin");
-            using (var stream = File.Create(filename))
-            {
-                cache.CopyTo(stream);
-            }
-
-            LoadCache(build, filename);
         }
     }
 }
