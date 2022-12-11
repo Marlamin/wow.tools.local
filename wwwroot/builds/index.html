@@ -1,4 +1,4 @@
-﻿
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -65,13 +65,36 @@
         </div>
     </nav>
     <div class="container-fluid">
-        Nothing here yet.
+        <h3 style="float: left">1688 builds in DB</h3>
+        <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+            <div class="row"><div class="col-sm-12 col-md-6"><div class="dataTables_length" id="buildtable_length"><label>Show <select name="buildtable_length" aria-controls="buildtable" class="custom-select custom-select-sm form-control form-control-sm"><option value="25">25</option><option value="100">100</option><option value="500">500</option><option value="1000">1,000</option></select> entries</label></div></div><div class="col-sm-12 col-md-6"><div id="buildtable_filter" class="dataTables_filter"><label>Search:<input type="search" class="form-control form-control-sm" placeholder="" aria-controls="buildtable"></label></div></div></div><div class="row">
+                <div class="col-sm-12">
+                    <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
+                        <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Build config</th><th>Patch config</th><th>CDN config</th><th>Compiled at (PT)</th><th>Detected at (CEST)<th>&nbsp;</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div><div class="row"><div class="col-sm-12 col-md-5"><div class="dataTables_info" id="buildtable_info" role="status" aria-live="polite">Showing 1 to 25 of 1,688 entries</div></div><div class="col-sm-12 col-md-7"><div class="dataTables_paginate paging_input" id="buildtable_paginate"><span class="first paginate_button page-item disabled" id="buildtable_first">First</span><span class="previous paginate_button page-item disabled" id="buildtable_previous">Previous</span><span>Page </span><input class="paginate_input" type="text"><span> of </span><span class="paginate_total">68</span><span></span><span class="next paginate_button page-item" id="buildtable_next">Next</span><span class="last paginate_button page-item" id="buildtable_last">Last</span></div></div></div>
+        </div>
     </div>
     <footer>
         <div class="container text-muted">
             <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='/about.php'>Privacy Policy/Open Source</a></p>
         </div>
     </footer>
+    <script type='text/javascript'>
+        var table = $('#buildtable').DataTable({
+            "pagingType": "input",
+            "pageLength": 25,
+            "order": [[1, 'desc']],
+            "lengthMenu": [[25, 100, 500, 1000], [25, 100, 500, 1000]],
+            "columnDefs": [
+                {
+                    "targets": [2, 3, 4, 5, 8],
+                    "orderable": false,
+                }],
+        });
+    </script>
 </body>
 </html>
 
