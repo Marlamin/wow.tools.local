@@ -14,7 +14,54 @@ namespace wow.tools.local.Controllers
         {
             this.dbcManager = dbcManager as DBCManager;
         }
-        
+
+        [Route("files")]
+        [HttpGet]
+        public DataTablesResult FileDataTables(int draw, int start, int length)
+        {
+            var result = new DataTablesResult()
+            {
+                draw = draw,
+                recordsTotal = CASC.M2Listfile.Count,
+                data = new List<List<string>>()
+            };
+
+            var listfileResults = new Dictionary<int, string>();
+
+            if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
+            {
+                var searchStr = search.ToString().ToLower();
+                listfileResults = CASC.Listfile.Where(x => x.Value.ToLower().Contains(searchStr)).ToDictionary(x => x.Key, x => x.Value);
+                result.recordsFiltered = listfileResults.Count();
+            }
+            else
+            {
+                listfileResults = CASC.Listfile;
+                result.recordsFiltered = CASC.Listfile.Count;
+            }
+
+            var sortedResults = listfileResults.OrderBy(x => x.Key);
+
+            var rows = new List<string>();
+
+            foreach (var listfileResult in sortedResults.Skip(start).Take(length))
+            {
+                result.data.Add(
+                    new List<string>() {
+                        listfileResult.Key.ToString(), // ID
+                        listfileResult.Value, // Filename 
+                        "", // Lookup
+                        "", // Versions
+                        Path.GetExtension(listfileResult.Value).Replace(".", ""), // Type
+                        "", // Extra data
+                        "", // ?
+                        "" // ?
+                    });
+            }
+
+            return result;
+        }
+
         [Route("datatables")]
         [HttpGet]
         public DataTablesResult DataTables(int draw, int start, int length)
