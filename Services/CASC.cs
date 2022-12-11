@@ -1,4 +1,5 @@
 ﻿using CASCLib;
+using System;
 using System.Net;
 using System.Reflection.Metadata.Ecma335;
 
@@ -12,7 +13,7 @@ namespace wow.tools.local.Services
         public static Dictionary<int, string> Listfile = new();
         public static Dictionary<string, int> ListfileReverse = new();
         public static SortedDictionary<int, string> M2Listfile = new();
-        
+        private static HttpClient WebClient = new HttpClient();
         public static void InitCasc(BackgroundWorkerEx worker = null, string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
         {
             CASCConfig.LoadFlags &= ~(LoadFlags.Download | LoadFlags.Install);
@@ -40,15 +41,15 @@ namespace wow.tools.local.Services
             Console.WriteLine("Finished loading " + BuildName);
         }
 
-        public static void LoadListfile()
+        public async static Task<bool> LoadListfile()
         {
             if (!File.Exists("listfile.csv"))
             {
                 Console.WriteLine("Downloading listfile");
-                using (var client = new WebClient())
-                {
-                    client.DownloadFile(SettingsManager.listfileURL, "listfile.csv");
-                }
+
+                using var s = await WebClient.GetStreamAsync(SettingsManager.listfileURL);
+                using var fs = new FileStream("listfile.csv", FileMode.CreateNew);
+                await s.CopyToAsync(fs);
             }
 
             if (!File.Exists("listfile.csv"))
@@ -76,6 +77,8 @@ namespace wow.tools.local.Services
                 if (line.EndsWith(".m2"))
                     M2Listfile.Add(fdid, splitLine[1]);
             }
+
+            return true;
         }
 
         public static Stream GetFileByID(uint filedataid)

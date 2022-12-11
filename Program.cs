@@ -6,7 +6,7 @@ namespace wow.tools.local
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public async static Task Main(string[] args)
         {
             try
             {
@@ -19,7 +19,7 @@ namespace wow.tools.local
 
             try
             {
-                CASC.LoadListfile();
+                await CASC.LoadListfile();
             }
             catch (Exception e)
             {
