@@ -138,12 +138,12 @@ namespace wow.tools.local.Services
 
             foreach (var db2 in db2s)
             {
-                if(string.IsNullOrEmpty(build) || build == CASC.BuildName)
+                if (string.IsNullOrEmpty(build) || build == CASC.BuildName)
                 {
                     if (CASC.FileExists("DBFilesClient/" + db2 + ".db2"))
                         existingDB2s.Add(db2);
                 }
-                else if(!string.IsNullOrEmpty(SettingsManager.dbcFolder))
+                else if (!string.IsNullOrEmpty(SettingsManager.dbcFolder))
                 {
                     string fileName = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", db2 + ".db2");
 

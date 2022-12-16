@@ -70,8 +70,8 @@
             <select id='fileFilter' class='form-control form-control-sm'></select>
             <select id='buildFilter' name='build' class='form-control form-control-sm buildFilter'></select>
             <!--<select id='localeSelection' name='locale' class='form-control form-control-sm buildFilter'>
-                <option value=''>enUS (Default)</option>
-            </select>-->
+        <option value=''>enUS (Default)</option>
+    </select>-->
             <div class='btn-group' style="margin-top: -7px">
                 <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true'><i class='fa fa-download'></i> CSV</a>
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -82,15 +82,16 @@
                     &nbsp;<a href="" id='downloadallCSVLink'><i class='fa fa-download'></i> Download ZIP of all DB2s as CSV for this build (will take a bit)</a>
                 </div>
             </div>
-            <label class="btn btn-sm btn-info active" >
+            <label class="btn btn-sm btn-info active">
                 <input type="checkbox" autocomplete="off" id="hotfixToggle"> Use hotfixes?
             </label>
             <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-toggle='modal' href=''
                data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
             <a id='dbdButton' style='vertical-align: top; display: none;' class='btn btn-secondary btn-sm disabled' href=''
                target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
-            <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-danger btn-sm'
+            <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-secondary btn-sm'
                data-toggle='modal' href='' data-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
+            <a style='vertical-align: top;' id='reloadDefsButton' class='btn btn-danger btn-sm' onclick="reloadDefs();" href="#"><i class='fa fa-refresh'></i> Reload DBD/DB2/DBCache</a>
         </form><br>
         <div id='tableContainer'>
             <br>
@@ -295,6 +296,12 @@
         };
 
         let clearState = false;
+
+        async function reloadDefs() {
+            const response = await fetch("/dbc/reload");
+            console.log(await response.text());
+            window.location.reload();
+        }
 
         function updateDBDButton() {
             console.log("updating button");
