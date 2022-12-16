@@ -15,6 +15,8 @@ namespace wow.tools.local.Services
         private static HttpClient WebClient = new HttpClient();
         public static async void InitCasc(string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
         {
+            WebClient.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
+            
             CASCConfig.LoadFlags &= ~(LoadFlags.Download | LoadFlags.Install);
             CASCConfig.ValidateData = false;
             CASCConfig.ThrowOnFileNotFound = false;
@@ -50,7 +52,10 @@ namespace wow.tools.local.Services
             M2Listfile = new SortedDictionary<int, string>();
 
             AvailableFDIDs.ForEach(x => Listfile.Add(x, ""));
-            await LoadListfile();
+
+            var listfileRes = await LoadListfile();
+            if (!listfileRes)
+                throw new Exception("Failed to load listfile");
 
             IsCASCInit = true;
             Console.WriteLine("Finished loading " + BuildName);
@@ -58,12 +63,28 @@ namespace wow.tools.local.Services
 
         public async static Task<bool> LoadListfile()
         {
-            if (!File.Exists("listfile.csv"))
+            var download = false;
+
+            if (File.Exists("listfile.csv"))
+            {
+                var info = new FileInfo("listfile.csv");
+                if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
+                {
+                    Console.WriteLine("Listfile outdated, redownloading..");
+                    download = true;
+                }
+            }
+            else
+            {
+                download = true;
+            }
+
+            if (download)
             {
                 Console.WriteLine("Downloading listfile");
 
                 using var s = await WebClient.GetStreamAsync(SettingsManager.listfileURL);
-                using var fs = new FileStream("listfile.csv", FileMode.CreateNew);
+                using var fs = new FileStream("listfile.csv", FileMode.OpenOrCreate);
                 await s.CopyToAsync(fs);
             }
 
@@ -90,6 +111,49 @@ namespace wow.tools.local.Services
                     if (line.EndsWith(".m2"))
                         M2Listfile.Add(fdid, splitLine[1]);
                 }
+            }
+
+            return true;
+        }
+
+        public async static Task<bool> LoadKeys()
+        {
+            var download = false;
+            if (File.Exists("TactKey.csv"))
+            {
+                var info = new FileInfo("TactKey.csv");
+                if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
+                {
+                    Console.WriteLine("TACT Keys outdated, redownloading..");
+                    download = true;
+                }
+            }
+            else
+            {
+                download = true;
+            }
+
+            if (download)
+            {
+                Console.WriteLine("Downloading TACT keys");
+
+                using var s = await WebClient.GetStreamAsync(SettingsManager.tactKeyURL);
+                List<string> tactKeyLines = new();
+
+                using (var sr = new StreamReader(s))
+                {
+                    while (!sr.EndOfStream)
+                    {
+                        var line = sr.ReadLine();
+                        if (string.IsNullOrEmpty(line))
+                            continue;
+
+                        var splitLine = line.Split(" ");
+                        tactKeyLines.Add(splitLine[0] + ";" + splitLine[1]);
+                    }
+                }
+
+                File.WriteAllLines("TactKey.csv", tactKeyLines);
             }
 
             return true;

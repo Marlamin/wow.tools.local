@@ -400,6 +400,9 @@ FodyWeavers.xsd
 # Listfile
 listfile.csv
 
+# TACT keys
+TactKey.csv
+
 # Other stuff
 dbcs
 cache

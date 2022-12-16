@@ -4,6 +4,7 @@
     {
         public static string definitionDir;
         public static string listfileURL;
+        public static string tactKeyURL;
         public static string? wowFolder;
         public static string dbcFolder;
         public static string wowProduct;
@@ -19,6 +20,7 @@
             var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
             definitionDir = config.GetSection("config")["definitionDir"];
             listfileURL = config.GetSection("config")["listfileURL"];
+            tactKeyURL = config.GetSection("config")["tactKeyURL"];
 
             if (config.GetSection("config")["region"] != null)
             {

@@ -10,6 +10,10 @@ namespace wow.tools.local
         {
             try
             {
+                var keyRes = await CASC.LoadKeys();
+                if (!keyRes)
+                    throw new Exception("Failed to load TACT keys");
+
                 CASC.InitCasc(SettingsManager.wowFolder, SettingsManager.wowProduct);
             }
             catch (Exception e)
