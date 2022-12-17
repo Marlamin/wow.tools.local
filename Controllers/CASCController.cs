@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata.Ecma335;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers
@@ -20,7 +21,11 @@ namespace wow.tools.local.Controllers
                 filename = fileDataID.ToString();
             }
 
-            return new FileStreamResult(CASC.GetFileByID(fileDataID), "application/octet-stream")
+            var file = CASC.GetFileByID(fileDataID);
+            if(file == null)
+                return NotFound();
+
+            return new FileStreamResult(file, "application/octet-stream")
             {
                 FileDownloadName = filename
             };
@@ -80,6 +85,73 @@ namespace wow.tools.local.Controllers
         public bool SwitchProduct(string product)
         {
             CASC.InitCasc(SettingsManager.wowFolder, product);
+            return true;
+        }
+
+        [Route("analyzeUnknown")]
+        [HttpGet]
+        public bool AnalyzeUnknown()
+        {
+            var unknownFiles = CASC.Listfile.Where(x => x.Value == "").OrderByDescending(x => x.Key);
+            Console.WriteLine("Analyzing " + unknownFiles.Count() + " unknown files");
+            Parallel.ForEach(unknownFiles, unknownFile =>
+            {
+                try
+                {
+                    var file = CASC.GetFileByID((uint)unknownFile.Key);
+                    if(file == null)
+                    {
+                        return;
+                    }
+
+                    using (var bin = new BinaryReader(file))
+                    {
+                        if (bin.BaseStream.Length < 4)
+                            return;
+
+                        var magic = bin.ReadChars(4);
+                        var type = "unk";
+                        var magicString = new string(magic);
+                        switch (magicString)
+                        {
+                            case "MD21":
+                            case "MD20":
+                                type = "m2";
+                                break;
+                            case "SKIN":
+                                type = "skin";
+                                break;
+                            case "OggS":
+                                type = "ogg";
+                                break;
+                            case "BLP2":
+                                type = "blp";
+                                break;
+                            case "REVM":
+                                type = "wmoadt";
+                                break;
+                            default:
+                                Console.WriteLine("Unknown magic " + magicString);
+                                break;
+                        }
+
+                        if (type != "unk")
+                        {
+                            Console.WriteLine("Detected " + unknownFile.Key + " as " + type);
+                            CASC.Listfile[unknownFile.Key] = "unknown/" + unknownFile.Key + "." + type;
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    if(!e.Message.Contains("nknown keyname"))
+                    {
+                        Console.WriteLine("Failed to guess type for file " + unknownFile.Key + ": " + e.Message + "\n" + e.StackTrace);
+                    }
+                  
+                }
+              
+            });
             return true;
         }
     }

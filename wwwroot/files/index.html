@@ -83,6 +83,7 @@
             <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
             <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
             <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
+            <a style='vertical-align: top;' id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
         </div>
         <div id='files_treeFilter' style='display: none'>
             <input type='text' id='treeFilter' oninput='treeFilterChange(this)'>
@@ -135,6 +136,12 @@
             showFileType: true,
             showFileBranch: true,
             showFileTree: false
+        }
+
+        async function analyzeFiles() {
+            const response = await fetch("/casc/analyzeUnknown");
+            console.log(await response.text());
+            window.location.reload();
         }
 
         function loadSettings() {

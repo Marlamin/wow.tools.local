@@ -159,7 +159,7 @@ namespace wow.tools.local.Services
             return true;
         }
 
-        public static Stream GetFileByID(uint filedataid)
+        public static Stream? GetFileByID(uint filedataid)
         {
             try
             {
@@ -167,8 +167,11 @@ namespace wow.tools.local.Services
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception retrieving FileDataID " + filedataid + ": " + e.Message);
-                return new MemoryStream();
+                if (!e.Message.Contains("keyname"))
+                {
+                    Console.WriteLine("Exception retrieving FileDataID " + filedataid + ": " + e.Message);
+                }
+                return null;
             }
         }
 
