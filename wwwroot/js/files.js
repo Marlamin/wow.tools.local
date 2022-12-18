@@ -203,11 +203,36 @@ function finishEditing(){
     console.log(this.innerText);
 }
 
-function fillPreviewModal(buildconfig, filedataid){
+function fillPreviewModal(buildconfig, filedataid, type) {
+    var html = "";
+    var url = "/casc/fdid?fileDataID=" + filedataid + "&filename=preview";
+    if (type == "blp") {
+        html += "<canvas id='mapCanvas' width='1' height='1'></canvas>";
+        renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true);
+    } else if (type == "mp3" || type == "ogg") {
+        var mimeType = "";
+        if (type == "mp3") {
+            mimeType = "audio/mpeg";
+        } else if (type == "ogg") {
+            mimeType = "audio/ogg";
+        }
+        html += "<audio autoplay=\"\" controls=\"\"><source src=\"" + url + "\" type=\"" + mimeType + "\"></audio>";
+    } else if (type == "m2" || type == "wmo") { 
+        if (type == "wmo") {
+            html += "<p><b>Note for WMO previews:</b> If filename ends in _000 or other numbers this is likely a child WMO. These can not be previewed. Preview the root WMO (without the numbers) instead.</p>"
+        }
+        html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
+    } else if (type == "xml" || type == "lua" || type == "txt") {
+        fetch(url).then((response) => response.text()).then((text) => {
+            document.getElementById('codeHolder').innerHTML = text;
+            });
+        html += "<pre style='max-height: 80vh'><code id='codeHolder'></code></pre>";
+    }
+
     if ($("#files_preview").is(":visible")){
-        $( "#files_preview" ).load( "/files/scripts/preview_api.php?buildconfig=" + buildconfig + "&filedataid=" + filedataid);
+        $( "#files_preview" ).html(html);
     } else {
-        $( "#previewModalContent" ).load( "/files/scripts/preview_api.php?buildconfig=" + buildconfig + "&filedataid=" + filedataid);
+        $( "#previewModalContent" ).html(html);
     }
 }
 

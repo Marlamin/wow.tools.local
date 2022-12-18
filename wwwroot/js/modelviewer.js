@@ -205,6 +205,7 @@ if (urlType){
 var urlEmbed = new URL(window.location).searchParams.get("embed");
 if (urlEmbed){
     Current.embedded = true;
+    $("#mvPageNav").hide();
     $("#js-sidebar-button").hide();
     $("#fpsLabel").hide();
     console.log("Running modelviewer in embedded mode!");
@@ -986,6 +987,7 @@ function exportScene(){
     $('#wowcanvas').bind('contextmenu', function(e){
         return false;
     });
+
 
     // Skip further initialization in embedded mode
     if (embeddedMode){

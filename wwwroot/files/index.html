@@ -33,8 +33,10 @@
     <script src="/js/input.js" crossorigin="anonymous"></script>
 
     <link href="/css/style.css?v=1661289414" rel="stylesheet">
-    <script type="text/javascript" src="/js/main.js?v=1645063884"></script>
-    <script type="text/javascript" src="/js/anims.js?v=1658923290"></script>
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+    <script type="text/javascript" src="/js/bufo.js"></script>
+    <script type="text/javascript" src="/js/js-blp.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
@@ -69,20 +71,20 @@
             <!--<a href='#' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a> -->
             <!-- <a href='/files/submitFiles.php' class='btn btn-success btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-content='Submit suggestions for filenames'><i class='fa fa-upload'></i> Suggest names</a> -->
             <!-- <div class="btn-group">
-        <a href='/casc/listfile/download/csv/unverified' class='btn btn-primary btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true' data-content='<span class="badge badge-danger">WARNING!</span> Listfile downloads are going away soon, please get the listfile from GitHub instead (see link in footer)!'><i class='fa fa-download'></i> Listfile</a>
-        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="sr-only">Toggle Dropdown</span>
-        </button>
-        <div class="dropdown-menu">
-            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download">TXT (Blizzard filenames only)</a>
-            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv">CSV (Blizzard filenames only)</a>
-            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unknown">CSV (FileDataIDs with no filenames)</a>
-            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unverified">Community CSV (all filenames, incl. guessed ones)</a>
-        </div>
-    </div>
-            <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
-            <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
-            <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
+                <a href='/casc/listfile/download/csv/unverified' class='btn btn-primary btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true' data-content='<span class="badge badge-danger">WARNING!</span> Listfile downloads are going away soon, please get the listfile from GitHub instead (see link in footer)!'><i class='fa fa-download'></i> Listfile</a>
+                <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <div class="dropdown-menu">
+                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download">TXT (Blizzard filenames only)</a>
+                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv">CSV (Blizzard filenames only)</a>
+                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unknown">CSV (FileDataIDs with no filenames)</a>
+                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unverified">Community CSV (all filenames, incl. guessed ones)</a>
+                </div>
+            </div>
+                    <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
+                    <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
+                    <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
             <a style='vertical-align: top;' id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
         </div>
         <div id='files_treeFilter' style='display: none'>
@@ -124,6 +126,24 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="saveSettings();" data-dismiss="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">Preview</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="previewModalContent">
+                    <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -252,7 +272,7 @@
 
             var build = searchHash.substr(searchHash.indexOf('build=')).split('&')[0].split('=')[1];
 
-            var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2"];
+            var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2", "xml", "lua", "txt"];
 
             var table = $('#files').DataTable({
                 "processing": true,
@@ -357,55 +377,55 @@
                             //        var test = "";
                             //    }
                             //} else {
-                                var test = "";
+                            var test = "";
                             //}
-                           
-                                //if (full[3].length > 1) {
-                                //    test += "<a data-toggle='collapse' href='#versions" + full[0] + "'>> Show " + full[3].length + " versions</a><div class='collapse' id='versions" + full[0] + "'>";
-                                //    full[3].forEach(function (entry) {
-                                //        if (full[1]) {
-                                //            var filename = full[1].replace(/^.*[\\\/]/, '');
-                                //        } else {
-                                //            if (full[7]) {
-                                //                var filename = full[7].replace(/^.*[\\\/]/, '');
-                                //            } else {
-                                //                var filename = full[0] + "." + full[4];
-                                //            }
-                                //        }
-                                //        test += "<a class='fileTableDL' href='https://wow.tools/casc/file/chash?contenthash=" + entry.contenthash + "&filedataid=" + full[0] + "&buildconfig=" + entry.buildconfig + "&cdnconfig=" + entry.cdnconfig + "&filename=" + encodeURIComponent(filename) + "'>" + entry.description;
 
-                                //        if (Settings.showFileBranch) {
-                                //            test += " (" + entry.branch + ")";
-                                //        }
+                            //if (full[3].length > 1) {
+                            //    test += "<a data-toggle='collapse' href='#versions" + full[0] + "'>> Show " + full[3].length + " versions</a><div class='collapse' id='versions" + full[0] + "'>";
+                            //    full[3].forEach(function (entry) {
+                            //        if (full[1]) {
+                            //            var filename = full[1].replace(/^.*[\\\/]/, '');
+                            //        } else {
+                            //            if (full[7]) {
+                            //                var filename = full[7].replace(/^.*[\\\/]/, '');
+                            //            } else {
+                            //                var filename = full[0] + "." + full[4];
+                            //            }
+                            //        }
+                            //        test += "<a class='fileTableDL' href='https://wow.tools/casc/file/chash?contenthash=" + entry.contenthash + "&filedataid=" + full[0] + "&buildconfig=" + entry.buildconfig + "&cdnconfig=" + entry.cdnconfig + "&filename=" + encodeURIComponent(filename) + "'>" + entry.description;
 
-                                //        test += "</a>";
+                            //        if (Settings.showFileBranch) {
+                            //            test += " (" + entry.branch + ")";
+                            //        }
 
-                                //        if (entry.firstseen && entry.description == "WOW-18125patch6.0.1_Beta" && entry.firstseen != "WOW-18125patch6.0.1_Beta") {
-                                //            test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>(WIP, more builds coming)</b> First seen in " + entry.firstseen + "'><i class='fa fa-archive'></i></a></span>";
-                                //        }
+                            //        test += "</a>";
 
-                                //        test += "<br>";
-                                //    });
+                            //        if (entry.firstseen && entry.description == "WOW-18125patch6.0.1_Beta" && entry.firstseen != "WOW-18125patch6.0.1_Beta") {
+                            //            test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>(WIP, more builds coming)</b> First seen in " + entry.firstseen + "'><i class='fa fa-archive'></i></a></span>";
+                            //        }
 
-                                //    test += "</div>";
-                                //} else if (full[3].length == 1 && full[3][0].buildconfig != null) {
-                                    if (full[1]) {
-                                        var filename = full[1].replace(/^.*[\\\/]/, '');
-                                    } else {
-                                        var filename = "";
-                                    }
-                                    test += "<a class='fileTableDL' href='/casc/fdid?fileDataID=" + full[0] + "&filename=" + encodeURIComponent(filename) + "'>Download</a>";
+                            //        test += "<br>";
+                            //    });
 
-                                    //if (full[3][0].contenthash == "de6135861a6cacfe176830f18f597c3e" || full[3][0].contenthash == "ea80e802952501021865cfeed808ac3f") {
-                                    //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
-                                    //}
+                            //    test += "</div>";
+                            //} else if (full[3].length == 1 && full[3][0].buildconfig != null) {
+                            if (full[1]) {
+                                var filename = full[1].replace(/^.*[\\\/]/, '');
+                            } else {
+                                var filename = "";
+                            }
+                            test += "<a class='fileTableDL' href='/casc/fdid?fileDataID=" + full[0] + "&filename=" + encodeURIComponent(filename) + "'>Download</a>";
 
-                                    //if (full[3][0].firstseen && full[3][0].firstseen != "WOW-18125patch6.0.1_Beta") {
-                                    //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>(WIP, more builds coming)</b> First seen in " + full[3][0].firstseen + "'><i class='fa fa-archive'></i></a></span>";
-                                    //}
-                                //} else {
-                                //    test += "No versions available";
-                                //}
+                            //if (full[3][0].contenthash == "de6135861a6cacfe176830f18f597c3e" || full[3][0].contenthash == "ea80e802952501021865cfeed808ac3f") {
+                            //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
+                            //}
+
+                            //if (full[3][0].firstseen && full[3][0].firstseen != "WOW-18125patch6.0.1_Beta") {
+                            //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>(WIP, more builds coming)</b> First seen in " + full[3][0].firstseen + "'><i class='fa fa-archive'></i></a></span>";
+                            //}
+                            //} else {
+                            //    test += "No versions available";
+                            //}
 
                             return test;
                         }
@@ -431,7 +451,7 @@
                     {
                         "targets": 6,
                         "orderable": false,
-                        "visible": false,
+                        "visible": true,
                         "render": function (data, type, full, meta) {
                             if (full[4] == "db2" && (full[1] || full[7])) {
                                 let filename = "";
@@ -445,12 +465,12 @@
                                 var db2name = filename.replace("dbfilesclient/", "").replace(".db2", "");
                                 var test = "<a href='//wow.tools/dbc/?dbc=" + db2name + "' target='_BLANK'><i class='fa fa-table'></i></a>";
                             } else {
-                                if (full[3].length && full[3][0].enc != 1) {
-                                    if ($("#files_preview").is(":visible")) {
-                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModalByContenthash(\"" + full[3][0].buildconfig + "\",\"" + full[0] + "\",\"" + full[3][0].contenthash + "\")'><i class='fa fa-eye'></i></a></td>";
-                                    } else {
-                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModalByContenthash(\"" + full[3][0].buildconfig + "\",\"" + full[0] + "\",\"" + full[3][0].contenthash + "\")'><i class='fa fa-eye'></i></a></td>";
-                                    }
+                                //if (full[3].length && full[3][0].enc != 1) {
+                                //if ($("#files_preview").is(":visible")) {
+                                //    var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModalByContenthash(\"" + full[3][0].buildconfig + "\",\"" + full[0] + "\",\"" + full[3][0].contenthash + "\")'><i class='fa fa-eye'></i></a></td>";
+                                //} else {
+                                if (previewTypes.includes(full[4])) {
+                                    var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
                                 } else {
                                     var test = "<i class='fa fa-ban' style='opacity: 0.3'></i></td>";
                                 }
