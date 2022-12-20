@@ -12,7 +12,17 @@
 
         static SettingsManager()
         {
-            LoadSettings();
+            try
+            {
+                LoadSettings();
+            }
+            catch(Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("An error happened during config.json reading, make sure it is valid. Application will be unable to load correctly.");
+                Console.WriteLine("Error message: " + e.Message);
+                Console.ResetColor();
+            }
         }
 
         public static void LoadSettings()
@@ -35,7 +45,24 @@
             
             wowFolder = config.GetSection("config")["wowFolder"];
             if (string.IsNullOrEmpty(wowFolder))
+            {
                 wowFolder = null;
+            }
+            else
+            {
+                if (!Directory.Exists(wowFolder))
+                {
+                    throw new DirectoryNotFoundException("Could not find folder " + wowFolder);
+                }
+                else
+                {
+                    if(!File.Exists(Path.Combine(wowFolder, ".build.info")))
+                    {
+                        throw new FileNotFoundException("Unable to find .build.info in WoW directory. Make sure you selected the root WoW directory and not a subfolder.");
+                    }
+                }
+            }
+
 
             wowProduct = config.GetSection("config")["wowProduct"];
         }
