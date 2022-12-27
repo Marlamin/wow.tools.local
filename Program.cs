@@ -10,7 +10,7 @@ namespace wow.tools.local
         {
             try
             {
-                var keyRes = await CASC.LoadKeys();
+                var keyRes = CASC.LoadKeys();
                 if (!keyRes)
                     throw new Exception("Failed to load TACT keys");
 
@@ -20,7 +20,7 @@ namespace wow.tools.local
             {
                 Console.WriteLine("Exception initializing CASC: " + e.Message);
             }
-
+            
             CreateWebHostBuilder(args).Build().Run();
         }
 

@@ -53,7 +53,7 @@ namespace wow.tools.local.Services
 
             AvailableFDIDs.ForEach(x => Listfile.Add(x, ""));
 
-            var listfileRes = await LoadListfile();
+            var listfileRes = LoadListfile();
             if (!listfileRes)
                 throw new Exception("Failed to load listfile");
 
@@ -61,7 +61,7 @@ namespace wow.tools.local.Services
             Console.WriteLine("Finished loading " + BuildName);
         }
 
-        public async static Task<bool> LoadListfile()
+        public static bool LoadListfile()
         {
             var download = false;
 
@@ -83,11 +83,11 @@ namespace wow.tools.local.Services
             {
                 Console.WriteLine("Downloading listfile");
 
-                using var s = await WebClient.GetStreamAsync(SettingsManager.listfileURL);
+                using var s = WebClient.GetStreamAsync(SettingsManager.listfileURL).Result;
                 using var fs = new FileStream("listfile.csv", FileMode.OpenOrCreate);
-                await s.CopyToAsync(fs);
+                s.CopyTo(fs);
             }
-
+            
             if (!File.Exists("listfile.csv"))
             {
                 throw new FileNotFoundException("Could not find listfile.csv");
@@ -116,7 +116,7 @@ namespace wow.tools.local.Services
             return true;
         }
 
-        public async static Task<bool> LoadKeys()
+        public static bool LoadKeys()
         {
             var download = false;
             if (File.Exists("TactKey.csv"))
@@ -137,9 +137,8 @@ namespace wow.tools.local.Services
             {
                 Console.WriteLine("Downloading TACT keys");
 
-                using var s = await WebClient.GetStreamAsync(SettingsManager.tactKeyURL);
                 List<string> tactKeyLines = new();
-
+                using(var s = WebClient.GetStreamAsync(SettingsManager.tactKeyURL).Result)
                 using (var sr = new StreamReader(s))
                 {
                     while (!sr.EndOfStream)
