@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers
@@ -22,7 +22,7 @@ namespace wow.tools.local.Controllers
             }
 
             var file = CASC.GetFileByID(fileDataID);
-            if(file == null)
+            if (file == null)
                 return NotFound();
 
             return new FileStreamResult(file, "application/octet-stream")
@@ -94,12 +94,14 @@ namespace wow.tools.local.Controllers
         {
             var unknownFiles = CASC.Listfile.Where(x => x.Value == "").OrderByDescending(x => x.Key);
             Console.WriteLine("Analyzing " + unknownFiles.Count() + " unknown files");
+            var numFilesTotal = unknownFiles.Count();
+            var numFilesDone = 0;
             Parallel.ForEach(unknownFiles, unknownFile =>
             {
                 try
                 {
                     var file = CASC.GetFileByID((uint)unknownFile.Key);
-                    if(file == null)
+                    if (file == null)
                     {
                         return;
                     }
@@ -109,9 +111,9 @@ namespace wow.tools.local.Controllers
                         if (bin.BaseStream.Length < 4)
                             return;
 
-                        var magic = bin.ReadChars(4);
+                        var magic = bin.ReadBytes(4);
                         var type = "unk";
-                        var magicString = new string(magic);
+                        var magicString = Encoding.ASCII.GetString(magic);
                         switch (magicString)
                         {
                             case "MD21":
@@ -130,27 +132,42 @@ namespace wow.tools.local.Controllers
                             case "REVM":
                                 type = "wmoadt";
                                 break;
+                            case "AFM2":
+                            case "AFSA":
+                            case "AFSB":
+                                type = "anim";
+                                break;
+                            case "WDC3":
+                                type = "db2";
+                                break;
+                            case "RIFF":
+                                type = "avi";
+                                break;
                             default:
-                                Console.WriteLine("Unknown magic " + magicString);
+                                Console.WriteLine((uint)unknownFile.Key + " - Unknown magic " + magicString + " (" + Convert.ToHexString(magic) + ")");
                                 break;
                         }
 
                         if (type != "unk")
                         {
-                            Console.WriteLine("Detected " + unknownFile.Key + " as " + type);
+                            //Console.WriteLine("Detected " + unknownFile.Key + " as " + type);
                             CASC.Listfile[unknownFile.Key] = "unknown/" + unknownFile.Key + "." + type;
                         }
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    if(!e.Message.Contains("nknown keyname"))
+                    if (!e.Message.Contains("nknown keyname"))
                     {
                         Console.WriteLine("Failed to guess type for file " + unknownFile.Key + ": " + e.Message + "\n" + e.StackTrace);
                     }
-                  
+
                 }
-              
+
+                if (numFilesDone % 1000 == 0)
+                    Console.WriteLine("Analyzed " + numFilesDone + "/" + numFilesTotal + " files");
+                
+                numFilesDone++;
             });
             return true;
         }
