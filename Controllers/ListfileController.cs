@@ -14,6 +14,26 @@ namespace wow.tools.local.Controllers
             this.dbcManager = dbcManager as DBCManager;
         }
 
+        public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
+        {
+            var listfileResults = new Dictionary<int, string>();
+            if (search.StartsWith("type:"))
+            {
+                var cleaned = "." + search.Replace("type:", "");
+                listfileResults = resultsIn.Where(x => x.Value.EndsWith(cleaned)).ToDictionary(x => x.Key, x => x.Value);
+            }
+            else if(search == "unnamed")
+            {
+                listfileResults = resultsIn.Where(x => x.Value.ToLower().StartsWith("unknown")).ToDictionary(x => x.Key, x => x.Value);
+            }
+            else
+            {
+                // Simple search
+                listfileResults = resultsIn.Where(x => x.Value.ToLower().Contains(search) || x.Key.ToString() == search).ToDictionary(x => x.Key, x => x.Value);
+            }
+            return listfileResults;
+        }
+
         [Route("files")]
         [HttpGet]
         public DataTablesResult FileDataTables(int draw, int start, int length)
@@ -25,11 +45,23 @@ namespace wow.tools.local.Controllers
                 data = new List<List<string>>()
             };
 
-            var listfileResults = new Dictionary<int, string>();
+            var listfileResults = new Dictionary<int, string>(CASC.Listfile);
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
-                listfileResults = CASC.Listfile.Where(x => x.Value.ToLower().Contains(searchStr) || x.Key.ToString() == searchStr).ToDictionary(x => x.Key, x => x.Value);
+                if (searchStr.Contains(','))
+                {
+                    var filters = searchStr.Split(',');
+                    foreach(var filter in filters)
+                    {
+                        listfileResults = DoSearch(listfileResults, filter);
+                    }
+                }
+                else
+                {
+                    listfileResults = DoSearch(listfileResults, search);
+                }
+               
                 result.recordsFiltered = listfileResults.Count();
             }
             else
