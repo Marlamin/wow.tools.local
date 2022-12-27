@@ -66,12 +66,11 @@
     </nav>
     <div class="container-fluid">
         <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-                <div class="col-sm-12">
-                    <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
-                        <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Build config</th><th>CDN config</th><th>&nbsp;</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+            <div class="col-sm-12">
+                <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
+                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Build config</th><th>CDN config</th><th>&nbsp;</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -80,6 +79,7 @@
             <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
         </div>
     </footer>
+    <script src="/js/builds.js"></script>
     <script type='text/javascript'>
         var table = $('#buildtable').DataTable({
             "pagingType": "input",
