@@ -5,7 +5,7 @@
     "listfileURL": "https://github.com/wowdev/wow-listfile/raw/master/community-listfile.csv",
     "tactKeyURL": "https://github.com/wowdev/TACTKeys/raw/master/WoW.txt",
     "wowFolder": "C:/World of Warcraft",
-    "wowProduct": "wowt",
+    "wowProduct": "wow",
     "region": "eu",
     "locale": "enUS"
   }
