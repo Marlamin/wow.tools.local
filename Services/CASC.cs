@@ -21,15 +21,17 @@ namespace wow.tools.local.Services
             CASCConfig.ValidateData = false;
             CASCConfig.ThrowOnFileNotFound = false;
 
+            locale = SettingsManager.locale;
+            
             if (basedir == null)
             {
-                Console.WriteLine("Initializing CASC from web for program " + program);
+                Console.WriteLine("Initializing CASC from web for program " + program + " and locale " + locale);
                 cascHandler = CASCHandler.OpenOnlineStorage(program, SettingsManager.region);
             }
             else
             {
                 basedir = basedir.Replace("_retail_", "").Replace("_ptr_", "");
-                Console.WriteLine("Initializing CASC from local disk with basedir " + basedir + " and program " + program);
+                Console.WriteLine("Initializing CASC from local disk with basedir " + basedir + " and program " + program + " and locale " + locale);
                 cascHandler = CASCHandler.OpenLocalStorage(basedir, program);
             }
 

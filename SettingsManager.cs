@@ -9,7 +9,8 @@
         public static string dbcFolder;
         public static string wowProduct;
         public static string region;
-
+        public static CASCLib.LocaleFlags locale;
+        
         static SettingsManager()
         {
             try
@@ -40,7 +41,64 @@
             {
                 region = "eu";
             }
-            
+
+            if (config.GetSection("config")["locale"] != null)
+            {
+                switch (config.GetSection("config")["locale"])
+                {
+                    case "deDE":
+                        locale = CASCLib.LocaleFlags.deDE;
+                        break;
+                    case "enUS":
+                        locale = CASCLib.LocaleFlags.enUS;
+                        break;
+                    case "enGB":
+                        locale = CASCLib.LocaleFlags.enGB;
+                        break;
+                    case "ruRU":
+                        locale = CASCLib.LocaleFlags.ruRU;
+                        break;
+                    case "zhCN":
+                        locale = CASCLib.LocaleFlags.zhCN;
+                        break;
+                    case "zhTW":
+                        locale = CASCLib.LocaleFlags.zhTW;
+                        break;
+                    case "enTW":
+                        locale = CASCLib.LocaleFlags.enTW;
+                        break;
+                    case "esES":
+                        locale = CASCLib.LocaleFlags.esES;
+                        break;
+                    case "esMX":
+                        locale = CASCLib.LocaleFlags.esMX;
+                        break;
+                    case "frFR":
+                        locale = CASCLib.LocaleFlags.frFR;
+                        break;
+                    case "itIT":
+                        locale = CASCLib.LocaleFlags.itIT;
+                        break;
+                    case "koKR":
+                        locale = CASCLib.LocaleFlags.koKR;
+                        break;
+                    case "ptBR":
+                        locale = CASCLib.LocaleFlags.ptBR;
+                        break;
+                    case "ptPT":
+                        locale = CASCLib.LocaleFlags.ptPT;
+                        break;
+                    default:
+                        Console.WriteLine("Locale " + config.GetSection("config")["locale"] + " not found, defaulting to enUS");
+                        locale = CASCLib.LocaleFlags.enUS;
+                        break;
+                }
+            }
+            else
+            {
+                locale = CASCLib.LocaleFlags.enUS;
+            }
+
             dbcFolder = config.GetSection("config")["dbcFolder"];
             
             wowFolder = config.GetSection("config")["wowFolder"];
