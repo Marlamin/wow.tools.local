@@ -28,6 +28,9 @@ Start the application by opening wow.tools.local.exe (or whatever executable is 
 
 After startup is complete, it should show something along the lines of `Now listening on: http://localhost:5000`, go to whatever URL is mentioned there (including the port) in your favorite web browser to go to the site. The rest should work similarly to how wow.tools does/did.
 
+## Diffing
+Very rudimentary build diffing is available through the builds page. Only builds that have been previously loaded (or are currently loaded) can be diffed from/to. No file comparisons are available yet and previews for added files on the diff page will show previews of the files in the currently loaded build, so make sure the build you want to diff TO is the currently active build. New files will not be available for preview until "Analyze unknown files" on the files page has been done (first time will take a while, progress can be checked in the console window). Files that remain unknown either have a unpreviewable/unknown type, are empty or are encrypted.
+
 ## Maintaining/Credits
 Outside of all the glue pretty much taken directly from WoW.tools projects, this project uses a few other projects to do the heavy lifting in the hopes that maintaining it in the future (if there need to be changes) should be relatively simple*, if the below projects are still being maintained. Many thanks to their authors!
 

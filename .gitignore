@@ -406,3 +406,5 @@ TactKey.csv
 # Other stuff
 dbcs
 cache
+manifests
+cachedUnknowns.txt
