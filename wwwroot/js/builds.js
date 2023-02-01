@@ -57,8 +57,8 @@
             hashElement.after(' <span class="badge bg-danger diffbadge">New build</span>');
             $('#openDiffButton')
                 .text('Click to diff (might take up to a minute to generate)')
-                .attr('href', '/builds/diff_new.php?from=' + build1 + '&to=' + build2);
-            $('#openInstallDiffButton').show();
+                .attr('href', '/builds/diff.html?from=' + build1 + '&to=' + build2);
+            //$('#openInstallDiffButton').show();
         }
     }
 

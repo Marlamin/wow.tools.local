@@ -1,0 +1,375 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>WoW.tools</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- JQuery -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js?v=1645063884"></script>
+    <script type="text/javascript" src="/js/anims.js?v=1658923290"></script>
+    <script type="text/javascript" src="/js/bufo.js"></script>
+    <script type="text/javascript" src="/js/js-blp.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="/">
+            <div id='logo'>
+                <div id='cog'>&nbsp;</div>
+                <div id='nocog'><img src='/img/w.svg' alt='Logo W'><img src='/img/w.svg' alt='Logo W'><span>.tools <small><i>but local</i></small></span></div>
+            </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class='fa fa-bars'></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto mt-2 mt-md-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/files/"><i class="fa fa-files-o" aria-hidden="true"></i> Files</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="/dbc/"><i class="fa fa-table"></i> Tables</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/mv/"><i class="fa fa-cube" aria-hidden="true"></i> Models</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/builds/"><i class="fa fa-hdd-o" aria-hidden="true"></i> Builds</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <script src="/js/files.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        function debounce(func, wait, immediate) {
+            var timeout;
+            return function () {
+                var context = this,
+                    args = arguments;
+                var later = function () {
+                    timeout = null;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            };
+        };
+
+        function actionToBadge(action) {
+            switch (action) {
+                case "added":
+                    return "success";
+                case "removed":
+                    return "danger";
+                case "modified":
+                    return "warning";
+            }
+        }
+
+        String.prototype.capitalize = function () {
+            return this.charAt(0).toUpperCase() + this.slice(1)
+        }
+
+        var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2", "xml", "lua", "txt"];
+        
+        $(document).ready(function () {
+           // var encrypted = <?= json_encode($encrypted) ?>;
+           // var encryptedbutnot = <?= json_encode($encryptedbutnot) ?>;
+            const urlParams = new URLSearchParams(window.location.search);
+            const from = urlParams.get('from');
+            const to = urlParams.get('to');
+
+            const fromBuildNameSpan = document.getElementById("fromBuildName");
+            fromBuildNameSpan.innerHTML = from;
+            const toBuildNameSpan = document.getElementById("toBuildName");
+            toBuildNameSpan.innerHTML = to;
+            var table = $('#buildtable').DataTable({
+                ajax: '/casc/diff?from=' + from + '&to=' + to,
+                columns: [{
+                    data: 'action'
+                },
+                {
+                    data: 'id'
+                },
+                {
+                    data: 'filename'
+                },
+                {
+                    data: 'type'
+                }
+                ],
+                pagingType: "input",
+                pageLength: 25,
+                autoWidth: false,
+                deferRender: true,
+                lengthMenu: [[25, 100, 500, -1], [25, 100, 500, "All"]],
+                dom: "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-12 col-md-5'li><'col-sm-12 col-md-7'p>>",
+                columnDefs: [{
+                    "targets": 0,
+                    "orderable": true,
+                    "render": function (data, type, full, meta) {
+
+                        var badge = actionToBadge(full.action);
+                        var content = "<span class='badge bg-" + badge + "'>" + full.action.capitalize() + "</span>";
+                        return content;
+                    }
+                },
+                {
+                    "targets": 2,
+                    "orderable": true,
+                    "createdCell": function (td, cellData, rowData, row, col) {
+                        if (!cellData) {
+                            $(td).css('background-color', '#ff5858');
+                        }
+                    }
+                },
+                {
+                    "targets": 4,
+                    "render": function (data, type, full, meta) {
+                        return "";
+                        //return "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#moreInfoModal' onClick='fillModal(" + full.id + ")'><i class='fa fa-info-circle'></i></a></td>";
+                    }
+                },
+                {
+                    "targets": 5,
+                    "render": function (data, type, full, meta) {
+                        var content = "";
+                        switch (full.action) {
+                            case "added":
+                                //switch (full.type) {
+                                //    case "db2":
+                                //        if (full.filename && full.filename != "Unknown") {
+                                //            var db2name = full.filename.replace("dbfilesclient/", "").replace(".db2", "");
+                                //            content = "<a href='/dbc/?dbc=" + db2name + "&build=" + to + "' target='_BLANK'>View table</a>";
+                                //        }
+                                //        break;
+                                //    case "m2":
+                                //    case "wmo":
+                                //    default:
+                                //        content = "N/A";
+                                //        break;
+                                //}
+                                
+                                if (previewTypes.includes(full.type)) {
+                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModal(\"\"," + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a></td>";
+                                } else {
+                                    content = "<i class='fa fa-ban' style='opacity: 0.3'></i></td>";
+                                }
+                                
+                                if (full.md5 == "de6135861a6cacfe176830f18f597c3e") {
+                                    content += " <span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
+                                }
+                                break;
+                            case "modified":
+                                switch (full.type) {
+                                    //case "db2":
+                                    //    if (full.filename && full.filename != "Unknown") {
+                                    //        var db2name = full.filename.replace("dbfilesclient/", "").replace(".db2", "");
+                                    //        content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDBCDiffModal(\"<?=$fromBuildName ?>\", \"<?= $toBuildName ?>\", \"" + db2name + "\")'>Preview</a>";
+
+                                    //    }
+                                    //    break;
+                                    //case "blp":
+                                    //case "htm":
+                                    //case "html":
+                                    // case "lua":
+                                    // case "sbt":
+                                    // case "toc":
+                                    // case "txt":
+                                    // case "xml":
+                                    // case "xsd":
+                                    // case "wtf":
+                                    //     content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModal(\"<?= $fromBuild['hash'] ?>\", \"<?= $toBuild['hash'] ?>\", \"" + full.id + "\")'>Preview</a>";
+                                    //     break;
+                                    // case "ogg":
+                                    //     content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModalByContenthash(\"<?= $toBuild['hash'] ?>\", \"" + full.id + "\",\"" + full.md5 + "\")'>Preview</a>";
+                                    //     break;
+                                    default:
+                                        content = "N/A";
+                                        break;
+                                }
+
+                                if (full.md5 == "de6135861a6cacfe176830f18f597c3e" || full.md5 == "ea80e802952501021865cfeed808ac3f") {
+                                    content += " <span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
+                                }
+                                break;
+                            case "removed":
+                                switch (full.type) {
+                                    case "db2":
+                                        if (full.filename && full.filename != "Unknown") {
+                                            var db2name = full.filename.replace("dbfilesclient/", "");
+                                            content = "<a href='/dbc/?dbc=" + db2name + "&build=<?= $fromBuildName ?>' target='_BLANK'>Preview</a>";
+                                        }
+                                        break;
+                                    default:
+                                        content = "N/A";
+                                        break;
+                                }
+                                break;
+                        }
+                       /* if (encrypted.includes(parseInt(full.id))) {
+                            content += " <i style=\"color: red\" title=\"File is encrypted, preview might be broken\" class=\"fa fa-lock\"></i>";
+                        }
+
+                        if (encryptedbutnot.includes(parseInt(full.id))) {
+                            content += " <i style=\"color: white\" title=\"Flagged as encrypted but not\" class=\"fa fa-unlock\"></i>";
+                        }*/
+                        return content;
+                    }
+                }
+                ],
+                initComplete: function () {
+                    var table = this.api();
+                    $('#buildtable thead tr.filters th').each(function (index, element) {
+                        element = $(element);
+                        var column = table.column(index);
+                        if (element.hasClass("filterable")) {
+                            var select = $('<select style="height: 20px; width: calc(100% - 25px);" class="form-control form-control-sm"><option value=""></option></select>')
+                                .appendTo(element)
+                                .on('change', function () {
+                                    var val = "^" + $(this).val() + "$"
+                                    if ($(this).val() == "")
+                                        val = "";
+
+                                    table.column(index)
+                                        .search(val, true, false)
+                                        .draw();
+                                });
+
+                            column.data().unique().sort().each(function (d, j) {
+                                if (d === "") {
+                                    return;
+                                }
+                                select.append('<option value="' + d + '">' + d + '</option>')
+                            });
+                        } else if (element.hasClass("searchable")) {
+                            $(this).html('<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 25px);" placeholder="Search" />');
+                            $("input", this).on('keyup change', debounce(function () {
+                                table.column(index).search(this.value).draw();
+                            }, 50));
+                        }
+                    });
+                },
+                "drawCallback": function () {
+                    $('[data-toggle="popover"]').popover();
+                }
+            });
+
+            window.table = table;
+
+            table.on('xhr', function () {
+                var json = table.ajax.json();
+                $("#summary").html(" <span class='badge bg-" + actionToBadge("added") + "'>" + json['added'] + " added</span> <span class='badge bg-" + actionToBadge("modified") + "'>" + json['modified'] + " modified</span> <span class='badge bg-" + actionToBadge("removed") + "'>" + json['removed'] + " removed</span>");
+            });
+        });
+    </script>
+    <div class='container-fluid' id='diffContainer'>
+        <h3>Showing differences between <span id="fromBuildName"></span> and <span id="toBuildName"></span><span id='summary'></span></h3>
+        <table id='buildtable' class='table table-sm table-hover maintable'>
+            <thead>
+                <tr class="filters">
+                    <th class="filterable"></th>
+                    <th class="searchable"></th>
+                    <th class="searchable"></th>
+                    <th colspan='3' class="filterable"></th>
+                </tr>
+                <tr>
+                    <th style='width: 80px'>Action</th>
+                    <th style='width: 170px;'>FileData ID</th>
+                    <th>Filename</th>
+                    <th style='width: 50px'>Type</th>
+                    <th style='width: 25px'>&nbsp;</th>
+                    <th style='width: 120px'>&nbsp;</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="modal" id="moreInfoModal" tabindex="-1" role="dialog" aria-labelledby="moreInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="moreInfoModalLabel">More information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="moreInfoModalContent">
+                    <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">Preview</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="previewModalContent">
+                    <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="chashModal" tabindex="-1" role="dialog" aria-labelledby="chashModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chashModalLabel">Content hash lookup</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="chashModalContent">
+                    <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style type='text/css'>
+        #summary {
+            font-size: 16px;
+        }
+    </style>
+</body>
+</html>

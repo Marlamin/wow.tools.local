@@ -68,7 +68,7 @@
         <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
             <div class="col-sm-12">
                 <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
-                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Build config</th><th>CDN config</th><th>&nbsp;</th></tr></thead>
+                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -100,6 +100,12 @@
                 {
                     "targets": 5,
                     "render": function (data, type, full, meta) {
+                        return '<select style="width: 360px" class="diffSelect" id="' + full[2] + '_diffselect"><option>Select a previously opened build to diff to</option></select>&nbsp;<a class="btn btn-primary btn-sm disabled" id="' + full[2] + '_diffbutton" href="#" onClick="diffBuild(this)">Diff</a>';
+                    }
+                },
+                {
+                    "targets": 6,
+                    "render": function (data, type, full, meta) {
                         let isActive = data == "True";
 
                         if (isActive) {
@@ -111,6 +117,41 @@
                 }
             ],
         });
+
+        $("#buildtable").on('draw.dt', function () {
+            fetch('/casc/listManifests')
+            .then((response) => response.json())
+            .then((manifests) => {
+                const diffDropdows = document.getElementsByClassName('diffSelect');
+                for (i = 0; i < diffDropdows.length; i++) {
+                    const columns = diffDropdows[i].parentElement.parentElement.children;
+                    const product = columns[2].innerHTML;
+                    const fromBuild = columns[0].innerHTML + "." + columns[1].innerHTML;
+                    for (j = 0; j < manifests.length; j++) {
+                        if (manifests[j] == fromBuild) {
+                            document.getElementById(product + "_diffbutton").classList.remove("disabled");
+                        }
+                        var option = document.createElement("option");
+                        option.text = manifests[j];
+                        diffDropdows[i].add(option);
+                    }
+                } 
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        function diffBuild(row) {
+            const columns = row.parentElement.parentElement.children;
+            const fromBuild = columns[0].innerHTML + "." + columns[1].innerHTML;
+            const toBuild = columns[5].children[0].value;
+
+            if (toBuild == "Select a previously opened build to diff to")
+                return;
+
+            window.open("/builds/diff.html?from=" + fromBuild + "&to=" + toBuild, '_blank')
+        }
 
         async function switchToProduct(product) {
             var button = document.querySelector('[data-product="' + product + '"]');

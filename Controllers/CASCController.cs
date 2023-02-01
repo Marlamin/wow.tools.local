@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using wow.tools.local.Services;
 
@@ -88,11 +90,44 @@ namespace wow.tools.local.Controllers
             return true;
         }
 
+        [Route("listManifests")]
+        [HttpGet]
+        public List<string> ListManifests()
+        {
+            var cachedManifests = new List<string>();
+            if (Directory.Exists("manifests"))
+            {
+                foreach(var file in Directory.GetFiles("manifests", "*.txt"))
+                    cachedManifests.Add(Path.GetFileNameWithoutExtension(file));
+            }
+            return cachedManifests;
+        }
+
         [Route("analyzeUnknown")]
         [HttpGet]
         public bool AnalyzeUnknown()
         {
+            var knownUnknowns = new Dictionary<int, string>();
+            
+            if (System.IO.File.Exists("cachedUnknowns.txt"))
+            {
+                knownUnknowns = System.IO.File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            }
+
             var unknownFiles = CASC.Listfile.Where(x => x.Value == "").OrderByDescending(x => x.Key);
+
+            if (knownUnknowns.Count > 0)
+            {
+                Console.WriteLine("Loading " + knownUnknowns.Count + " unknown files from cache");
+                foreach (var unkFile in unknownFiles)
+                {
+                    if (knownUnknowns.TryGetValue(unkFile.Key, out var type))
+                        CASC.Listfile[unkFile.Key] = "unknown/" + unkFile.Key + "." + type;
+                }
+
+                unknownFiles = CASC.Listfile.Where(x => x.Value == "").OrderByDescending(x => x.Key);
+            }
+            
             Console.WriteLine("Analyzing " + unknownFiles.Count() + " unknown files");
             var numFilesTotal = unknownFiles.Count();
             var numFilesDone = 0;
@@ -152,6 +187,7 @@ namespace wow.tools.local.Controllers
                         {
                             //Console.WriteLine("Detected " + unknownFile.Key + " as " + type);
                             CASC.Listfile[unknownFile.Key] = "unknown/" + unknownFile.Key + "." + type;
+                            knownUnknowns.TryAdd(unknownFile.Key, type);
                         }
                     }
                 }
@@ -169,7 +205,88 @@ namespace wow.tools.local.Controllers
                 
                 numFilesDone++;
             });
+
+            System.IO.File.WriteAllLines("cachedUnknowns.txt", knownUnknowns.Select(x => x.Key + ";" + x.Value));
             return true;
+        }
+        
+        [Route("diff")]
+        [HttpGet]
+        public ActionResult DiffManifests(string from, string to)
+        {
+            if (BuildDiffCache.Get(from, to, out ApiDiff diff))
+            {
+                return Json(new
+                {
+                    added = diff.added.Count(),
+                    modified = diff.modified.Count(),
+                    removed = diff.removed.Count(),
+                    data = diff.all.ToArray()
+                });
+            }
+
+            Func<KeyValuePair<int, string>, DiffEntry> toDiffEntry(string action)
+            {
+                return delegate (KeyValuePair<int, string> entry)
+                {
+                    var file = CASC.Listfile.TryGetValue(entry.Key, out var filename) ? filename : "unknown/" + entry.Key + ".unk";
+
+                    return new DiffEntry
+                    {
+                        action = action,
+                        filename = file,
+                        id = entry.Key.ToString(),
+                        md5 = entry.Value.ToLower(),
+                        type = Path.GetExtension(file).Replace(".", "")
+                    };
+                };
+            }
+
+            var rootFromEntries = System.IO.File.ReadAllLines(Path.Combine("manifests", from + ".txt")).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            var rootToEntries = System.IO.File.ReadAllLines(Path.Combine("manifests", to + ".txt")).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+
+            var fromEntries = rootFromEntries.Keys.ToHashSet();
+            var toEntries = rootToEntries.Keys.ToHashSet();
+
+            var commonEntries = fromEntries.Intersect(toEntries);
+            var removedEntries = fromEntries.Except(commonEntries);
+            var addedEntries = toEntries.Except(commonEntries);
+
+            var addedFiles = addedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootToEntries[entry]));
+            var removedFiles = removedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootFromEntries[entry]));
+            var modifiedFiles = new List<KeyValuePair<int, string>>();
+
+            foreach (var entry in commonEntries)
+            {
+                var originalFile = rootFromEntries[entry];
+                var patchedFile = rootToEntries[entry];
+
+                if (originalFile != patchedFile)
+                    modifiedFiles.Add(new KeyValuePair<int, string>(entry, patchedFile));
+            }
+
+            var toAddedDiffEntryDelegate = toDiffEntry("added");
+            var toRemovedDiffEntryDelegate = toDiffEntry("removed");
+            var toModifiedDiffEntryDelegate = toDiffEntry("modified");
+
+            diff = new ApiDiff
+            {
+                added = addedFiles.Select(toAddedDiffEntryDelegate),
+                removed = removedFiles.Select(toRemovedDiffEntryDelegate),
+                modified = modifiedFiles.Select(toModifiedDiffEntryDelegate)
+            };
+
+            Console.WriteLine($"Added: {diff.added.Count()}, removed: {diff.removed.Count()}, modified: {diff.modified.Count()}, common: {commonEntries.Count()}");
+
+            BuildDiffCache.Add(from, to, diff);
+
+            return Json(new
+            {
+                added = diff.added.Count(),
+                modified = diff.modified.Count(),
+                removed = diff.removed.Count(),
+                data = diff.all.ToArray()
+            });
         }
     }
 }

@@ -40,13 +40,46 @@ namespace wow.tools.local.Services
 
             cascHandler.Root.SetFlags(locale);
 
+            if (!Directory.Exists("manifests"))
+                Directory.CreateDirectory("manifests");
+            
             if (cascHandler.Root is WowTVFSRootHandler wtrh)
             {
                 AvailableFDIDs = wtrh.RootEntries.Keys.ToList();
+                if(!File.Exists(Path.Combine("manifests", BuildName + ".txt")))
+                {
+                    var manifestLines = new List<string>();
+                    foreach (var entry in wtrh.RootEntries)
+                    {
+                        var preferredEntry = entry.Value.FirstOrDefault(subentry =>
+                       subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
+                        
+                        manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
+                    }
+
+                    manifestLines.Sort();
+
+                    File.WriteAllLines(Path.Combine("manifests", BuildName + ".txt"), manifestLines);
+                }
             }
             else if (cascHandler.Root is WowRootHandler wrh)
             {
                 AvailableFDIDs = wrh.RootEntries.Keys.ToList();
+                if (!File.Exists(Path.Combine("manifests", BuildName + ".txt")))
+                {
+                    var manifestLines = new List<string>();
+                    foreach (var entry in wrh.RootEntries)
+                    {
+                        var preferredEntry = entry.Value.FirstOrDefault(subentry =>
+                       subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
+                        
+                        manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
+                    }
+
+                    manifestLines.Sort();
+
+                    File.WriteAllLines(Path.Combine("manifests", BuildName + ".txt"), manifestLines);
+                }
             }
 
             Listfile = new Dictionary<int, string>();

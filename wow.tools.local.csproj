@@ -40,6 +40,10 @@
   <ItemGroup>
     <None Remove="debug.log" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.2" />
+  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="CascLib\CascLib\CascLib.csproj" />
