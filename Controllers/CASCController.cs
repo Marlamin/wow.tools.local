@@ -207,6 +207,7 @@ namespace wow.tools.local.Controllers
             });
 
             System.IO.File.WriteAllLines("cachedUnknowns.txt", knownUnknowns.Select(x => x.Key + ";" + x.Value));
+            Console.WriteLine("Finished unknown file analysis");
             return true;
         }
         
