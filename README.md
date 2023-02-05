@@ -4,6 +4,9 @@ This contains a very slimmed down version of the WoW.tools site (currently model
 ## Requirements
 All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least 4-5GB of free RAM.
 
+## Known issues
+- Some BLPs (e.g. interface BLPs) won't preview correctly/be empty. Download these from the files page instead and open them externally in a BLP viewer (e.g. XnView)/converter (e.g BLP2PNG).
+
 ### Definitions
 While definitions are included in releases, these are likely to go out of date quickly. Hopefully up-to-date definitions can be found on [here](https://github.com/wowdev/WoWDBDefs) (to download, click Code -> Download ZIP), to update definitions overwrite the `WoWDBDefs/definitions` folder with the `definitions` folder from the downloaded version of the WoWDBDefs repo.
 
