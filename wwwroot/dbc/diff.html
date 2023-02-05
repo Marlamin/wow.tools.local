@@ -1,0 +1,323 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>WoW.tools</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- JQuery -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/tooltips.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="/">
+            <div id='logo'>
+                <div id='cog'>&nbsp;</div>
+                <div id='nocog'><img src='/img/w.svg' alt='Logo W'><img src='/img/w.svg' alt='Logo W'><span>.tools <small><i>but local</i></small></span></div>
+            </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class='fa fa-bars'></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto mt-2 mt-md-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/files/"><i class="fa fa-files-o" aria-hidden="true"></i> Files</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-table" aria-hidden="true"></i> Tables
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navDropdown">
+                        <a class="dropdown-item" href="/dbc/">Browse</a>
+                        <a class="dropdown-item" href="/dbc/diff.html">Compare</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/mv/"><i class="fa fa-cube" aria-hidden="true"></i> Models</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/builds/"><i class="fa fa-hdd-o" aria-hidden="true"></i> Builds</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <link href="/css/dbc.css" rel="stylesheet">
+    <div class="container-fluid">
+        <select id='fileFilter' class='form-control form-control-sm'>
+            <option value="">Select a table</option>
+        </select>
+        <form class="form-inline" id="dbcform" action="/dbc/diff.html" method="GET">
+            <input type="hidden" name="dbc" id="currentDBC" value="">
+            <label for="oldbuild" class="" style="float: left; padding-left: 15px;">Old </label>
+            <select id="oldbuild" name="old" class="form-control form-control-sm buildFilter">
+            </select>
+            <label for="newbuild" class="" style="float: left; padding-left: 15px;"> New </label>
+            <select id="newbuild" name="new" class="form-control form-control-sm buildFilter">
+            </select>
+            <!--<div class="form-check" style="padding-left: 5px;">
+                <input type="checkbox" class="form-check-input" id="useHotfixes" name="useHotfixes">
+                <label class="form-check-label" for="useHotfixes">Use hotfixes?</label>
+            </div>-->
+            <input type="submit" id="browseButton" class="form-control form-control-sm btn btn-sm btn-primary" value="Diff">
+        </form>
+        <div id='tableContainer'></div>
+    </div>
+    <link href="/css/select2.min.css" rel="stylesheet" />
+    <script src="/js/select2.min.js"></script>
+    <script type='text/javascript'>
+        $(function () {
+            var Settings = {
+                localBuildName: "",
+                embed: false
+            };
+
+            (async () => {
+                const response = await fetch("/casc/buildname");
+                Settings.localBuildName = await response.text();
+            })();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            console.log(window.location.search);
+            const isEmbed = urlParams.get('embed');
+            if (isEmbed != undefined && isEmbed == "1") {
+                Settings.embed = true;
+                $("nav").hide();
+                $("#fileFilter").hide();
+                $("#dbcform").hide();
+            }
+
+            const currentDBC = urlParams.get('dbc');
+            if (currentDBC != undefined) {
+                document.getElementById("currentDBC").value = currentDBC;
+            }
+            const oldBuild = urlParams.get('old');
+            const newBuild = urlParams.get('new');
+
+            let apiURL = "/listfile/db2s";
+
+            fetch(apiURL)
+                .then(function (fileResponse) {
+                    return fileResponse.json();
+                }).then(function (data) {
+                    var fileFilter = document.getElementById('fileFilter');
+                    fileFilter.innerHTML = "";
+
+                    var option = document.createElement("option");
+                    option.text = "Select a table";
+                    fileFilter.appendChild(option);
+
+                    data.forEach((file) => {
+                        var option = document.createElement("option");
+                        option.value = file;
+                        option.text = file;
+                        if (option.value.toLowerCase() == currentDBC) {
+                            option.selected = true;
+                        }
+                        fileFilter.appendChild(option);
+                    });
+                }).catch(function (error) {
+                    console.log("An error occurred retrieving files: " + error);
+                });
+
+            if (!Settings.embed) {
+                $('#fileFilter').select2();
+            }
+
+            $('#fileFilter').on('change', function () {
+                if ($(this).val() != "") {
+                    document.location = "/dbc/diff.html?dbc=" + $(this).val().toLowerCase();
+                }
+            });
+
+            if (currentDBC != undefined) {
+                console.log("Refreshing versions");
+                var versionAPIURL = "/listfile/db2/" + currentDBC + "/versions";
+
+                fetch(versionAPIURL)
+                    .then(function (versionResponse) {
+                        return versionResponse.json();
+                    }).then(function (data) {
+                        var oldbuild = document.getElementById('oldbuild');
+                        var newbuild = document.getElementById('newbuild');
+
+                        data.forEach((version) => {
+                            var option = document.createElement("option");
+                            option.value = version;
+                            if (version == Settings.localBuildName) {
+                                option.text = version;
+                            } else {
+                                option.text = version + " (disk)";
+                            }
+
+                            if (option.value.toLowerCase() == oldBuild) {
+                                option.selected = true;
+                            }
+
+                            oldbuild.appendChild(option);
+
+                            var option = document.createElement("option");
+                            option.value = version;
+                            if (version == Settings.localBuildName) {
+                                option.text = version;
+                            } else {
+                                option.text = version + " (disk)";
+                            }
+
+                            if (option.value.toLowerCase() == newBuild) {
+                                option.selected = true;
+                            }
+
+                            newbuild.appendChild(option);
+                        });
+
+                    }).catch(function (error) {
+                        console.log("An error occurred retrieving versions: " + error);
+                    });
+            }
+
+            if (currentDBC != undefined && oldBuild != undefined && newBuild != undefined) {
+                var dataURL = "/dbc/diff?name=" + currentDBC + "&build1=" + oldBuild + "&build2=" + newBuild;
+                if ($("#useHotfixes").is(":checked")) {
+                    dataURL += "&useHotfixesFor2=true";
+                }
+                var header1URL = "/dbc/header/" + currentDBC + "/?build=" + oldBuild;
+                var header2URL = "/dbc/header/" + currentDBC + "/?build=" + newBuild;
+
+                $.when($.getJSON(header1URL), $.getJSON(header2URL)).then(function (resp1, resp2) {
+                    //this callback will be fired once all ajax calls have finished.
+                    if (resp1[0]['error'] != null) {
+                        alert("An error occured on the server:\n" + resp1[0]['error']);
+                    }
+
+                    if (resp2[0]['error'] != null) {
+                        alert("An error occured on the server:\n" + resp2[0]['error']);
+                    }
+                    var fields = [...new Set([].concat(...resp1[0].headers, ...resp2[0].headers))];
+                    var tableHeaders = "";
+                    $.each(fields, function (i, val) {
+                        tableHeaders += "<th>" + val + "</th>";
+                    });
+
+                    $("#tableContainer").empty();
+                    $("#tableContainer").append('<table id="dbtable" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>');
+                    $.ajax({
+                        "url": dataURL,
+                        "success": function (json) {
+                            $('#dbtable').DataTable({
+                                "data": json['data'],
+                                "pageLength": 25,
+                                "ordering": false,
+                                "bFilter": false,
+                                "lengthMenu": [[10, 25, 50, 100, 1000], [10, 25, 50, 100, 1000]],
+                                "pagingType": "input",
+                                "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" + "<'row'<'col-sm-12 dbtableholder'tr>>" + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                                "columnDefs": [{
+                                    "targets": "_all",
+                                    "render":
+                                        /*
+                                        Overrides cell rendering in particular the cell's value if there is an applicable diff
+                                        - for Added/Removed, this applies a flat +/- diff snippet
+                                        - for Replaced this applies a html snippet containing diff information
+                                            - for numbers this is a flat '-x+y', for text diff_match_patch is used
+                                            */
+                                        function (data, type, row, meta) {
+
+                                            // grab the formatted field name
+                                            var field = meta.settings.aoColumns[meta.col].sTitle;
+
+                                            //! USE THIS
+                                            // if an array split out the field and ordinal
+                                            //var match = /^(.*)\[(\d+)\]$/.exec(field);
+                                            var match = false;
+
+                                            // assign the cell value
+                                            data = match ? row.row[match[1]][match[2]] : row.row[field];
+
+                                            // only apply on the initial display event for replaced rows that have a diff
+                                            if (type !== 'display' || row.op !== "Replaced" || row.diff === null)
+                                                return data;
+
+                                            // find and apply the specific diff for this field
+                                            // if no diff is found then return the default data value
+                                            var diff = row.diff.find(x => x.property == field);
+                                            if (!diff) {
+                                                return data;
+                                            }
+
+                                            // apply the diff html information
+                                            switch (diff.op) {
+
+                                                case "Added":
+                                                    return '<ins class="diff-added">' + diff.currentvalue + '</ins>';
+                                                case "Removed":
+                                                    return '<del class="diff-removed">' + diff.currentvalue + '</del>';
+                                                case "Replaced":
+                                                    {
+                                                        if (!isNaN(diff.previousvalue) && !isNaN(diff.currentvalue)) {
+                                                            // for numbers return a fake diff to save on computation
+                                                            return '<del class="diff-removed">' + diff.previousvalue + '</del> &rarr; ' +
+                                                                '<ins class="diff-added">' + diff.currentvalue + '</ins>';
+                                                        } else {
+                                                            // for text use diff_match_patch to compute a real diff
+                                                            var dmp = new diff_match_patch();
+                                                            var dmp_diff = dmp.diff_main(diff.previousvalue, diff.currentvalue);
+                                                            dmp.diff_cleanupSemantic(dmp_diff);
+                                                            return dmp.diff_prettyHtml(dmp_diff);
+                                                        }
+                                                    }
+                                            }
+
+                                            return data;
+                                        },
+                                    "defaultContent": ""
+                                }],
+                                "language": {
+                                    "emptyTable": "No differences were found"
+                                },
+                                "createdRow":
+                                    /* Overrides row rendering for Added/Removed rows */
+                                    function (ele, row, rowIndex) {
+                                        if (row.op == "Added" || row.op == "Removed") {
+                                            $(ele).addClass(row.op.toLowerCase()); // apply the formatting class
+                                        }
+                                    }
+                            });
+                        },
+                        "dataType": "json"
+                    });
+                });
+            }
+        });
+    </script>
+    <script src="/js/dbc.js?v=1636490343"></script>
+    <script src="/js/diff_match_patch.js?v=1558192175"></script>
+</body>

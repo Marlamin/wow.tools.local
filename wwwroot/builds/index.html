@@ -53,7 +53,13 @@
                     <a class="nav-link" href="/files/"><i class="fa fa-files-o" aria-hidden="true"></i> Files</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link" href="/dbc/"><i class="fa fa-table"></i> Tables</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-table" aria-hidden="true"></i> Tables
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navDropdown">
+                        <a class="dropdown-item" href="/dbc/">Browse</a>
+                        <a class="dropdown-item" href="/dbc/diff.html">Compare</a>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/mv/"><i class="fa fa-cube" aria-hidden="true"></i> Models</a>
@@ -68,7 +74,7 @@
         <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
             <div class="col-sm-12">
                 <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
-                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th></tr></thead>
+                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -100,19 +106,45 @@
                 {
                     "targets": 5,
                     "render": function (data, type, full, meta) {
-                        return '<select style="width: 360px" class="diffSelect" id="' + full[2] + '_diffselect"><option>Select a previously opened build to diff to</option></select>&nbsp;<a class="btn btn-primary btn-sm disabled" id="' + full[2] + '_diffbutton" href="#" onClick="diffBuild(this)">Diff</a>';
+                        let isActive = data == "True";
+                        var result = "";
+                        if (isActive) {
+                            result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a>';
+                        } else {
+                            result += '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Switch to build</a>';
+                        }
+                        return result;
                     }
                 },
                 {
                     "targets": 6,
                     "render": function (data, type, full, meta) {
-                        let isActive = data == "True";
-
-                        if (isActive) {
-                            return '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a>';
+                        return '<select style="width: 360px" class="diffSelect" id="' + full[2] + '_diffselect"><option>Select a previously opened build to diff to</option></select>&nbsp;<a class="btn btn-primary btn-sm disabled" id="' + full[2] + '_diffbutton" href="#" onClick="diffBuild(this)">Diff</a>';
+                    }
+                },
+                {
+                    "targets": 7,
+                    "render": function (data, type, full, meta) {
+                        let isActive = full[5] == "True";
+                        let hasManifest = full[6] == "True";
+                        let hasDBCs = full[7] == "True";
+                        var result = "";
+                        if (hasManifest) {
+                            result += '<a class="btn btn-success btn-sm disabled" href="#">Has manifest</a>';
                         } else {
-                            return '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Switch to build</a>';
+                            result += '<a class="btn btn-danger btn-sm disabled" href="#">Manifest missing</a>';
                         }
+                        if (hasDBCs) {
+                            result += ' <a class="btn btn-success btn-sm disabled" href="#">Has DBCs</a>';
+                        } else {
+                            if (isActive) {
+                                result += ' <a class="btn btn-primary btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">DBCs missing, extract?</a>';
+                            } else {
+                                result += ' <a class="btn btn-danger btn-sm disabled" href="#">DBCs missing</a>';
+                            }
+                        }
+
+                        return result;
                     }
                 }
             ],
@@ -145,7 +177,7 @@
         function diffBuild(row) {
             const columns = row.parentElement.parentElement.children;
             const fromBuild = columns[0].innerHTML + "." + columns[1].innerHTML;
-            const toBuild = columns[5].children[0].value;
+            const toBuild = columns[6].children[0].value;
 
             if (toBuild == "Select a previously opened build to diff to")
                 return;
@@ -159,6 +191,18 @@
             button.classList.remove("btn-success");
             button.classList.add("btn-danger");
             const response = await fetch("/casc/switchProduct?product=" + product);
+            var result = await response.text();
+            if (result == "true") {
+                location.reload();
+            }
+        }
+
+        async function extractDBCs(product) {
+            var button = document.querySelector('[data-dbcproduct="' + product + '"]');
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
+            button.classList.remove("btn-success");
+            button.classList.add("btn-danger");
+            const response = await fetch("/dbc/export/alltodisk");
             var result = await response.text();
             if (result == "true") {
                 location.reload();

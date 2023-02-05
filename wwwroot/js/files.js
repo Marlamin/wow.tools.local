@@ -252,8 +252,8 @@ function fillDiffModalRaw(from, to, filedataid){
     $( "#previewModalContent" ).load( "/files/diff.php?from=" + from + "&to=" + to + "&filedataid=" + filedataid + "&raw=1");
 }
 
-function fillDBCDiffModal(from, to, dbc){
-    $("#previewModalContent" ).load( "/dbc/diff.php?embed=1&dbc=" + dbc + "&old=" + from + "&new=" + to);
+function fillDBCDiffModal(from, to, dbc) {
+    $("#previewModalContent" ).html( "<iframe src=\"/dbc/diff.html?embed=1&dbc=" + dbc + "&old=" + from + "&new=" + to + "\" style='width: 100%; height: 80vh'></iframe>");
 }
 
 function fillChashModal(contenthash){

@@ -15,21 +15,25 @@
     <Compile Remove="CascLib\**" />
     <Compile Remove="DBCD\**" />
     <Compile Remove="dbcs\**" />
+    <Compile Remove="DBDiffer\**" />
     <Compile Remove="WoWDBDefs\**" />
     <Content Remove="cache\**" />
     <Content Remove="CascLib\**" />
     <Content Remove="DBCD\**" />
     <Content Remove="dbcs\**" />
+    <Content Remove="DBDiffer\**" />
     <Content Remove="WoWDBDefs\**" />
     <EmbeddedResource Remove="cache\**" />
     <EmbeddedResource Remove="CascLib\**" />
     <EmbeddedResource Remove="DBCD\**" />
     <EmbeddedResource Remove="dbcs\**" />
+    <EmbeddedResource Remove="DBDiffer\**" />
     <EmbeddedResource Remove="WoWDBDefs\**" />
     <None Remove="cache\**" />
     <None Remove="CascLib\**" />
     <None Remove="DBCD\**" />
     <None Remove="dbcs\**" />
+    <None Remove="DBDiffer\**" />
     <None Remove="WoWDBDefs\**" />
   </ItemGroup>
 
@@ -48,6 +52,7 @@
   <ItemGroup>
     <ProjectReference Include="CascLib\CascLib\CascLib.csproj" />
     <ProjectReference Include="DBCD\DBCD\DBCD.csproj" />
+    <ProjectReference Include="DBDiffer\DBDiffer\DBDiffer.csproj" />
   </ItemGroup>
   
   <ItemGroup>

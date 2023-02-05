@@ -7,3 +7,6 @@
 [submodule "WoWDBDefs"]
 	path = WoWDBDefs
 	url = https://github.com/wowdev/WoWDBDefs
+[submodule "DBDiffer"]
+	path = DBDiffer
+	url = https://github.com/Marlamin/DBDiffer

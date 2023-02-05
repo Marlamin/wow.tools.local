@@ -174,8 +174,10 @@ namespace wow.tools.local.Controllers
         [HttpGet("db2/{databaseName}/versions")]
         public List<string> BuildsForDatabase(string databaseName, bool uniqueOnly = false)
         {
-            var versionList = new List<Version>();
-            versionList.Add(new Version(CASC.BuildName));
+            var versionList = new List<Version>
+            {
+                new Version(CASC.BuildName)
+            };
 
             if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && Directory.Exists(SettingsManager.dbcFolder))
             {

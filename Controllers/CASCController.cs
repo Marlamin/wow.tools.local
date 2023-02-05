@@ -70,8 +70,9 @@ namespace wow.tools.local.Controllers
                     var build = splitVersion[3];
 
                     var isActive = CASC.BuildName == version;
-
-                    result.data.Add(new List<string>() { patch, build, product, buildConfig, cdnConfig, isActive.ToString() });
+                    var hasManifest = System.IO.File.Exists("manifests/" + patch + "." + build + ".txt");
+                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
+                    result.data.Add(new List<string>() { patch, build, product, buildConfig, cdnConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString() });
                 }
 
                 result.data.OrderBy(x => x[0]).ToList();

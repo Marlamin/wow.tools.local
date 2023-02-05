@@ -101,6 +101,42 @@ namespace wow.tools.Local.Controllers
             }
         }
 
+        [Route("alltodisk")]
+        [HttpGet]
+        public async Task<bool> ExportAllToDisk()
+        {
+            Console.WriteLine("Exporting all DBCs from current build to disk");
+           
+            foreach (var dbname in dbcManager.GetDBCNames(CASC.BuildName))
+            {
+                try
+                {
+                    var cleanName = dbname.ToLower();
+                    var filestream = CASC.GetFileByName("dbfilesclient/" + dbname + ".db2");
+
+                    if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, CASC.BuildName, "dbfilesclient")))
+                    {
+                        Directory.CreateDirectory(Path.Combine(SettingsManager.dbcFolder, CASC.BuildName, "dbfilesclient"));
+                    }
+
+                    using (var exportStream = new FileStream(Path.Combine(SettingsManager.dbcFolder, CASC.BuildName, "dbfilesclient", cleanName + ".db2"), FileMode.Create))
+                    {
+                        filestream.CopyTo(exportStream);
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                    Console.WriteLine("Table " + dbname + " not found in build");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error " + e.Message + " occured when extracting DB2 " + dbname);
+                }
+            }
+
+            return true;
+        }
+        
         [Route("all")]
         [HttpGet]
         public async Task<ActionResult> ExportAllCSV(string? build, bool useHotfixes = false, bool newLinesInStrings = true, LocaleFlags locale = LocaleFlags.All_WoW)
@@ -185,7 +221,7 @@ namespace wow.tools.Local.Controllers
                         fileName = Path.ChangeExtension(fileName, ".dbc");
 
                         if (!System.IO.File.Exists(fileName))
-                            throw new FileNotFoundException($"Unable to find {tableName}");
+                            throw new FileNotFoundException($"Unable to find {tableName}, are DB2s for this build extracted?");
 
                         extension = "dbc";
                     }
