@@ -230,7 +230,8 @@ function fillPreviewModal(buildconfig, filedataid, type) {
     }
 
     if ($("#files_preview").is(":visible")){
-        $( "#files_preview" ).html(html);
+        $("#files_preview").html(html);
+        return false;
     } else {
         $( "#previewModalContent" ).html(html);
     }

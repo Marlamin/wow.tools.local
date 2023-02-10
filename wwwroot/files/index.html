@@ -113,6 +113,7 @@
             <tbody>
             </tbody>
         </table>
+        <div id="files_preview" style="display: none;"></div>
     </div>
     <div class="modal" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -324,7 +325,7 @@
                 },
                 "pageLength": 25,
                 "language": {
-                    "search": "Search: _INPUT_ <a style='margin-top: -5px;' class='btn btn-outline-primary btn-sm' href='#' data-toggle='modal' data-target='#helpModal'><i class='fa fa-question'></i></a><!--<a role='button' style='margin-top: -5px;' id='togglePreviewWindow' onClick='togglePreviewPane()' class='btn btn-danger btn-sm' style='color: white' data-trigger='hover' data-container='body' data-toggle='popover' data-content='Click this to toggle between showing previews on the right of the table, or in a separate popup.'><i class='fa fa-columns'></i></a>-->",
+                    "search": "Search: _INPUT_ <a style='margin-top: -5px;' class='btn btn-outline-primary btn-sm' href='#' data-toggle='modal' data-target='#helpModal'><i class='fa fa-question'></i></a><a role='button' style='margin-top: -5px;' id='togglePreviewWindow' onClick='togglePreviewPane()' class='btn btn-danger btn-sm' style='color: white' data-trigger='hover' data-container='body' data-toggle='popover' data-content='Click this to toggle between showing previews on the right of the table, or in a separate popup.'><i class='fa fa-columns'></i></a>",
                     "info": "Showing _START_ to _END_ of _TOTAL_ files",
                 },
                 "displayStart": page * 25,
@@ -501,13 +502,18 @@
                                 var test = "<a href='/dbc/?dbc=" + db2name + "' target='_BLANK'><i class='fa fa-table'></i></a>";
                             } else {
                                 //if (full[3].length && full[3][0].enc != 1) {
-                                //if ($("#files_preview").is(":visible")) {
-                                //    var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModalByContenthash(\"" + full[3][0].buildconfig + "\",\"" + full[0] + "\",\"" + full[3][0].contenthash + "\")'><i class='fa fa-eye'></i></a></td>";
-                                //} else {
-                                if (previewTypes.includes(full[4])) {
-                                    var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                if ($("#files_preview").is(":visible")) {
+                                    if (previewTypes.includes(full[4])) {
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                    } else {
+                                        var test = "<i class='fa fa-ban' style='opacity: 0.3'></i></td>";
+                                    }
                                 } else {
-                                    var test = "<i class='fa fa-ban' style='opacity: 0.3'></i></td>";
+                                    if (previewTypes.includes(full[4])) {
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                    } else {
+                                        var test = "<i class='fa fa-ban' style='opacity: 0.3'></i></td>";
+                                    }
                                 }
                             }
                             return test;
@@ -586,6 +592,7 @@
             <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
         </div>
     </footer>
+    <link href="/css/files.css" rel="stylesheet">
 </body>
 </html>
 
