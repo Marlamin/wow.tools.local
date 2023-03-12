@@ -20,8 +20,9 @@ namespace wow.tools.local.Controllers
 
             if (string.IsNullOrEmpty(filename))
             {
-                // TODO: Guess extension
                 filename = fileDataID.ToString();
+                if (CASC.Types.ContainsKey((int)fileDataID))
+                    filename += "." + CASC.Types[(int)fileDataID];
             }
 
             var file = CASC.GetFileByID(fileDataID);
