@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers
@@ -19,12 +20,25 @@ namespace wow.tools.local.Controllers
             var listfileResults = new Dictionary<int, string>();
             if (search.StartsWith("type:"))
             {
-                var cleaned = "." + search.Replace("type:", "");
-                listfileResults = resultsIn.Where(x => x.Value.EndsWith(cleaned)).ToDictionary(x => x.Key, x => x.Value);
+                var cleaned = search.Replace("type:", "").ToLowerInvariant();
+                if (!CASC.TypeMap.ContainsKey(cleaned))
+                    return listfileResults;
+
+                var fdids = new HashSet<int>(CASC.TypeMap[cleaned]);
+                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
-            else if(search == "unnamed")
+            else if (search == "unnamed")
             {
                 listfileResults = resultsIn.Where(x => x.Value.ToLower().StartsWith("unknown")).ToDictionary(x => x.Key, x => x.Value);
+            }
+            else if (search.StartsWith("encrypted:"))
+            {
+                var cleaned = search.Trim().Replace("encrypted:", "");
+                if (!ulong.TryParse(cleaned, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var converted))
+                    return listfileResults;
+
+                var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
+                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
             else
             {
@@ -52,7 +66,7 @@ namespace wow.tools.local.Controllers
                 if (searchStr.Contains(','))
                 {
                     var filters = searchStr.Split(',');
-                    foreach(var filter in filters)
+                    foreach (var filter in filters)
                     {
                         listfileResults = DoSearch(listfileResults, filter);
                     }
@@ -61,7 +75,7 @@ namespace wow.tools.local.Controllers
                 {
                     listfileResults = DoSearch(listfileResults, search);
                 }
-               
+
                 result.recordsFiltered = listfileResults.Count();
             }
             else

@@ -1,6 +1,4 @@
 ﻿using CASCLib;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using System.Collections.Generic;
 using System.Globalization;
 
 namespace wow.tools.local.Services
@@ -16,24 +14,28 @@ namespace wow.tools.local.Services
         public static List<int> AvailableFDIDs = new();
         public static List<ulong> KnownKeys = new();
         public static Dictionary<int, EncryptionStatus> EncryptionStatuses = new();
+        public static Dictionary<int, List<ulong>> EncryptedFDIDs = new();
+        public static Dictionary<int, string> Types = new();
+        public static Dictionary<string, List<int>> TypeMap = new();
+
         public enum EncryptionStatus
         {
             EncryptedKnownKey,
             EncryptedUnknownKey,
             EncryptedMixed
         }
-        
+
         private static HttpClient WebClient = new HttpClient();
         public static async void InitCasc(string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
         {
             WebClient.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
-            
+
             CASCConfig.LoadFlags &= ~(LoadFlags.Download | LoadFlags.Install);
             CASCConfig.ValidateData = false;
             CASCConfig.ThrowOnFileNotFound = false;
 
             locale = SettingsManager.locale;
-            
+
             if (basedir == null)
             {
                 Console.WriteLine("Initializing CASC from web for program " + program + " and locale " + locale);
@@ -53,18 +55,18 @@ namespace wow.tools.local.Services
 
             if (!Directory.Exists("manifests"))
                 Directory.CreateDirectory("manifests");
-            
+
             if (cascHandler.Root is WowTVFSRootHandler wtrh)
             {
                 AvailableFDIDs = wtrh.RootEntries.Keys.ToList();
-                if(!File.Exists(Path.Combine("manifests", BuildName + ".txt")))
+                if (!File.Exists(Path.Combine("manifests", BuildName + ".txt")))
                 {
                     var manifestLines = new List<string>();
                     foreach (var entry in wtrh.RootEntries)
                     {
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-                        
+
                         manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
                     }
 
@@ -83,7 +85,7 @@ namespace wow.tools.local.Services
                     {
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-                        
+
                         manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
                     }
 
@@ -103,9 +105,6 @@ namespace wow.tools.local.Services
             if (!listfileRes)
                 throw new Exception("Failed to load listfile");
 
-            var encryptedFDIDs = new Dictionary<int, List<ulong>>();
-
-
             Console.WriteLine("Analyzing encrypted files");
             if (cascHandler.Root is WowTVFSRootHandler ewtrh)
             {
@@ -113,17 +112,14 @@ namespace wow.tools.local.Services
                 {
                     foreach (var subentry in entry.Value)
                     {
-                        if (subentry.ContentFlags.HasFlag(ContentFlags.Encrypted))
-                        {
-                            if (encryptedFDIDs.ContainsKey(entry.Key))
-                                continue;
+                        if (EncryptedFDIDs.ContainsKey(entry.Key))
+                            continue;
 
-                            if (cascHandler.Encoding.GetEntry(subentry.cKey, out var eKey))
-                            {
-                                var usedKeys = cascHandler.Encoding.GetEncryptionKeys(eKey.Keys[0]);
-                                if (usedKeys != null)
-                                    encryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
-                            }
+                        if (cascHandler.Encoding.GetEntry(subentry.cKey, out var eKey))
+                        {
+                            var usedKeys = cascHandler.Encoding.GetEncryptionKeys(eKey.Keys[0]);
+                            if (usedKeys != null)
+                                EncryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
                         }
                     }
                 }
@@ -134,27 +130,24 @@ namespace wow.tools.local.Services
                 {
                     foreach (var subentry in entry.Value)
                     {
-                        if (subentry.ContentFlags.HasFlag(ContentFlags.Encrypted))
+                        if (EncryptedFDIDs.ContainsKey(entry.Key))
+                            continue;
+
+                        if (cascHandler.Encoding.GetEntry(subentry.cKey, out var eKey))
                         {
-                            if (encryptedFDIDs.ContainsKey(entry.Key))
-                                continue;
-                            
-                            if (cascHandler.Encoding.GetEntry(subentry.cKey, out var eKey))
-                            {
-                                var usedKeys = cascHandler.Encoding.GetEncryptionKeys(eKey.Keys[0]);
-                                if (usedKeys != null)
-                                    encryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
-                            }
+                            var usedKeys = cascHandler.Encoding.GetEncryptionKeys(eKey.Keys[0]);
+                            if (usedKeys != null)
+                                EncryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
                         }
                     }
                 }
             }
 
-            Console.WriteLine("Found " + encryptedFDIDs.Count + " encrypted files");
-            foreach (var encryptedFile in encryptedFDIDs)
+            Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");
+            foreach (var encryptedFile in EncryptedFDIDs)
             {
                 EncryptionStatus encryptionStatus;
-                if(encryptedFile.Value.All(value => KnownKeys.Contains(value)))
+                if (encryptedFile.Value.All(value => KnownKeys.Contains(value)))
                 {
                     encryptionStatus = EncryptionStatus.EncryptedKnownKey;
                 }
@@ -166,16 +159,16 @@ namespace wow.tools.local.Services
                 {
                     encryptionStatus = EncryptionStatus.EncryptedUnknownKey;
                 }
-                
+
                 EncryptionStatuses.Add(encryptedFile.Key, encryptionStatus);
             }
-            
+
             Console.WriteLine("Done analyzing encrypted files");
 
             IsCASCInit = true;
             Console.WriteLine("Finished loading " + BuildName);
         }
-        
+
         public static bool ExportListfile()
         {
             File.WriteAllLines("exported-listfile.csv", Listfile.OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value).ToArray());
@@ -207,7 +200,7 @@ namespace wow.tools.local.Services
                 using var fs = new FileStream("listfile.csv", FileMode.OpenOrCreate);
                 s.CopyTo(fs);
             }
-            
+
             if (!File.Exists("listfile.csv"))
             {
                 throw new FileNotFoundException("Could not find listfile.csv");
@@ -225,10 +218,17 @@ namespace wow.tools.local.Services
 
                 if (Listfile.ContainsKey(fdid))
                 {
+                    var ext = Path.GetExtension(splitLine[1]).Replace(".", "");
+
+                    if (!TypeMap.ContainsKey(ext))
+                        TypeMap.Add(ext, new List<int>());
+
                     Listfile[fdid] = splitLine[1];
                     ListfileReverse.Add(splitLine[1], fdid);
 
-                    if (line.EndsWith(".m2"))
+                    Types.Add(fdid, Path.GetExtension(splitLine[1]));
+                    TypeMap[ext].Add(fdid);
+                    if (ext == "m2")
                         M2Listfile.Add(fdid, splitLine[1]);
                 }
             }
@@ -258,7 +258,7 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Downloading TACT keys");
 
                 List<string> tactKeyLines = new();
-                using(var s = WebClient.GetStreamAsync(SettingsManager.tactKeyURL).Result)
+                using (var s = WebClient.GetStreamAsync(SettingsManager.tactKeyURL).Result)
                 using (var sr = new StreamReader(s))
                 {
                     while (!sr.EndOfStream)
@@ -266,7 +266,7 @@ namespace wow.tools.local.Services
                         var line = sr.ReadLine();
                         if (string.IsNullOrEmpty(line))
                             continue;
-                        
+
                         var splitLine = line.Split(" ");
                         tactKeyLines.Add(splitLine[0] + ";" + splitLine[1]);
                     }
@@ -275,7 +275,7 @@ namespace wow.tools.local.Services
                 File.WriteAllLines("TactKey.csv", tactKeyLines);
             }
 
-            foreach(var line in File.ReadAllLines("TactKey.csv"))
+            foreach (var line in File.ReadAllLines("TactKey.csv"))
             {
                 var splitLine = line.Split(";");
                 if (splitLine.Length != 2)
