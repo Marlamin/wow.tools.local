@@ -186,9 +186,9 @@
                                 //}
                                 
                                 if (previewTypes.includes(full.type)) {
-                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModal(\"\"," + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a></td>";
+                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModal(\"\"," + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a>";
                                 } else {
-                                    content = "<i class='fa fa-ban' style='opacity: 0.3'></i></td>";
+                                    content = "<i class='fa fa-ban' style='opacity: 0.3'></i>";
                                 }
                                 
                                 if (full.md5 == "de6135861a6cacfe176830f18f597c3e") {
@@ -242,10 +242,10 @@
                                 }
                                 break;
                         }
-                       /* if (encrypted.includes(parseInt(full.id))) {
-                            content += " <i style=\"color: red\" title=\"File is encrypted, preview might be broken\" class=\"fa fa-lock\"></i>";
+                        if (full.encryptedStatus == "EncryptedUnknownKey") {
+                            content += " <i style=\"color: red\" title=\"File is encrypted with unknown key\" class=\"fa fa-lock\"></i>";
                         }
-
+                        /*
                         if (encryptedbutnot.includes(parseInt(full.id))) {
                             content += " <i style=\"color: white\" title=\"Flagged as encrypted but not\" class=\"fa fa-unlock\"></i>";
                         }*/

@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using wow.tools.local.Services;
 
@@ -91,6 +89,14 @@ namespace wow.tools.local.Controllers
             return true;
         }
 
+        [Route("exportListfile")]
+        [HttpGet]
+        public bool ExportListfile()
+        {
+            CASC.ExportListfile();
+            return true;
+        }
+
         [Route("listManifests")]
         [HttpGet]
         public List<string> ListManifests()
@@ -98,7 +104,7 @@ namespace wow.tools.local.Controllers
             var cachedManifests = new List<string>();
             if (Directory.Exists("manifests"))
             {
-                foreach(var file in Directory.GetFiles("manifests", "*.txt"))
+                foreach (var file in Directory.GetFiles("manifests", "*.txt"))
                     cachedManifests.Add(Path.GetFileNameWithoutExtension(file));
             }
             return cachedManifests;
@@ -109,7 +115,7 @@ namespace wow.tools.local.Controllers
         public bool AnalyzeUnknown()
         {
             var knownUnknowns = new Dictionary<int, string>();
-            
+
             if (System.IO.File.Exists("cachedUnknowns.txt"))
             {
                 knownUnknowns = System.IO.File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
@@ -128,10 +134,11 @@ namespace wow.tools.local.Controllers
 
                 unknownFiles = CASC.Listfile.Where(x => x.Value == "").OrderByDescending(x => x.Key);
             }
-            
+
             Console.WriteLine("Analyzing " + unknownFiles.Count() + " unknown files");
             var numFilesTotal = unknownFiles.Count();
             var numFilesDone = 0;
+            var numFilesSkipped = 0;
             Parallel.ForEach(unknownFiles, unknownFile =>
             {
                 try
@@ -139,6 +146,8 @@ namespace wow.tools.local.Controllers
                     var file = CASC.GetFileByID((uint)unknownFile.Key);
                     if (file == null)
                     {
+                        numFilesSkipped++;
+                        numFilesDone++;
                         return;
                     }
 
@@ -166,18 +175,54 @@ namespace wow.tools.local.Controllers
                                 type = "blp";
                                 break;
                             case "REVM":
-                                type = "wmoadt";
+                                var length = bin.ReadInt32();
+                                bin.ReadBytes(length);
+
+                                var secondChunk = bin.ReadBytes(4);
+                                var subChunk = Encoding.ASCII.GetString(secondChunk);
+                                switch (subChunk)
+                                {
+                                    case "RDHM": // ADT root
+                                    case "FDDM": // ADT OBJ
+                                    case "DDLM": // ADT OBJ
+                                    case "DFLM": // ADT OBJ
+                                    case "DHLM": // ADT LOD
+                                    case "PMAM": // ADT TEX
+                                        type = "adt";
+                                        break;
+                                    case "DHOM": // WMO root
+                                        type = "wmo";
+                                        break;
+                                    case "PGOM": // WMO GROUP
+                                        type = "gwmo";
+                                        break;
+                                    case "DHPM": // WDT root
+                                    case "IOAM": // WDT OCC/LGT
+                                        type = "wdt";
+                                        break;
+                                    default:
+                                        Console.WriteLine("Unknown sub chunk " + subChunk + " for file " + (uint)unknownFile.Key);
+                                        type = "chUNK";
+                                        break;
+                                }
+                                break;
+                            case "RVXT":
+                                type = "tex";
                                 break;
                             case "AFM2":
                             case "AFSA":
                             case "AFSB":
                                 type = "anim";
                                 break;
+                            case "WDC4":
                             case "WDC3":
                                 type = "db2";
                                 break;
                             case "RIFF":
                                 type = "avi";
+                                break;
+                            case "HSXG":
+                                type = "bls";
                                 break;
                             default:
                                 Console.WriteLine((uint)unknownFile.Key + " - Unknown magic " + magicString + " (" + Convert.ToHexString(magic) + ")");
@@ -198,12 +243,13 @@ namespace wow.tools.local.Controllers
                     {
                         Console.WriteLine("Failed to guess type for file " + unknownFile.Key + ": " + e.Message + "\n" + e.StackTrace);
                     }
-
+                    numFilesSkipped++;
+                    numFilesDone++;
                 }
 
                 if (numFilesDone % 1000 == 0)
-                    Console.WriteLine("Analyzed " + numFilesDone + "/" + numFilesTotal + " files");
-                
+                    Console.WriteLine("Analyzed " + numFilesDone + "/" + numFilesTotal + " files (skipped " + numFilesSkipped + " unreadable files)");
+
                 numFilesDone++;
             });
 
@@ -211,7 +257,7 @@ namespace wow.tools.local.Controllers
             Console.WriteLine("Finished unknown file analysis");
             return true;
         }
-        
+
         [Route("diff")]
         [HttpGet]
         public ActionResult DiffManifests(string from, string to)
@@ -239,7 +285,8 @@ namespace wow.tools.local.Controllers
                         filename = file,
                         id = entry.Key.ToString(),
                         md5 = entry.Value.ToLower(),
-                        type = Path.GetExtension(file).Replace(".", "")
+                        type = Path.GetExtension(file).Replace(".", ""),
+                        encryptedStatus = CASC.EncryptionStatuses.ContainsKey(entry.Key) ? CASC.EncryptionStatuses[entry.Key].ToString() : ""
                     };
                 };
             }

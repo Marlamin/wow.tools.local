@@ -10,6 +10,7 @@ namespace wow.tools.local.Services
         public string id;
         public string type;
         public string md5;
+        public string encryptedStatus;
     }
 
     public struct ApiDiff

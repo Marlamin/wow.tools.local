@@ -77,21 +77,22 @@
             <!--<a href='#' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a> -->
             <!-- <a href='/files/submitFiles.php' class='btn btn-success btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-content='Submit suggestions for filenames'><i class='fa fa-upload'></i> Suggest names</a> -->
             <!-- <div class="btn-group">
-                <a href='/casc/listfile/download/csv/unverified' class='btn btn-primary btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true' data-content='<span class="badge badge-danger">WARNING!</span> Listfile downloads are going away soon, please get the listfile from GitHub instead (see link in footer)!'><i class='fa fa-download'></i> Listfile</a>
-                <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <div class="dropdown-menu">
-                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download">TXT (Blizzard filenames only)</a>
-                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv">CSV (Blizzard filenames only)</a>
-                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unknown">CSV (FileDataIDs with no filenames)</a>
-                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unverified">Community CSV (all filenames, incl. guessed ones)</a>
-                </div>
-            </div>
-                    <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
-                    <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
-                    <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
+        <a href='/casc/listfile/download/csv/unverified' class='btn btn-primary btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true' data-content='<span class="badge badge-danger">WARNING!</span> Listfile downloads are going away soon, please get the listfile from GitHub instead (see link in footer)!'><i class='fa fa-download'></i> Listfile</a>
+        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download">TXT (Blizzard filenames only)</a>
+            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv">CSV (Blizzard filenames only)</a>
+            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unknown">CSV (FileDataIDs with no filenames)</a>
+            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unverified">Community CSV (all filenames, incl. guessed ones)</a>
+        </div>
+    </div>
+            <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
+            <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
+            <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
             <a style='vertical-align: top;' id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
+            <a style='vertical-align: top;' id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#"><i class='fa fa-save'></i> Export listfile to exported-listfile.csv</a>
         </div>
         <div id='files_treeFilter' style='display: none'>
             <input type='text' id='treeFilter' oninput='treeFilterChange(this)'>
@@ -192,6 +193,10 @@
             showFileType: true,
             showFileBranch: true,
             showFileTree: false
+        }
+
+        async function exportListfile() {
+            const response = await fetch("/casc/exportListfile");
         }
 
         async function analyzeFiles() {
@@ -400,22 +405,16 @@
                         "visible": true,
                         "orderable": false,
                         "render": function (data, type, full, meta) {
-                            //if (full[3].length > 0) {
-                            //    if (full[3][0].enc == 1) {
-                            //        var test = "<i style='color: red' title='File is encrypted (key " + full[3][0].key + " unknown)' class='fa fa-lock'></i> ";
-                            //    } else if (full[3][0].enc == 2) {
-                            //        var test = "<i style='color: green' title='File is encrypted (key " + full[3][0].key + " is available)' class='fa fa-unlock'></i> ";
-                            //    } else if (full[3][0].enc == 3) {
-                            //        var test = "<i style='color: yellow' title='File is encrypted (keys " + full[3][0].key + " are partially available)' class='fa fa-lock'></i> ";
-                            //    } else if (full[3][0].enc == 4) {
-                            //        var test = "<i style='color: #7e7e7e' title='File is flagged as encrypted' class='fa fa-unlock'></i> ";
-                            //    } else {
-                            //        var test = "";
-                            //    }
-                            //} else {
-                            var test = "";
-                            //}
-
+                            if (full[5] == "EncryptedUnknownKey") {
+                                var test = "<i style='color: red' title='File is encrypted (key unknown)' class='fa fa-lock'></i> ";
+                            } else if (full[5] == "EncryptedKnownKey") {
+                                var test = "<i style='color: green' title='File is encrypted (key is available)' class='fa fa-unlock'></i> ";
+                            } else if (full[5] == "EncryptedMixed") {
+                                var test = "<i style='color: yellow' title='File is encrypted (keys are partially available)' class='fa fa-lock'></i> ";
+                            } else {
+                                var test = "";
+                            }
+                        
                             //if (full[3].length > 1) {
                             //    test += "<a data-toggle='collapse' href='#versions" + full[0] + "'>> Show " + full[3].length + " versions</a><div class='collapse' id='versions" + full[0] + "'>";
                             //    full[3].forEach(function (entry) {
@@ -450,7 +449,12 @@
                             } else {
                                 var filename = "";
                             }
-                            test += "<a class='fileTableDL' href='/casc/fdid?fileDataID=" + full[0] + "&filename=" + encodeURIComponent(filename) + "'>Download</a>";
+
+                            if (full[5] == "EncryptedUnknownKey") {
+                                test += "N/A";
+                            } else {
+                                test += "<a class='fileTableDL' href='/casc/fdid?fileDataID=" + full[0] + "&filename=" + encodeURIComponent(filename) + "'>Download</a>";
+                            }
 
                             //if (full[3][0].contenthash == "de6135861a6cacfe176830f18f597c3e" || full[3][0].contenthash == "ea80e802952501021865cfeed808ac3f") {
                             //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
