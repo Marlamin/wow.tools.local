@@ -29,7 +29,7 @@ namespace wow.tools.local.Controllers
             else
             {
                 // Simple search
-                listfileResults = resultsIn.Where(x => x.Value.ToLower().Contains(search) || x.Key.ToString() == search).ToDictionary(x => x.Key, x => x.Value);
+                listfileResults = resultsIn.Where(x => x.Value.ToLower().Contains(search) || x.Key.ToString() == search || x.Key.ToString().Contains(search)).ToDictionary(x => x.Key, x => x.Value);
             }
             return listfileResults;
         }
