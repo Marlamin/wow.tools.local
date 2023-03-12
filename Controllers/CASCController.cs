@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DBCD;
+using Microsoft.AspNetCore.Mvc;
+using System.Data.Common;
 using System.Text;
 using wow.tools.local.Services;
+using wow.tools.Services;
 
 namespace wow.tools.local.Controllers
 {
@@ -121,18 +124,111 @@ namespace wow.tools.local.Controllers
                 knownUnknowns = System.IO.File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
             }
 
-            var unknownFiles = CASC.Listfile.Where(x => x.Value == "").OrderByDescending(x => x.Key);
+            var unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key));
 
             if (knownUnknowns.Count > 0)
             {
                 Console.WriteLine("Loading " + knownUnknowns.Count + " unknown files from cache");
                 foreach (var unkFile in unknownFiles)
                 {
-                    if (knownUnknowns.TryGetValue(unkFile.Key, out var type))
-                        CASC.Listfile[unkFile.Key] = "unknown/" + unkFile.Key + "." + type;
+                    if (knownUnknowns.TryGetValue(unkFile, out var type))
+                    {
+                        CASC.SetFileType(unkFile, type);
+                    }
                 }
 
-                unknownFiles = CASC.Listfile.Where(x => x.Value == "").OrderByDescending(x => x.Key);
+                unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key));
+            }
+            var dbcd = new DBCD.DBCD(new DBCProvider(), new DBDProvider());
+
+            try
+            {
+                var mfdStorage = dbcd.Load("ModelFileData", CASC.BuildName);
+                foreach (dynamic mfdEntry in mfdStorage.Values)
+                {
+                    var fdid = (int)mfdEntry.FileDataID;
+                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    {
+                        Console.WriteLine("Adding M2 from ModelFileData for " + fdid);
+                        CASC.SetFileType(fdid, "m2");
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with ModelFileData:" + e.Message);
+            }
+
+            try
+            {
+                var tfdStorage = dbcd.Load("TextureFileData", CASC.BuildName);
+                foreach (dynamic tfdEntry in tfdStorage.Values)
+                {
+                    var fdid = (int)tfdEntry.FileDataID;
+                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    {
+                        Console.WriteLine("Adding BLP from TextureFileData for " + fdid);
+                        CASC.SetFileType(fdid, "blp");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with TextureFileData:" + e.Message);
+            }
+
+            try
+            {
+                var mfdStorage = dbcd.Load("MovieFileData", CASC.BuildName);
+                foreach (dynamic mfdEntry in mfdStorage.Values)
+                {
+                    var fdid = (int)mfdEntry.ID;
+                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    {
+                        Console.WriteLine("Adding AVI from MovieFileData for " + fdid);
+                        CASC.SetFileType(fdid, "avi");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with MovieFileData:" + e.Message);
+            }
+
+            try
+            {
+                var mp3Storage = dbcd.Load("ManifestMP3", CASC.BuildName);
+                foreach (dynamic mp3Entry in mp3Storage.Values)
+                {
+                    var fdid = (int)mp3Entry.ID;
+                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    {
+                        Console.WriteLine("Adding MP3 from ManifestMP3 for " + fdid);
+                        CASC.SetFileType(fdid, "mp3");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with ManifestMP3:" + e.Message);
+            }
+
+            try
+            {
+                var skStorage = dbcd.Load("SoundKitEntry", CASC.BuildName);
+                foreach (dynamic skEntry in skStorage.Values)
+                {
+                    var fdid = (int)skEntry.FileDataID;
+                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    {
+                        Console.WriteLine("Adding OGG from SoundKitEntry for " + fdid);
+                        CASC.SetFileType(fdid, "ogg");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with SoundKitEntry:" + e.Message);
             }
 
             Console.WriteLine("Analyzing " + unknownFiles.Count() + " unknown files");
@@ -143,14 +239,14 @@ namespace wow.tools.local.Controllers
             {
                 try
                 {
-                    if (CASC.EncryptionStatuses.ContainsKey(unknownFile.Key) && CASC.EncryptionStatuses[unknownFile.Key] == CASC.EncryptionStatus.EncryptedUnknownKey)
+                    if (CASC.EncryptionStatuses.ContainsKey(unknownFile) && CASC.EncryptionStatuses[unknownFile] == CASC.EncryptionStatus.EncryptedUnknownKey)
                     {
                         numFilesSkipped++;
                         numFilesDone++;
                         return;
                     }
 
-                    var file = CASC.GetFileByID((uint)unknownFile.Key);
+                    var file = CASC.GetFileByID((uint)unknownFile);
                     if (file == null)
                     {
                         numFilesSkipped++;
@@ -208,7 +304,7 @@ namespace wow.tools.local.Controllers
                                         type = "wdt";
                                         break;
                                     default:
-                                        Console.WriteLine("Unknown sub chunk " + subChunk + " for file " + (uint)unknownFile.Key);
+                                        Console.WriteLine("Unknown sub chunk " + subChunk + " for file " + (uint)unknownFile);
                                         type = "chUNK";
                                         break;
                                 }
@@ -232,19 +328,19 @@ namespace wow.tools.local.Controllers
                                 type = "bls";
                                 break;
                             default:
-                                Console.WriteLine((uint)unknownFile.Key + " - Unknown magic " + magicString + " (" + Convert.ToHexString(magic) + ")");
+                                Console.WriteLine((uint)unknownFile + " - Unknown magic " + magicString + " (" + Convert.ToHexString(magic) + ")");
                                 break;
                         }
 
-                        CASC.Types.TryAdd(unknownFile.Key, type);
-                        knownUnknowns.TryAdd(unknownFile.Key, type);
+                        CASC.SetFileType(unknownFile, type);
+                        knownUnknowns.TryAdd(unknownFile, type);
                     }
                 }
                 catch (Exception e)
                 {
                     if (!e.Message.Contains("nknown keyname"))
                     {
-                        Console.WriteLine("Failed to guess type for file " + unknownFile.Key + ": " + e.Message + "\n" + e.StackTrace);
+                        Console.WriteLine("Failed to guess type for file " + unknownFile + ": " + e.Message + "\n" + e.StackTrace);
                     }
                     numFilesSkipped++;
                     numFilesDone++;

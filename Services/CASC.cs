@@ -336,5 +336,18 @@ namespace wow.tools.local.Services
         {
             return cascHandler.FileExists((int)filedataid);
         }
+
+        public static void SetFileType(int filedataid, string type)
+        {
+            if (!Types.ContainsKey(filedataid))
+                Types.Add(filedataid, type);
+            else if (Types[filedataid] == "unk")
+                Types[filedataid] = type;
+
+            if (!TypeMap.ContainsKey(type))
+                TypeMap.Add(type, new List<int>());
+
+            TypeMap[type].Add(filedataid);
+        }
     }
 }
