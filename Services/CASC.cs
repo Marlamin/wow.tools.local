@@ -180,6 +180,13 @@ namespace wow.tools.local.Services
             File.WriteAllLines("exported-listfile.csv", Listfile.OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value).ToArray());
             return true;
         }
+
+        public static bool ExportTACTKeys()
+        {
+            File.WriteAllLines("exported-tactkeys.csv", KnownKeys.Select(x => x.ToString("X16") + " " + Convert.ToHexString(KeyService.GetKey(x))).ToArray());
+            return true;
+        }
+        
         public static bool LoadListfile(bool forceRedownload = false)
         {
             var download = forceRedownload;
@@ -335,6 +342,23 @@ namespace wow.tools.local.Services
         public static bool FileExists(uint filedataid)
         {
             return cascHandler.FileExists((int)filedataid);
+        }
+        
+        public static string GetFullBuild()
+        {
+            return cascHandler.Config.BuildName;
+        }
+        
+        public static string GetKey(ulong lookup)
+        {
+            if (cascHandler == null)
+                return "";
+
+            var key = KeyService.GetKey(lookup);
+            if (key == null)
+                return "";
+            
+            return Convert.ToHexString(key);
         }
 
         public static void SetFileType(int filedataid, string type)

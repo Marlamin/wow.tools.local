@@ -93,6 +93,7 @@
             <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
             <a style='vertical-align: top;' id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
             <a style='vertical-align: top;' id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#"><i class='fa fa-save'></i> Export listfile to exported-listfile.csv</a>
+            <a style='vertical-align: top;' id='exportTACTKeysButton' class='btn btn-secondary btn-sm' onclick="exportTACTKeys();" href="#"><i class='fa fa-save'></i> Export TACTKeys to exported-tactkeys.csv</a>
         </div>
         <div id='files_treeFilter' style='display: none'>
             <input type='text' id='treeFilter' oninput='treeFilterChange(this)'>
@@ -196,7 +197,11 @@
         }
 
         async function exportListfile() {
-            const response = await fetch("/casc/exportListfile");
+            await fetch("/casc/exportListfile");
+        }
+
+        async function exportTACTKeys() {
+            await fetch("/casc/exportTACTKeys");
         }
 
         async function analyzeFiles() {

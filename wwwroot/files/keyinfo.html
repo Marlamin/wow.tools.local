@@ -1,0 +1,118 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WoW.tools</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- JQuery -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+    <script type="text/javascript" src="/js/bufo.js"></script>
+    <script type="text/javascript" src="/js/js-blp.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="/">
+            <div id='logo'>
+                <div id='cog'>&nbsp;</div>
+                <div id='nocog'><img src='/img/w.svg' alt='Logo W'><img src='/img/w.svg' alt='Logo W'><span>.tools <small><i>but local</i></small></span></div>
+            </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class='fa fa-bars'></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto mt-2 mt-md-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/files/"><i class="fa fa-files-o" aria-hidden="true"></i> Files</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-table" aria-hidden="true"></i> Tables
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navDropdown">
+                        <a class="dropdown-item" href="/dbc/">Browse</a>
+                        <a class="dropdown-item" href="/dbc/diff.html">Compare</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/mv/"><i class="fa fa-cube" aria-hidden="true"></i> Models</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/builds/"><i class="fa fa-hdd-o" aria-hidden="true"></i> Builds</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div id='output' style='font-family: "Courier New", monospace; white-space: pre;'>
+
+        </div>
+    </div>
+    <script src="/js/files.js"></script>
+    <script type='text/javascript'>
+        getKeys();
+        async function getKeys() {
+            const response = await fetch("/keys/info");
+            const json = await response.json();
+            let output = "";
+
+            json.forEach(function (entry) {
+                console.log(entry);
+                let keyBytes = "????????????????????????????????";
+                
+                if (entry.Key != "") {
+                    keyBytes = entry.Key;
+                }
+
+                let idPadding = " ";
+                if (entry.ID.toString().length == 2)
+                    idPadding = "  ";
+
+                let descriptionPadding = "  ";
+                if (entry.FirstSeen.length == 23)
+                    descriptionPadding = "   ";
+
+                output += " " + entry.Lookup + "  " + keyBytes + "  salsa20   " + entry.ID + idPadding + entry.FirstSeen + descriptionPadding + entry.Description + "\n";
+            });
+
+            document.getElementById("output").innerHTML = output;
+        }
+    </script>
+    <footer>
+        <div class="container text-muted">
+            <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
+        </div>
+    </footer>
+    <link href="/css/files.css" rel="stylesheet">
+</body>
+</html>
+

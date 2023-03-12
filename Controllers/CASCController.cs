@@ -100,6 +100,15 @@ namespace wow.tools.local.Controllers
             return true;
         }
 
+        [Route("exportTACTKeys")]
+        [HttpGet]
+        public bool ExportTACTKeys()
+        {
+            CASC.ExportTACTKeys();
+            return true;
+        }
+
+
         [Route("listManifests")]
         [HttpGet]
         public List<string> ListManifests()
