@@ -143,6 +143,13 @@ namespace wow.tools.local.Controllers
             {
                 try
                 {
+                    if (CASC.EncryptionStatuses.ContainsKey(unknownFile.Key) && CASC.EncryptionStatuses[unknownFile.Key] == CASC.EncryptionStatus.EncryptedUnknownKey)
+                    {
+                        numFilesSkipped++;
+                        numFilesDone++;
+                        return;
+                    }
+
                     var file = CASC.GetFileByID((uint)unknownFile.Key);
                     if (file == null)
                     {
