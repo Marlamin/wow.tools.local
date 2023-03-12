@@ -160,6 +160,7 @@ namespace wow.tools.local.Controllers
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
                         Console.WriteLine("Adding M2 from ModelFileData for " + fdid);
+                        knownUnknowns.TryAdd(fdid, "m2");
                         CASC.SetFileType(fdid, "m2");
                     }
                 }
@@ -178,6 +179,7 @@ namespace wow.tools.local.Controllers
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
                         Console.WriteLine("Adding BLP from TextureFileData for " + fdid);
+                        knownUnknowns.TryAdd(fdid, "blp");
                         CASC.SetFileType(fdid, "blp");
                     }
                 }
@@ -196,6 +198,7 @@ namespace wow.tools.local.Controllers
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
                         Console.WriteLine("Adding AVI from MovieFileData for " + fdid);
+                        knownUnknowns.TryAdd(fdid, "avi");
                         CASC.SetFileType(fdid, "avi");
                     }
                 }
@@ -214,6 +217,7 @@ namespace wow.tools.local.Controllers
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
                         Console.WriteLine("Adding MP3 from ManifestMP3 for " + fdid);
+                        knownUnknowns.TryAdd(fdid, "mp3");
                         CASC.SetFileType(fdid, "mp3");
                     }
                 }
@@ -232,6 +236,7 @@ namespace wow.tools.local.Controllers
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
                         Console.WriteLine("Adding OGG from SoundKitEntry for " + fdid);
+                        knownUnknowns.TryAdd(fdid, "ogg");
                         CASC.SetFileType(fdid, "ogg");
                     }
                 }
