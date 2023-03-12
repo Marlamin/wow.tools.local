@@ -11,8 +11,10 @@ namespace wow.tools.local.Services
         public static Dictionary<int, string> Listfile = new();
         public static Dictionary<string, int> ListfileReverse = new();
         public static SortedDictionary<int, string> M2Listfile = new();
+        
         public static List<int> AvailableFDIDs = new();
         public static List<ulong> KnownKeys = new();
+        
         public static Dictionary<int, EncryptionStatus> EncryptionStatuses = new();
         public static Dictionary<int, List<ulong>> EncryptedFDIDs = new();
         public static Dictionary<int, string> Types = new();
@@ -98,6 +100,10 @@ namespace wow.tools.local.Services
             Listfile = new Dictionary<int, string>();
             ListfileReverse = new Dictionary<string, int>();
             M2Listfile = new SortedDictionary<int, string>();
+            EncryptedFDIDs = new Dictionary<int, List<ulong>>();
+            EncryptionStatuses = new Dictionary<int, EncryptionStatus>();
+            TypeMap = new Dictionary<string, List<int>>();
+            Types = new Dictionary<int, string>();
 
             AvailableFDIDs.ForEach(x => Listfile.Add(x, ""));
 
@@ -174,10 +180,10 @@ namespace wow.tools.local.Services
             File.WriteAllLines("exported-listfile.csv", Listfile.OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value).ToArray());
             return true;
         }
-        public static bool LoadListfile()
+        public static bool LoadListfile(bool forceRedownload = false)
         {
-            var download = false;
-
+            var download = forceRedownload;
+            
             if (File.Exists("listfile.csv"))
             {
                 var info = new FileInfo("listfile.csv");
@@ -226,7 +232,7 @@ namespace wow.tools.local.Services
                     Listfile[fdid] = splitLine[1];
                     ListfileReverse.Add(splitLine[1], fdid);
 
-                    Types.Add(fdid, Path.GetExtension(splitLine[1]));
+                    Types.Add(fdid, ext);
                     TypeMap[ext].Add(fdid);
                     if (ext == "m2")
                         M2Listfile.Add(fdid, splitLine[1]);

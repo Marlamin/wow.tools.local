@@ -96,7 +96,7 @@ namespace wow.tools.local.Controllers
                         listfileResult.Value, // Filename 
                         "", // Lookup
                         "", // Versions
-                        Path.GetExtension(listfileResult.Value).Replace(".", ""), // Type
+                        CASC.Types.ContainsKey(listfileResult.Key) ? CASC.Types[listfileResult.Key] : "unk", // Type
                         CASC.EncryptionStatuses.ContainsKey(listfileResult.Key) ? CASC.EncryptionStatuses[listfileResult.Key].ToString() : "", // Extra data
                         "", // Comment
                         ""
@@ -141,7 +141,7 @@ namespace wow.tools.local.Controllers
                         listfileResult.Value, // Filename 
                         "", // Lookup
                         "", // Versions
-                        Path.GetExtension(listfileResult.Value).Replace(".", ""), // Type
+                        CASC.Types.ContainsKey(listfileResult.Key) ? CASC.Types[listfileResult.Key] : "unk", // Type
                         CASC.EncryptionStatuses.ContainsKey(listfileResult.Key) ? CASC.EncryptionStatuses[listfileResult.Key].ToString() : "0"
                     });
             }

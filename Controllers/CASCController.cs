@@ -236,12 +236,8 @@ namespace wow.tools.local.Controllers
                                 break;
                         }
 
-                        if (type != "unk")
-                        {
-                            //Console.WriteLine("Detected " + unknownFile.Key + " as " + type);
-                            CASC.Listfile[unknownFile.Key] = "unknown/" + unknownFile.Key + "." + type;
-                            knownUnknowns.TryAdd(unknownFile.Key, type);
-                        }
+                        CASC.Types.TryAdd(unknownFile.Key, type);
+                        knownUnknowns.TryAdd(unknownFile.Key, type);
                     }
                 }
                 catch (Exception e)
@@ -260,7 +256,7 @@ namespace wow.tools.local.Controllers
                 numFilesDone++;
             });
 
-            System.IO.File.WriteAllLines("cachedUnknowns.txt", knownUnknowns.Select(x => x.Key + ";" + x.Value));
+            System.IO.File.WriteAllLines("cachedUnknowns.txt", knownUnknowns.Where(x => x.Value != "unk").Select(x => x.Key + ";" + x.Value));
             Console.WriteLine("Finished unknown file analysis");
             return true;
         }
@@ -292,7 +288,7 @@ namespace wow.tools.local.Controllers
                         filename = file,
                         id = entry.Key.ToString(),
                         md5 = entry.Value.ToLower(),
-                        type = Path.GetExtension(file).Replace(".", ""),
+                        type = CASC.Types.ContainsKey(entry.Key) ? CASC.Types[entry.Key] : "unk",
                         encryptedStatus = CASC.EncryptionStatuses.ContainsKey(entry.Key) ? CASC.EncryptionStatuses[entry.Key].ToString() : ""
                     };
                 };
