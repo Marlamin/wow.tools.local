@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using wow.tools.local.Services;
 
@@ -29,7 +30,7 @@ namespace wow.tools.local.Controllers
             }
             else if (search == "unnamed")
             {
-                listfileResults = resultsIn.Where(x => x.Value.ToLower().StartsWith("unknown")).ToDictionary(x => x.Key, x => x.Value);
+                listfileResults = resultsIn.Where(p => p.Value == "").ToDictionary(p => p.Key, p => p.Value);
             }
             else if (search.StartsWith("encrypted:"))
             {
