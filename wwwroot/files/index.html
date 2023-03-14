@@ -366,41 +366,41 @@
                                 }
                             }
 
-                            if (full[6]) {
-                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='";
+                            //if (full[6]) {
+                            //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='";
 
-                                full[6].forEach(function (comment) {
-                                    test += "By <b>" + comment['username'] + "</b> on <b>" + comment['lastedited'] + "</b><br>";
-                                    test += comment['comment'] + "<br>";
-                                });
+                            //    full[6].forEach(function (comment) {
+                            //        test += "By <b>" + comment['username'] + "</b> on <b>" + comment['lastedited'] + "</b><br>";
+                            //        test += comment['comment'] + "<br>";
+                            //    });
 
-                                test += "'><i class='fa fa-comment'></i></a></span>";
-                            }
+                            //    test += "'><i class='fa fa-comment'></i></a></span>";
+                            //}
 
-                            if (full[5]) {
-                                if (full[5]['soundkit']) {
-                                    if (test == "") {
-                                        test = full[5]['soundkit'].split("<br>").join("");
-                                    }
-                                    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['soundkit'] + "'><i class='fa fa-music'></i>&nbsp;</a></span>";
-                                }
-                                if (full[5]['cmd']) {
-                                    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['cmd'] + "'><i class='fa fa-bug'></i>&nbsp;</a></span>";
-                                }
-                                if (full[5]['tfd']) {
-                                    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['tfd'] + "'><i class='fa fa-picture-o'></i>&nbsp;</a></span>";
-                                }
-                                if (full[5]['mfd']) {
-                                    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['mfd'] + "'><i class='fa fa-cube'></i>&nbsp;</a></span>";
-                                }
-                            }
+                            //if (full[5]) {
+                            //    if (full[5]['soundkit']) {
+                            //        if (test == "") {
+                            //            test = full[5]['soundkit'].split("<br>").join("");
+                            //        }
+                            //        test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['soundkit'] + "'><i class='fa fa-music'></i>&nbsp;</a></span>";
+                            //    }
+                            //    if (full[5]['cmd']) {
+                            //        test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['cmd'] + "'><i class='fa fa-bug'></i>&nbsp;</a></span>";
+                            //    }
+                            //    if (full[5]['tfd']) {
+                            //        test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['tfd'] + "'><i class='fa fa-picture-o'></i>&nbsp;</a></span>";
+                            //    }
+                            //    if (full[5]['mfd']) {
+                            //        test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['mfd'] + "'><i class='fa fa-cube'></i>&nbsp;</a></span>";
+                            //    }
+                            //}
 
                             return test;
                         }
                     },
                     {
                         "targets": 2,
-                        "orderable": true,
+                        "orderable": false,
                         "visible": Settings.showFileLookup,
                         "render": function (data, type, full, meta) {
                             return "<span style='font-family: monospace; text-overflow: ellipsis;'>" + full[2] + "</span>";
@@ -478,7 +478,7 @@
                     },
                     {
                         "targets": 4,
-                        "orderable": true,
+                        "orderable": false,
                         "visible": Settings.showFileType
                     },
                     {

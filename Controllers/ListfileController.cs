@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Linq;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers
@@ -85,7 +86,27 @@ namespace wow.tools.local.Controllers
                 result.recordsFiltered = CASC.Listfile.Count;
             }
 
-            var sortedResults = listfileResults.OrderBy(x => x.Key);
+            var sortedResults = listfileResults;
+
+            if (Request.Query.TryGetValue("order[0][column]", out var orderCol) && !string.IsNullOrEmpty(orderCol) && Request.Query.TryGetValue("order[0][dir]", out var orderDir) && !string.IsNullOrEmpty(orderDir))
+            {
+                switch (orderCol)
+                {
+                    case "0":
+                        if (orderDir == "desc")
+                            sortedResults = new Dictionary<int, string>(sortedResults.OrderByDescending(x => x.Key));
+                        else
+                            sortedResults = new Dictionary<int, string>(sortedResults.OrderBy(x => x.Key));
+                        
+                        break;
+                    case "1":
+                        if (orderDir == "desc")
+                            sortedResults = new Dictionary<int, string>(sortedResults.OrderByDescending(x => x.Value));
+                        else
+                            sortedResults = new Dictionary<int, string>(sortedResults.OrderBy(x => x.Value));
+                        break;
+                }
+            }
 
             var rows = new List<string>();
 
