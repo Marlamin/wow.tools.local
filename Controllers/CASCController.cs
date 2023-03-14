@@ -141,13 +141,9 @@ namespace wow.tools.local.Controllers
 
             if (knownUnknowns.Count > 0)
             {
-                Console.WriteLine("Loading " + knownUnknowns.Count + " unknown files from cache");
-                foreach (var unkFile in unknownFiles)
+                foreach (var knownUnknown in knownUnknowns)
                 {
-                    if (knownUnknowns.TryGetValue(unkFile, out var type))
-                    {
-                        CASC.SetFileType(unkFile, type);
-                    }
+                    CASC.SetFileType(knownUnknown.Key, knownUnknown.Value);
                 }
 
                 unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
@@ -162,7 +158,6 @@ namespace wow.tools.local.Controllers
                     var fdid = (int)mfdEntry.FileDataID;
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
-                        Console.WriteLine("Adding M2 from ModelFileData for " + fdid);
                         knownUnknowns.TryAdd(fdid, "m2");
                         unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "m2");
@@ -182,7 +177,6 @@ namespace wow.tools.local.Controllers
                     var fdid = (int)tfdEntry.FileDataID;
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
-                        Console.WriteLine("Adding BLP from TextureFileData for " + fdid);
                         knownUnknowns.TryAdd(fdid, "blp");
                         unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "blp");
@@ -202,7 +196,6 @@ namespace wow.tools.local.Controllers
                     var fdid = (int)mfdEntry.ID;
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
-                        Console.WriteLine("Adding AVI from MovieFileData for " + fdid);
                         knownUnknowns.TryAdd(fdid, "avi");
                         unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "avi");
@@ -222,7 +215,6 @@ namespace wow.tools.local.Controllers
                     var fdid = (int)mp3Entry.ID;
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
-                        Console.WriteLine("Adding MP3 from ManifestMP3 for " + fdid);
                         knownUnknowns.TryAdd(fdid, "mp3");
                         unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "mp3");
@@ -242,7 +234,6 @@ namespace wow.tools.local.Controllers
                     var fdid = (int)skEntry.FileDataID;
                     if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
                     {
-                        Console.WriteLine("Adding OGG from SoundKitEntry for " + fdid);
                         knownUnknowns.TryAdd(fdid, "ogg");
                         unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "ogg");

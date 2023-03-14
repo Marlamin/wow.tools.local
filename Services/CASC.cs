@@ -1,5 +1,6 @@
 ﻿using CASCLib;
 using System.Globalization;
+using System.Reflection.Metadata.Ecma335;
 
 namespace wow.tools.local.Services
 {
@@ -363,6 +364,9 @@ namespace wow.tools.local.Services
 
         public static void SetFileType(int filedataid, string type)
         {
+            if (!Listfile.ContainsKey(filedataid))
+                return;
+
             if (!Types.ContainsKey(filedataid))
                 Types.Add(filedataid, type);
             else if (Types[filedataid] == "unk")
