@@ -13,8 +13,11 @@ namespace wow.tools.local.Controllers
     {
         [Route("fdid")]
         [HttpGet]
-        public ActionResult File(uint fileDataID, string filename = "")
+        public ActionResult File(uint fileDataID, string filename = "", string build = "")
         {
+            if (build == "")
+                build = CASC.BuildName;
+            
             if (!CASC.FileExists(fileDataID))
                 return NotFound();
 
@@ -134,7 +137,7 @@ namespace wow.tools.local.Controllers
                 knownUnknowns = System.IO.File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
             }
 
-            var unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key));
+            List<int> unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
 
             if (knownUnknowns.Count > 0)
             {
@@ -147,7 +150,7 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
-                unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key));
+                unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
             }
             var dbcd = new DBCD.DBCD(new DBCProvider(), new DBDProvider());
 
@@ -161,6 +164,7 @@ namespace wow.tools.local.Controllers
                     {
                         Console.WriteLine("Adding M2 from ModelFileData for " + fdid);
                         knownUnknowns.TryAdd(fdid, "m2");
+                        unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "m2");
                     }
                 }
@@ -180,6 +184,7 @@ namespace wow.tools.local.Controllers
                     {
                         Console.WriteLine("Adding BLP from TextureFileData for " + fdid);
                         knownUnknowns.TryAdd(fdid, "blp");
+                        unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "blp");
                     }
                 }
@@ -199,6 +204,7 @@ namespace wow.tools.local.Controllers
                     {
                         Console.WriteLine("Adding AVI from MovieFileData for " + fdid);
                         knownUnknowns.TryAdd(fdid, "avi");
+                        unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "avi");
                     }
                 }
@@ -218,6 +224,7 @@ namespace wow.tools.local.Controllers
                     {
                         Console.WriteLine("Adding MP3 from ManifestMP3 for " + fdid);
                         knownUnknowns.TryAdd(fdid, "mp3");
+                        unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "mp3");
                     }
                 }
@@ -237,6 +244,7 @@ namespace wow.tools.local.Controllers
                     {
                         Console.WriteLine("Adding OGG from SoundKitEntry for " + fdid);
                         knownUnknowns.TryAdd(fdid, "ogg");
+                        unknownFiles.Remove(fdid);
                         CASC.SetFileType(fdid, "ogg");
                     }
                 }
