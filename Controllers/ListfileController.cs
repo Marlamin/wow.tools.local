@@ -33,6 +33,11 @@ namespace wow.tools.local.Controllers
             {
                 listfileResults = resultsIn.Where(p => p.Value == "").ToDictionary(p => p.Key, p => p.Value);
             }
+            else if (search == "encrypted")
+            {
+                var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Keys);
+                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+            }
             else if (search.StartsWith("encrypted:"))
             {
                 var cleaned = search.Trim().Replace("encrypted:", "");

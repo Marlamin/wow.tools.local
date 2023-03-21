@@ -286,8 +286,8 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x625D0BAE331A3D20, (487, "WOW-46801patch10.0.2_Retail", "Tyr model"));
             KeyInfo.Add(0x32AA16A8A49B352D, (488, "WOW-47118patch10.0.5_PTR", "Trading post category"));
             KeyInfo.Add(0x1F2B201FCC73342F, (489, "WOW-47118patch10.0.5_PTR", "Trading post category"));
-            KeyInfo.Add(0xA4838A9CE4760D1E, (491, "WOW-48520patch10.0.7_VANPTR", "Unknown scene/creature/zone/title"));
-            KeyInfo.Add(0xC3699851FCBE7080, (492, "WOW-48520patch10.0.7_VANPTR", "Unknown map/scene/questline/items"));
+            KeyInfo.Add(0xA4838A9CE4760D1E, (491, "WOW-48520patch10.0.7_VANPTR", "Human heritage armor/related content"));
+            KeyInfo.Add(0xC3699851FCBE7080, (492, "WOW-48520patch10.0.7_VANPTR", "Orc heritage armor/related content"));
             KeyInfo.Add(0xD98F0C2F9BE0F78D, (493, "WOW-48520patch10.0.7_VANPTR", "Unknown scene/creature/broadcasttext"));
             KeyInfo.Add(0x2D972D03742086AA, (494, "WOW-48520patch10.0.7_VANPTR", "Unknown quest/scene/zone/achievement/npcs"));
             KeyInfo.Add(0x209852729191E058, (495, "WOW-48520patch10.0.7_VANPTR", "Unknown quest/toy/item/achievement/mail"));
@@ -310,7 +310,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x628E075788F3FE01, (7539, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xDB431E8EDB029366, (7540, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xCB117F47F4C8AC57, (7541, "WOW-48520patch10.0.7_VANPTR", "Recruit-a-friend v3 assets"));
-            KeyInfo.Add(0xB0C155EC50F0939A, (7542, "WOW-48520patch10.0.7_VANPTR", "Unknown quest/item"));
+            KeyInfo.Add(0xB0C155EC50F0939A, (7542, "WOW-48520patch10.0.7_VANPTR", "Baine questline/assets"));
             KeyInfo.Add(0x6288676A4F77D526, (7543, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xA3CCAD8A4B0FA129, (7544, "WOW-48520patch10.0.7_VANPTR", "Unknown model"));
             KeyInfo.Add(0x4758A4E70A0237AC, (7547, "WOW-48520patch10.0.7_VANPTR", "Unknown mount"));
