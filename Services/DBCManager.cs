@@ -100,19 +100,24 @@ namespace wow.tools.local.Services
                 // DBCD PR #17 support
                 if (pushIDFilter != null)
                 {
-                    storage = storage.ApplyingHotfixes(HotfixManager.hotfixReaders[buildNumber], (row, shouldDelete) =>
+                    foreach (var htfxReader in HotfixManager.hotfixReaders[buildNumber])
                     {
-                        if (!pushIDFilter.Contains(row.PushId))
-                            return RowOp.Ignore;
+                        storage = storage.ApplyingHotfixes(htfxReader, (row, shouldDelete) =>
+                        {
+                            if (!pushIDFilter.Contains(row.PushId))
+                                return RowOp.Ignore;
 
-                        return HotfixReader.DefaultProcessor(row, shouldDelete);
-                    });
+                            return HotfixReader.DefaultProcessor(row, shouldDelete);
+                        });
+                    }
                 }
                 else
                 {
-                    storage = storage.ApplyingHotfixes(HotfixManager.hotfixReaders[buildNumber]);
+                    foreach (var htfxReader in HotfixManager.hotfixReaders[buildNumber])
+                    {
+                        storage = storage.ApplyingHotfixes(htfxReader);
+                    }
                 }
-
             }
 
             return storage;

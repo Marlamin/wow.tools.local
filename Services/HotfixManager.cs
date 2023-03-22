@@ -8,7 +8,7 @@ namespace wow.tools.local.Services
 {
     public static class HotfixManager
     {
-        public static Dictionary<uint, HotfixReader> hotfixReaders = new Dictionary<uint, HotfixReader>();
+        public static Dictionary<uint, List<HotfixReader>> hotfixReaders = new Dictionary<uint, List<HotfixReader>>();
 
         public static void LoadCaches()
         {
@@ -24,7 +24,11 @@ namespace wow.tools.local.Services
             foreach (var file in Directory.GetFiles(SettingsManager.wowFolder, "DBCache.bin", SearchOption.AllDirectories))
             {
                 var reader = new HotfixReader(file);
-                hotfixReaders.Add((uint)reader.BuildId, reader);
+                if (!hotfixReaders.ContainsKey((uint)reader.BuildId))
+                    hotfixReaders.Add((uint)reader.BuildId, new List<HotfixReader>());
+                
+                hotfixReaders[(uint)reader.BuildId].Add(reader);
+
                 Console.WriteLine("Loaded hotfixes for build " + reader.BuildId);
             }
         }
