@@ -8,28 +8,42 @@ namespace wow.tools.local.Services
 {
     public static class HotfixManager
     {
-        public static Dictionary<uint, List<HotfixReader>> hotfixReaders = new Dictionary<uint, List<HotfixReader>>();
+        public static Dictionary<uint, HotfixReader> hotfixReaders = new Dictionary<uint, HotfixReader>();
 
         public static void LoadCaches()
         {
-            if (SettingsManager.wowFolder == null)
-            {
-                Console.WriteLine("No WoW folder set, skipping hotfix load");
-                return;
-            }
-
             Console.WriteLine("Reloading all hotfixes..");
             hotfixReaders.Clear();
+
+            if (Directory.Exists("caches"))
+            {
+                foreach (var file in Directory.GetFiles("caches", "*.bin", SearchOption.AllDirectories))
+                {
+                    var reader = new HotfixReader(file);
+                    if (!hotfixReaders.ContainsKey((uint)reader.BuildId))
+                        hotfixReaders.Add((uint)reader.BuildId, reader);
+
+                    hotfixReaders[(uint)reader.BuildId].CombineCache(file);
+
+                    Console.WriteLine("Loaded hotfixes from caches directory for build " + reader.BuildId);
+                }
+            }
+            
+            if (SettingsManager.wowFolder == null)
+            {
+                Console.WriteLine("No WoW folder set, skipping further hotfix load");
+                return;
+            }
 
             foreach (var file in Directory.GetFiles(SettingsManager.wowFolder, "DBCache.bin", SearchOption.AllDirectories))
             {
                 var reader = new HotfixReader(file);
                 if (!hotfixReaders.ContainsKey((uint)reader.BuildId))
-                    hotfixReaders.Add((uint)reader.BuildId, new List<HotfixReader>());
-                
-                hotfixReaders[(uint)reader.BuildId].Add(reader);
+                    hotfixReaders.Add((uint)reader.BuildId, reader);
 
-                Console.WriteLine("Loaded hotfixes for build " + reader.BuildId);
+                hotfixReaders[(uint)reader.BuildId].CombineCache(file);
+
+                Console.WriteLine("Loaded hotfixes from client for build " + reader.BuildId);
             }
         }
     }
