@@ -169,9 +169,24 @@ namespace wow.tools.local.Services
 
                 EncryptionStatuses.Add(encryptedFile.Key, encryptionStatus);
             }
-
             Console.WriteLine("Done analyzing encrypted files");
 
+            // Loaded cached types from disk
+            if (File.Exists("cachedUnknowns.txt"))
+            {
+                Console.WriteLine("Loading cached types from disk");
+                var knownUnknowns = File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+                List<int> unknownFiles = AvailableFDIDs.Except(Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
+
+                if (knownUnknowns.Count > 0)
+                {
+                    foreach (var knownUnknown in knownUnknowns)
+                    {
+                        SetFileType(knownUnknown.Key, knownUnknown.Value);
+                    }
+                }
+            }
+            
             IsCASCInit = true;
             Console.WriteLine("Finished loading " + BuildName);
         }
