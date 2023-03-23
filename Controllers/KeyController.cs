@@ -331,7 +331,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x60ED94F2D835847F, (7562, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext"));
             KeyInfo.Add(0x6840763425368ACC, (7563, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext"));
             KeyInfo.Add(0x27974D1E554D2362, (7564, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext"));
-            KeyInfo.Add(0x3FD6396835D88289, (7565, "WOW-48480patch10.1.0_PTR", "166662 likely accidentally encrypted NPC sounds"));
+            KeyInfo.Add(0x3FD6396835D88289, (7565, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext"));
             KeyInfo.Add(0x9E5AACFD4E1BEC58, (7566, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext/vo"));
             KeyInfo.Add(0x9F4F14E8B03E153C, (7567, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext"));
             KeyInfo.Add(0x892C9D2191600761, (7568, "WOW-48480patch10.1.0_PTR", "Unknown sounds"));

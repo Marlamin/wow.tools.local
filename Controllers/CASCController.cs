@@ -123,7 +123,7 @@ namespace wow.tools.local.Controllers
                 foreach (var file in Directory.GetFiles("manifests", "*.txt"))
                     cachedManifests.Add(Path.GetFileNameWithoutExtension(file));
             }
-            return cachedManifests;
+            return cachedManifests.OrderByDescending(x => int.Parse(x.Split(".")[3])).ToList();
         }
 
         [Route("analyzeUnknown")]

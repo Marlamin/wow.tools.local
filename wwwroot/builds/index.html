@@ -71,6 +71,25 @@
         </div>
     </nav>
     <div class="container-fluid">
+        <h3>Diff builds</h3>
+        <form method="GET" action="/builds/diff.html">
+            <div class="form-row" style="width: 40vw">
+                <div class="col">
+                    <label for="idFormFrom">From</label>
+                    <select class="form-control" name="from" id="diffFormFrom"></select>
+                </div>
+                <div class="col">
+                    <label for="diffFormTo">To</label>
+                    <select class="form-control" name="to" id="diffFormTo"></select>
+                </div>
+                <div class="col">
+                    <label>&nbsp;</label>
+                    <input type="submit" id="diffFormButton" class="form-control btn btn-primary" value="Diff builds" disabled>
+                </div>
+            </div>
+        </form>
+        <br />
+        <h3>Available builds</h3>
         <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
             <div class="col-sm-12">
                 <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
@@ -87,6 +106,10 @@
     </footer>
     <script src="/js/builds.js"></script>
     <script type='text/javascript'>
+        let knownManifests = new Array();
+        let currentBuild = "";
+        let diffInit = false;
+
         var table = $('#buildtable').DataTable({
             "pagingType": "input",
             "pageLength": 25,
@@ -119,15 +142,19 @@
                 {
                     "targets": 6,
                     "render": function (data, type, full, meta) {
-                        return '<select style="width: 360px" class="diffSelect" id="' + full[2] + '_diffselect"><option>Select a previously opened build to diff to</option></select>&nbsp;<a class="btn btn-primary btn-sm disabled" id="' + full[2] + '_diffbutton" href="#" onClick="diffBuild(this)">Diff</a>';
+                        return "";
+                        //return '<select style="width: 360px" class="diffSelect" id="' + full[2] + '_diffselect"><option>Select a previously opened build to diff to</option></select>&nbsp;<a class="btn btn-primary btn-sm disabled" id="' + full[2] + '_diffbutton" href="#" onClick="diffBuild(this)">Diff</a>';
                     }
                 },
                 {
                     "targets": 7,
                     "render": function (data, type, full, meta) {
                         let isActive = full[5] == "True";
+                        if (isActive)
+                            currentBuild = full[0] + "." + full[1];
+
                         let hasManifest = full[6] == "True";
-                        let hasDBCs = full[7] == "True";
+                         let hasDBCs = full[7] == "True";
                         var result = "";
                         if (hasManifest) {
                             result += '<a class="btn btn-success btn-sm disabled" href="#">Has manifest</a>';
@@ -154,20 +181,26 @@
             fetch('/casc/listManifests')
             .then((response) => response.json())
             .then((manifests) => {
-                const diffDropdows = document.getElementsByClassName('diffSelect');
-                for (i = 0; i < diffDropdows.length; i++) {
-                    const columns = diffDropdows[i].parentElement.parentElement.children;
-                    const product = columns[2].innerHTML;
-                    const fromBuild = columns[0].innerHTML + "." + columns[1].innerHTML;
-                    for (j = 0; j < manifests.length; j++) {
-                        if (manifests[j] == fromBuild) {
-                            document.getElementById(product + "_diffbutton").classList.remove("disabled");
-                        }
+                for (j = 0; j < manifests.length; j++) {
+                    if (!knownManifests.includes(manifests[j]))
+                        knownManifests.push(manifests[j]);
+                }
+
+                if (!diffInit) {
+                    for (i = 0; i < knownManifests.length; i++) {
                         var option = document.createElement("option");
-                        option.text = manifests[j];
-                        diffDropdows[i].add(option);
+                        option.text = knownManifests[i];
+                        option.value = knownManifests[i];
+                        document.getElementById("diffFormFrom").add(option);
+
+                        var option = document.createElement("option");
+                        option.text = knownManifests[i];
+                        option.value = knownManifests[i];
+                        document.getElementById("diffFormTo").add(option);
                     }
-                } 
+
+                    document.getElementById("diffFormButton").disabled = false;
+                }
             })
             .catch((error) => {
                 console.error('Error:', error);
