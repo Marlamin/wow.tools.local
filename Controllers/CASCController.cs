@@ -96,6 +96,14 @@ namespace wow.tools.local.Controllers
             return true;
         }
 
+        [Route("updateListfile")]
+        [HttpGet]
+        public bool UpdateListfile()
+        {
+            CASC.LoadListfile(true);
+            return true;
+        }
+        
         [Route("exportListfile")]
         [HttpGet]
         public bool ExportListfile()
@@ -104,6 +112,14 @@ namespace wow.tools.local.Controllers
             return true;
         }
 
+        [Route("updateTACTKeys")]
+        [HttpGet]
+        public bool UpdateTACTKeys()
+        {
+            CASC.LoadKeys(true);
+            return true;
+        }
+        
         [Route("exportTACTKeys")]
         [HttpGet]
         public bool ExportTACTKeys()

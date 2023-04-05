@@ -8,10 +8,13 @@ All dependencies should be included with the executable. If you have the include
 - Some BLPs (e.g. interface BLPs) won't preview correctly/be empty. Download these from the files page instead and open them externally in a BLP viewer (e.g. XnView)/converter (e.g BLP2PNG).
 
 ### Definitions
-While definitions are included in releases, these are likely to go out of date quickly. Hopefully up-to-date definitions can be found on [here](https://github.com/wowdev/WoWDBDefs) (to download, click Code -> Download ZIP), to update definitions overwrite the `WoWDBDefs/definitions` folder with the `definitions` folder from the downloaded version of the WoWDBDefs repo.
+wow.tools.local relies on updated database definitions from the [WoWDBDefs](https://github.com/wowdev/WoWDBDefs) repo. While definitions are included in releases, these are likely to go out of date quickly leading to errors such as "No definition found for this file" while attempting to load DB2s with recently changed structures. Updating definitions can be done by pressing the "Update WoWDBDefs" button on the DBC browsing page. If you instead want to do this manually, go [here](https://github.com/wowdev/WoWDBDefs) and download the ZIP by click Code -> Download ZIP, then overwrite the `WoWDBDefs/definitions` folder with the `definitions` folder from the ZIP.
 
 ### Listfile
-The application downloads [this listfile](https://github.com/wowdev/wow-listfile/blob/master/community-listfile.csv) on first start, but this can go out of date in time as new files are added/named in future content. Simply remove `listfile.csv` to force a redownload on next startup or update it manually. The listfile URL can also be changed in the config.
+To have named files throughout the wow.tools.local, it downloads [this listfile](https://github.com/wowdev/wow-listfile/blob/master/community-listfile.csv) on first start but this can go out of date in time as new files are added/named in future content, to prevent this the listfile is automatically updated if it has not been updated for over a day. If you want to force an update, click "Update listfile" on the files page. If you want to manually do this, remove `listfile.csv` to force a redownload on next startup or update it manually by placing your own listfile there. The listfile URL can also be changed in the config.
+
+### TACT keys
+wow.tools.local relies on updated TACT keys from the [TACTKeys](https://github.com/wowdev/TACTKeys) repo to be able to load encrypted files. This can go out of date in time as new things are encrypted and new keys become available, to prevent this the list of keys is automatically updated if it has not been updated for over a day. If you want to force an update, click "Update TACTKeys" on the files page.
 
 ## Download 
 The latest version can be downloaded [here](https://github.com/Marlamin/wow.tools.local/releases).

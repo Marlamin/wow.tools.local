@@ -1,4 +1,5 @@
 ﻿using CASCLib;
+using System;
 using System.Globalization;
 using System.Reflection.Metadata.Ecma335;
 
@@ -197,7 +198,7 @@ namespace wow.tools.local.Services
 
         public static bool ExportTACTKeys()
         {
-            File.WriteAllLines("exported-tactkeys.csv", KnownKeys.Select(x => x.ToString("X16") + " " + Convert.ToHexString(KeyService.GetKey(x))).ToArray());
+            File.WriteAllLines("WoW.txt", KnownKeys.Select(x => x.ToString("X16") + " " + Convert.ToHexString(KeyService.GetKey(x))).ToArray());
             return true;
         }
         
@@ -233,6 +234,16 @@ namespace wow.tools.local.Services
                 throw new FileNotFoundException("Could not find listfile.csv");
             }
 
+            if (forceRedownload)
+            {
+                Listfile.Clear();
+                AvailableFDIDs.ForEach(x => Listfile.Add(x, ""));
+
+                ListfileReverse.Clear();
+                Types.Clear();
+                M2Listfile.Clear();
+            }
+
             Console.WriteLine("Loading listfile");
 
             foreach (var line in File.ReadAllLines("listfile.csv"))
@@ -260,12 +271,14 @@ namespace wow.tools.local.Services
                 }
             }
 
+            Console.WriteLine("Finished loading listfile: " + Listfile.Count + " named files for this build");
+
             return true;
         }
 
-        public static bool LoadKeys()
+        public static bool LoadKeys(bool forceRedownload = false)
         {
-            var download = false;
+            var download = forceRedownload;
             if (File.Exists("TactKey.csv"))
             {
                 var info = new FileInfo("TactKey.csv");
@@ -302,6 +315,9 @@ namespace wow.tools.local.Services
                 File.WriteAllLines("TactKey.csv", tactKeyLines);
             }
 
+            if (forceRedownload)
+                KnownKeys.Clear();
+            
             foreach (var line in File.ReadAllLines("TactKey.csv"))
             {
                 var splitLine = line.Split(";");
@@ -309,6 +325,11 @@ namespace wow.tools.local.Services
                     continue;
                 KnownKeys.Add(ulong.Parse(splitLine[0], NumberStyles.HexNumber));
             }
+
+            if(IsCASCInit)
+                KeyService.LoadKeys();
+
+            Console.WriteLine("Finished loading TACT keys: " + KnownKeys.Count + " known keys");
 
             return true;
         }

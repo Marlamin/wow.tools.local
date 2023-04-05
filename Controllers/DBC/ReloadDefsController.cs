@@ -5,7 +5,7 @@ using wow.tools.Services;
 
 namespace wow.tools.local.Controllers
 {
-    [Route("dbc/reload")]
+    [Route("dbc/reloadDefs")]
     [ApiController]
     public class ReloadDefsController : ControllerBase
     {
@@ -18,7 +18,6 @@ namespace wow.tools.local.Controllers
             this.dbcManager = dbcManager as DBCManager;
         }
 
-        // GET: api/ReloadDefs
         [HttpGet]
         public string Get()
         {

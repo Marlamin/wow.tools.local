@@ -97,7 +97,10 @@
                target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
             <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-secondary btn-sm'
                data-toggle='modal' href='' data-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
-            <a style='vertical-align: top;' id='reloadDefsButton' class='btn btn-danger btn-sm' onclick="reloadDefs();" href="#"><i class='fa fa-refresh'></i> Reload DBD/DB2/DBCache</a>
+            <div class="btn-group" style="vertical-align: top">
+                <a style='vertical-align: top;' id='updateDefsButton' class='btn btn-danger btn-sm' onclick="updateDefs();" href="#"><i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache</a>
+                <a style='vertical-align: top;' id='reloadDefsButton' class='btn btn-danger btn-sm' onclick="reloadDefs();" href="#"><i class='fa fa-refresh'></i> Clear DB2/DBC/DBD cache</a>
+            </div>
         </form><br>
         <div id='tableContainer'>
             <br>
@@ -304,7 +307,19 @@
         let clearState = false;
 
         async function reloadDefs() {
-            const response = await fetch("/dbc/reload");
+            var button = document.getElementById("reloadDefsButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Reloading, please wait!";
+
+            const response = await fetch("/dbc/reloadDefs");
+            console.log(await response.text());
+            window.location.reload();
+        }
+
+        async function updateDefs() {
+            var button = document.getElementById("updateDefsButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
+
+            const response = await fetch("/dbc/updateDefs");
             console.log(await response.text());
             window.location.reload();
         }
