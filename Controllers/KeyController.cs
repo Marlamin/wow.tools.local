@@ -291,7 +291,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0xD98F0C2F9BE0F78D, (493, "WOW-48520patch10.0.7_VANPTR", "Unknown scene/creature/broadcasttext"));
             KeyInfo.Add(0x2D972D03742086AA, (494, "WOW-48520patch10.0.7_VANPTR", "Unknown quest/scene/zone/achievement/npcs"));
             KeyInfo.Add(0x209852729191E058, (495, "WOW-48520patch10.0.7_VANPTR", "Unknown quest/toy/item/achievement/mail"));
-            KeyInfo.Add(0x398A71B6F3EB3779, (7055, "WOW-47118patch10.0.5_PTR", "Trading post content"));
+            KeyInfo.Add(0x398A71B6F3EB3779, (7055, "WOW-47118patch10.0.5_PTR", "Trading post content (April 2023)"));
             KeyInfo.Add(0x553C9B2CCBF1255F, (7058, "WOW-47118patch10.0.5_PTR", "Trading post content"));
             KeyInfo.Add(0x092562185FBD7B96, (7073, "WOW-47118patch10.0.5_PTR", "Trading post content"));
             KeyInfo.Add(0x6D591F2831A251A8, (7088, "WOW-47118patch10.0.5_PTR", "Trading post threshold"));
@@ -343,9 +343,23 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0xBD0E7EA85857598E, (7574, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext"));
             KeyInfo.Add(0xEBE224C64720594B, (7575, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext"));
             KeyInfo.Add(0xB25044202A4BD9B7, (7576, "WOW-48480patch10.1.0_PTR", "0 file(s) as of 10.1.0.48480"));
-            KeyInfo.Add(0xAC86DE77F65B93AF, (7577, "WOW-48520patch10.0.7_VANPTR", "Unknown transmog set"));
+            KeyInfo.Add(0xAC86DE77F65B93AF, (7577, "WOW-48520patch10.0.7_VANPTR", "Waveborne Diplomat's Regalia transmog set"));
+            KeyInfo.Add(0x78C70CF0F282D257, (7589, "WOW-48776patch10.1.0_PTR", "Unknown model"));
+            KeyInfo.Add(0x2DFCA73AC64AEECF, (7590, "WOW-48776patch10.1.0_PTR", "Unknown items (?)"));
+            KeyInfo.Add(0xE8175532FAA4D0D7, (7591, "WOW-48776patch10.1.0_PTR", "Unknown model"));
+            KeyInfo.Add(0x6C36AE2EE5E4B9DC, (7592, "WOW-48776patch10.1.0_PTR", "Unknown model"));
+            KeyInfo.Add(0x0599D267A15C719F, (7593, "WOW-48776patch10.1.0_PTR", "Unknown textures"));
+            KeyInfo.Add(0x4CE29C24FDFDFB18, (7594, "WOW-48776patch10.1.0_PTR", "Unknown items (?)"));
+            KeyInfo.Add(0x2D71F7DD989FED1F, (7595, "WOW-48776patch10.1.0_PTR", "Turtle Mount"));
+            KeyInfo.Add(0xC4B1348F2B37B3B4, (7596, "WOW-48776patch10.1.0_PTR", "Unknown spell/widget"));
+            KeyInfo.Add(0xA765D5EDE5034CFA, (7597, "WOW-48898patch10.1.0_PTR", "0 file(s) as of 10.1.0.48898"));
+            KeyInfo.Add(0x468AFCD3B345C56C, (7598, "WOW-48898patch10.1.0_PTR", "0 file(s) as of 10.1.0.48898"));
+            KeyInfo.Add(0xFAE576DB8432F32E, (7599, "WOW-48898patch10.1.0_PTR", "0 file(s) as of 10.1.0.48898"));
+            KeyInfo.Add(0xB3DA923C2F13FD5B, (7600, "WOW-48898patch10.1.0_PTR", "0 file(s) as of 10.1.0.48898"));
+            KeyInfo.Add(0x4EAD7F8A0C378D7F, (7601, "WOW-48898patch10.1.0_PTR", "0 file(s) as of 10.1.0.48898"));
+            KeyInfo.Add(0x6899BB495C433867, (7602, "WOW-48865patch10.0.7_Retail", "Unknown store assets"));
+            KeyInfo.Add(0x69CB2A2C597E9F67, (7603, "WOW-48865patch10.0.7_Retail", "Faction pack store assets"));
         }
-
 
         private class KeyInfoEntry
         {
@@ -360,7 +374,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string Info()
         {
-            var tklStorage = dbcManager.GetOrLoad("TactKeyLookup", CASC.BuildName).Result;
+            var tklStorage = dbcManager.GetOrLoad("TactKeyLookup", CASC.BuildName, true).Result;
 
             foreach (dynamic tklRow in tklStorage.Values)
             {
@@ -383,7 +397,7 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            var tkStorage = dbcManager.GetOrLoad("TactKey", CASC.BuildName).Result;
+            var tkStorage = dbcManager.GetOrLoad("TactKey", CASC.BuildName, true).Result;
             foreach (dynamic tkRow in tkStorage.Values)
             {
                 foreach (var keyInfo in KeyInfo)
