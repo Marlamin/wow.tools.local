@@ -1236,6 +1236,7 @@ const spellAttributes13 = {
 
 const spellAttributes14 = {
     0x00000001: 'Prevent Jumping During Precast',
+    0x00100000: 'Private Aura',
 };
 
 // 151, part 0/4
