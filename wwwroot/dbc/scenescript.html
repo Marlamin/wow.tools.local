@@ -1,0 +1,379 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>WoW.tools</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- JQuery -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/tooltips.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/styles/atom-one-dark.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.0/highlight.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="/">
+            <div id='logo'>
+                <div id='cog'>&nbsp;</div>
+                <div id='nocog'><img src='/img/w.svg' alt='Logo W'><img src='/img/w.svg' alt='Logo W'><span>.tools <small><i>but local</i></small></span></div>
+            </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class='fa fa-bars'></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto mt-2 mt-md-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/files/"><i class="fa fa-files-o" aria-hidden="true"></i> Files</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-table" aria-hidden="true"></i> Tables
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navDropdown">
+                        <a class="dropdown-item" href="/dbc/">Browse</a>
+                        <a class="dropdown-item" href="/dbc/diff.html">Compare</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/mv/"><i class="fa fa-cube" aria-hidden="true"></i> Models</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/builds/"><i class="fa fa-hdd-o" aria-hidden="true"></i> Builds</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <link href="/css/dbc.css" rel="stylesheet">
+    <style type='text/css'>
+        #tableContainer {
+            width: 750px;
+            margin-top: 10px;
+            float: left;
+            max-height: calc(100vh - 200px);
+        }
+
+        #scriptContainer {
+            float: left;
+            width: calc(100% - 750px);
+            max-height: calc(100vh - 190px);
+            font-family: monospace;
+            white-space: pre;
+            font-size: 12px;
+            overflow-y: scroll;
+        }
+
+        tr.selected {
+            background-color: #8bc34aa1 !important;
+        }
+    </style>
+    <div class='container-fluid'>
+        <h3>
+            Scenescript browser
+            <select class='form-control form-control-sm buildFilter' style='width: 250px; float: right;' id='buildFilter'>
+
+            </select>
+            <span id='loadingHolder' class='text-danger' style='float: right'></span>
+            <a class='btn btn-info' onClick='copyScript()' style='float: right'>Copy</a>
+        </h3>
+        <div id='tableContainer'><table id='dbtable' class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"><thead></thead><tbody></tbody></table></div>
+        <div id='scriptContainer'></div>
+        <script type='text/javascript'>
+            $('#buildFilter').on('change', function () {
+                var build = $("#buildFilter").val();
+                document.location = '/dbc/scenescript.html?build=' + build;
+            });
+
+            let knownManifests = new Array();
+            var build = $("#buildFilter").val();
+            const scriptContainer = document.getElementById("scriptContainer");
+            const loadingHolder = document.getElementById("loadingHolder");
+            async function loadSceneScript(packageid, build) {
+                scriptContainer.innerHTML = "";
+                loadingHolder.innerText = "Loading scene, please wait...";
+                console.log("loading scenescript package " + packageid + " from build " + build);
+                const basePackageMembers = await fetchDBRow("scenescriptpackagemember", build, "SceneScriptPackageID", packageid);
+
+                basePackageMembers.sort(function (a, b) { return a.OrderIndex - b.OrderIndex; });
+
+                for (const entry of basePackageMembers) {
+                    await handlePackageMember(entry);
+                }
+
+                hljs.highlightBlock(scriptContainer);
+                loadingHolder.innerText = "";
+
+            }
+
+            async function handlePackageMember(packageMember) {
+                if (packageMember.ChildSceneScriptPackageID != 0) {
+                    // console.log("Found child package " + packageMember.ChildSceneScriptPackageID);
+                    scriptContainer.insertAdjacentHTML('beforeend', "\n\n-- WoW.tools debug output: Start of package " + packageMember.ChildSceneScriptPackageID + "\n");
+                    let subPackageMembers = await fetchDBRow("scenescriptpackagemember", build, "SceneScriptPackageID", packageMember.ChildSceneScriptPackageID);
+
+                    subPackageMembers.sort(function (a, b) { return a.OrderIndex - b.OrderIndex; });
+
+                    for (const entry of subPackageMembers) {
+                        await handlePackageMember(entry);
+                    }
+                    scriptContainer.insertAdjacentHTML('beforeend', "\n\n--WoW.tools debug output: End of package " + packageMember.ChildSceneScriptPackageID + "\n\n");
+                    // console.log("sub " + packageMember.ChildSceneScriptPackageID, subPackageMembers);
+                } else {
+                    // console.log(packageMember.SceneScriptPackageID + " scene", packageMember.SceneScriptID);
+                    let sceneRow = await fetchDBRow("scenescript", build, "ID", packageMember.SceneScriptID);
+                    let sceneTextRow = await fetchDBRow("scenescripttext", build, "ID", packageMember.SceneScriptID);
+                    if (sceneTextRow.length == 0) {
+                        scriptContainer.insertAdjacentHTML('beforeend', "\n\n-- WoW.tools debug output: !!! SceneScript ID " + packageMember.SceneScriptID + " not found, possibly encrypted\n\n");
+                    } else {
+                        scriptContainer.insertAdjacentHTML('beforeend', "\n\n-- WoW.tools debug output: SceneScript name: " + sceneTextRow[0].Name + "\n\n");
+                        scriptContainer.insertAdjacentHTML('beforeend', sceneTextRow[0].Script);
+                    }
+
+                    if (sceneRow.length == 0) {
+                        scriptContainer.insertAdjacentHTML('beforeend', "\n\n-- WoW.tools debug output: !!! SceneScript ID " + packageMember.SceneScriptID + " not found, possibly encrypted\n\n");
+                    } else {
+                        while (sceneRow[0].NextSceneScriptID != '0') {
+                            var sceneID = sceneRow[0].NextSceneScriptID;
+                            sceneRow = await fetchDBRow("scenescript", build, "ID", sceneID);
+                            console.log(sceneRow[0].ID);
+                            sceneTextRow = await fetchDBRow("scenescripttext", build, "ID", sceneID);
+                            scriptContainer.insertAdjacentHTML('beforeend', sceneTextRow[0].Script);
+                        }
+                    }
+                }
+            }
+
+            async function fetchDBRow(table, build, col, val) {
+                const result = await fetch("/dbc/find/" + table + "?build=" + build + "&col=" + col + "&val=" + val + "&useHotfixes=true");
+                const json = await result.json();
+                return json;
+            }
+
+            function copyScript() {
+                navigator.permissions.query({ name: "clipboard-write" }).then(result => {
+                    if (result.state == "granted" || result.state == "prompt") {
+                        navigator.clipboard.writeText(scriptContainer.innerText).then(function () {
+                            console.log("Copied to clipboard");
+                        }, function () {
+                            console.log("Copy failed");
+                        });
+                    }
+                });
+            }
+
+            function loadTable() {
+                build = currentParams["build"];
+
+                $("#dbtable").html("<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>");
+                $("#loadingMessage").html("Loading..");
+
+                let apiArgs = currentParams["dbc"] + "/?build=" + currentParams["build"];
+                apiArgs += "&useHotfixes=true";
+                let tableHeaders = "";
+                let idHeader = 0;
+
+                $.ajax({
+                    "url": "/dbc/header/" + currentParams["dbc"] + "/?build=" + currentParams["build"],
+                    "success": function (json) {
+                        if (json['error'] != null) {
+                            if (json['error'] == "No valid definition found for this layouthash or build!") {
+                                json['error'] += "\n\nPlease open an issue on the WoWDBDefs repository with the DBC name and selected version on GitHub to request a definition for this build.\n\nhttps://github.com/wowdev/WoWDBDefs";
+                            }
+                            $("#loadingMessage").html("<div class='alert '><b>Whoops, something exploded while loading this DBC</b><br>It is possible this is due to maintenance or an issue with reading the DBC file itself. Please try again later or report the below error (together with the table name and version) in Discord if it persists. Thanks!</p><p style='margin: 5px;'><kbd>" + json['error'] + "</kbd></p></div>");
+                            return;
+                        }
+                        let allCols = [];
+                        $.each(json['headers'], function (i, val) {
+                            tableHeaders += "<th style='white-space: nowrap'>";
+
+                            tableHeaders += val;
+
+                            tableHeaders += "</th>";
+
+                            if (val == "ID") {
+                                idHeader = i;
+                            }
+                            allCols.push(i);
+                        });
+
+                        $("#tableContainer").empty();
+                        $("#tableContainer").append('<table id="dbtable" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>');
+
+                        let searchHash = location.hash.substr(1),
+                            searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
+
+                        if (searchString != undefined && searchString.length > 0) {
+                            searchString = decodeURIComponent(searchString);
+                        }
+
+                        let page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
+                        let highlightRow = parseInt(searchHash.substr(searchHash.indexOf('row=')).split('&')[0].split('=')[1], 10) - 1;
+                        $.fn.dataTable.ext.errMode = 'none';
+                        $('#dbtable').on('error.dt', function (e, settings, techNote, message) {
+                            console.log('An error occurred: ', message);
+                        });
+
+                        var table = $('#dbtable').DataTable({
+                            "processing": true,
+                            "serverSide": true,
+                            "ajax": {
+                                url: "/dbc/data/" + apiArgs,
+                                type: "POST",
+                                beforeSend: function () {
+                                    if (table && table.hasOwnProperty('settings')) {
+                                        // table.settings()[0].jqXHR.abort();
+                                    }
+                                },
+                                "data": function (result) {
+                                    for (const col in result.columns) {
+                                        result.columns[col].search.value = result.columns[col].search.value.trim();
+                                    }
+                                    return result;
+                                }
+                            },
+                            "pageLength": 20,
+                            "displayStart": page * 20,
+                            "autoWidth": true,
+                            "pagingType": "input",
+                            "lengthMenu": [[10, 20, 50, 100, 1000], [10, 20, 50, 100, 1000]],
+                            "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" + "<'row'<'col-sm-12 dbtableholder'tr>>" + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                            "orderMulti": false,
+                            "ordering": true,
+                            "order": [], // Sets default order to nothing (as returned by backend)
+                            "language": { "search": "Search: _INPUT_ " },
+                            "search": { "search": searchString },
+                            "columnDefs": [
+                                {
+                                    "targets": allCols,
+                                    "render": function (data, type, full, meta) {
+                                        let returnVar = full[meta.col];
+                                        return returnVar;
+                                    }
+                                }]
+                        });
+
+                        $('#dbtable').on('init.dt', function () {
+                            $('#dbtable').on('click', 'tbody tr td', function () {
+                                var data = table.row($(this).parent()).data();
+                                // var mostRecentVersion = data[3][0];
+
+                                console.log(data);
+
+                                $(".selected").removeClass("selected");
+                                $(this).parent().addClass('selected');
+                                loadSceneScript(data[0], build);
+                            });
+                        });
+
+                        // $('#dbtable').on( 'draw.dt', function () {
+
+                        //     let currentPage = $('#dbtable').DataTable().page() + 1;
+                        //     let hashPart = "page=" + currentPage;
+
+                        //     const currentSearch = encodeURIComponent($("#dbtable_filter label input").val());
+                        //     if(currentSearch != ""){
+                        //         hashPart += "&search=" + currentSearch;
+                        //     }
+
+                        //     const columnSearches = $('#dbtable').DataTable().columns().search();
+                        //     for(let i = 0; i < columnSearches.length; i++){
+                        //         var colSearch = columnSearches[i];
+
+                        //         if(colSearch == "")
+                        //             continue;
+
+                        //         hashPart += "&colFilter[" + i + "]=" + encodeURIComponent(colSearch);
+                        //     }
+
+                        //     window.location.hash = hashPart;
+
+                        //     $('.popover').remove();
+
+                        //     $("[data-toggle=popover]").popover({sanitize: false});
+                        // });
+
+                    },
+                    "dataType": "json"
+                });
+            }
+
+            let currentParams = [];
+
+            (function () {
+
+                hljs.configure({ languages: ['lua'] });
+
+                fetch('/casc/listManifests')
+                    .then((response) => response.json())
+                    .then((manifests) => {
+                        for (j = 0; j < manifests.length; j++) {
+                            if (!knownManifests.includes(manifests[j]))
+                                knownManifests.push(manifests[j]);
+                        }
+
+                        for (i = 0; i < knownManifests.length; i++) {
+                            if (currentParams["build"] == null) {
+                                currentParams["build"] = knownManifests[i];
+                            }
+
+                            var option = document.createElement("option");
+                            option.text = knownManifests[i];
+                            option.value = knownManifests[i];
+
+                            if (currentParams["build"] == knownManifests[i])
+                                option.selected = true;
+
+                            document.getElementById("buildFilter").add(option);
+                        }
+
+                        currentParams["dbc"] = "SceneScriptPackage";
+                        currentParams["build"] = currentParams["build"];
+
+                        loadTable();
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+
+
+       
+
+
+            }());
+        </script>
+    </div>
+    <footer>
+        <div class="container text-muted">
+            <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
+        </div>
+    </footer>
+</body>
+</html>
