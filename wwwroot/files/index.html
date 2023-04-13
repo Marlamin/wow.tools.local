@@ -493,7 +493,7 @@
                                 var filename = "";
                             }
 
-                            if (full[5] == "EncryptedUnknownKey") {
+                            if (full[5] == "EncryptedUnknownKey" && full[4] != "db2") {
                                 test += "N/A";
                             } else {
                                 test += "<a class='fileTableDL' href='/casc/fdid?fileDataID=" + full[0] + "&filename=" + encodeURIComponent(filename) + "'>Download</a>";
