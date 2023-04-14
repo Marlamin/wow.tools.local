@@ -1,5 +1,8 @@
 ﻿using DBCD;
+using DBDefsLib;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Xml.Linq;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers.DBC
@@ -14,9 +17,86 @@ namespace wow.tools.local.Controllers.DBC
 
         // GET: find/
         [HttpGet]
-        public string Get()
+        public async Task<List<Dictionary<string, string>>> Get(string name, string value, string build, bool useHotfixes = false)
         {
-            return "No DBC selected!";
+            Console.WriteLine("Finding results in " + name + " (" + build + ", hotfixes: " + useHotfixes + ") for value " + value);
+
+            var storage = await dbcManager.GetOrLoad(name, build, useHotfixes);
+
+            var result = new List<Dictionary<string, string>>();
+
+            if (!storage.Values.Any())
+            {
+                return result;
+            }
+
+            foreach (DBCDRow row in storage.Values)
+            {
+                for (var i = 0; i < storage.AvailableColumns.Length; ++i)
+                {
+                    string fieldName = storage.AvailableColumns[i];
+
+                    var field = row[fieldName];
+
+                    if (field is Array arrayFields)
+                    {
+                        foreach(var arrayField in arrayFields)
+                        {
+                            if (arrayField.ToString() == value)
+                            {
+                                var newDict = new Dictionary<string, string>();
+                                for (var j = 0; j < storage.AvailableColumns.Length; ++j)
+                                {
+                                    string subfieldName = storage.AvailableColumns[j];
+                                    var subfield = row[subfieldName];
+
+                                    if (subfield is Array a)
+                                    {
+                                        for (var k = 0; k < a.Length; k++)
+                                        {
+                                            newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k).ToString());
+                                        }
+                                    }
+                                    else
+                                    {
+                                        newDict.Add(subfieldName, subfield.ToString());
+                                    }
+                                }
+
+                                result.Add(newDict);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (field.ToString() == value)
+                        {
+                            var newDict = new Dictionary<string, string>();
+                            for (var j = 0; j < storage.AvailableColumns.Length; ++j)
+                            {
+                                string subfieldName = storage.AvailableColumns[j];
+                                var subfield = row[subfieldName];
+
+                                if (subfield is Array a)
+                                {
+                                    for (var k = 0; k < a.Length; k++)
+                                    {
+                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k).ToString());
+                                    }
+                                }
+                                else
+                                {
+                                    newDict.Add(subfieldName, subfield.ToString());
+                                }
+                            }
+
+                            result.Add(newDict);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
 
         // GET: find/name

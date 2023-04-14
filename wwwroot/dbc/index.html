@@ -76,8 +76,8 @@
             <select id='fileFilter' class='form-control form-control-sm'></select>
             <select id='buildFilter' name='build' class='form-control form-control-sm buildFilter'></select>
             <!--<select id='localeSelection' name='locale' class='form-control form-control-sm buildFilter'>
-        <option value=''>enUS (Default)</option>
-    </select>-->
+                <option value=''>enUS (Default)</option>
+            </select>-->
             <div class='btn-group' style="margin-top: -7px">
                 <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true'><i class='fa fa-download'></i> CSV</a>
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -97,6 +97,8 @@
                target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
             <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-secondary btn-sm'
                data-toggle='modal' href='' data-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
+            <a style='vertical-align: top;' id='globalSearchButton' class='btn btn-secondary btn-sm'
+               data-toggle='modal' href='' data-target='#globalSearchModal'><i class='fa fa-search'></i> Global Search</a>
             <div class="btn-group" style="vertical-align: top">
                 <a style='vertical-align: top;' id='updateDefsButton' class='btn btn-danger btn-sm' onclick="updateDefs();" href="#"><i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache</a>
                 <a style='vertical-align: top;' id='reloadDefsButton' class='btn btn-danger btn-sm' onclick="reloadDefs();" href="#"><i class='fa fa-refresh'></i> Clear DB2/DBC/DBD cache</a>
@@ -266,6 +268,38 @@
             </div>
         </div>
     </div>
+    <div class="modal" id="globalSearchModal" tabindex="-1" role="dialog" aria-labelledby=globalSearchLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="globalSearchLabel">Global search</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="globalSearchContent">
+                    <form class='form-inline' id='globalSearchForm' onsubmit="globalDBSearchSubmit()">
+                        <div class="form-row">
+                            <div class="col">
+                                <input class='form-control' style='height: 26px;' type='text' placeholder='Value'
+                                       id='globalSearchValue'>
+                            </div>
+                            <div class="col">
+                                <input class='form-control' type='submit' value='Search'>
+                            </div>
+                        </div><br>
+                    </form>
+                    <div id='globalSearchResultHolder'>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <link href="/css/select2.min.css" rel="stylesheet" />
     <script src="/js/select2.min.js"></script>
     <script src="/js/files.js" crossorigin="anonymous"></script>
@@ -287,7 +321,7 @@
             const response = await fetch("/casc/buildname");
             Settings.localBuildName = await response.text();
         })();
-      
+
 
         var Locales = {
             koKR: "Korean",
@@ -667,6 +701,13 @@
             });
         }
 
+        function globalDBSearchSubmit() {
+            event.preventDefault();
+
+            const searchValue = document.getElementById("globalSearchValue").value;
+
+            globalDBSearch(searchValue, false);
+        }
         function fkDBSearchSubmit() {
             event.preventDefault();
 
@@ -675,6 +716,42 @@
             const searchValue = document.getElementById("fkSearchValue").value;
 
             fkDBSearch(currentDBC, currentField, searchValue, false);
+        }
+
+        async function globalDBSearch(val, isInline = false) {
+            if (!isInline) {
+                document.getElementById("globalSearchForm").style.display = "none";
+            } else {
+                document.getElementById("globalSearchForm").style.display = "flex";
+            }
+
+            document.getElementById("globalSearchResultHolder").innerHTML =
+                "<ul class='nav nav-tabs' id='globalresultTabList' role='tablist'></ul><div class='tab-content' id='globalresultTabs'></div><div id='noGlobalResultHolder'></div>";
+
+            const dbsToSearch = [];
+
+            var select = document.getElementById("fileFilter");
+            for (var i = 0; i < select.length; i++) {
+                const option = select.options[i];
+                if (option.value == "Select a table") {
+                    continue;
+                }
+
+                dbsToSearch.push(async () => {
+                    try {
+                        const result = await fetch("/dbc/find/?name=" + option.value + "&build=" +
+                            currentParams["build"] + "&value=" + val);
+                        const json = await result.json();
+                        globalDBResults(option.value, json, val);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                });
+            }
+
+            dbsToSearch.forEach(anonPromise => anonPromise());
+
+            await Promise.all(dbsToSearch);
         }
 
         async function fkDBSearch(db, col, val, isInline = false) {
@@ -777,10 +854,68 @@
                 }
             } else {
                 if (document.getElementById("noResultHolder").innerHTML == "") {
-                    document.getElementById("noResultHolder").innerHTML = "<b>No results for:</b>";
+                    document.getElementById("noResultHolder").innerHTML = "<b>No results for: </b>";
                 }
 
                 document.getElementById("noResultHolder").innerHTML += splitFK[0] + "::" + splitFK[1] + ", ";
+            }
+        }
+
+        function globalDBResults(name, results, searchVal) {
+            const tabHolder = document.getElementById("globalresultTabList");
+            const resultHolder = document.getElementById("globalresultTabs");
+            const globalNoResultHolder = document.getElementById("noGlobalResultHolder");
+
+            if (results.length) {
+                if (tabHolder.children.length == 0) {
+                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link active' data-toggle='tab' href='#tab" +
+                        name + "'>" + name + "</a></li>";
+                } else {
+                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link' data-toggle='tab' href='#tab" + name + "'>" + name + "</a></li>";
+                }
+
+                let resultsHTML = "";
+                if (resultHolder.children.length == 0) {
+                    resultsHTML += "<div class='tab-pane show active' id='tab" + name + "'>";
+                } else {
+                    resultsHTML += "<div class='tab-pane' id='tab" + name + "'>";
+                }
+
+                if (results.length < 1000) {
+                    resultsHTML += "<br><table id='globalResults" + name + "' class='table table-sm'>";
+                    resultsHTML += "<thead><tr>";
+                    Object.keys(results[0]).forEach((key) => {
+                        resultsHTML += "<th>" + key + "</th>";
+                    });
+                    resultsHTML += "</tr></thead><tbody></tbody>";
+                    var externalResultURL = "/dbc/?dbc=" + name + "&build=" + currentParams["build"] + "#page=1&search=" + encodeURIComponent(searchVal);
+                    resultsHTML += "</table><br><a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>View " + name + " results in new tab</a></div>";
+                    resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
+                    const dt = $("#globalResults" + name).DataTable({
+                        "pagingType": "input",
+                        "searching": false,
+                        "pageLength": 10,
+                        "displayStart": 0,
+                        "autoWidth": true
+                    });
+
+                    results.forEach((result) => {
+                        dt.rows.add([Object.values(result)]);
+                    });
+
+                    dt.draw();
+                } else {
+                    var externalResultURL = "/dbc/?dbc=" + name + "&build=" + currentParams["build"] + "#page=1&search=" + encodeURIComponent(searchVal);
+                    resultsHTML += "<a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>Too many results! View " + name + " results in new tab</a></div>";
+
+                    resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
+                }
+            } else {
+                if (globalNoResultHolder.innerHTML == "") {
+                    globalNoResultHolder.innerHTML = "<b>No results for: </b>";
+                }
+
+                globalNoResultHolder.innerHTML += name + ", ";
             }
         }
 
@@ -1251,26 +1386,6 @@
                 currentParams["dbc"] = vars["dbc"].replace(".db2", "").toLowerCase().split('#')[0];
             }
 
-            //if (vars["locale"] == null) {
-            //    currentParams["locale"] = "";
-            //} else {
-            //    currentParams["locale"] = vars["locale"];
-            //}
-
-            //const localeSelection = document.getElementById("localeSelection");
-
-            //for (let value of Object.entries(Locales)) {
-            //    var option = document.createElement("option");
-            //    option.val = value[1];
-            //    option.text = value[0];
-
-            //    if (currentParams["locale"] == value[0]) {
-            //        option.selected = true;
-            //    }
-
-            //    localeSelection.appendChild(option);
-            //}
-
             const response = await fetch("/casc/buildname");
             currentParams["build"] = await response.text();
 
@@ -1305,11 +1420,6 @@
                 loadTable();
             });
 
-            //$('#localeSelection').on('change', function () {
-            //    currentParams["locale"] = $('#localeSelection').val();
-            //    loadTable();
-            //});
-
             $('#hotfixToggle').on('change', function () {
                 if (document.getElementById('hotfixToggle').checked) {
                     currentParams["hotfixes"] = true;
@@ -1318,8 +1428,6 @@
                 }
                 loadTable();
             });
-
-            // window.onpopstate = history.onpushstate = function(e) { console.log(e); }
 
             console.log("Refreshing files");
 
