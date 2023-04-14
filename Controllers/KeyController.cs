@@ -405,11 +405,128 @@ namespace wow.tools.local.Controllers
                     if (keyInfo.Value.ID != (int)tkRow.ID)
                         continue;
 
+                    if (!CASC.KnownKeys.Contains(keyInfo.Key))
+                        CASC.KnownKeys.Add(keyInfo.Key);
+
                     if (KeyService.HasKey(keyInfo.Key))
                         continue;
 
                     Console.WriteLine("Setting key " + (int)tkRow.ID + " from TactKey.db2");
                     KeyService.SetKey(keyInfo.Key, tkRow.Key);
+                }
+            }
+
+            if (Directory.Exists("caches"))
+            {
+                foreach (var file in Directory.GetFiles("caches", "*.bin", SearchOption.AllDirectories))
+                {
+                    var cache = new DBCacheParser(file);
+
+                    foreach (var hotfix in cache.hotfixes)
+                    {
+                        if (hotfix.dataSize == 0) continue;
+
+                        if (hotfix.tableHash == 0x021826BB)
+                        {
+                            using (var ms = new MemoryStream(hotfix.data))
+                            using (var bin = new BinaryReader(ms))
+                            {
+                                bin.ReadCString(); // Text_lang
+                                bin.ReadCString(); // Text1_lang
+                                bin.ReadUInt32();  // ID
+                                bin.ReadUInt32();  // LanguageID
+                                bin.ReadUInt32();  // ConditionID
+                                bin.ReadUInt16();  // EmotesID
+                                bin.ReadByte();    // Flags
+                                bin.ReadUInt32();  // ChatBubbleDurationMs
+                                bin.ReadUInt32();  // VoiceOverPriorityID
+                                bin.ReadUInt32();  // SoundKitID[0]
+                                bin.ReadUInt32();  // SoundKitID[1]
+                                bin.ReadUInt16();  // EmoteID[0]
+                                bin.ReadUInt16();  // EmoteID[1]
+                                bin.ReadUInt16();  // EmoteID[2]
+                                bin.ReadUInt16();  // EmoteDelay[0]
+                                bin.ReadUInt16();  // EmoteDelay[1]
+                                bin.ReadUInt16();  // EmoteDelay[2]
+                                if (bin.BaseStream.Position != bin.BaseStream.Length)
+                                {
+
+                                    var extraTableHash = bin.ReadUInt32();
+                                    if (extraTableHash == 0xDF2F53CF)
+                                    {
+                                        var tactKeyLookup = bin.ReadUInt64();
+                                        var tactKeyBytes = bin.ReadBytes(16);
+
+                                        if (KeyService.HasKey(tactKeyLookup))
+                                            continue;
+
+                                        CASC.KnownKeys.Add(tactKeyLookup);
+
+                                        KeyService.SetKey(tactKeyLookup, tactKeyBytes);
+
+                                        Console.WriteLine("Found TACT Key " + string.Format("{0:X}", tactKeyLookup).PadLeft(16, '0') + " " + Convert.ToHexString(tactKeyBytes));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (SettingsManager.wowFolder != null)
+            {
+                foreach (var file in Directory.GetFiles(SettingsManager.wowFolder, "DBCache.bin", SearchOption.AllDirectories))
+                {
+                    var cache = new DBCacheParser(file);
+
+                    foreach (var hotfix in cache.hotfixes)
+                    {
+                        if (hotfix.dataSize == 0) continue;
+
+                        if (hotfix.tableHash == 0x021826BB)
+                        {
+                            using (var ms = new MemoryStream(hotfix.data))
+                            using (var bin = new BinaryReader(ms))
+                            {
+                                bin.ReadCString(); // Text_lang
+                                bin.ReadCString(); // Text1_lang
+                                bin.ReadUInt32();  // ID
+                                bin.ReadUInt32();  // LanguageID
+                                bin.ReadUInt32();  // ConditionID
+                                bin.ReadUInt16();  // EmotesID
+                                bin.ReadByte();    // Flags
+                                bin.ReadUInt32();  // ChatBubbleDurationMs
+                                bin.ReadUInt32();  // VoiceOverPriorityID
+                                bin.ReadUInt32();  // SoundKitID[0]
+                                bin.ReadUInt32();  // SoundKitID[1]
+                                bin.ReadUInt16();  // EmoteID[0]
+                                bin.ReadUInt16();  // EmoteID[1]
+                                bin.ReadUInt16();  // EmoteID[2]
+                                bin.ReadUInt16();  // EmoteDelay[0]
+                                bin.ReadUInt16();  // EmoteDelay[1]
+                                bin.ReadUInt16();  // EmoteDelay[2]
+                                if (bin.BaseStream.Position != bin.BaseStream.Length)
+                                {
+
+                                    var extraTableHash = bin.ReadUInt32();
+                                    if (extraTableHash == 0xDF2F53CF)
+                                    {
+                                        var tactKeyLookup = bin.ReadUInt64();
+                                        var tactKeyBytes = bin.ReadBytes(16);
+
+                                        if (KeyService.HasKey(tactKeyLookup))
+                                            continue;
+
+                                        CASC.KnownKeys.Add(tactKeyLookup);
+
+                                        KeyService.SetKey(tactKeyLookup, tactKeyBytes);
+
+                                        Console.WriteLine("Found TACT Key " + string.Format("{0:X}", tactKeyLookup).PadLeft(16, '0') + " " + Convert.ToHexString(tactKeyBytes));
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
