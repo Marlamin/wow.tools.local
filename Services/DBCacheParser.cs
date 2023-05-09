@@ -15,6 +15,7 @@
     public class DBCacheParser
     {
         public List<HotfixEntry> hotfixes = new();
+        public int build;
 
         public DBCacheParser(string filename)
         {
@@ -29,8 +30,8 @@
                     //Console.WriteLine("Unsupported DBCache version " + version + ", skipping");
                     return;
                 }
-
-                bin.BaseStream.Position += 36;
+                build = bin.ReadInt32();
+                bin.BaseStream.Position += 32;
 
                 while (bin.BaseStream.Position < bin.BaseStream.Length)
                 {

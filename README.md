@@ -2,7 +2,7 @@
 This contains a very slimmed down version of the WoW.tools site (currently modelviewer for M2s only and DBC browsing/exporting) meant for local use without relying on anything from the main WoW.tools website (or the internet in general, after external dependencies have been downloaded, see relevant section at the bottom of this README).
 
 ## Requirements
-All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least 4-5GB of free RAM.
+All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least ~4-6GB of free RAM. Please note that some features (e.g. DB2 global search) will take up far more RAM than that.
 
 ## Known issues
 - Some BLPs (e.g. interface BLPs) won't preview correctly/be empty. Download these from the files page instead and open them externally in a BLP viewer (e.g. XnView)/converter (e.g BLP2PNG).
@@ -32,7 +32,7 @@ Very rudimentary build diffing is available through the builds page. Only builds
 DB2 diffs are available between DB2s that are either extracted on disk (see step 4 of configuration) or from the currently loaded build. Extracting DB2s for the current build to the directory mentioned in step 4 is available through a button on the builds page, which will also tell you if DB2s for a certain build are missing. Make sure to do this if you want to be able to diff DB2s with this build in the future.
 
 ## Hotfixes
-Hotfixes are loaded from DBCache files that exist in the WoW directory (for all products) or manually placed `*.bin` files in the `caches` directory in the wow.tools.local directory. Hotfix diffs are available on the Hotfixes page but keep in mind the "First detected" column will only be updated upon requesting that page. After updating the DBCache files (either manually or by logging into/then quitting the game), a restart of wow.tools.local is currently required.
+Hotfixes are loaded from DBCache files that exist in the WoW directory (for all products) or manually placed `*.bin` files in the `caches` directory in the wow.tools.local directory. Hotfix diffs are available on the Hotfixes page but keep in mind the "First detected" column will only be updated upon requesting that page. After updating the DBCache files (either manually or by logging into/then quitting the game), a restart of wow.tools.local is currently required. The hotfixes page only shows hotfixes from the currently loaded build.
 
 ## External dependencies
 ### Definitions
