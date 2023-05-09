@@ -408,6 +408,6 @@ dbcs
 cache
 caches
 manifests
-cachedUnknowns.txt
-exported*.csv
-WoW.txt
+knownPushIDs.json
+*.csv
+*.txt
