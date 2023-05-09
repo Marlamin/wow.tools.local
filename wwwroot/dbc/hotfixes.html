@@ -75,6 +75,9 @@
     </nav>
     <link href="/css/dbc.css" rel="stylesheet">
     <div class='container-fluid'>
+        <div class="btn-group" style="vertical-align: top">
+            <a style='vertical-align: top;' id='reloadHotfixesButton' class='btn btn-danger btn-sm' onclick="reloadHotfixes();" href="#"><i class='fa fa-refresh'></i> Reload hotfix cache</a>
+        </div>
         <table class='table' id='hotfixTable'>
             <thead>
                 <tr><th>Push ID</th><th>Table name</th><th>Record ID</th><th>Build</th><th>Valid?</th><th>First seen at <small>(updates at page load)</small></th><th>&nbsp;</th></tr>
@@ -509,6 +512,16 @@
             console.log("Clearing modal");
             $("#previewModalContent").html('<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>');
         })
+
+        async function reloadHotfixes() {
+            var button = document.getElementById("reloadHotfixesButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Reloading, please wait!";
+
+            const response = await fetch("/dbc/reloadHotfixes");
+            console.log(await response.text());
+            window.location.reload();
+        }
+
     </script>
     <div class="modal" id="moreInfoModal" tabindex="-1" role="dialog" aria-labelledby="moreInfoModalLabel"
          aria-hidden="true">

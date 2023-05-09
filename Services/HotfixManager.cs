@@ -84,6 +84,12 @@ namespace wow.tools.local.Services
             SavePushIDs();
         }
 
+        public static void Clear()
+        {
+            hotfixReaders.Clear();
+            dbcacheParsers.Clear();
+        }
+
         public static uint Hash(string s)
         {
             var s_hashtable = new uint[] {

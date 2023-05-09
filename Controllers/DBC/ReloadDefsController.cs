@@ -24,6 +24,7 @@ namespace wow.tools.local.Controllers
             int count = dbdProvider.LoadDefinitions();
             dbcManager.ClearCache();
             dbcManager.ClearHotfixCache();
+            HotfixManager.Clear();
             return "Reloaded " + count + " definitions and cleared DBC cache!";
         }
     }
