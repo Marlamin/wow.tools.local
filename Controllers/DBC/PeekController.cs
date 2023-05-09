@@ -29,6 +29,7 @@ namespace wow.tools.local.Controllers.DBC
         }
 
         // GET: peek/name
+        [ResponseCache(NoStore = true, Duration = 0)]
         [HttpGet("{name}")]
         public async Task<PeekResult> Get(string name, string build, string col, int val, bool useHotfixes = false, string pushIDs = "")
         {

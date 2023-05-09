@@ -43,6 +43,7 @@ namespace wow.tools.local.Controllers.DBC
         }
 
         // GET: api/DBC/name
+        [ResponseCache(NoStore = true, Duration = 0)]
         [HttpGet("{name}")]
         public async Task<HeaderResult> Get(string name, string build)
         {
