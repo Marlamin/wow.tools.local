@@ -57,16 +57,22 @@ namespace wow.tools.local.Controllers
 
             if (SettingsManager.wowFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.wowFolder, ".build.info")))
             {
+                var headerMap = new Dictionary<string, byte>();
                 foreach (var line in System.IO.File.ReadAllLines(Path.Combine(SettingsManager.wowFolder, ".build.info")))
                 {
                     var splitLine = line.Split("|");
                     if (splitLine[0] == "Branch!STRING:0")
-                        continue;
+                    {
+                        foreach(var header in splitLine)
+                            headerMap.Add(header.Split("!")[0], (byte)Array.IndexOf(splitLine, header));
 
-                    var buildConfig = splitLine[2];
-                    var cdnConfig = splitLine[3];
-                    var version = splitLine[12];
-                    var product = splitLine[13];
+                        continue;
+                    }
+
+                    var buildConfig = splitLine[headerMap["Build Key"]];
+                    var cdnConfig = splitLine[headerMap["CDN Key"]];
+                    var version = splitLine[headerMap["Version"]];
+                    var product = splitLine[headerMap["Product"]];
 
                     var splitVersion = version.Split(".");
                     var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
