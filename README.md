@@ -32,7 +32,7 @@ Very rudimentary build diffing is available through the builds page. Only builds
 DB2 diffs are available between DB2s that are either extracted on disk (see step 4 of configuration) or from the currently loaded build. Extracting DB2s for the current build to the directory mentioned in step 4 is available through a button on the builds page, which will also tell you if DB2s for a certain build are missing. Make sure to do this if you want to be able to diff DB2s with this build in the future.
 
 ## Hotfixes
-Hotfixes are loaded from DBCache files that exist in the WoW directory (for all products) or manually placed `*.bin` files in the `caches` directory in the wow.tools.local directory. Hotfix diffs are available on the Hotfixes page but keep in mind the "First detected" column will only be updated upon requesting that page.
+Hotfixes are loaded from DBCache files that exist in the WoW directory (for all products) or manually placed `*.bin` files in the `caches` directory in the wow.tools.local directory. Hotfix diffs are available on the Hotfixes page but keep in mind the "First detected" column will only be updated upon requesting that page. After updating the DBCache files (either manually or by logging into/then quitting the game), a restart of wow.tools.local is currently required.
 
 ## External dependencies
 ### Definitions
