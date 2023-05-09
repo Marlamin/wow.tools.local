@@ -10,6 +10,8 @@ namespace wow.tools.local.Services
         private static CASCHandler cascHandler;
         public static bool IsCASCInit = false;
         public static string BuildName;
+        public static string CurrentProduct;
+
         public static Dictionary<int, string> Listfile = new();
         public static Dictionary<string, int> ListfileReverse = new();
         public static SortedDictionary<int, string> M2Listfile = new();
@@ -51,6 +53,8 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Initializing CASC from local disk with basedir " + basedir + " and program " + program + " and locale " + locale);
                 cascHandler = CASCHandler.OpenLocalStorage(basedir, program);
             }
+
+            CurrentProduct = program;
 
             var splitName = cascHandler.Config.BuildName.Replace("WOW-", "").Split("patch");
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];

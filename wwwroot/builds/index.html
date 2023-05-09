@@ -135,7 +135,7 @@
                         let isActive = data == "True";
                         var result = "";
                         if (isActive) {
-                            result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a>';
+                            result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Force load</a>';
                         } else {
                             result += '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Switch to build</a>';
                         }
