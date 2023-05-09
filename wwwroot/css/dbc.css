@@ -137,3 +137,7 @@ thead input { width: 100% }
     max-width: 100%;
     overflow-x: auto;
 }
+
+#hotfixTable {
+	width: 100% !important;
+}

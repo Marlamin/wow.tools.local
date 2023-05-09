@@ -59,7 +59,7 @@ namespace wow.tools.local.Services
 
             if (!Directory.Exists("manifests"))
                 Directory.CreateDirectory("manifests");
-
+            
             if (cascHandler.Root is WowTVFSRootHandler wtrh)
             {
                 AvailableFDIDs = wtrh.RootEntries.Keys.ToList();
@@ -198,6 +198,7 @@ namespace wow.tools.local.Services
 
         public static bool ExportTACTKeys()
         {
+            KnownKeys.Sort();
             File.WriteAllLines("WoW.txt", KnownKeys.Select(x => x.ToString("X16") + " " + Convert.ToHexString(KeyService.GetKey(x))).ToArray());
             return true;
         }

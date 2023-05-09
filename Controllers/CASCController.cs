@@ -1,6 +1,4 @@
-﻿using DBCD;
-using Microsoft.AspNetCore.Mvc;
-using System.Data.Common;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -17,7 +15,7 @@ namespace wow.tools.local.Controllers
         {
             if (build == "")
                 build = CASC.BuildName;
-            
+
             if (!CASC.FileExists(fileDataID))
                 return NotFound();
 
@@ -103,7 +101,7 @@ namespace wow.tools.local.Controllers
             CASC.LoadListfile(true);
             return true;
         }
-        
+
         [Route("exportListfile")]
         [HttpGet]
         public bool ExportListfile()
@@ -119,7 +117,7 @@ namespace wow.tools.local.Controllers
             CASC.LoadKeys(true);
             return true;
         }
-        
+
         [Route("exportTACTKeys")]
         [HttpGet]
         public bool ExportTACTKeys()
@@ -180,7 +178,7 @@ namespace wow.tools.local.Controllers
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("Exception during type guessing with ModelFileData:" + e.Message);
             }

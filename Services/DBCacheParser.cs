@@ -3,7 +3,7 @@
     public struct HotfixEntry
     {
         public uint regionID;
-        public uint pushID;
+        public int pushID;
         public uint uniqueID;
         public uint tableHash;
         public uint recordID;
@@ -15,17 +15,18 @@
     public class DBCacheParser
     {
         public List<HotfixEntry> hotfixes = new();
+
         public DBCacheParser(string filename)
         {
-            using (var ms = new MemoryStream(File.ReadAllBytes(filename)))
-            using (var bin = new BinaryReader(ms))
+            using (var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var bin = new BinaryReader(fs))
             {
                 var hotfix = new HotfixEntry();
                 bin.ReadUInt32(); // Signature
                 var version = bin.ReadUInt32();
                 if (version != 9)
                 {
-                    Console.WriteLine("Unsupported DBCache version " + version + ", skipping");
+                    //Console.WriteLine("Unsupported DBCache version " + version + ", skipping");
                     return;
                 }
 
@@ -35,7 +36,7 @@
                 {
                     bin.ReadUInt32(); // Signature
                     hotfix.regionID = bin.ReadUInt32();
-                    hotfix.pushID = bin.ReadUInt32();
+                    hotfix.pushID = bin.ReadInt32();
                     hotfix.uniqueID = bin.ReadUInt32();
                     hotfix.tableHash = bin.ReadUInt32();
                     hotfix.recordID = bin.ReadUInt32();

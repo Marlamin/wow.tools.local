@@ -1,4 +1,5 @@
 ﻿using CASCLib;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using wow.tools.local.Services;
@@ -349,7 +350,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0xE8175532FAA4D0D7, (7591, "WOW-48776patch10.1.0_PTR", "Unknown model"));
             KeyInfo.Add(0x6C36AE2EE5E4B9DC, (7592, "WOW-48776patch10.1.0_PTR", "Unknown model"));
             KeyInfo.Add(0x0599D267A15C719F, (7593, "WOW-48776patch10.1.0_PTR", "Unknown textures"));
-            KeyInfo.Add(0x4CE29C24FDFDFB18, (7594, "WOW-48776patch10.1.0_PTR", "Unknown items (?)"));
+            KeyInfo.Add(0x4CE29C24FDFDFB18, (7594, "WOW-48776patch10.1.0_PTR", "Guardian transmog set"));
             KeyInfo.Add(0x2D71F7DD989FED1F, (7595, "WOW-48776patch10.1.0_PTR", "Turtle Mount"));
             KeyInfo.Add(0xC4B1348F2B37B3B4, (7596, "WOW-48776patch10.1.0_PTR", "Unknown spell/widget"));
             KeyInfo.Add(0xA765D5EDE5034CFA, (7597, "WOW-48898patch10.1.0_PTR", "0 file(s) as of 10.1.0.48898"));
@@ -410,6 +411,7 @@ namespace wow.tools.local.Controllers
 
                     if (KeyService.HasKey(keyInfo.Key))
                         continue;
+
 
                     Console.WriteLine("Setting key " + (int)tkRow.ID + " from TactKey.db2");
                     KeyService.SetKey(keyInfo.Key, tkRow.Key);
