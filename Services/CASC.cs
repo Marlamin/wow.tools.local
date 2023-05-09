@@ -191,6 +191,15 @@ namespace wow.tools.local.Services
             }
             
             IsCASCInit = true;
+
+            try
+            {
+                HotfixManager.LoadCaches();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Error loading hotfixes: " + e.Message);
+            }
             Console.WriteLine("Finished loading " + BuildName);
         }
 
