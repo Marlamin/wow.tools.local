@@ -94,7 +94,8 @@
             <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
             <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
             <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
-            <a  id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
+            <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
+            <a id='copyToClipBoardButton' class='btn btn-success btn-sm' onclick="copyResultsToClipboard();" href="#"><i class='fa fa-copy'></i> Copy to clipboard</a>
             <div class="btn-group" role="group">
                 <a id='updateListfileButton' class='btn btn-primary btn-sm' onclick="updateListfile();" href="#"><i class='fa fa-refresh'></i> Update listfile</a>
                 <a id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#"><i class='fa fa-save'></i> Export listfile to exported-listfile.csv</a>
@@ -595,6 +596,15 @@
             });
 
         }());
+
+        function copyResultsToClipboard() {
+            console.log($('#files').DataTable().rows().data().toArray());
+            var result = "";
+            for (const row of $('#files').DataTable().rows().data().toArray()) {
+                result += row[0] + ";" + row[1] + "\n";
+            }
+            navigator.clipboard.writeText(result);
+        }
 
         function locationHashChanged(event) {
             var searchHash = location.hash.substr(1),
