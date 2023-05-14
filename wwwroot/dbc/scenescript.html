@@ -343,6 +343,9 @@
                         }
 
                         for (i = 0; i < knownManifests.length; i++) {
+                            if (knownManifests[i][1] == ".")
+                                continue;
+
                             if (currentParams["build"] == null) {
                                 currentParams["build"] = knownManifests[i];
                             }
@@ -365,11 +368,6 @@
                     .catch((error) => {
                         console.error('Error:', error);
                     });
-
-
-       
-
-
             }());
         </script>
     </div>
