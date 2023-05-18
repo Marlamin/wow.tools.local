@@ -193,6 +193,7 @@
             }
 
             function loadTable() {
+                currentParams["build"] = "10.1.5.49516";
                 build = currentParams["build"];
 
                 $("#dbtable").html("<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>");
@@ -329,7 +330,7 @@
             }
 
             let currentParams = [];
-
+            currentParams["build"] = "10.1.5.49516";
             (function () {
 
                 hljs.configure({ languages: ['lua'] });

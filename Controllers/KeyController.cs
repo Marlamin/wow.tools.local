@@ -271,6 +271,8 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x80FF7EDA8451FFFE, (446, "WOW-45232patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x2F454B153E142B76, (469, "WOW-47118patch10.0.5_PTR", "Unknown creature"));
             KeyInfo.Add(0xB5F633819B0DE383, (470, "WOW-47118patch10.0.5_PTR", "Unknown creature"));
+            KeyInfo.Add(0x1FFB6C550D055F12, (471, "WOW-49516patch10.1.5_VANPTR", ""));
+            KeyInfo.Add(0x8C5276FE6714BE1C, (472, "WOW-49516patch10.1.5_VANPTR", ""));
             KeyInfo.Add(0x258D1178AB798566, (473, "WOW-45335patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x1E6AC96860BD524B, (474, "WOW-45335patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x6F5EBDF150B3441D, (475, "WOW-45335patch10.0.0_Beta", "Kalec Iskaara cutscene"));
@@ -317,7 +319,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x4758A4E70A0237AC, (7547, "WOW-48520patch10.0.7_VANPTR", "Unknown mount"));
             KeyInfo.Add(0x14BF95DCD8C32D85, (7548, "WOW-48480patch10.1.0_PTR", "Unknown map/quest/area/lfgdungeon"));
             KeyInfo.Add(0xF277310B18A1FFBA, (7549, "WOW-48520patch10.0.7_VANPTR", "Battle.net pet bundle assets"));
-            KeyInfo.Add(0xB5147B68B5E93830, (7550, "WOW-48480patch10.1.0_PTR", "Unknown scene/scenario/item/profession questline"));
+            KeyInfo.Add(0xB5147B68B5E93830, (7550, "WOW-48480patch10.1.0_PTR", "Evoker legendary"));
             KeyInfo.Add(0xF2DC126FEB572258, (7551, "WOW-48480patch10.1.0_PTR", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x632946FAD80476A1, (7552, "WOW-48480patch10.1.0_PTR", "Unknown item/spells/questline"));
             KeyInfo.Add(0xF050A0D99707361C, (7553, "WOW-48480patch10.1.0_PTR", "Unknown quest"));
@@ -345,6 +347,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0xEBE224C64720594B, (7575, "WOW-48480patch10.1.0_PTR", "Unknown broadcasttext"));
             KeyInfo.Add(0xB25044202A4BD9B7, (7576, "WOW-48480patch10.1.0_PTR", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0xAC86DE77F65B93AF, (7577, "WOW-48520patch10.0.7_VANPTR", "Waveborne Diplomat's Regalia transmog set"));
+            KeyInfo.Add(0x0FAB680C2AC0E38E, (7587, "WOW-49516patch10.1.5_VANPTR", ""));
             KeyInfo.Add(0x78C70CF0F282D257, (7589, "WOW-48776patch10.1.0_PTR", "Unknown model"));
             KeyInfo.Add(0x2DFCA73AC64AEECF, (7590, "WOW-48776patch10.1.0_PTR", "Unknown items (?)"));
             KeyInfo.Add(0xE8175532FAA4D0D7, (7591, "WOW-48776patch10.1.0_PTR", "Unknown model"));
@@ -360,6 +363,35 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x4EAD7F8A0C378D7F, (7601, "WOW-48898patch10.1.0_PTR", "0 file(s) as of 10.1.0.48898"));
             KeyInfo.Add(0x6899BB495C433867, (7602, "WOW-48865patch10.0.7_Retail", "Unknown store assets"));
             KeyInfo.Add(0x69CB2A2C597E9F67, (7603, "WOW-48865patch10.0.7_Retail", "Faction pack store assets"));
+            KeyInfo.Add(0xAF8553E077BA216C, (7605, "WOW-49516patch10.1.5_VANPTR", "38 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x2337416B8A912391, (7606, "WOW-49516patch10.1.5_VANPTR", "13 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "17 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "32 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "1 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xAA6A7C5C5ED8DBC6, (7615, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x68AA63A16E5EF2B1, (7616, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x4AD2E2A4B055E925, (7617, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xA9E5F1F6208B98B8, (7618, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x95F0FD06F2909D19, (7619, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xC9BA30DA927A14B9, (7620, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x4C9249E0480C8264, (7621, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x6A552F8A1D3B8637, (7622, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x5AA7FAB564B04D7D, (7623, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xE8A4042B5D3FD25D, (7624, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x1D6294FC250DF4A1, (7625, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xCC8D5FD991958339, (7626, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x8553C9D58E44FD19, (7627, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x4626421172DFF459, (7628, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x81EEFCCFC9DF862A, (7629, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x38CB18F712F9C63E, (7630, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xEE0541B6CAF0AB77, (7631, "WOW-49516patch10.1.5_VANPTR", "5 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x9DDF72DFC13DFBD3, (7632, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x26947FF164DA0962, (7633, "WOW-49516patch10.1.5_VANPTR", "6 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x4028F29E55EA5247, (7634, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x5DBE4562C104CCBE, (7635, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x3923F1B9935BA8FA, (7636, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x724CFA81FCC5334C, (7639, "WOW-49595patch10.1.5_XPTR", "0 file(s) as of 10.1.5.49595"));
         }
 
         private class KeyInfoEntry
