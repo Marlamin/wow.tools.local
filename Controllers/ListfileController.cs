@@ -115,6 +115,11 @@ namespace wow.tools.local.Controllers
 
             var rows = new List<string>();
 
+            if(length == -1)
+            {
+                start = 0;
+                length = sortedResults.Count;
+            }
             foreach (var listfileResult in sortedResults.Skip(start).Take(length))
             {
                 result.data.Add(
