@@ -295,6 +295,22 @@ namespace wow.tools.local.Controllers
 
                         var magic = bin.ReadBytes(4);
                         var type = "unk";
+                        if (magic[0] == 0 || magic[0] == 4)
+                        {
+                            if (bin.BaseStream.Length >= 8)
+                            {
+                                var wwfMagic = bin.ReadUInt32();
+                                switch (wwfMagic)
+                                {
+                                    case 0x932C64B4: // WWFParticulateGroup
+                                        type = "wwf";
+                                        break;
+                                }
+                            }
+
+                            bin.BaseStream.Position = 4;
+                        }
+
                         var magicString = Encoding.ASCII.GetString(magic);
                         switch (magicString)
                         {
@@ -362,7 +378,8 @@ namespace wow.tools.local.Controllers
                                 type = "bls";
                                 break;
                             default:
-                                Console.WriteLine((uint)unknownFile + " - Unknown magic " + magicString + " (" + Convert.ToHexString(magic) + ")");
+                                if(type == "unk")
+                                    Console.WriteLine((uint)unknownFile + " - Unknown magic " + magicString + " (" + Convert.ToHexString(magic) + ")");
                                 break;
                         }
 
