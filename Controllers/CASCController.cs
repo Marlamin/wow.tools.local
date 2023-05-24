@@ -84,7 +84,7 @@ namespace wow.tools.local.Controllers
                     result.data.Add(new List<string>() { patch, build, product, buildConfig, cdnConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString() });
                 }
 
-                result.data.OrderBy(x => x[0]).ToList();
+                result.data = result.data.OrderBy(x => x[0]).ToList();
                 result.recordsTotal = result.data.Count;
                 result.recordsFiltered = result.data.Count;
             }
@@ -265,8 +265,8 @@ namespace wow.tools.local.Controllers
                 Console.WriteLine("Exception during type guessing with SoundKitEntry:" + e.Message);
             }
 
-            Console.WriteLine("Analyzing " + unknownFiles.Count() + " unknown files");
-            var numFilesTotal = unknownFiles.Count();
+            Console.WriteLine("Analyzing " + unknownFiles.Count + " unknown files");
+            var numFilesTotal = unknownFiles.Count;
             var numFilesDone = 0;
             var numFilesSkipped = 0;
             Parallel.ForEach(unknownFiles, unknownFile =>
