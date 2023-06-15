@@ -882,6 +882,7 @@ async function setModelDisplay(displayID, type){
 
             for (const geosetRow of geosetResults){
                 geosetsToEnable[Number(geosetRow.GeosetIndex) + 1] = Number(geosetRow.GeosetValue);
+                if (document.getElementById("geosetSelection-" + (Number(geosetRow.GeosetIndex) + 1))) { document.getElementById("geosetSelection-" + (Number(geosetRow.GeosetIndex) + 1)).value = geosetRow.GeosetValue; }
             }
 
             for (const geoset of Current.availableGeosets){
