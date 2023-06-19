@@ -282,8 +282,12 @@ window.createscene = async function () {
     Module["meshIdArrayCallback"] = function(meshIDArray) {
         Current.availableGeosets = Object.values(meshIDArray).map(function (x) { return parseInt(x, 10); }).sort();
 
+        // Add in options for zero values, since they're sometimes valid but the model meshID data unfortunately aren't including them:
+        const zeroGeosets = Current.availableGeosets.map(function (x) { return 100 * Math.floor(x / 100); });
+        Current.availableGeosets = [...new Set(zeroGeosets.concat(Current.availableGeosets).sort())];
+        
         const geosetControl = document.getElementById("geosets");
-        geosetControl.innerHTML = "This functionality is WIP and might cause display issues. Use with caution.";
+        geosetControl.innerHTML = "This functionality is WIP and might cause display issues. Use with caution. Sometimes a geoset value of 0 gives a valid appearance, other times it creates a hole in your model.";
         for (let meshID of Current.availableGeosets){
             meshID = Number(meshID);
 
@@ -298,6 +302,7 @@ window.createscene = async function () {
                 
                 let geosetSelect = document.createElement('select');
                 geosetSelect.id = "geosetSelection-" + geosetGroup;
+                geosetSelect.classList.add("geosetSelection");
                 geosetSelect.dataset.geosetGroup = geosetGroup;
                 geosetSelect.onchange = function(){ Current.enabledGeosets[Number(this.dataset.geosetGroup)] = Number(this.value); updateEnabledGeosets(); };
                 // let opt = document.createElement('option');
@@ -873,6 +878,12 @@ async function setModelDisplay(displayID, type){
         // Geosets
         Current.enabledGeosets = [];
 
+        // Set all the geoset selectors back to zero:
+        const geosetSelectors = document.getElementsByClassName("geosetSelection");
+        for(var i = 0; i < geosetSelectors.length; i++) {
+            geosetSelectors[i].value = 0;
+        }
+        
         if (cmdRow.values.CreatureGeosetDataID != "0"){
             const geosetResponse = await fetch("/dbc/find/CreatureDisplayInfoGeosetData/?build=" + Current.buildName + "&col=CreatureDisplayInfoID&val=" + cdiRow.values['ID']);
             const geosetResults = await geosetResponse.json();
