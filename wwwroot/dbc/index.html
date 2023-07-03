@@ -102,7 +102,7 @@
                data-toggle='modal' href='' data-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
             <a style='vertical-align: top;' id='globalSearchButton' class='btn btn-secondary btn-sm'
                data-toggle='modal' href='' data-target='#globalSearchModal'><i class='fa fa-search'></i> Global Search</a>
-            <a style='vertical-align: top;' id='compareButton' class='btn btn-secondary btn-sm' href=''><i class='fa fa-search'></i> Compare</a>
+            <a style='vertical-align: top;' id='compareButton' class='btn btn-secondary btn-sm' href='/dbc/diff.html'><i class='fa fa-search'></i> Compare</a>
             <div class="btn-group" style="vertical-align: top">
                 <a style='vertical-align: top;' id='updateDefsButton' class='btn btn-danger btn-sm' onclick="updateDefs();" href="#"><i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache</a>
                 <a style='vertical-align: top;' id='reloadDefsButton' class='btn btn-danger btn-sm' onclick="reloadDefs();" href="#"><i class='fa fa-refresh'></i> Clear DB2/DBC/DBD cache</a>
@@ -514,6 +514,8 @@
         function updateCompareButtonHref() {
             // Script to dynamically set the href of the compare button based on the currently selected dbc
             let dbc = currentParams["dbc"];
+            if (dbc == "")
+                return;
             let button = document.getElementById("compareButton");
             button.href = "/dbc/diff.html?dbc=" + dbc;
         }
