@@ -63,7 +63,9 @@ const itemBonusTypes = {
     30: 'ItemDescription',
     31: 'LegendaryName',
     34: 'ItemBonusListGroupID',
-    35: 'ItemLimitCategoryID'
+    35: 'ItemLimitCategoryID',
+    37: 'ItemConversion',
+    42: 'Base Item Level',
 };
 
 const criteriaTreeOperator = {
