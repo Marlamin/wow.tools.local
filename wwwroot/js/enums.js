@@ -64,7 +64,7 @@ const itemBonusTypes = {
     31: 'LegendaryName',
     34: 'ItemBonusListGroupID',
     35: 'ItemLimitCategoryID',
-    37: 'ItemConversion',
+    37: 'ItemConversionID',
     42: 'Base Item Level',
 };
 
