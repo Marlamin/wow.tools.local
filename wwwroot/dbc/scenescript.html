@@ -110,13 +110,17 @@
         <div id='tableContainer'><table id='dbtable' class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"><thead></thead><tbody></tbody></table></div>
         <div id='scriptContainer'></div>
         <script type='text/javascript'>
+            let currentParams = [];
+
             $('#buildFilter').on('change', function () {
                 var build = $("#buildFilter").val();
                 document.location = '/dbc/scenescript.html?build=' + build;
+                currentParams["build"] = build;
             });
 
             let knownManifests = new Array();
             var build = $("#buildFilter").val();
+            currentParams["build"] = build;
             const scriptContainer = document.getElementById("scriptContainer");
             const loadingHolder = document.getElementById("loadingHolder");
             async function loadSceneScript(packageid, build) {
@@ -134,7 +138,7 @@
                 hljs.highlightBlock(scriptContainer);
                 loadingHolder.innerText = "";
 
-            }
+            }   
 
             async function handlePackageMember(packageMember) {
                 if (packageMember.ChildSceneScriptPackageID != 0) {
@@ -193,7 +197,6 @@
             }
 
             function loadTable() {
-                currentParams["build"] = "10.1.5.49516";
                 build = currentParams["build"];
 
                 $("#dbtable").html("<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>");
@@ -329,8 +332,6 @@
                 });
             }
 
-            let currentParams = [];
-            currentParams["build"] = "10.1.5.49516";
             (function () {
 
                 hljs.configure({ languages: ['lua'] });
