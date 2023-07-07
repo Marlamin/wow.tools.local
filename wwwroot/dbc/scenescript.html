@@ -119,8 +119,20 @@
             });
 
             let knownManifests = new Array();
-            var build = $("#buildFilter").val();
-            currentParams["build"] = build;
+
+            let url = new URL(window.location.href);
+            let searchParams = new URLSearchParams(url.search);
+            let urlBuild = searchParams.get("build");
+
+            // grab the build from the URL if it's present, otherwise just use whatever is selected in the dropdown
+            if (urlBuild != null) {
+                currentParams["build"] = urlBuild;
+            } else {
+                currentParams["build"] = $("#buildFilter").val();
+            } 
+
+            build = currentParams["build"];
+
             const scriptContainer = document.getElementById("scriptContainer");
             const loadingHolder = document.getElementById("loadingHolder");
             async function loadSceneScript(packageid, build) {
