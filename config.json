@@ -2,7 +2,7 @@
   "config": {
     "definitionDir": "WoWDBDefs/definitions",
     "dbcFolder": "dbcs",
-    "listfileURL": "https://github.com/wowdev/wow-listfile/raw/master/community-listfile.csv",
+    "listfileURL": "https://github.com/wowdev/wow-listfile/raw/master/community-listfile-withcapitals.csv",
     "tactKeyURL": "https://github.com/wowdev/TACTKeys/raw/master/WoW.txt",
     "wowFolder": "C:/World of Warcraft",
     "wowProduct": "wow",
