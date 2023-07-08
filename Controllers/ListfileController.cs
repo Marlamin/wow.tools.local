@@ -83,7 +83,7 @@ namespace wow.tools.local.Controllers
                     listfileResults = DoSearch(listfileResults, search);
                 }
 
-                result.recordsFiltered = listfileResults.Count();
+                result.recordsFiltered = listfileResults.Count;
             }
             else
             {
@@ -155,7 +155,7 @@ namespace wow.tools.local.Controllers
             {
                 var searchStr = search.ToString().ToLower();
                 listfileResults = CASC.M2Listfile.Where(x => x.Value.ToLower().Contains(searchStr)).ToDictionary(x => x.Key, x => x.Value);
-                result.recordsFiltered = listfileResults.Count();
+                result.recordsFiltered = listfileResults.Count;
             }
             else
             {

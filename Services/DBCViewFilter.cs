@@ -60,13 +60,30 @@ namespace wow.tools.local.Services
                 records = records.Where(FilterFunc);
             }
 
+            var rowIDFilter = new List<int>();
+            if (Searching && SearchValue == "encrypted")
+            {
+                rowIDFilter.AddRange(Storage.GetEncryptedIDs().SelectMany(x => x.Value));
+                Searching = false;
+            }
+            else if (Searching && SearchValue.StartsWith("encrypted:"))
+            {
+                if (Storage.GetEncryptedSections().TryGetValue(ulong.Parse(SearchValue.Substring(10), NumberStyles.HexNumber), out var encryptedSection))
+                    rowIDFilter.AddRange(Storage.GetEncryptedIDs().Where(x => x.Key == encryptedSection).SelectMany(x => x.Value));
+
+                Searching = false;
+            }
+
+            if(rowIDFilter.Count > 0)
+                records = records.Where(x => rowIDFilter.Contains(x.ID));
+
             // apply converter
             var result = records.Select(ConverterFunc);
-
+          
             foreach (var rowList in result)
             {
                 token?.ThrowIfCancellationRequested();
-
+                
                 // if searching we need to futher filter the returned records for SearchValue
                 var matches = !Searching;
                 for (var i = 0; !matches && i < rowList.Length; i++)
