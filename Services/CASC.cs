@@ -276,7 +276,7 @@ namespace wow.tools.local.Services
                         TypeMap.Add(ext, new List<int>());
 
                     Listfile[fdid] = splitLine[1];
-                    ListfileReverse.Add(splitLine[1], fdid);
+                    ListfileReverse.Add(splitLine[1].ToLower(), fdid);
 
                     Types.Add(fdid, ext);
                     TypeMap[ext].Add(fdid);
