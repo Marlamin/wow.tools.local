@@ -270,7 +270,7 @@ namespace wow.tools.local.Services
 
                 if (Listfile.ContainsKey(fdid))
                 {
-                    var ext = Path.GetExtension(splitLine[1]).Replace(".", "");
+                    var ext = Path.GetExtension(splitLine[1]).Replace(".", "").ToLower();
 
                     if (!TypeMap.ContainsKey(ext))
                         TypeMap.Add(ext, new List<int>());
@@ -412,6 +412,8 @@ namespace wow.tools.local.Services
 
         public static void SetFileType(int filedataid, string type)
         {
+            type = type.ToLower();
+
             if (!Listfile.ContainsKey(filedataid))
                 return;
 
