@@ -348,6 +348,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0xB25044202A4BD9B7, (7576, "WOW-48480patch10.1.0_PTR", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0xAC86DE77F65B93AF, (7577, "WOW-48520patch10.0.7_VANPTR", "Waveborne Diplomat's Regalia transmog set"));
             KeyInfo.Add(0x0FAB680C2AC0E38E, (7587, "WOW-49516patch10.1.5_VANPTR", ""));
+            KeyInfo.Add(0xC85DA43484057737, (7588, "WOW-50442patch10.1.7_PTR", "103 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x78C70CF0F282D257, (7589, "WOW-48776patch10.1.0_PTR", "Unknown model"));
             KeyInfo.Add(0x2DFCA73AC64AEECF, (7590, "WOW-48776patch10.1.0_PTR", "Unknown items (?)"));
             KeyInfo.Add(0xE8175532FAA4D0D7, (7591, "WOW-48776patch10.1.0_PTR", "Unknown model"));
@@ -365,6 +366,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x69CB2A2C597E9F67, (7603, "WOW-48865patch10.0.7_Retail", "Faction pack store assets"));
             KeyInfo.Add(0xAF8553E077BA216C, (7605, "WOW-49516patch10.1.5_VANPTR", "Unknown broadcasttext/model"));
             KeyInfo.Add(0x2337416B8A912391, (7606, "WOW-49516patch10.1.5_VANPTR", "Netherwing companion drake (teal)"));
+            KeyInfo.Add(0x5468F352E97569AE, (7607, "WOW-50442patch10.1.7_PTR", "115 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "Unknown toy"));
             KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "Unknown item/spell/quest"));
             KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "1 file(s) as of 10.1.5.49595"));
@@ -392,6 +394,42 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x5DBE4562C104CCBE, (7635, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x3923F1B9935BA8FA, (7636, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x724CFA81FCC5334C, (7639, "WOW-49595patch10.1.5_XPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x5F21546AEF75EAAA, (7641, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xDB08C8015AE584F9, (7647, "WOW-50199patch10.1.5_XPTR", "10 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x7A2BDD5F02385D8B, (7648, "WOW-50199patch10.1.5_XPTR", "379 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xCE967C5C045FA50A, (7651, "WOW-50199patch10.1.5_XPTR", "17 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xFEA26F852E83A774, (7654, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xBFA213ABA4804E4C, (7655, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xF87C86A36878B72D, (7656, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xA9B4E4CB5F651DB0, (7657, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x3E443B900EA0D9AD, (7658, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xA919AA460BEE447A, (7659, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x37A4D8DCD8710EC2, (7660, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x843AE002EC839322, (7661, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x460225C73E8F3DA5, (7662, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x994EEC72BF7677B8, (7663, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x8D0F298BD7CCD04C, (7664, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x06462A626C07CFC0, (7665, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xFCE98E3A1E7E6ACC, (7666, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x9FE4383ED8CD685C, (7667, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x1638836B18413FA1, (7668, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xCC9BC67D426D0109, (7669, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x508A7CA469D3ABD4, (7670, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xC26B17EC8991C3DE, (7672, "WOW-50199patch10.1.5_XPTR", "18 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x5D3122DA6FBBA7F2, (7673, "WOW-50442patch10.1.7_PTR", "88 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0xEAB45D6B59CDCE29, (7675, "WOW-50199patch10.1.5_XPTR", "18 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x614FA5E9FE31B27A, (7676, "WOW-50199patch10.1.5_XPTR", "7 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x8DB2A67206C3BBFE, (7677, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x8B67488DE1E962A7, (7678, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x4E3AA2CB1B379256, (7679, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x04132CC1A52E9DD3, (7680, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x74FFB4F6918309D6, (7681, "WOW-50442patch10.1.7_PTR", "8 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x3D7F53C63B044491, (7682, "WOW-50442patch10.1.7_PTR", "73 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x7F070B1D792933D7, (7686, "WOW-50442patch10.1.7_PTR", "15 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0xCFFE42581EF7E189, (7688, "WOW-50438patch10.1.5_XPTR", "16 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x972EFE7B2D050C9C, (7689, "WOW-50438patch10.1.5_XPTR", "7 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x3C2909D607694F17, (7690, "WOW-50438patch10.1.5_XPTR", "7 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x62F7CF550FD52D4B, (7691, "WOW-50442patch10.1.7_PTR", "0 file(s) as of 10.1.7.50442"));
         }
 
         private class KeyInfoEntry
