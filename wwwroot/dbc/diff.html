@@ -222,6 +222,10 @@
                 var header2URL = "/dbc/header/" + currentDBC + "/?build=" + newBuild;
 
                 $.when($.getJSON(header1URL), $.getJSON(header2URL)).then(function (resp1, resp2) {
+                    // show 'open DBC' button after diff
+                    $("#toDBCButton").show();
+                    updateToDBChref(urlParams.get('dbc'), urlParams.get('new'));
+
                     //this callback will be fired once all ajax calls have finished.
                     if (resp1[0]['error'] != null) {
                         alert("An error occured on the server:\n" + resp1[0]['error']);
