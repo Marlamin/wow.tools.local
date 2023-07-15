@@ -93,7 +93,7 @@ const BLPFile = ((Bufo) => {
 		 * @param {number} [mipmap]
 		 * @param {HTMLElement} [canvas]
 		 */
-		getPixels(mipmap, canvas = null, canvasX = null, canvasY = null) {
+		getPixels(mipmap, canvas = null) {
 			// Constrict the requested mipmap to a valid range..
 			mipmap = Math.max(0, Math.min(mipmap || 0, this.mapCount - 1));
 
@@ -109,16 +109,8 @@ const BLPFile = ((Bufo) => {
 
 			// Canvas
 			if (canvas !== null) {
-				if (canvasX !== null) {
-					this.newCanvas = document.createElement('canvas');
-					this.newCanvas.width = this.width;
-					this.newCanvas.height = this.height;
-					this.imageContext = this.newCanvas.getContext('2d');
-					this.imageData = this.imageContext.createImageData(this.scaledWidth, this.scaledHeight);
-				} else {
-					this.imageContext = canvas.getContext('2d');
-					this.imageData = this.imageContext.createImageData(this.scaledWidth, this.scaledHeight);
-				}
+				this.imageContext = canvas.getContext('2d');
+				this.imageData = this.imageContext.createImageData(this.scaledWidth, this.scaledHeight);
 			}
 
 			// Decode the raw data depending on the file..
@@ -133,18 +125,12 @@ const BLPFile = ((Bufo) => {
 					break;
 
 				case 3:
-					out = BLPFile._marshalBGRA(this.rawData);
+					out = this._marshalBGRA();
 					break;
 			}
 
 			if (canvas !== null) {
-				if (canvasX !== null) {
-					this.imageContext.putImageData(this.imageData, 0, 0);
-					let existingImageContext = canvas.getContext('2d');
-					existingImageContext.drawImage(this.newCanvas, canvasX, canvasY);
-				} else {
-					this.imageContext.putImageData(this.imageData, canvasX, canvasY);
-				}
+				this.imageContext.putImageData(this.imageData, 0, 0);
 				return this.imageContext;
 			}
 		}
@@ -186,7 +172,7 @@ const BLPFile = ((Bufo) => {
 			let target = new Array(4 * 16);
 
 			for (let y = 0; y < this.scaledHeight; y += 4) {
-				for (let x = 0; x < this.scaledWidth; x += 4) {
+				for (let x = 0; x < this.scaledWidth; x+= 4) {
 					let blockPos = 0;
 
 					if (this.rawData.length === pos)
@@ -312,7 +298,7 @@ const BLPFile = ((Bufo) => {
 				for (let i = 0; i < this.scaledLength; i++) {
 					let ofs = i * 4;
 					let colour = this.palette[this.rawData[i]];
-
+					
 					data[ofs] = colour[2];
 					data[ofs + 1] = colour[1];
 					data[ofs + 2] = colour[0];
@@ -361,26 +347,26 @@ const BLPFile = ((Bufo) => {
 		 * @returns {Bufo}
 		 * @private
 		 */
-		static _marshalBGRA(data) {
+		_marshalBGRA() {
 			if (this.imageData) {
 				let out = this.imageData.data;
-				let count = data.length / 4;
+				let count = this.rawData.length / 4;
 				for (let i = 0; i < count; i++) {
 					let ofs = i * 4;
-					out[ofs] = data[ofs + 2];
-					out[ofs + 1] = data[ofs + 1];
-					out[ofs + 2] = data[ofs];
-					out[ofs + 3] = data[ofs + 3];
+					out[ofs] = this.rawData[ofs + 2];
+					out[ofs + 1] = this.rawData[ofs + 1];
+					out[ofs + 2] = this.rawData[ofs];
+					out[ofs + 3] = this.rawData[ofs + 3];
 				}
 
 				return this.imageData;
 			} else {
 				let buf = new Bufo(data.length);
-				let count = data.length / 4;
+				let count = this.rawData.length / 4;
 				for (let i = 0; i < count; i++) {
 					let ofs = i * 4;
 					buf.writeUInt8([
-						data[ofs + 2], data[ofs + 1], data[ofs], data[ofs + 3]
+						this.rawData[ofs + 2], this.rawData[ofs + 1], this.rawData[ofs], this.rawData[ofs + 3]
 					]);
 				}
 				buf.seek(0);

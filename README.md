@@ -4,9 +4,6 @@ This contains a very slimmed down version of the WoW.tools site (currently model
 ## Requirements
 All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least ~4-6GB of free RAM. Please note that some features (e.g. DB2 global search) will take up far more RAM than that.
 
-## Known issues
-- Some BLPs (e.g. interface BLPs) won't preview correctly/be empty. Download these from the files page instead and open them externally in a BLP viewer (e.g. XnView)/converter (e.g BLP2PNG).
-
 ## Download 
 The latest version can be downloaded [here](https://github.com/Marlamin/wow.tools.local/releases).
 
