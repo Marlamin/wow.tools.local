@@ -154,7 +154,7 @@ namespace wow.tools.local.Controllers
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
-                listfileResults = CASC.M2Listfile.Where(x => x.Value.ToLower().Contains(searchStr)).ToDictionary(x => x.Key, x => x.Value);
+                listfileResults = CASC.M2Listfile.Where(x => x.Value.ToLower().Contains(searchStr) || x.Key.ToString() == search).ToDictionary(x => x.Key, x => x.Value);
                 result.recordsFiltered = listfileResults.Count;
             }
             else
