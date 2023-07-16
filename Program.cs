@@ -14,6 +14,9 @@ namespace wow.tools.local
                 if (!keyRes)
                     throw new Exception("Failed to load TACT keys");
 
+                // this will override the config.json values if the relevant command line flags are present
+                SettingsManager.ParseCommandLineArguments(args);
+
                 CASC.InitCasc(SettingsManager.wowFolder, SettingsManager.wowProduct);
             }
             catch (Exception e)
