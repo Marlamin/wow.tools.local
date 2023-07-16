@@ -12,7 +12,7 @@
         public static CASCLib.LocaleFlags locale;
 
         // supported command line flags and switches
-        // flag syntax as of right now -flag value or --switch
+        // flag syntax: -flag value || -flag=value or --switch
         private const string _wowFolderFlag = "-wowFolder";
         private const string _wowProductFlag = "-product";
         private const string _dbdFolderFlag = "-dbdFolder";
@@ -29,7 +29,6 @@
         //    then add a new case to the switch statement in either HandleFlag or HandleSwitch with the functionality you want
 
         // TODO:
-        // setting flags with -flag=value is currently broken, fix it
         // make it easier to associate flags with values and add new flags
         // flags are currently case-sensitive, probably not best practice. easy to fix, i'm just being lazy
        
@@ -201,13 +200,14 @@
                 }
 
                 // check if the value is specified with an equals sign, then break it up and set _value
-                // TODO: broken and stupid
+                // TODO: currently eats any args containing an equal sign, which could cause us to eat flags that aren't meant for us. too bad
                 if (_arg.Contains('='))
                 {
                     string[] _argSplit = _arg.Split('=');
                     _flag = _argSplit[0];
                     _value = _argSplit[1];
                     HandleFlag(_flag, _value);
+                    args[i] = "";
                     continue;
                 }
 
