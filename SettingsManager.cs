@@ -58,6 +58,7 @@
             }
             catch(Exception)
             { // if we can't find config.json in the cwd, try the app's directory instead. This is to support launching from the command line, which might not be started in the app's directory
+              // this will cause soft errors in case of misconfigurations, but too bad
                 var currentDir = AppDomain.CurrentDomain.BaseDirectory;
                 config = new ConfigurationBuilder().SetBasePath(currentDir).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
                 Environment.CurrentDirectory = currentDir;
