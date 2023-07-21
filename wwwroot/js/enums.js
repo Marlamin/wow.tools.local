@@ -923,7 +923,8 @@ const geosetType = {
 }
 
 const chrCustomizationReqType = {
-    1: 'ClassReq'
+    1: 'ClassReq',
+    3: 'ChrCustomizationReqChoice'
 }
 
 const uiCustomizationType = {
