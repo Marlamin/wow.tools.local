@@ -15,6 +15,17 @@ The latest version can be downloaded [here](https://github.com/Marlamin/wow.tool
 5. _**(Optional)**_ If you left wowFolder empty (online mode), you can set region to the region you are in (e.g. us, eu, tw, cn)
 6. _**(Optional)**_ If you want to load a specific locale (e.g. deDE, zhCN, etc), set `locale` to the locale you want to load. Supported locales are listed [here](https://github.com/WoW-Tools/CascLib/blob/342211a799d6249ced1652ed285319a2aebaae38/CascLib/RootHandlers/WowRootHandler.cs#L14-L29).
 
+#### Command Line
+Optionally, you may also start wow.tools.local from the command line, providing arguments to override options found in your `config.json` file. Any arguments that are not provided will be loaded from the `config.json` file either in the current working directory, or the executable directory as a fallback.
+`-wowFolder` - Path to your WoW installation
+`-product` - Product to load
+`-dbcFolder` - Path to your DBCs folder
+`-dbdFolder` - Path to your WoWDBDefs folder
+`-listFileURL` - URL to fetch the Listfile
+`-tactKeyURL` - URL to fetch TactKeys
+`-region` - Region
+`-locale` - Locale
+
 ## Running
 Make sure WoW is updated/closed and Battle.net is idle/closed before starting it and make sure to close it before starting WoW again to make sure you won't run into issues with files being locked and such.
 
