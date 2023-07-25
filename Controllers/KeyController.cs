@@ -148,7 +148,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x19742EF8BC509417, (303, "WOW-34137patch9.0.1_Beta", "Willowblossom scene"));
             KeyInfo.Add(0x0A88670B2C572700, (304, "WOW-34137patch9.0.1_Beta", "Bastion covenant sanctum attack prelude"));
             KeyInfo.Add(0xDA2615B5C0237D39, (306, "WOW-34199patch9.0.1_Beta", "Purple Baby Murloc pet"));
-            KeyInfo.Add(0xB6FF5BC63B2F8172, (307, "WOW-34490patch9.0.1_Beta", "mastiff battle pet"));
+            KeyInfo.Add(0xB6FF5BC63B2F8172, (307, "WOW-34490patch9.0.1_Beta", "Sunny pet"));
             KeyInfo.Add(0x90E01E041D38A8B0, (309, "WOW-34821patch9.0.1_Beta", "Ardenweald cinematic + cutscene"));
             KeyInfo.Add(0x8FD76F6044F9AAB1, (310, "WOW-34821patch9.0.1_Beta", "Venthyr cutscene"));
             KeyInfo.Add(0x40377D9CE69C6E30, (311, "WOW-34902patch9.0.1_Beta", "Maw intro ending cutscene"));
@@ -369,6 +369,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x5468F352E97569AE, (7607, "WOW-50442patch10.1.7_PTR", "115 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "Unknown toy"));
             KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "Unknown item/spell/quest"));
+            KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "4 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "1 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0xAA6A7C5C5ED8DBC6, (7615, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
@@ -393,11 +394,18 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x4028F29E55EA5247, (7634, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x5DBE4562C104CCBE, (7635, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x3923F1B9935BA8FA, (7636, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x70B9EBFAB71855B5, (7638, "WOW-50442patch10.1.7_PTR", "33 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x724CFA81FCC5334C, (7639, "WOW-49595patch10.1.5_XPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x5F21546AEF75EAAA, (7641, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xCEEEEBD0D1C95671, (7642, "WOW-50442patch10.1.7_PTR", "0 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x8AF3FBB11B5AEA5A, (7643, "WOW-50442patch10.1.7_PTR", "22 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x512EB72CDF6ABDA2, (7644, "WOW-50442patch10.1.7_PTR", "34 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x0C34FD02900A67D6, (7646, "WOW-50442patch10.1.7_PTR", "10 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xDB08C8015AE584F9, (7647, "WOW-50199patch10.1.5_XPTR", "10 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0x7A2BDD5F02385D8B, (7648, "WOW-50199patch10.1.5_XPTR", "379 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xCE967C5C045FA50A, (7651, "WOW-50199patch10.1.5_XPTR", "17 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x9C348A0A912745F6, (7652, "WOW-50442patch10.1.7_PTR", "93 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x312822946C76E11C, (7653, "WOW-50442patch10.1.7_PTR", "64 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xFEA26F852E83A774, (7654, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xBFA213ABA4804E4C, (7655, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xF87C86A36878B72D, (7656, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
@@ -415,6 +423,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x1638836B18413FA1, (7668, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xCC9BC67D426D0109, (7669, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0x508A7CA469D3ABD4, (7670, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xEBEAAC307E3D823F, (7671, "WOW-50442patch10.1.7_PTR", "41 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xC26B17EC8991C3DE, (7672, "WOW-50199patch10.1.5_XPTR", "18 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0x5D3122DA6FBBA7F2, (7673, "WOW-50442patch10.1.7_PTR", "88 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xEAB45D6B59CDCE29, (7675, "WOW-50199patch10.1.5_XPTR", "18 file(s) as of 10.1.7.50442"));
@@ -430,6 +439,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x972EFE7B2D050C9C, (7689, "WOW-50438patch10.1.5_XPTR", "7 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x3C2909D607694F17, (7690, "WOW-50438patch10.1.5_XPTR", "7 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x62F7CF550FD52D4B, (7691, "WOW-50442patch10.1.7_PTR", "0 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x2CBBC28266D3782D, (7697, "WOW-50505patch10.1.7_PTR", "9 file(s) as of 10.1.7.50505"));
         }
 
         private class KeyInfoEntry
