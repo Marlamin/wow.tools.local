@@ -203,7 +203,7 @@
                                 switch (full.type) {
                                     case "db2":
                                         if (full.filename && full.filename != "Unknown") {
-                                            var db2name = full.filename.replace("dbfilesclient/", "").replace(".db2", "");
+                                            var db2name = full.filename.toLowerCase().replace("dbfilesclient/", "").replace(".db2", "");
                                             content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDBCDiffModal(\"" + from + "\", \"" + to + "\", \"" + db2name + "\")'>Preview</a>";
 
                                         }
