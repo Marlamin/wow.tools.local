@@ -112,7 +112,7 @@ namespace wow.tools.Local.Controllers
                 try
                 {
                     var cleanName = dbname.ToLower();
-                    var filestream = CASC.GetFileByName("dbfilesclient/" + dbname + ".db2");
+                    var filestream = CASC.GetDB2ByName("dbfilesclient/" + dbname + ".db2");
 
                     if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, CASC.BuildName, "dbfilesclient")))
                     {
@@ -201,7 +201,7 @@ namespace wow.tools.Local.Controllers
                 {
                     // Load from CASC
                     var fullFileName = "dbfilesclient/" + tableName + ".db2";
-                    return new FileStreamResult(CASC.GetFileByName(fullFileName), "application/octet-stream")
+                    return new FileStreamResult(CASC.GetDB2ByName(fullFileName), "application/octet-stream")
                     {
                         FileDownloadName = Path.GetFileName(tableName.ToLower() + ".db2")
                     };

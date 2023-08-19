@@ -13,7 +13,7 @@ namespace wow.tools.local.Services
         public static string CurrentProduct;
 
         public static Dictionary<int, string> Listfile = new();
-        public static Dictionary<string, int> ListfileReverse = new();
+        public static Dictionary<string, int> DB2Map = new();
         public static SortedDictionary<int, string> M2Listfile = new();
         
         public static List<int> AvailableFDIDs = new();
@@ -39,6 +39,7 @@ namespace wow.tools.local.Services
             CASCConfig.LoadFlags &= ~(LoadFlags.Download | LoadFlags.Install);
             CASCConfig.ValidateData = false;
             CASCConfig.ThrowOnFileNotFound = false;
+            CASCConfig.UseWowTVFS = false;
 
             locale = SettingsManager.locale;
 
@@ -104,7 +105,7 @@ namespace wow.tools.local.Services
             }
 
             Listfile = new Dictionary<int, string>();
-            ListfileReverse = new Dictionary<string, int>();
+            DB2Map = new Dictionary<string, int>();
             M2Listfile = new SortedDictionary<int, string>();
             EncryptedFDIDs = new Dictionary<int, List<ulong>>();
             EncryptionStatuses = new Dictionary<int, EncryptionStatus>();
@@ -253,7 +254,7 @@ namespace wow.tools.local.Services
                 Listfile.Clear();
                 AvailableFDIDs.ForEach(x => Listfile.Add(x, ""));
 
-                ListfileReverse.Clear();
+                DB2Map.Clear();
                 Types.Clear();
                 M2Listfile.Clear();
             }
@@ -276,10 +277,13 @@ namespace wow.tools.local.Services
                         TypeMap.Add(ext, new List<int>());
 
                     Listfile[fdid] = splitLine[1];
-                    ListfileReverse.Add(splitLine[1].ToLower(), fdid);
 
                     Types.Add(fdid, ext);
                     TypeMap[ext].Add(fdid);
+
+                    if (ext == "db2")
+                        DB2Map.Add(splitLine[1].ToLower(), fdid);
+
                     if (ext == "m2")
                         M2Listfile.Add(fdid, splitLine[1]);
                 }
@@ -368,9 +372,9 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static Stream GetFileByName(string filename)
+        public static Stream GetDB2ByName(string filename)
         {
-            if (ListfileReverse.TryGetValue(filename.ToLower(), out int fileDataID))
+            if (DB2Map.TryGetValue(filename.ToLower(), out int fileDataID))
             {
                 return cascHandler.OpenFile(fileDataID);
             }
@@ -378,9 +382,9 @@ namespace wow.tools.local.Services
             throw new FileNotFoundException("Could not find " + filename + " in listfile");
         }
 
-        public static bool FileExists(string filename)
+        public static bool DB2Exists(string filename)
         {
-            if (ListfileReverse.TryGetValue(filename.ToLower(), out int fileDataID))
+            if (DB2Map.TryGetValue(filename.ToLower(), out int fileDataID))
             {
                 return cascHandler.FileExists(fileDataID);
             }

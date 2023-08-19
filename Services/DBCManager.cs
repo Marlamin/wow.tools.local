@@ -139,7 +139,7 @@ namespace wow.tools.local.Services
             {
                 if (string.IsNullOrEmpty(build) || build == CASC.BuildName)
                 {
-                    if (CASC.FileExists("DBFilesClient/" + db2 + ".db2"))
+                    if (CASC.DB2Exists("DBFilesClient/" + db2 + ".db2"))
                         existingDB2s.Add(db2);
                 }
                 else if (!string.IsNullOrEmpty(SettingsManager.dbcFolder))

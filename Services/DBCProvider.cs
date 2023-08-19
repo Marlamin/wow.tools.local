@@ -26,7 +26,7 @@ namespace wow.tools.local.Services
             {
                 // Load from CASC
                 var fullFileName = "dbfilesclient/" + tableName + ".db2";
-                return CASC.GetFileByName(fullFileName);
+                return CASC.GetDB2ByName(fullFileName);
             }
             else
             {

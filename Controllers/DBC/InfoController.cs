@@ -55,8 +55,8 @@ namespace wow.tools.local.Controllers
 
                 if (string.IsNullOrEmpty(build) || build == CASC.BuildName)
                 {
-                    if (CASC.FileExists("DBFilesClient/" + db2 + ".db2"))
-                        fs = CASC.GetFileByName("DBFilesClient/" + db2 + ".db2");
+                    if (CASC.DB2Exists("DBFilesClient/" + db2 + ".db2"))
+                        fs = CASC.GetDB2ByName("DBFilesClient/" + db2 + ".db2");
                 }
                 else if (!string.IsNullOrEmpty(SettingsManager.dbcFolder))
                 {

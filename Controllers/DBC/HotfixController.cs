@@ -43,7 +43,7 @@ namespace wow.tools.local.Controllers
                         "?",
                         hotfix.status.ToString(),
                         HotfixManager.pushIDDetected[hotfix.pushID].ToString(),
-                        CASC.ListfileReverse.ContainsKey("dbfilesclient/" + tableName.ToLower() + ".db2") ? "1" : "0"
+                        CASC.DB2Map.ContainsKey("dbfilesclient/" + tableName.ToLower() + ".db2") ? "1" : "0"
                     });
                 }
             }
