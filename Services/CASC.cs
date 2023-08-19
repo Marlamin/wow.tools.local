@@ -240,7 +240,7 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Downloading listfile");
 
                 using var s = WebClient.GetStreamAsync(SettingsManager.listfileURL).Result;
-                using var fs = new FileStream("listfile.csv", FileMode.OpenOrCreate);
+                using var fs = new FileStream("listfile.csv", FileMode.Create);
                 s.CopyTo(fs);
             }
 
