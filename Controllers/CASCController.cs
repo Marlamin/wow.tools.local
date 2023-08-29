@@ -265,6 +265,8 @@ namespace wow.tools.local.Controllers
                 Console.WriteLine("Exception during type guessing with SoundKitEntry:" + e.Message);
             }
 
+            var typeLock = new object();
+
             Console.WriteLine("Analyzing " + unknownFiles.Count + " unknown files");
             var numFilesTotal = unknownFiles.Count;
             var numFilesDone = 0;
@@ -339,6 +341,7 @@ namespace wow.tools.local.Controllers
                                     case "FDDM": // ADT OBJ
                                     case "DDLM": // ADT OBJ
                                     case "DFLM": // ADT OBJ
+                                    case "XDMM": // ADT OBJ (old)
                                     case "DHLM": // ADT LOD
                                     case "PMAM": // ADT TEX
                                         type = "adt";
@@ -377,14 +380,27 @@ namespace wow.tools.local.Controllers
                             case "HSXG":
                                 type = "bls";
                                 break;
+                            case "SKL1":
+                                type = "skel";
+                                break;
+                            case "SYHP":
+                                type = "phys";
+                                break;
                             default:
-                                if(type == "unk")
-                                    Console.WriteLine((uint)unknownFile + " - Unknown magic " + magicString + " (" + Convert.ToHexString(magic) + ")");
                                 break;
                         }
 
-                        CASC.SetFileType(unknownFile, type);
-                        knownUnknowns.TryAdd(unknownFile, type);
+                        if (magicString.StartsWith("ID3"))
+                            type = "mp3";
+
+                        if (type == "unk")
+                            Console.WriteLine((uint)unknownFile + " - Unknown magic " + magicString + " (" + Convert.ToHexString(magic) + ")");
+
+                        lock (typeLock)
+                        {
+                            CASC.SetFileType(unknownFile, type);
+                            knownUnknowns.TryAdd(unknownFile, type);
+                        }
                     }
                 }
                 catch (Exception e)
