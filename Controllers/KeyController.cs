@@ -317,11 +317,11 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x6288676A4F77D526, (7543, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xA3CCAD8A4B0FA129, (7544, "WOW-48520patch10.0.7_VANPTR", "Unknown model"));
             KeyInfo.Add(0x4758A4E70A0237AC, (7547, "WOW-48520patch10.0.7_VANPTR", "Unknown mount"));
-            KeyInfo.Add(0x14BF95DCD8C32D85, (7548, "WOW-48480patch10.1.0_PTR", "Unknown map/quest/area/lfgdungeon"));
+            KeyInfo.Add(0x14BF95DCD8C32D85, (7548, "WOW-48480patch10.1.0_PTR", "Blue dragonflight campaign"));
             KeyInfo.Add(0xF277310B18A1FFBA, (7549, "WOW-48520patch10.0.7_VANPTR", "Battle.net pet bundle assets"));
             KeyInfo.Add(0xB5147B68B5E93830, (7550, "WOW-48480patch10.1.0_PTR", "Evoker legendary"));
             KeyInfo.Add(0xF2DC126FEB572258, (7551, "WOW-48480patch10.1.0_PTR", "Opening the Way cinematic"));
-            KeyInfo.Add(0x632946FAD80476A1, (7552, "WOW-48480patch10.1.0_PTR", "Unknown item/spells/questline"));
+            KeyInfo.Add(0x632946FAD80476A1, (7552, "WOW-48480patch10.1.0_PTR", "Blue dragonflight campaign (Tarecgosa)"));
             KeyInfo.Add(0xF050A0D99707361C, (7553, "WOW-48480patch10.1.0_PTR", "Unknown quest"));
             KeyInfo.Add(0xB2A7A2FB56623E73, (7554, "WOW-48480patch10.1.0_PTR", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x9A4EF7CC292DE96C, (7555, "WOW-48480patch10.1.0_PTR", "wtr cinematic"));
@@ -364,7 +364,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x4EAD7F8A0C378D7F, (7601, "WOW-48898patch10.1.0_PTR", "0 file(s) as of 10.1.0.48898"));
             KeyInfo.Add(0x6899BB495C433867, (7602, "WOW-48865patch10.0.7_Retail", "Unknown store assets"));
             KeyInfo.Add(0x69CB2A2C597E9F67, (7603, "WOW-48865patch10.0.7_Retail", "Faction pack store assets"));
-            KeyInfo.Add(0xAF8553E077BA216C, (7605, "WOW-49516patch10.1.5_VANPTR", "Unknown broadcasttext/model"));
+            KeyInfo.Add(0xAF8553E077BA216C, (7605, "WOW-49516patch10.1.5_VANPTR", "Chromie/Nozdormu scene"));
             KeyInfo.Add(0x2337416B8A912391, (7606, "WOW-49516patch10.1.5_VANPTR", "Netherwing companion drake (teal)"));
             KeyInfo.Add(0x5468F352E97569AE, (7607, "WOW-50442patch10.1.7_PTR", "115 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "Unknown toy"));
@@ -388,18 +388,19 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x4626421172DFF459, (7628, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x81EEFCCFC9DF862A, (7629, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x38CB18F712F9C63E, (7630, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
-            KeyInfo.Add(0xEE0541B6CAF0AB77, (7631, "WOW-49516patch10.1.5_VANPTR", "5 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xEE0541B6CAF0AB77, (7631, "WOW-49516patch10.1.5_VANPTR", "Chromie/Morchie scene"));
             KeyInfo.Add(0x9DDF72DFC13DFBD3, (7632, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
-            KeyInfo.Add(0x26947FF164DA0962, (7633, "WOW-49516patch10.1.5_VANPTR", "6 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x26947FF164DA0962, (7633, "WOW-49516patch10.1.5_VANPTR", "Rewind and Reconcile quest/item"));
             KeyInfo.Add(0x4028F29E55EA5247, (7634, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x5DBE4562C104CCBE, (7635, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x3923F1B9935BA8FA, (7636, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x70B9EBFAB71855B5, (7638, "WOW-50442patch10.1.7_PTR", "33 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x724CFA81FCC5334C, (7639, "WOW-49595patch10.1.5_XPTR", "0 file(s) as of 10.1.5.49595"));
-            KeyInfo.Add(0x5F21546AEF75EAAA, (7641, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x5F21546AEF75EAAA, (7641, "WOW-50199patch10.1.5_XPTR", "Seafarer Pack store assets"));
             KeyInfo.Add(0xCEEEEBD0D1C95671, (7642, "WOW-50442patch10.1.7_PTR", "0 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x8AF3FBB11B5AEA5A, (7643, "WOW-50442patch10.1.7_PTR", "22 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x512EB72CDF6ABDA2, (7644, "WOW-50442patch10.1.7_PTR", "34 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x854AD69871A3BE8E, (7645, "WOW-51059patch10.1.7_PTR", "12 file(s) as of 10.1.7.51059"));
             KeyInfo.Add(0x0C34FD02900A67D6, (7646, "WOW-50442patch10.1.7_PTR", "10 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xDB08C8015AE584F9, (7647, "WOW-50199patch10.1.5_XPTR", "10 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0x7A2BDD5F02385D8B, (7648, "WOW-50199patch10.1.5_XPTR", "379 file(s) as of 10.1.5.50199"));
@@ -426,20 +427,28 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0xEBEAAC307E3D823F, (7671, "WOW-50442patch10.1.7_PTR", "41 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xC26B17EC8991C3DE, (7672, "WOW-50199patch10.1.5_XPTR", "18 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0x5D3122DA6FBBA7F2, (7673, "WOW-50442patch10.1.7_PTR", "88 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0xEAB45D6B59CDCE29, (7675, "WOW-50199patch10.1.5_XPTR", "18 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0x614FA5E9FE31B27A, (7676, "WOW-50199patch10.1.5_XPTR", "7 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0x8DB2A67206C3BBFE, (7677, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0x8B67488DE1E962A7, (7678, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0x4E3AA2CB1B379256, (7679, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0x04132CC1A52E9DD3, (7680, "WOW-50199patch10.1.5_XPTR", "4 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0x74FFB4F6918309D6, (7681, "WOW-50442patch10.1.7_PTR", "8 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0xEAB45D6B59CDCE29, (7675, "WOW-50199patch10.1.5_XPTR", "Mighty Kodo pack mount"));
+            KeyInfo.Add(0x614FA5E9FE31B27A, (7676, "WOW-50199patch10.1.5_XPTR", "Mighty Kodo pack pet"));
+            KeyInfo.Add(0x8DB2A67206C3BBFE, (7677, "WOW-50199patch10.1.5_XPTR", "Solemn Watchmans Garb store assets"));
+            KeyInfo.Add(0x8B67488DE1E962A7, (7678, "WOW-50199patch10.1.5_XPTR", "Wondrous Wavewhisker store assets"));
+            KeyInfo.Add(0x4E3AA2CB1B379256, (7679, "WOW-50199patch10.1.5_XPTR", "Ukraine Pack store assets"));
+            KeyInfo.Add(0x04132CC1A52E9DD3, (7680, "WOW-50199patch10.1.5_XPTR", "Corsage Pack store assets"));
+            KeyInfo.Add(0x74FFB4F6918309D6, (7681, "WOW-50442patch10.1.7_PTR", "Unknown scene"));
             KeyInfo.Add(0x3D7F53C63B044491, (7682, "WOW-50442patch10.1.7_PTR", "73 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x7F070B1D792933D7, (7686, "WOW-50442patch10.1.7_PTR", "15 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0xCFFE42581EF7E189, (7688, "WOW-50438patch10.1.5_XPTR", "16 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0x972EFE7B2D050C9C, (7689, "WOW-50438patch10.1.5_XPTR", "7 file(s) as of 10.1.7.50442"));
-            KeyInfo.Add(0x3C2909D607694F17, (7690, "WOW-50438patch10.1.5_XPTR", "7 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0xCFFE42581EF7E189, (7688, "WOW-50438patch10.1.5_XPTR", "Solemn Watchmans Garb DB2 entries"));
+            KeyInfo.Add(0x972EFE7B2D050C9C, (7689, "WOW-50438patch10.1.5_XPTR", "Fanciful Corsage DB2 entries"));
+            KeyInfo.Add(0x3C2909D607694F17, (7690, "WOW-50438patch10.1.5_XPTR", "Gothic Corsage DB2 entries"));
             KeyInfo.Add(0x62F7CF550FD52D4B, (7691, "WOW-50442patch10.1.7_PTR", "0 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x2CBBC28266D3782D, (7697, "WOW-50505patch10.1.7_PTR", "9 file(s) as of 10.1.7.50505"));
+            KeyInfo.Add(0xA9BD6DED128A1E1B, (7698, "WOW-51059patch10.1.7_PTR", "Unknown item appearance"));
+            KeyInfo.Add(0x460AA8E1D10CF66D, (7703, "WOW-51059patch10.1.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0x1F829D3464165A14, (7705, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
+            KeyInfo.Add(0xFA33F3906CAEBA24, (7706, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
+            KeyInfo.Add(0x70B3917E630C86A2, (7707, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
+            KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
+
+
         }
 
         private class KeyInfoEntry
