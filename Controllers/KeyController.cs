@@ -368,10 +368,10 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x2337416B8A912391, (7606, "WOW-49516patch10.1.5_VANPTR", "Netherwing companion drake (teal)"));
             KeyInfo.Add(0x5468F352E97569AE, (7607, "WOW-50442patch10.1.7_PTR", "115 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "Unknown toy"));
-            KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "Unknown item/spell/quest"));
+            KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "4 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "1 file(s) as of 10.1.5.49595"));
-            KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0xAA6A7C5C5ED8DBC6, (7615, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x68AA63A16E5EF2B1, (7616, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x4AD2E2A4B055E925, (7617, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
@@ -403,7 +403,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x854AD69871A3BE8E, (7645, "WOW-51059patch10.1.7_PTR", "12 file(s) as of 10.1.7.51059"));
             KeyInfo.Add(0x0C34FD02900A67D6, (7646, "WOW-50442patch10.1.7_PTR", "10 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xDB08C8015AE584F9, (7647, "WOW-50199patch10.1.5_XPTR", "10 file(s) as of 10.1.5.50199"));
-            KeyInfo.Add(0x7A2BDD5F02385D8B, (7648, "WOW-50199patch10.1.5_XPTR", "379 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0x7A2BDD5F02385D8B, (7648, "WOW-50199patch10.1.5_XPTR", "High Scholars Pack assets"));
             KeyInfo.Add(0xCE967C5C045FA50A, (7651, "WOW-50199patch10.1.5_XPTR", "17 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0x9C348A0A912745F6, (7652, "WOW-50442patch10.1.7_PTR", "93 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x312822946C76E11C, (7653, "WOW-50442patch10.1.7_PTR", "64 file(s) as of 10.1.7.50442"));
@@ -425,7 +425,7 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0xCC9BC67D426D0109, (7669, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0x508A7CA469D3ABD4, (7670, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xEBEAAC307E3D823F, (7671, "WOW-50442patch10.1.7_PTR", "41 file(s) as of 10.1.5.50199"));
-            KeyInfo.Add(0xC26B17EC8991C3DE, (7672, "WOW-50199patch10.1.5_XPTR", "18 file(s) as of 10.1.5.50199"));
+            KeyInfo.Add(0xC26B17EC8991C3DE, (7672, "WOW-50199patch10.1.5_XPTR", "High Scholars Pack DB2 entries"));
             KeyInfo.Add(0x5D3122DA6FBBA7F2, (7673, "WOW-50442patch10.1.7_PTR", "88 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xEAB45D6B59CDCE29, (7675, "WOW-50199patch10.1.5_XPTR", "Mighty Kodo pack mount"));
             KeyInfo.Add(0x614FA5E9FE31B27A, (7676, "WOW-50199patch10.1.5_XPTR", "Mighty Kodo pack pet"));
