@@ -372,9 +372,9 @@ namespace wow.tools.local.Controllers
             KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "4 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "1 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
-            KeyInfo.Add(0xAA6A7C5C5ED8DBC6, (7615, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
-            KeyInfo.Add(0x68AA63A16E5EF2B1, (7616, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
-            KeyInfo.Add(0x4AD2E2A4B055E925, (7617, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
+            KeyInfo.Add(0xAA6A7C5C5ED8DBC6, (7615, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
+            KeyInfo.Add(0x68AA63A16E5EF2B1, (7616, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
+            KeyInfo.Add(0x4AD2E2A4B055E925, (7617, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0xA9E5F1F6208B98B8, (7618, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0x95F0FD06F2909D19, (7619, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
             KeyInfo.Add(0xC9BA30DA927A14B9, (7620, "WOW-49516patch10.1.5_VANPTR", "0 file(s) as of 10.1.5.49595"));
