@@ -257,6 +257,9 @@ namespace wow.tools.local.Services
 
                 if (shouldBackup)
                 {
+                    if (File.Exists("listfile.csv.bak"))
+                        File.Delete("listfile.csv.bak");
+
                     File.Move("listfile.csv", "listfile.csv.bak");
                     Console.WriteLine("Existing listfile renamed to listfile.csv.bak");
                 }
