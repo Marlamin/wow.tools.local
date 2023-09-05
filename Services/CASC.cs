@@ -114,9 +114,23 @@ namespace wow.tools.local.Services
 
             AvailableFDIDs.ForEach(x => Listfile.Add(x, ""));
 
-            var listfileRes = LoadListfile();
+            bool listfileRes;
+
+            try
+            {
+                listfileRes = LoadListfile();
+            }
+            catch (Exception e)
+            {   // attempt automatic redownload of the listfile if it wasn't able to be parsed - this will also backup the old listfile to listfile.csv.bak
+                Console.WriteLine("Good heavens! Encountered an error reading listfile. Attempting redownload...");
+                listfileRes = LoadListfile(true);
+            }
+
             if (!listfileRes)
-                throw new Exception("Failed to load listfile");
+            {   // still no listfile, exit
+                Console.WriteLine("Failed to read listfile after automatic redownload.");
+                Environment.Exit(1);
+            }
 
             Console.WriteLine("Analyzing encrypted files");
             if (cascHandler.Root is WowTVFSRootHandler ewtrh)
@@ -220,15 +234,17 @@ namespace wow.tools.local.Services
         public static bool LoadListfile(bool forceRedownload = false)
         {
             var download = forceRedownload;
+            bool shouldBackup = false;
             
             if (File.Exists("listfile.csv"))
             {
                 var info = new FileInfo("listfile.csv");
                 if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
                 {
-                    Console.WriteLine("Listfile outdated, redownloading..");
+                    Console.WriteLine("Listfile outdated, redownloading...");
                     download = true;
                 }
+                shouldBackup = true;
             }
             else
             {
@@ -238,6 +254,12 @@ namespace wow.tools.local.Services
             if (download)
             {
                 Console.WriteLine("Downloading listfile");
+
+                if (shouldBackup)
+                {
+                    File.Move("listfile.csv", "listfile.csv.bak");
+                    Console.WriteLine("Existing listfile renamed to listfile.csv.bak");
+                }
 
                 using var s = WebClient.GetStreamAsync(SettingsManager.listfileURL).Result;
                 using var fs = new FileStream("listfile.csv", FileMode.Create);
