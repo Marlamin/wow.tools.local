@@ -47,6 +47,23 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
                 listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
+            else if (search.StartsWith("range:"))
+            {
+                string[] fdidRange = search.Trim().Replace("range:", "").Split("-");
+
+                if (fdidRange.Length != 2)
+                {
+                    return listfileResults;
+                }
+
+                if (!int.TryParse(fdidRange[0], out var fdidLower))
+                    return listfileResults;
+                if (!int.TryParse(fdidRange[1], out var fdidUpper))
+                    return listfileResults;
+
+                var fdids = new HashSet<int>(CASC.Listfile.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
+                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+            }
             else
             {
                 // Simple search
