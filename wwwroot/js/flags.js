@@ -271,6 +271,9 @@ const currencyFlagsB = {
     0x1: 'CURRENCY_B_USE_TOTAL_EARNED_FOR_MAX_QTY',
     0x2: 'CURRENCY_B_SHOW_QUEST_XP_GAIN_IN_TOOLTIP',
     0x4: 'CURRENCY_B_NO_NOTIFICATION_MAIL_ON_OFFLINE_PROGRESS',
+    0x8: 'CURRENCY_B_BATTLENET_VIRTUAL_CURRENCY',
+    // 0x10: 'future_currency_flag',
+    0x20: 'CURRENCY_B_DONT_DISPLAY_IF_ZERO'
 }
 
 const garrAutoSpellEffectFlags = {
@@ -303,7 +306,9 @@ const holidayFlags = {
     0x2: 'DONT_SHOW_IN_CALENDAR',
     0x4: 'DONT_DISPLAY_END',
     0x8: 'DONT_DISPLAY_BANNER',
-    0x10: 'NOT_AVAILABLE_CLIENT_SIDE'
+    0x10: 'NOT_AVAILABLE_CLIENT_SIDE',
+    0x20: 'DURATION_USE_MINUTES',
+    0x40: 'BEGIN_EVENT_ONLY_ON_STAGE_CHANGE'
 }
 
 const lfgFlags = {
@@ -354,7 +359,10 @@ const lfgFlagsB = {
     0x200: 'CHROMIE_TIME_RANDOM_DUNGEON',
     0x400: 'CHROMIE_TIME_DUNGEON_POOL',
     0x800: 'DISABLE_CALENDAR_EVENT',
-    0x1000: 'INSTANT_SHUTDOWN'
+    0x1000: 'INSTANT_SHUTDOWN',
+    0x2000: 'ALLOW_CROSS_FACTION_PARTY_QUEUE',
+    0x4000: 'HIDE_IF_PLAYER_CONDITION_UNMET',
+    0x8000: 'IGNORE_PARTIES'
 }
 
 const questTagModifierFlags = {
@@ -369,7 +377,8 @@ const questTagModifierFlags = {
 }
 
 const campaignFlags = {
-    0x1: 'DONT_USE_JOURNEY_QUEST_BANG'
+    0x1: 'DONT_USE_JOURNEY_QUEST_BANG',
+    0x2: 'IS_CONTAINER'
 }
 
 // CreatureType.db2
@@ -1368,7 +1377,17 @@ const itemStaticFlags3 = {
     0x00010000: 'COSMETIC_ITEM',
     0x00020000: 'NO_SPELL_EFFECT_TOOLTIP_PREFIXES',
     0x00040000: 'IGNORE_COSMETIC_COLLECTION_BEHAVIOR',
-    0x00080000: 'NPC_ONLY'
+    0x00080000: 'NPC_ONLY',
+    0x00100000: 'NOT_RESTORABLE',
+    0x00200000: 'DONT_DISPLAY_AS_CRAFTING_REAGENT',
+    0x00400000: 'DISPLAY_REAGENT_QUALITY_AS_CRAFTED_QUALITY',
+    0x00800000: 'NO_SALVAGE',
+    0x01000000: 'RECRAFTABLE',
+    0x02000000: 'CC_TRINKET',
+    0x04000000: 'KEEP_THROUGH_FACTION_CHANGE',
+    0x08000000: 'NOT_MULTICRAFTABLE',
+    0x10000000: 'DONT_REPORT_LOOT_LOG_TO_SELF',
+    0x20000000: 'SEND_TELEMETRY_ON_USE'
 };
 
 // 169
@@ -2050,6 +2069,14 @@ const chrClassesFlags = {
     0x00000400: 'Requires Stance',
     0x00000800: 'Disallow Boost',
     0x00001000: 'Creature Class',
+    0x00002000: 'Early Faction Choice',
+    0x00004000: 'Hero Class',
+    0x00008000: 'Can Dual Wield',
+    0x00010000: 'Disabled',
+    0x00020000: 'Is Melee',
+    0x00040000: 'Is Melee With Specialization',
+    0x00080000: 'Hero Class Ignore Requirements',
+    0x00100000: 'No Azerite Powers'
 };
 
 // 351
@@ -2073,6 +2100,7 @@ const scenarioFlags = {
     0x00000004: 'Use Proving Grounds Display (deprecated)',
     0x00000008: 'Use Dungeon Display (deprecated)',
     0x00000010: 'Grants Guild Dungeon Credit',
+    0x00000020: 'IS_OUTDOOR'
 };
 
 // 365
@@ -2181,6 +2209,7 @@ const scenarioStepFlags = {
     0x00000001: 'Bonus Objective',
     0x00000002: 'Heroic Bonus Objective only',
     0x00000004: 'Criteria triggers only affect this step',
+    0x00000008: 'FLAG_DEFAULT_MULTI_STEP'
 };
 
 // 738
@@ -2210,6 +2239,7 @@ const chrRacesFlags = {
     0x400000: 'DAMM Component - No Female Generation (Tools Only)',
     0x800000: 'No Associated Faction Reputation in Race Change',
     0x1000000: 'Internal Only (in development)',
+    0x2000000: 'Start in Alternate Form'
 }
 
 // 916
@@ -2293,6 +2323,8 @@ const questObjectiveFlags = {
     0x20: 'Preserve Quest Items', // PRESERVE_QUEST_ITEMS
     0x40: 'Progress Bar Objective', // PROGRESS_BAR_SUB_TASK
     0x80: 'Kill Players (Same Faction)', // KILL_PLAYERS_SAME_FACTION
+    0x100: 'NO_SHARE_PROGRESS',
+    0x200: 'IGNORE_SOULBIND_ITEMS'
 }
 
 // 1035
@@ -2312,6 +2344,9 @@ const chrModelFlags = {
     0x004: 'Use Loincloth',
     0x008: 'Skin Variation is Hair Color',
     0x010: 'Use Pandaren Ring for componenting texture',
+    0x020: 'Is Creature Component Style',
+    0x040: 'Use Item While Creature Style',
+    0x080: 'Hide Back Objects'
 }
 
 // 1039
@@ -2342,7 +2377,7 @@ const battlePetStateFlags = {
 }
 
 // 1067
-const chrCustomizationCategoryFlag = {
+const chrCustomizationCategoryFlags = {
     0x1: 'Undress Model',
 }
 
@@ -2387,6 +2422,7 @@ const BattlePetSpeciesFlags = {
     0x2000: 'AddsAllowedWithBoss',
     0x4000: 'HideUntilLearned',
     0x8000: 'MatchPlayerHighPetLevel',
+    0x10000: 'NoWildPetAddsAllowed'
 }
 
 const BattlePetVisualFlag = {
@@ -2447,6 +2483,110 @@ const traitTreeFlag = {
     0x1: 'CannotRefund'
 }
 
+const chrCustomizationChoiceFlags = {
+    0x1: 'REUSEME_WAS_INTERNAL_ONLY',
+    0x2: 'HIDE_SCALP_TEXTURE',
+    0x4: 'HIDE_BEARD_TEXTURE',
+    0x8: 'EXCLUDE_FROM_RANDOMIZATION',
+    0x10: 'DEFAULT_WHEN_OPTION_IS_NEW',
+    0x20: 'DISPLAY_LOCKED_IF_REQUIREMENT_FAILED',
+    0x40: 'REQUIREMENTS_ONLY_CONSIDER_UNLOCKS_FOR_AVAILABILITY'
+}
+
+const chrCustomizationOptionFlags = {
+    0x1: 'UNDRESS_CHARACTER',
+    0x2: 'IS_COLOR_CHOICE',
+    0x4: 'REQUIRES_PLAYER_IDENTITY_CUSTOMIZATION_ENABLED',
+    0x8: 'HIDE_IN_TRANSMOG',
+    0x10: 'IS_PRIMARY_SKIN',
+    0x20: 'EXCLUDE_FROM_INITIAL_RANDOMIZATION',
+    0x40: 'IGNORE_REQ_CHOICES_IN_UI',
+    0x80: 'INDICATE_BLOCKING_CHOICES_IN_UI',
+    0x100: 'IS_SOUND_CHOICE',
+    0x200: 'HAS_NO_DEFAULT'
+}
+
+const chrClassRaceSexFlags = {
+    0x1: 'USES_CUSTOM_VOICE'
+}
+
+const chrCustomizationVisReqFlags = {
+    0x1: 'FORCE_ON'
+}
+
+const contentRestrictionRuleFlags = {
+    0x1: 'NOT'
+}
+
+const contentRestrictionRuleSetFlags = {
+    0x1: 'INVERT_RESULT',
+    0x2: 'DISABLED'
+}
+
+const itemBonusListGroupEntryFlags = {
+    0x1: 'INACCESSIBLE_FOR_UPGRADES',
+    0x2: 'IGNORE_FOR_PVP_ITEM_LEVEL',
+    0x4: 'BARRIER'
+}
+
+const journalEncounterFlags = {
+    0x1: 'OBSOLETE',
+    0x2: 'LIMIT_DIFFICULTIES',
+    0x4: 'ALLIANCE_ONLY',
+    0x8: 'HORDE_ONLY',
+    0x10: 'NO_MAP',
+    0x20: 'INTERNAL_ONLY'
+}
+
+const journalEncounterItemFlags = {
+    0x1: 'OBSOLETE',
+    0x2: 'LIMIT_DIFFICULTIES',
+    0x4: 'DISPLAY_AS_PER_PLAYER_LOOT',
+    0x8: 'DISPLAY_AS_VERY_RARE',
+    0x10: 'DISPLAY_AS_EXTREMELY_RARE'
+}
+
+const labelXContentRestrictRuleSetFlags = {
+    0x1: 'HIDE_IN_SPELLBOOK',
+    0x2: 'DISABLE_CLIENT_FEEDBACK'
+}
+
+const questPOIBlobFlags = {
+    0x1: 'OBSOLETE',
+    0x2: 'USER_GENERATED',
+    0x4: 'OBSOLETE2',
+    0x8: 'HIGHLIGHT_WORLD_QUESTS',
+    0x10: 'HIGHLIGHT_DUNGEONS',
+    0x20: 'HIGHLIGHT_TREASURES',
+    0x40: 'HIGHLIGHT_WORLD_QUESTS_ELITE',
+    0x80: 'TOOLS_ONLY_MISMATCHED_POINTS',
+    0x100: 'TOOLS_ONLY_MULTIPLE_SPAWNGROUP',
+    0x200: 'TOOLS_ONLY_NO_POINT_KEY',
+    0x400: 'TOOLS_ONLY_NO_ACTION',
+    0x800: 'TOOLS_ONLY_THRESHOLD_AVG',
+    0x1000: 'ONLY_USED_TO_PICK_MAP',
+    0x2000: 'RECALC_FROM_TERRAIN',
+    0x4000: 'ZERO_HEIGHT_IS_VALID_FOR_INGAME_NAVIGATION',
+    0x8000: 'USE_PHASES'
+}
+
+const renownRewardsFlags = {
+    0x1: 'MILESTONE',
+    0x2: 'CAPSTONE',
+    0x4: 'HIDDEN'
+}
+
+const soundAmbienceFlags = {
+    0x1: 'WEATHER_BLENDFLAVORWITHZONESOUNDS',
+    0x2: 'SCREEN_DONOTPLAYAMBIENCESOUNDS',
+    0x4: 'WEATHER_BLENDAMBIENCEWITHZONESOUNDS',
+    0x8: 'ENABLEALTITUDEFILTER'
+}
+
+const soundEmitterFlags = {
+    0x1: 'OBSOLETE'
+}
+
 window.flagMap = new Map();
 window.flagMap.set("achievement.Flags", achievementFlags);
 window.flagMap.set("animationdata.Flags[0]", animationDataFlags0);
@@ -2466,9 +2606,15 @@ window.flagMap.set("charsections.Flags", charSectionFlags);
 window.flagMap.set("charshipment.Flags", charShipmentFlags);
 window.flagMap.set("chatchannels.Flags", chatChannelsFlags);
 window.flagMap.set("chrclasses.Flags", chrClassesFlags);
-window.flagMap.set("chrcustomizationcategory.Flags", chrCustomizationCategoryFlag);
+window.flagMap.set("chrclassracesex.Flags", chrClassRaceSexFlags);
+window.flagMap.set("chrcustomizationchoice.Flags", chrCustomizationChoiceFlags);
+window.flagMap.set("chrcustomizationcategory.Flags", chrCustomizationCategoryFlags);
+window.flagMap.set("chrcustomizationoption.Flags", chrCustomizationOptionFlags);
+window.flagMap.set("chrcustomizationvisreq.Flags", chrCustomizationVisReqFlags);
 window.flagMap.set("chrmodel.Flags", chrModelFlags);
 window.flagMap.set("chrraces.Flags", chrRacesFlags);
+window.flagMap.set("contentrestrictionrule.Flags", contentRestrictionRuleFlags);
+window.flagMap.set("contentrestrictionruleset.Flags", contentRestrictionRuleSetFlags);
 window.flagMap.set("contenttuning.Flags", contentTuningFlags);
 window.flagMap.set("creaturedifficulty.Flags[0]", creatureStaticFlags0);
 window.flagMap.set("creaturedifficulty.Flags[1]", creatureStaticFlags1);
@@ -2503,6 +2649,7 @@ window.flagMap.set("garrsite.Flags", garrSiteFlags);
 window.flagMap.set("gemproperties.Type", socketColors);
 window.flagMap.set("globalstrings.Flags", globalstringsFlags);
 window.flagMap.set("holidays.Flags", holidayFlags);
+window.flagMap.set("itembonuslistgroupentry.Flags", itemBonusListGroupEntryFlags);
 window.flagMap.set("itemdisplayinfo.Flags", itemDisplayInfoFlags);
 window.flagMap.set("itemset.SetFlags", itemSetSetFlags);
 window.flagMap.set("itemsearchname.Flags[0]", itemStaticFlags0);
@@ -2517,7 +2664,10 @@ window.flagMap.set("itemsparse.Flags[2]", itemStaticFlags2);
 window.flagMap.set("itemsparse.Flags[3]", itemStaticFlags3);
 window.flagMap.set("itemsubclass.DisplayFlags", itemSubClassDisplayFlags);
 window.flagMap.set("itemsubclass.Flags", itemSubClassFlags);
+window.flagMap.set("journalencounter.Flags", journalEncounterFlags);
 window.flagMap.set("journalinstance.Flags", journalInstanceFlags);
+window.flagMap.set("journalencounteritem.Flags", journalEncounterItemFlags);
+window.flagMap.set("labelxcontentrestrictruleset.Flags", labelXContentRestrictRuleSetFlags);
 window.flagMap.set("lfgdungeons.Flags[0]", lfgFlags);
 window.flagMap.set("lfgdungeons.Flags[1]", lfgFlagsB);
 window.flagMap.set("lightskybox.Flags", lightSkyboxFlags);
@@ -2537,11 +2687,15 @@ window.flagMap.set("questobjective.Flags", questObjectiveFlags);
 window.flagMap.set("questv2clitask.Flags[0]", questFlags0);
 window.flagMap.set("questv2clitask.Flags[1]", questFlags1);
 window.flagMap.set("questv2clitask.Flags[2]", questFlags2);
+window.flagMap.set("questpoiblob.Flags", questPOIBlobFlags);
+window.flagMap.set("renownrewards.Flags", renownRewardsFlags);
 window.flagMap.set("runeforgelegendaryability.InventoryTypeMask", inventoryTypeMask);
 window.flagMap.set("scenario.Flags", scenarioFlags);
 window.flagMap.set("scenariostep.Flags", scenarioStepFlags);
 window.flagMap.set("sharedstring.Flags", sharedStringFlag);
 window.flagMap.set("skillline.Flags", skillLineFlags);
+window.flagMap.set("soundambience.Flags", soundAmbienceFlags);
+window.flagMap.set("soundemitters.Flags", soundEmitterFlags);
 window.flagMap.set("soundkit.Flags", soundkitFlags);
 window.flagMap.set("spellcastingrequirements.FacingCasterFlags", facingCasterFlags);
 window.flagMap.set("spelleffect.EffectAttributes", spellEffectEffectAttributes);

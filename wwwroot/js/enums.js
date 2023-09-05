@@ -504,7 +504,14 @@ const itemStatType = {
     71: 'AGI_STR_INT',
     72: 'AGI_STR',
     73: 'AGI_INT',
-    74: 'STR_INT'
+    74: 'STR_INT',
+    75: 'PROFESSION_INSPIRATION',
+    76: 'PROFESSION_RESOURCEFULNESS',
+    77: 'PROFESSION_FINESSE',
+    78: 'PROFESSION_DEFTNESS',
+    79: 'PROFESSION_PERCEPTION',
+    80: 'PROFESSION_CRAFTING_SPEED',
+    81: 'PROFESSION_MULTICRAFT'
 };
 
 const itemPrettyStatType = {
@@ -924,7 +931,9 @@ const geosetType = {
 
 const chrCustomizationReqType = {
     1: 'ClassReq',
-    3: 'ChrCustomizationReqChoice'
+    2: 'NPC',
+    3: 'ChrCustomizationReqChoice',
+    4: 'Transmog'
 }
 
 const uiCustomizationType = {
@@ -2917,8 +2926,8 @@ const scenarioType = {
     3: 'Dungeon Display',
     4: 'Legion Invasion',
     5: 'Boost Tutorial',
-    // incomplete
-    // 6: 'Warfront',
+    6: 'Warfront',
+    7: 'MULTI_STEP'
 };
 
 // 367
@@ -5414,6 +5423,94 @@ const traitPointsOperationType = {
     1: "Multiply"
 }
 
+const characterLoadoutPurpose = {
+    0: "NEW_CHARACTER_PREVIEW",
+    1: "BATTLEGROUND",
+    2: "UPGRADE_WARLORDS",
+    3: "UPGRADE_LEGION",
+    4: "CLASS_SPEC_DEFAULT_LOADOUT",
+    5: "NONE",
+    6: "UPGRADE_BFA",
+    7: "UPGRADE_SHADOWLANDS",
+    8: "CHARACTERLOADOUT_NEW_CHARACTER_OUTFIT",
+    9: "UPGRADE_TBC",
+    10: "UPGRADE_DRAGONFLIGHT",
+    11: "UPGRADE_WRATH",
+    12: "RPE_RESET",
+    13: "UPGRADE_DRAGONFLIGHT_70",
+    14: "UPGRADE_LATEST_MAINLINE"
+}
+
+const chrModelTextureTarget = {
+    0: "NONE",
+    1: "SKIN_SLOT_0",
+    2: "SKIN_SLOT_1",
+    3: "SKIN_SLOT_2",
+    4: "FACE_SLOT_0",
+    5: "FACE_SLOT_1",
+    6: "FACE_SLOT_2",
+    7: "FACIALHAIR_SLOT_0",
+    8: "FACIALHAIR_SLOT_1",
+    9: "FACIALHAIR_SLOT_2",
+    10: "HAIR_SLOT_0",
+    11: "HAIR_SLOT_1",
+    12: "HAIR_SLOT_2",
+    13: "UNDERWEAR_SLOT_0",
+    14: "UNDERWEAR_SLOT_1",
+    15: "UNDERWEAR_SLOT_2",
+    16: "CUSTOM_DISPLAY_OPTION_0_SLOT_0",
+    17: "CUSTOM_DISPLAY_OPTION_0_SLOT_1",
+    18: "CUSTOM_DISPLAY_OPTION_0_SLOT_2",
+    19: "CUSTOM_DISPLAY_OPTION_1_SLOT_0",
+    20: "CUSTOM_DISPLAY_OPTION_1_SLOT_1",
+    21: "CUSTOM_DISPLAY_OPTION_1_SLOT_2",
+    22: "CUSTOM_DISPLAY_OPTION_2_SLOT_0",
+    23: "CUSTOM_DISPLAY_OPTION_2_SLOT_1",
+    24: "CUSTOM_DISPLAY_OPTION_2_SLOT_2",
+    25: "EYES",
+    26: "MISC_JEWELRY",
+    27: "PIERCINGS",
+    28: "NECKLACES",
+    29: "MAKEUP",
+    30: "SKINTONE",
+    31: "MISC_FEATURES",
+    32: "SECONDARY_SKIN",
+    33: "SECONDARY_UNDERWEAR_LOWER",
+    34: "SECONDARY_UNDERWEAR_UPPER",
+    35: "SECONDARY_HAIR",
+    36: "EYE_GLOW_FACE_OVERLAY"
+}
+
+const contentRestrictionRuleTypes = {
+    0:  "IN_PVP_MAP",
+    1: "IN_TIMEWALKING",
+    2: "IN_FULLY_EXPLORED_CONTINENT",
+    3: "IN_LEGION_MAGE_TOWER",
+    4: "IN_SOLO_SHUFFLE",
+    5: "IN_MAP_FOR_EXPANSION",
+    6: "IN_MYTHIC_PLUS_MAP",
+    7: "IN_DUNGEON",
+    8: "IN_RAID",
+    9: "IN_ARENA",
+    10: "IN_RANDOM_BATTLEGROUND",
+    11: "IN_RATED_BATTLEGROUND",
+    12: "IN_MAP_WITH_ACHIEVEMENT",
+    13: "IN_AREA_WITH_ACHIEVEMENT",
+    14: "IN_MAP",
+    15: "IN_AREA_GROUP"
+}
+
+const craftingDataType = {
+    0: "ITEM",
+    1: "LOOT",
+    2: "SCRAP",
+    3: "ENCHANT"
+}
+
+const soundEmitterType = {
+    0: 'SPHERE',
+    1: 'SEGMENTED_PILL'
+}
 // Regular enums
 let enumMap = new Map();
 enumMap.set("animationdata.ID", animationNames);
@@ -5448,12 +5545,15 @@ enumMap.set("chrmodelmaterial.SkinType", chrModelMaterialSkinType);
 enumMap.set("chrmodelmaterial.TextureType", textureType);
 enumMap.set("chrmodeltexturelayer.BlendMode", chrModelTextureLayerBlendMode);
 enumMap.set("chrmodeltexturelayer.TextureType", textureType);
+enumMap.set("chrmodeltexturelayer.ChrModelTextureTargetID[0]", chrModelTextureTarget);
 enumMap.set("chrraces.PlayableRaceBit", chrRacesPlayableRaceBit);
 enumMap.set("chrracexchrmodel.ChrModelID", tempChrModelIDEnum);
+enumMap.set("craftingdata.Type", craftingDataType);
 enumMap.set("criteria.Fail_event", criteriaFailEvent);
 enumMap.set("criteria.Start_event", criteriaStartEvent);
 enumMap.set("criteria.Type", criteriaType);
 enumMap.set("criteriatree.Operator", criteriaTreeOperator);
+enumMap.set("contentrestrictionrule.RuleType", contentRestrictionRuleTypes);
 enumMap.set("curve.Type", curveType);
 enumMap.set("difficulty.InstanceType", mapTypes);
 enumMap.set("emotes.EmoteSpecProc", emoteSpecProc);
@@ -5511,6 +5611,7 @@ enumMap.set("relictalent.Type", relicTalentType);
 enumMap.set("scenario.Type", scenarioType);
 enumMap.set("scenarioevententry.TriggerType", scenarioEventEntryTriggerType);
 enumMap.set("soulbindconduit.ConduitType", soulbindConduitType);
+enumMap.set("soundemitters.EmitterType", soundEmitterType);
 enumMap.set("soundentries.SoundType", soundkitSoundType);
 enumMap.set("soundkit.SoundType", soundkitSoundType);
 enumMap.set("spellclassoptions.SpellClassSet", spellClassSet);
@@ -5556,6 +5657,7 @@ enumMap.set("weather.Type", weatherType);
 enumMap.set("highlightcolor.Type", highlightColorType);
 enumMap.set("groupfinderactivity.DisplayType", groupFinderActivityDisplayType);
 enumMap.set("chatprofanity.Language", ChatProfanityLanguage);
+enumMap.set("characterloadout.Purpose", characterLoadoutPurpose);
 
 /* Race IDs */
 enumMap.set("chrracexchrmodel.ChrRacesID", tempChrRaceIDEnum);
