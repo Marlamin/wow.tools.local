@@ -1,4 +1,5 @@
 ﻿using CASCLib;
+using DBCD;
 using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Services;
 
@@ -66,8 +67,16 @@ namespace wow.tools.local.Controllers.DBC
                 return result;
             }
 
-            var storage = await dbcManager.GetOrLoad(name, build, useHotfixes, LocaleFlags.All_WoW, pushIDList);
+            IDBCDStorage? storage;
 
+            try
+            {
+                storage = await dbcManager.GetOrLoad(name, build, useHotfixes, LocaleFlags.All_WoW, pushIDList);
+            } catch (FileNotFoundException)
+            {
+                result.values.Add("Error", "Invalid or missing DBC \"" + name + "\"");
+                return result;
+            }
 
             if (!storage.Values.Any())
             {
