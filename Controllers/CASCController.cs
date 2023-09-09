@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CASCLib;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
 using System.Text;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -503,6 +505,115 @@ namespace wow.tools.local.Controllers
                 data = diff.all.ToArray()
             });
         }
+        
+        [Route("samehashes")]
+        [HttpGet]
+        public string SameHashes(string chash)
+        {
+            CASC.EnsureCHashesLoaded();
+
+            var html = "The table below lists files that are identical in content to the requested file.<br><table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th></tr></thead>";
+
+            var filedataids = CASC.GetSameFiles(chash);
+            foreach(var filedataid in filedataids)
+            {
+                html += "<tr><td>" + filedataid + "</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out string filename) ? filename : "N/A") + "</td></tr>";
+            }
+            html += "</table>";
+
+            return html;
+        }
+
+        [Route("moreinfo")]
+        [HttpGet]
+        public string MoreInfo(int filedataid)
+        {
+            CASC.EnsureCHashesLoaded();
+
+            // Yes, generating HTML here is ugly but that's how the old system worked and I can't be arsed to redo it.
+            var html = "<table class='table table-striped'><thead><tr><th style='width:400px'></th><th></th></tr></thead>";
+            html += "<tr><td>FileDataID</td><td>" + filedataid + "</td></tr>";
+            html += "<tr><td>Filename</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out var filename) ? filename : "unknown/" + filedataid + ".unk") + "</td></tr>";
+            html += "<tr><td>Type</td><td>" + (CASC.Types.ContainsKey(filedataid) ? CASC.Types[filedataid] : "unk") + "</td></tr>";
+
+            if (CASC.FDIDToCHash.ContainsKey(filedataid))
+            {
+                html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-toggle='modal' data-target='#chashModal' onClick='fillChashModal(\"" + CASC.FDIDToCHash[filedataid].ToLower() + "\")'>" + CASC.FDIDToCHash[filedataid].ToLower() + "</a></td></tr>";
+            }
+
+            if (CASC.EncryptionStatuses.TryGetValue(filedataid, out var encryptionStatus))
+            {
+                var prettyEncryptionStatus = "";
+                switch (encryptionStatus)
+                {
+                    case CASC.EncryptionStatus.EncryptedKnownKey:
+                        prettyEncryptionStatus = "Encrypted (key is known)";
+                        break;
+                    case CASC.EncryptionStatus.EncryptedUnknownKey:
+                        prettyEncryptionStatus = "Encrypted (key is unknown)";
+                        break;
+                    case CASC.EncryptionStatus.EncryptedMixed:
+                        prettyEncryptionStatus = "Partially encrypted (some known keys, some unknown)";
+                        break;
+                }
+
+                var usedKeys = CASC.EncryptedFDIDs[filedataid];
+                html += "<tr><td>Encryption status</td><td>" + prettyEncryptionStatus + "<br>";
+                html += "<table class='table table-sm'>";
+                html += "<tr><th></th><th>Key</th><th>ID</th><th>First seen</th><th>Description</th></tr>";
+                foreach (var key in usedKeys)
+                {
+                    if (KeyMetadata.KeyInfo.TryGetValue(key, out var keyInfo)){
+                        html += "<tr><td>" + (KeyService.HasKey(key) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.ToString("X16").PadLeft(16, '0') + "'>" + key.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + keyInfo.ID + "</td><td>" + keyInfo.FirstSeen + "</td><td>" + keyInfo.Description + "</td></tr>";
+                    }
+                    else
+                    {
+                        html += "<tr><td>" + (KeyService.HasKey(key) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.ToString("X16").PadLeft(16, '0') + "'>" + key.ToString("X16").PadLeft(16, '0') + "</a></td><td colspan='3'>No metadata known for this key, this is fine if this is a voice over file or a recently added key. Check back in a future version.</td></tr>";
+                    }
+                }
+                html += "</table></td></tr>";
+            }
+            else
+            {
+                html += "<tr><td>Encryption status</td><td>Not encrypted</td></tr>";
+            }
+
+            // TODO: Soundkits?
+
+            // Disable for now, slow to load manifests :<
+            /*
+            CASC.EnsureVersionHistoryLoaded();
+
+            html += "<tr><td colspan='2'><b>Known versions</b></td></tr>";
+            html += "<tr><td colspan='2'><table class='table table-sm'>";
+            html += "<tr><th>Description</th><th>Build</th><th>Contenthash</th></tr>";
+            if (CASC.VersionHistory.TryGetValue(filedataid, out var versions))
+            {
+                html += "<table class='table table-striped'><thead><tr><th>Build</th><th>Content hash</th></tr></thead>";
+                foreach (var version in versions)
+                {
+                    html += "<tr><td>" + version.buildName + "</td><td><a href='#' data-toggle='modal' data-target='#chashModal' onClick='fillChashModal(\"" + version.contentHash.ToLower() + "\")'>" + version.contentHash.ToLower() + "</a></td></tr>";
+                }
+                html += "</table>";
+            }
+            else
+            {
+                html += "<td colspan='2'>No version history found for this file.</td>";
+            }
+            html += "</table></td></tr>";
+            */
+
+            // IDK how to do this in C# fast
+            /*
+            html += "<tr><td colspan='2'><b>Neighbouring files</b></td></tr>";
+            html += "<tr><td colspan='2'><table class='table table-sm'>";
+            html += "<tr><th>ID</th><th>Filename</th></tr>";
+            
+            html += "</table></td></tr></table>";
+            */
+            return html;
+        }
+
         [Route("getVersion")]
         [HttpGet]
         public string GetVersion()

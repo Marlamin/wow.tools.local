@@ -170,9 +170,9 @@ function updateBuildFilterButton(){
 }
 
 function fillModal(fileDataID){
-    $("#moreInfoModalContent").load("/files/scripts/filedata_api.php?filedataid=" + fileDataID, function () {
-        document.getElementById('editableFilename').addEventListener("dblclick", makeEditable);
-        document.getElementById('editableFilename').addEventListener("blur", finishEditing);
+    $("#moreInfoModalContent").load("/casc/moreInfo?filedataid=" + fileDataID, function () {
+       // document.getElementById('editableFilename').addEventListener("dblclick", makeEditable);
+       // document.getElementById('editableFilename').addEventListener("blur", finishEditing);
     });
 }
 
@@ -258,7 +258,7 @@ function fillDBCDiffModal(from, to, dbc) {
 }
 
 function fillChashModal(contenthash){
-    $( "#chashModalContent" ).load( "/files/scripts/filedata_api.php?contenthash=" + contenthash);
+    $( "#chashModalContent" ).load( "/casc/samehashes?chash=" + contenthash);
 }
 
 function fillSkitModal(skitid){

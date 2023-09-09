@@ -1,7 +1,5 @@
 ﻿using CASCLib;
-using System;
 using System.Globalization;
-using System.Reflection.Metadata.Ecma335;
 
 namespace wow.tools.local.Services
 {
@@ -15,14 +13,25 @@ namespace wow.tools.local.Services
         public static Dictionary<int, string> Listfile = new();
         public static Dictionary<string, int> DB2Map = new();
         public static SortedDictionary<int, string> M2Listfile = new();
-        
+
         public static List<int> AvailableFDIDs = new();
         public static List<ulong> KnownKeys = new();
-        
+
         public static Dictionary<int, EncryptionStatus> EncryptionStatuses = new();
         public static Dictionary<int, List<ulong>> EncryptedFDIDs = new();
         public static Dictionary<int, string> Types = new();
         public static Dictionary<string, List<int>> TypeMap = new();
+
+        public static Dictionary<string, List<int>> CHashToFDID = new();
+        public static Dictionary<int, string> FDIDToCHash = new();
+
+        public static Dictionary<int, List<Version>> VersionHistory = new();
+        public static Dictionary<int, HashSet<string>> FDIDToCHashSet = new();
+        public struct Version
+        {
+            public string buildName;
+            public string contentHash;
+        }
 
         public enum EncryptionStatus
         {
@@ -40,7 +49,6 @@ namespace wow.tools.local.Services
             CASCConfig.ValidateData = false;
             CASCConfig.ThrowOnFileNotFound = false;
             CASCConfig.UseWowTVFS = false;
-
             locale = SettingsManager.locale;
 
             if (basedir == null)
@@ -64,7 +72,7 @@ namespace wow.tools.local.Services
 
             if (!Directory.Exists("manifests"))
                 Directory.CreateDirectory("manifests");
-            
+
             if (cascHandler.Root is WowTVFSRootHandler wtrh)
             {
                 AvailableFDIDs = wtrh.RootEntries.Keys.ToList();
@@ -204,14 +212,14 @@ namespace wow.tools.local.Services
                     }
                 }
             }
-            
+
             IsCASCInit = true;
 
             try
             {
                 HotfixManager.LoadCaches();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine("Error loading hotfixes: " + e.Message);
             }
@@ -230,12 +238,12 @@ namespace wow.tools.local.Services
             File.WriteAllLines("WoW.txt", KnownKeys.Select(x => x.ToString("X16") + " " + Convert.ToHexString(KeyService.GetKey(x))).ToArray());
             return true;
         }
-        
+
         public static bool LoadListfile(bool forceRedownload = false)
         {
             var download = forceRedownload;
             bool shouldBackup = false;
-            
+
             if (File.Exists("listfile.csv"))
             {
                 var info = new FileInfo("listfile.csv");
@@ -360,7 +368,7 @@ namespace wow.tools.local.Services
 
             if (forceRedownload)
                 KnownKeys.Clear();
-            
+
             foreach (var line in File.ReadAllLines("TactKey.csv"))
             {
                 var splitLine = line.Split(";");
@@ -369,7 +377,7 @@ namespace wow.tools.local.Services
                 KnownKeys.Add(ulong.Parse(splitLine[0], NumberStyles.HexNumber));
             }
 
-            if(IsCASCInit)
+            if (IsCASCInit)
                 KeyService.LoadKeys();
 
             Console.WriteLine("Finished loading TACT keys: " + KnownKeys.Count + " known keys");
@@ -421,12 +429,12 @@ namespace wow.tools.local.Services
         {
             return cascHandler.FileExists((int)filedataid);
         }
-        
+
         public static string GetFullBuild()
         {
             return cascHandler.Config.BuildName;
         }
-        
+
         public static string GetKey(ulong lookup)
         {
             if (cascHandler == null)
@@ -435,7 +443,7 @@ namespace wow.tools.local.Services
             var key = KeyService.GetKey(lookup);
             if (key == null)
                 return "";
-            
+
             return Convert.ToHexString(key);
         }
 
@@ -455,6 +463,106 @@ namespace wow.tools.local.Services
                 TypeMap.Add(type, new List<int>());
 
             TypeMap[type].Add(filedataid);
+        }
+
+        public static bool EnsureCHashesLoaded()
+        {
+            if (FDIDToCHash.Count == 0)
+            {
+                // Load when requesting for first time to keep resource use low
+                if (cascHandler.Root is WowTVFSRootHandler wtrh)
+                {
+                    foreach (var entry in wtrh.RootEntries)
+                    {
+                        var preferredEntry = entry.Value.FirstOrDefault(subentry =>
+                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
+
+                        FDIDToCHash.Add(entry.Key, preferredEntry.cKey.ToHexString());
+
+                        if (CHashToFDID.ContainsKey(preferredEntry.cKey.ToHexString()))
+                        {
+                            CHashToFDID[preferredEntry.cKey.ToHexString()].Add(entry.Key);
+                        }
+                        else
+                        {
+                            CHashToFDID.Add(preferredEntry.cKey.ToHexString(), new List<int>() { entry.Key });
+                        }
+                    }
+                }
+                else if (cascHandler.Root is WowRootHandler wrh)
+                {
+                    foreach (var entry in wrh.RootEntries)
+                    {
+                        var preferredEntry = entry.Value.FirstOrDefault(subentry =>
+                       subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
+
+                        FDIDToCHash.Add(entry.Key, preferredEntry.cKey.ToHexString());
+
+                        if (CHashToFDID.ContainsKey(preferredEntry.cKey.ToHexString()))
+                        {
+                            CHashToFDID[preferredEntry.cKey.ToHexString()].Add(entry.Key);
+                        }
+                        else
+                        {
+                            CHashToFDID.Add(preferredEntry.cKey.ToHexString(), new List<int>() { entry.Key });
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+        public static List<int> GetSameFiles(string contenthash)
+        {
+            EnsureCHashesLoaded();
+            if (CHashToFDID.TryGetValue(contenthash.ToUpper(), out var fdids))
+            {
+                return fdids;
+            }
+            else
+            {
+                return new List<int>();
+            }
+        }
+
+
+        public static bool EnsureVersionHistoryLoaded()
+        {
+            if (VersionHistory.Count > 0)
+                return true;
+
+            Console.WriteLine("Loading file history");
+
+            foreach (var manifest in Directory.GetFiles("manifests", "*.txt"))
+            {
+                var buildName = Path.GetFileNameWithoutExtension(manifest);
+
+                foreach (var line in File.ReadAllLines(manifest))
+                {
+                    var splitLine = line.Split(";");
+                    if (splitLine.Length != 2)
+                        continue;
+
+                    var fileDataID = int.Parse(splitLine[0]);
+
+                    if (!FDIDToCHashSet.ContainsKey(fileDataID))
+                        FDIDToCHashSet.Add(fileDataID, new HashSet<string>());
+
+                    if (FDIDToCHashSet[fileDataID].Contains(splitLine[1]))
+                        continue;
+
+                    FDIDToCHashSet[fileDataID].Add(splitLine[1]);
+
+                    if (!VersionHistory.ContainsKey(fileDataID))
+                        VersionHistory.Add(fileDataID, new List<Version>());
+
+                    VersionHistory[fileDataID].Add(new Version() { buildName = buildName, contentHash = splitLine[1] });
+                }
+
+                Console.WriteLine(Path.GetFileNameWithoutExtension(manifest));
+            }
+
+            return true;
         }
     }
 }

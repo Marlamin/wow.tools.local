@@ -81,20 +81,20 @@
             <!--<a href='#' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a> -->
             <!-- <a href='/files/submitFiles.php' class='btn btn-success btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-content='Submit suggestions for filenames'><i class='fa fa-upload'></i> Suggest names</a> -->
             <!-- <div class="btn-group">
-        <a href='/casc/listfile/download/csv/unverified' class='btn btn-primary btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true' data-content='<span class="badge badge-danger">WARNING!</span> Listfile downloads are going away soon, please get the listfile from GitHub instead (see link in footer)!'><i class='fa fa-download'></i> Listfile</a>
-        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="sr-only">Toggle Dropdown</span>
-        </button>
-        <div class="dropdown-menu">
-            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download">TXT (Blizzard filenames only)</a>
-            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv">CSV (Blizzard filenames only)</a>
-            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unknown">CSV (FileDataIDs with no filenames)</a>
-            <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unverified">Community CSV (all filenames, incl. guessed ones)</a>
-        </div>
-    </div>
-            <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
-            <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
-            <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
+                <a href='/casc/listfile/download/csv/unverified' class='btn btn-primary btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true' data-content='<span class="badge badge-danger">WARNING!</span> Listfile downloads are going away soon, please get the listfile from GitHub instead (see link in footer)!'><i class='fa fa-download'></i> Listfile</a>
+                <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <div class="dropdown-menu">
+                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download">TXT (Blizzard filenames only)</a>
+                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv">CSV (Blizzard filenames only)</a>
+                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unknown">CSV (FileDataIDs with no filenames)</a>
+                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unverified">Community CSV (all filenames, incl. guessed ones)</a>
+                </div>
+            </div>
+                    <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
+                    <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
+                    <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
             <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
             <a id='copyToClipBoardButton' class='btn btn-success btn-sm' onclick="copyResultsToClipboard();" href="#"><i class='fa fa-copy'></i> Copy to clipboard</a>
             <div class="btn-group" role="group">
@@ -190,6 +190,42 @@
                 </div>
                 <div class="modal-body" id="previewModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="moreInfoModal" tabindex="-1" role="dialog" aria-labelledby="moreInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="moreInfoModalLabel">More information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="moreInfoModalContent">
+                    <i class="fa fa-refresh fa-spin" style="font-size:24px"></i> This may take a while to load the first time, please wait...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="chashModal" tabindex="-1" role="dialog" aria-labelledby="chashModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chashModalLabel">Content hash lookup</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="chashModalContent">
+                    <i class="fa fa-refresh fa-spin" style="font-size:24px"></i> This may take a while to load the first time, please wait...
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -465,7 +501,7 @@
                             } else {
                                 var test = "";
                             }
-                        
+
                             //if (full[3].length > 1) {
                             //    test += "<a data-toggle='collapse' href='#versions" + full[0] + "'>> Show " + full[3].length + " versions</a><div class='collapse' id='versions" + full[0] + "'>";
                             //    full[3].forEach(function (entry) {
@@ -529,14 +565,9 @@
                     {
                         "targets": 5,
                         "orderable": false,
-                        "visible": false,
+                        "visible": true,
                         "render": function (data, type, full, meta) {
-                            if (full[3].length && full[3].length > 0) {
-                                var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#moreInfoModal' onClick='fillModal(" + full[0] + ")'><i class='fa fa-info-circle'></i></a></td>";
-                            } else {
-                                var test = "N/A";
-                            }
-                            return test;
+                            return "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#moreInfoModal' onClick='fillModal(" + full[0] + ")'><i class='fa fa-info-circle'></i></a></td>";
                         }
                     },
                     {
