@@ -28,6 +28,7 @@ function updateCSSVars(theme){
         document.documentElement.style.setProperty('--table-header-color', '#dee2e6');
     }
 }
+
 /* multiple modal scroll fix */
 $(function() {
     $('.modal').on("hidden.bs.modal", function (e) {
@@ -35,7 +36,49 @@ $(function() {
             $('body').addClass('modal-open');
         }
     });
+
+    checkForUpdates();
 });
+
+async function checkForUpdates() {
+    if (document.cookie) {
+        newUpdateAvailable(JSON.parse(document.cookie).updateAvailable);
+        return;
+    }
+
+    const latestReleaseResponse = await fetch("https://api.github.com/repos/marlamin/wow.tools.local/releases/latest");
+    const latestRelease = await latestReleaseResponse.json();
+    const latestReleaseTag = latestRelease.tag_name + ".0";
+
+    const currentVersionResponse = await fetch("/casc/getVersion");
+    const currentVersion = await currentVersionResponse.text();
+    
+    if (latestReleaseTag !== currentVersion) {
+        var cookieData = new Object();
+        cookieData.updateAvailable = true;
+        cookieData.latestVersion = latestReleaseTag;
+        document.cookie = JSON.stringify(cookieData);
+        newUpdateAvailable(true);
+    } else {
+        var cookieData = new Object();
+        cookieData.updateAvailable = false;
+        cookieData.latestVersion = latestReleaseTag;
+        document.cookie = JSON.stringify(cookieData);
+        newUpdateAvailable(false);
+    }
+}
+
+function newUpdateAvailable(isUpdateAvailable) {
+    var navBar = document.getElementsByTagName("nav");
+    var updateDiv = document.createElement("div");
+    updateDiv.id = 'updateDiv';
+    if (isUpdateAvailable) {
+        updateDiv.innerHTML = "<i class='fa fa-exclamation-circle' style='color: red'></i> <a href='https://github.com/marlamin/wow.tools.local/releases' target='_BLANK'>An update to version " + JSON.parse(document.cookie).latestVersion + " is available!</a>";
+    } else {
+        updateDiv.innerHTML = "<i class='fa fa-check-circle' style='color: green'></i> Up to date.";
+    }
+    navBar[0].appendChild(updateDiv);
+}
 
 function renderBLPToIMGElement(url, elementID){
     fetch(url).then(function(response) {

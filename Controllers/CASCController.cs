@@ -503,5 +503,11 @@ namespace wow.tools.local.Controllers
                 data = diff.all.ToArray()
             });
         }
+        [Route("getVersion")]
+        [HttpGet]
+        public string GetVersion()
+        {
+            return System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+        }
     }
 }

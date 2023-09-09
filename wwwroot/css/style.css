@@ -104,6 +104,10 @@ pre{
 	border: 0px;
 }
 
+#updateDiv{
+	font-style: italic;
+}
+
 #themeToggle{
     color: var(--text-color);
 }
