@@ -40,8 +40,8 @@ $(function() {
     checkForUpdates();
 });
 
-async function checkForUpdates() {
-    if (document.cookie) {
+async function checkForUpdates(force = false) {
+    if (document.cookie && !force) {
         newUpdateAvailable(JSON.parse(document.cookie).updateAvailable);
         return;
     }
@@ -73,11 +73,17 @@ function newUpdateAvailable(isUpdateAvailable) {
     var updateDiv = document.createElement("div");
     updateDiv.id = 'updateDiv';
     if (isUpdateAvailable) {
-        updateDiv.innerHTML = "<i class='fa fa-exclamation-circle' style='color: red'></i> <a href='https://github.com/marlamin/wow.tools.local/releases' target='_BLANK'>An update to version " + JSON.parse(document.cookie).latestVersion + " is available!</a>";
+        updateDiv.innerHTML = "<i class='fa fa-exclamation-circle' style='color: red'></i> <a href='https://github.com/marlamin/wow.tools.local/releases' target='_BLANK'>An update to version " + JSON.parse(document.cookie).latestVersion + " is available!</a> <a href='#' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
     } else {
-        updateDiv.innerHTML = "<i class='fa fa-check-circle' style='color: green'></i> Up to date.";
+        updateDiv.innerHTML = "<i class='fa fa-check-circle' style='color: green'></i> Up to date. <a href='#' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
     }
     navBar[0].appendChild(updateDiv);
+}
+
+function forceUpdateCheck() {
+    var element = document.getElementById("updateDiv");
+    element.parentNode.removeChild(element);
+    checkForUpdates(true);
 }
 
 function renderBLPToIMGElement(url, elementID){
