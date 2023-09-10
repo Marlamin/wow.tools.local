@@ -186,7 +186,6 @@
                     </button>
                 </div>
                 <div class="modal-body" id="moreInfoModalContent">
-                    Nothing here yet.
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
@@ -1151,11 +1150,11 @@
                                 }
 
                                 if (fk != "") {
-                                    //if (fk == "FileData::ID") {
-                                    //    returnVar =
-                                    //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#moreInfoModal' data-tooltip='file' data-id='" +
-                                    //        full[meta.col] + "' onclick='fillModal(" + full[meta
-                                    //            .col] + ")'>" + full[meta.col] + "</a>";
+                                    if (fk == "FileData::ID") {
+                                        returnVar =
+                                            "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#moreInfoModal' data-tooltip='file' data-id='" +
+                                            full[meta.col] + "' onclick='fillModal(" + full[meta
+                                                .col] + ")'>" + full[meta.col] + "</a>";
                                     //} else if (fk == "SoundEntries::ID" && parseInt(
                                     //    currentParams["build"][0]) > 6) {
                                     //    returnVar =
@@ -1197,7 +1196,7 @@
                                     //        full[meta.col] + ", \"" + fk + "\", \"" +
                                     //        currentParams["build"] + "\")'>" + full[meta.col] +
                                     //        "</a>";
-                                    //} else {
+                                    } else {
                                     returnVar =
                                         "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-id='" +
                                         full[meta.col] + "' data-fk='" + fk +
@@ -1205,7 +1204,7 @@
                                         full[meta.col] + ", \"" + fk + "\", \"" +
                                         currentParams["build"] + "\")'>" + full[meta.col] +
                                         "</a>";
-                                    //}
+                                    }
                                 } else if (json["headers"][meta.col].startsWith("Flags") ||
                                     flagMap.has(columnWithTable)) {
                                     returnVar =

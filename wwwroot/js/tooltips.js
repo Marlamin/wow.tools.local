@@ -85,10 +85,14 @@ function tooltip2(el, event){
         //    generateCreatureTooltip(tooltipTargetValue, tooltipDiv);
         //} else if (tooltipType == 'quest'){
         //    generateQuestTooltip(tooltipTargetValue, tooltipDiv);
-        if (tooltipType == 'fk'){
-            generateFKTooltip(el.dataset.fk, tooltipTargetValue, tooltipDiv, localBuild);
+        if (tooltipType == 'fk') {
+            if (el.dataset.fk == "FileData::ID") {
+                generateFileTooltip(tooltipTargetValue, tooltipDiv);
+            } else {
+                generateFKTooltip(el.dataset.fk, tooltipTargetValue, tooltipDiv, localBuild);
+            }
         } else if (tooltipType == 'file'){
-            //generateFileTooltip(tooltipTargetValue, tooltipDiv);
+            generateFileTooltip(tooltipTargetValue, tooltipDiv);
         } else {
             console.log("Unsupported tooltip type " + tooltipType);
             return;
@@ -200,58 +204,56 @@ function generateFKTooltip(targetFK, value, tooltip, build)
         });
 }
 
-//function generateFileTooltip(id, tooltip)
-//{
-//    console.log("Generating file tooltip for " + id);
+function generateFileTooltip(id, tooltip)
+{
+    console.log("Generating file tooltip for " + id);
 
-//    const tooltipIcon = tooltip.querySelector(".tooltip-icon img");
-//    const tooltipDesc = tooltip.querySelector(".tooltip-desc");
+    //const tooltipIcon = tooltip.querySelector(".tooltip-icon img");
+    const tooltipDesc = tooltip.querySelector(".tooltip-desc");
 
-//    Promise.all([
-//        fetch("https://api.wow.tools/files/" + id),
-//    ])
-//        .then(function (responses) {
-//            return Promise.all(responses.map(function (response) {
-//                if (tooltipIcon == undefined || tooltipDesc == undefined){
-//                    console.log("Tooltip closed before rendering finished, nevermind");
-//                    return;
-//                }
-//                return response.json();
-//            })).catch(function (error) {
-//                console.log("An error occurred retrieving data to generate the tooltip: " + error);
-//                tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
-//            });
-//        }).then(function (data) {
-//            if (tooltipIcon == undefined || tooltipDesc == undefined){
-//                console.log("Tooltip closed before rendering finished, nevermind");
-//                return;
-//            }
+    Promise.all([
+        fetch("/dbc/tooltip/file/" + id),
+    ])
+        .then(function (responses) {
+            return Promise.all(responses.map(function (response) {
+                if (tooltipDesc == undefined){
+                    console.log("Tooltip closed before rendering finished, nevermind");
+                    return;
+                }
+                return response.json();
+            })).catch(function (error) {
+                console.log("An error occurred retrieving data to generate the tooltip: " + error);
+                tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
+            });
+        }).then(function (data) {
+            if (tooltipDesc == undefined){
+                console.log("Tooltip closed before rendering finished, nevermind");
+                return;
+            }
 
-//            console.log(data);
+            const calcData = data[0];
 
-//            const calcData = data[0];
+            let tooltipTable = "<table class='tooltip-table'><tr><td colspan='2'><h2 class='q2'>FileDataID " + calcData["fileDataID"] + "</h2></td></tr>";
+            if (calcData["filename"] != null){
+                tooltipTable += "<tr><td>Filename</td><td>" + calcData["filename"];
+                //if (calcData["isOfficialFilename"] == true){
+                //    tooltipTable += " <img src='/img/blizz.png'>";
+                //}
+                tooltipTable += "</td></tr>";
+            } else {
+                tooltipTable += "<tr><td>Filename</td><td>Unknown</td></tr>";
+            }
 
-//            let tooltipTable = "<table class='tooltip-table'><tr><td colspan='2'><h2 class='q2'>FileDataID " + calcData["fileDataID"] + "</h2></td></tr>";
-//            if (calcData["filename"] != null){
-//                tooltipTable += "<tr><td>Filename</td><td>" + calcData["filename"];
-//                if (calcData["isOfficialFilename"] == true){
-//                    tooltipTable += " <img src='/img/blizz.png'>";
-//                }
-//                tooltipTable += "</td></tr>";
-//            } else {
-//                tooltipTable += "<tr><td>Filename</td><td>Unknown</td></tr>";
-//            }
+            //if (calcData["type"] != null && calcData["type"] == "blp"){
+            //    tooltipTable += "<tr><td colspan='2'><img class='tooltip-preview' src='https://wow.tools/casc/preview/fdid?buildconfig=" + SiteSettings.buildConfig + "&cdnconfig=" + SiteSettings.cdnConfig + "&filename=inlinepreview.blp&filedataid=" + calcData["fileDataID"] + "'></td></tr>";
+            //}
 
-//            if (calcData["type"] != null && calcData["type"] == "blp"){
-//                tooltipTable += "<tr><td colspan='2'><img class='tooltip-preview' src='https://wow.tools/casc/preview/fdid?buildconfig=" + SiteSettings.buildConfig + "&cdnconfig=" + SiteSettings.cdnConfig + "&filename=inlinepreview.blp&filedataid=" + calcData["fileDataID"] + "'></td></tr>";
-//            }
-
-//            tooltipDesc.innerHTML = tooltipTable;
-//        }).catch(function (error) {
-//            console.log("An error occurred retrieving data to generate the tooltip: " + error);
-//            tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
-//        });
-//}
+            tooltipDesc.innerHTML = tooltipTable;
+        }).catch(function (error) {
+            console.log("An error occurred retrieving data to generate the tooltip: " + error);
+            tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
+        });
+}
 
 function repositionTooltip(tooltip){
     const tooltipRect = tooltip.getBoundingClientRect();

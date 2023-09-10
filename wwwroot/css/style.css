@@ -412,7 +412,7 @@ footer p{
 	float: left;
 	border: 1px solid white;
 	min-width: 380px;
-	width: 380px;
+	max-width: 680px;
 	padding: 6px;
 	box-shadow: #000 0 0 10px;
 	border-radius: 5px;
