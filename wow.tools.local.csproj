@@ -42,6 +42,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
     <None Remove="debug.log" />
   </ItemGroup>
 
