@@ -584,7 +584,7 @@
                                         filename = full[7];
                                     }
                                 }
-                                var db2name = filename.replace("dbfilesclient/", "").replace(".db2", "");
+                                var db2name = filename.toLowerCase().replace("dbfilesclient/", "").replace(".db2", "");
                                 var test = "<a href='/dbc/?dbc=" + db2name + "' target='_BLANK'><i class='fa fa-table'></i></a>";
                             } else {
                                 //if (full[3].length && full[3][0].enc != 1) {

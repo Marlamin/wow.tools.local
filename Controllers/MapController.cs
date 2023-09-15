@@ -1,5 +1,7 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
+using SixLabors.ImageSharp.Advanced;
 using wow.tools.local.Services;
 using wow.tools.Services;
 
@@ -24,6 +26,31 @@ namespace wow.tools.local.Controllers
         {
             this.dbdProvider = dbdProvider as DBDProvider;
             this.dbcManager = dbcManager as DBCManager;
+        }
+
+        [Route("tile")]
+        [HttpGet]
+        public async Task<FileContentResult> Tile(uint fileDataID, int targetSize)
+        {
+            if (!CASC.FileExists(fileDataID))
+                fileDataID = 189076;
+
+            var blpReader = new SereniaBLPLib.BlpFile(CASC.GetFileByID(fileDataID));
+            var blp = blpReader.GetImage(0);
+            var pixelBytes = new byte[targetSize * targetSize * 4];
+
+            if(blp.Width == targetSize)
+            {
+                blp.CopyPixelDataTo(pixelBytes);
+            }
+            else 
+            {
+                // Minimaps dont have mipmaps, so resize :(
+                blp.Mutate(x => x.Resize(new Size(targetSize, targetSize)));
+                blp.CopyPixelDataTo(pixelBytes);
+            }
+
+            return new FileContentResult(pixelBytes, "application/octet-stream");
         }
 
         [Route("list")]

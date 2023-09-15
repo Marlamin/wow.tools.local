@@ -35,8 +35,6 @@
     <script type="text/javascript" src="/js/main.js"></script>
     <script type="text/javascript" src="/js/tooltips.js"></script>
     <script type="text/javascript" src="/js/anims.js"></script>
-    <script type="text/javascript" src="/js/bufo.js"></script>
-    <script type="text/javascript" src="/js/js-blp.js"></script>
     <link href="/css/select2.min.css" rel="stylesheet" />
     <script src="/js/select2.min.js"></script>
 </head>
@@ -80,7 +78,6 @@
     </nav>
     <link href="/css/maps.css" rel="stylesheet">
     <div class="container-fluid">
-        <div class="ui-map-viewer">
             <button id="js-sidebar-button" class="hamburger">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -118,8 +115,7 @@
                 <!-- <div style='font-size: 12px;'><input type='checkbox' name='worldmap' id='js-worldmap'> <label for="js-worldmap">World maps (large download!)</label></div> -->
                 <div style='font-size: 12px;'><input type='checkbox' name='mnam' id='js-mnam'> <label for="js-mnam">Map Anima (MNAM) data</label></div>
             </div>
-            <canvas id="map-canvas"></canvas>
-        </div>
+            <canvas id="map-canvas" width="1920" height="1080"></canvas>
     </div>
     <script type="text/javascript" src="/js/maps.js"></script>
 </body>

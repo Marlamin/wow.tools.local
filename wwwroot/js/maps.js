@@ -1,4 +1,13 @@
 /* UI */
+const CONSTANTS = {
+	MAP_SIZE: 64,
+	MAP_SIZE_SQ: 4096, // 64x64
+	MAP_COORD_BASE: 51200 / 3, // 17066,66666666667
+	TILE_SIZE: (51200 / 3) / 32, // 533,3333333333333
+	MAP_OFFSET: 17066,
+}
+
+
 const Elements =
 {
 	Maps: document.getElementById('js-map-select'),
@@ -7,12 +16,12 @@ const Elements =
 	NextMap: document.getElementById('js-version-next'),
 	Sidebar: document.getElementById('js-sidebar'),
 	Map: document.getElementById('js-map'),
-	TechBox: document.getElementById('js-techbox'),
-	Layers: document.getElementById('js-layers'),
-	FlightLayer: document.getElementById('js-flightlayer'),
-	POILayer: document.getElementById('js-poilayer'),
-	ADTGrid: document.getElementById('js-adtgrid'),
-	MNAM: document.getElementById('js-mnam')
+	//TechBox: document.getElementById('js-techbox'),
+	//Layers: document.getElementById('js-layers'),
+	//FlightLayer: document.getElementById('js-flightlayer'),
+	//POILayer: document.getElementById('js-poilayer'),
+	//ADTGrid: document.getElementById('js-adtgrid'),
+	//MNAM: document.getElementById('js-mnam')
 };
 
 const Current =
@@ -25,21 +34,58 @@ const Current =
 	wdtFileDataID: 0
 };
 
+
+const state = {
+	offsetX: 0,
+	offsetY: 0,
+	zoomFactor: 2,
+	tileQueue: [],
+	cache: new Array(CONSTANTS.MAP_SIZE_SQ),
+	awaitingTile: false,
+	isPanning: false,
+	tileSize: 512,
+	mask: [],
+	zoom: 7,
+	ready: false,
+	map: 0 // Azeroth?
+};
+
+const mapCanvas = document.getElementById('map-canvas');
+state.canvas = mapCanvas;
+state.ctx = state.canvas.getContext("2d", { willReadFrequently: true });
+
+const techBoxCanvasPosX = document.getElementById('canvasPosX');
+const techBoxCanvasPosY = document.getElementById('canvasPosY');
+const techBoxMousePosX = document.getElementById('mousePosX');
+const techBoxMousePosY = document.getElementById('mousePosY');
+const techBoxWoWPosX = document.getElementById('wowPosX');
+const techBoxWoWPosY = document.getElementById('wowPosY');
+const techBoxWoWPosADTX = document.getElementById('adtPosX');
+const techBoxWoWPosADTY = document.getElementById('adtPosY');
+const techBoxZoom = document.getElementById('zoomLevel');
+
 var d = function (text) { console.log(text); };
 
-// Sidebar button
+ //Sidebar button
 document.getElementById('js-sidebar-button').addEventListener('click', function () {
 	Elements.Sidebar.classList.toggle('closed');
 	document.getElementById('js-sidebar-button').classList.toggle('closed');
 });
 
 // Layer button
-document.getElementById('js-layers-button').addEventListener('click', function () {
-	Elements.Layers.classList.toggle('closed');
-});
+//document.getElementById('js-layers-button').addEventListener('click', function () {
+//	Elements.Layers.classList.toggle('closed');
+//});
 
 (async () => {
 	d("initializing");
+	resizeWindow = function () {
+		window.w = state.canvas.width = window.innerWidth;
+		return window.h = state.canvas.height = window.innerHeight;
+	};
+
+	resizeWindow();
+
 	var maps = await InitializeMapList();
 	await InitializeMapOptions(maps);
 	await InitializeEvents();
@@ -90,9 +136,9 @@ async function InitializeMapOptions(maps) {
 
 async function InitializeEvents() {
 	d("initializing events");
-	var select2El = $("#js-map-select").select2({ matcher: wowMapMatcher, disabled: false });
-	Elements.MapSelect2 = select2El;
-	Elements.MapSelect2.on('change', function (e) {
+	//var select2El = $("#js-map-select").select2({ matcher: wowMapMatcher, disabled: false });
+	//Elements.MapSelect2 = select2El;
+	Elements.Maps.addEventListener('change', function (event) {
 		Current.Map = this.value;
 		Current.InternalMap = this.options[this.selectedIndex].dataset.internal;
 		Current.InternalMapID = this.options[this.selectedIndex].dataset.imapid;
@@ -222,43 +268,6 @@ function wowMapMatcher(params, data) {
 }
 
 /* VIEWER */
-const CONSTANTS = {
-	MAP_SIZE: 64,
-	MAP_SIZE_SQ: 4096, // 64x64
-	MAP_COORD_BASE: 51200 / 3, // 17066,66666666667
-	TILE_SIZE: (51200 / 3) / 32, // 533,3333333333333
-	MAP_OFFSET: 17066,
-}
-
-const state = {
-	offsetX: 0,
-	offsetY: 0,
-	zoomFactor: 2,
-	tileQueue: [],
-	cache: new Array(CONSTANTS.MAP_SIZE_SQ),
-	awaitingTile: false,
-	isPanning: false,
-	tileSize: 512,
-	mask: [],
-	zoom: 7,
-	ready: false,
-	map: 0 // Azeroth?
-};
-
-const mapCanvas = document.getElementById('map-canvas');
-state.canvas = mapCanvas;
-
-const techBoxCanvasPosX = document.getElementById('canvasPosX');
-const techBoxCanvasPosY = document.getElementById('canvasPosY');
-const techBoxMousePosX = document.getElementById('mousePosX');
-const techBoxMousePosY = document.getElementById('mousePosY');
-const techBoxWoWPosX = document.getElementById('wowPosX');
-const techBoxWoWPosY = document.getElementById('wowPosY');
-const techBoxWoWPosADTX = document.getElementById('adtPosX');
-const techBoxWoWPosADTY = document.getElementById('adtPosY');
-const techBoxZoom = document.getElementById('zoomLevel');
-
-
 function updateTechCanvasPos() {
 	techBoxCanvasPosX.innerHTML = Math.round(state.offsetX);
 	techBoxCanvasPosY.innerHTML = Math.round(state.offsetY);
@@ -276,7 +285,6 @@ function updateTechWoWPos(x, y) {
 	techBoxWoWPosADTX.innerHTML = Math.round(wowPos.tileX, 3);
 	techBoxWoWPosADTY.innerHTML = Math.round(wowPos.tileY, 3);
 }
-
 
 function updateTechZoom() {
 	techBoxZoom.innerHTML = state.zoomFactor;
@@ -341,7 +349,11 @@ mapCanvas.addEventListener('mousewheel', function (event) {
 	// pan the map to the new zoom point if we're actually zooming.
 	if (newZoom !== state.zoomFactor) {
 		// Get the in-game position of the mouse cursor.
+		console.log("Start zoom");
+		console.log("Zoom mouse position: " + event.clientX + ", " + event.clientY);
+
 		const point = mapPositionFromClientPoint(event.clientX, event.clientY);
+		console.log("Zoom in-game position: " + mapPositionFromClientPoint(event.clientX, event.clientY));
 
 		// Set the new zoom factor. This will not trigger a re-render.
 		setZoomFactor(newZoom);
@@ -434,11 +446,18 @@ function render() {
 	if (!canvas)
 		return;
 
+	//resizeWindow();
+
 	if (state.mask.length === 0)
 		return;
 	// Update the internal canvas dimensions to match the element.
 	canvas.width = canvas.offsetWidth;
 	canvas.height = canvas.offsetHeight;
+	//console.log(canvas.width);
+	
+	//window.w = canvas.width = window.innerWidth;
+	//window.h = canvas.height = window.innerHeight;
+
 	// Viewport width/height defines what is visible to the user.
 	const viewportWidth = canvas.clientWidth;
 	const viewportHeight = canvas.clientHeight;
@@ -447,8 +466,7 @@ function render() {
 	const tileSize = Math.floor(state.tileSize / state.zoomFactor);
 
 	// Get local reference to the canvas context.
-	const ctx = canvas.getContext("2d");
-
+	ctx = state.ctx;
 	// We need to use a local reference to the cache so that async callbacks
 	// for tile loading don't overwrite the most current cache if they resolve
 	// after a new map has been selected.
@@ -515,11 +533,15 @@ function setMapPosition(x, y){
 function mapPositionFromClientPoint(x, y) {
 	const viewOfsX = (x - state.canvas.clientWidth) - state.offsetX;
 	const viewOfsY = (y - state.canvas.clientHeight) - state.offsetY;
+
+
 	const tileSize = Math.floor(state.tileSize / state.zoomFactor);
-	
 	const tileX = viewOfsX / tileSize;
 	const tileY = viewOfsY / tileSize;
 
+	console.log("cx: " + x + ", cy: " + x + ", offsX: " + state.offsetX + ", offsY: " + state.offsetY + ", ts: " + tileSize);
+
+	console.log(pxPerCoord = (CONSTANTS.TILE_SIZE / tileSize));
 	const posX = CONSTANTS.MAP_COORD_BASE - (CONSTANTS.TILE_SIZE * tileX);
 	const posY = CONSTANTS.MAP_COORD_BASE - (CONSTANTS.TILE_SIZE * tileY);
 
@@ -534,27 +556,9 @@ function setZoomFactor(factor) {
 
 async function loadMapTile(x, y, size, index){
 	try {
-		const response = await fetch("/casc/fdid?fileDataID=" + state.mask[index] + "&filename=map32_32.blp");
+		const response = await fetch("/map/tile?fileDataID=" + state.mask[index] +"&targetSize="+ size);
 		const arrayBuffer = await response.arrayBuffer();
-		let data = new Bufo(arrayBuffer);
-		const blp = new BLPFile(data);
-		const canvas = new OffscreenCanvas(blp.width, blp.height);
-		blp.getPixels(0, canvas, 0, 0);
-
-		// Scale the image down by copying the raw canvas onto a
-		// scaled canvas, and then returning the scaled image data.
-		const scale = size / blp.width;
-		const scaled = document.createElement('canvas');
-		scaled.width = size;
-		scaled.height = size;
-
-		const ctx = scaled.getContext('2d');
-		if (ctx === null)
-			throw new Error('Unable to get 2D context for canvas');
-
-		ctx.scale(scale, scale);
-		ctx.drawImage(canvas, 0, 0);
-		return ctx.getImageData(0, 0, size, size);
+		return new ImageData(new Uint8ClampedArray(arrayBuffer), size, size);
 	} catch (e) {
 		// Map tile does not exist or cannot be read.
 		console.log(e);
