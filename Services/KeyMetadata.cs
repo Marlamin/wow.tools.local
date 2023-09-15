@@ -396,7 +396,7 @@
             KeyInfo.Add(0xD665BEB963A65FF2, (7650, "WOW-51239patch10.2.0_XPTR", "Unknown achievement/title/questline/scene"));
             KeyInfo.Add(0xCE967C5C045FA50A, (7651, "WOW-50199patch10.1.5_XPTR", "Unknown mount"));
             KeyInfo.Add(0x9C348A0A912745F6, (7652, "WOW-50442patch10.1.7_PTR", "Bronze/Infinite dragonflight quests"));
-            KeyInfo.Add(0x312822946C76E11C, (7653, "WOW-50442patch10.1.7_PTR", "Unknown achievement/creature/item/questline/scene"));
+            KeyInfo.Add(0x312822946C76E11C, (7653, "WOW-50442patch10.1.7_PTR", "Velen Man'Ari questline"));
             KeyInfo.Add(0xFEA26F852E83A774, (7654, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xBFA213ABA4804E4C, (7655, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
             KeyInfo.Add(0xF87C86A36878B72D, (7656, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
