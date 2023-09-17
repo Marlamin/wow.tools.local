@@ -567,7 +567,7 @@ async function loadModelDisplays() {
 
         if (result.ResultType == "creature"){
             // Backwards compat with current model texture setting
-            opt.value = result['TextureVariationFileDataID[0]'] + "," + result['TextureVariationFileDataID[1]'] + "," + result['TextureVariationFileDataID[2]'];
+            opt.value = result['TextureVariationFileDataID[0]'] + "," + result['TextureVariationFileDataID[1]'] + "," + result['TextureVariationFileDataID[2]'] + "," + result['TextureVariationFileDataID[3]'];
             opt.dataset.displayid = result.ID;
             opt.dataset.type = 'creature';
 
@@ -854,7 +854,7 @@ async function setModelDisplay(displayID, type){
             return;
 
         // Textures
-        setModelTexture([cdiRow.values['TextureVariationFileDataID[0]'], cdiRow.values['TextureVariationFileDataID[1]'], cdiRow.values['TextureVariationFileDataID[2]']], 11);
+        setModelTexture([cdiRow.values['TextureVariationFileDataID[0]'], cdiRow.values['TextureVariationFileDataID[1]'], cdiRow.values['TextureVariationFileDataID[2]'], cdiRow.values['TextureVariationFileDataID[3]']], 11);
 
         // Particle colors
         if (cdiRow.values['ParticleColorID'] != 0){
@@ -941,21 +941,11 @@ function setModelTexture(textures, offset){
 
     for (let i = 0; i < textures.length; i++){
         if (offset == 11 && i == 3){
-            var particleColorID = textures[3];
-            console.log("Particle Color should be set to " + particleColorID);
-            fetch("/dbc/peek/particlecolor?build=" + Current.buildName + "&col=ID&val=" + particleColorID)
-                .then(function (response) {
-                    return response.json();
-                }).then(function (particleColorEntry) {
-                    const row = particleColorEntry.values;
-                    Module._setReplaceParticleColors(
-                        row["Start[0]"], row["Start[1]"], row["Start[2]"],
-                        row["MID[0]"], row["MID[1]"], row["MID[2]"],
-                        row["End[0]"], row["End[1]"], row["End[2]"]
-                    );
-                }).catch(function (error) {
-                    console.log("An error occured retrieving particle colors for ID " + particleColorID);
-                });
+            typedArray[5] = textures[i];
+            const inputTarget = 5;
+            if (document.getElementById('tex' + inputTarget)) {
+                document.getElementById('tex' + inputTarget).value = textures[i];
+            }
         } else {
             typedArray[offset + i] = textures[i];
             const inputTarget = offset + i;
