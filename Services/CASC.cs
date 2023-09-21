@@ -327,6 +327,29 @@ namespace wow.tools.local.Services
             return true;
         }
 
+        public static Dictionary<int, string> GetAllListfileNames()
+        {
+            if (!File.Exists("listfile.csv"))
+                throw new FileNotFoundException("Unable to open listfile");
+
+            Console.WriteLine("Loading full listfile");
+
+            var allNames = new Dictionary<int, string>();
+
+            foreach (var line in File.ReadAllLines("listfile.csv"))
+            {
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                var splitLine = line.Split(";");
+                allNames[int.Parse(splitLine[0])] = splitLine[1];
+            }
+
+            Console.WriteLine("Finished loading full listfile: " + allNames.Count + " named files");
+
+            return allNames;
+        }
+
         public static bool LoadKeys(bool forceRedownload = false)
         {
             var download = forceRedownload;

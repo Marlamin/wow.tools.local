@@ -441,11 +441,13 @@ namespace wow.tools.local.Controllers
                 });
             }
 
+            var allListfileNames = CASC.GetAllListfileNames();
+
             Func<KeyValuePair<int, string>, DiffEntry> toDiffEntry(string action)
             {
                 return delegate (KeyValuePair<int, string> entry)
                 {
-                    var file = CASC.Listfile.TryGetValue(entry.Key, out var filename) ? filename : "unknown/" + entry.Key + ".unk";
+                    var file = allListfileNames.TryGetValue(entry.Key, out var filename) ? filename : "unknown/" + entry.Key + ".unk";
 
                     return new DiffEntry
                     {
