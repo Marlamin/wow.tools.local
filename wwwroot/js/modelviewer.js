@@ -259,23 +259,34 @@ window.createscene = async function () {
     Module["animationArrayCallback"] = function(animIDArray) {
         const animSelect = document.getElementById("animationSelect");
         animSelect.length = 0;
-
-        if (animIDArray.length > 1){
-            animIDArray.forEach(function(a) {
-                var opt = document.createElement('option');
-                opt.value = a;
-
-                if (a in animationNames){
-                    opt.innerHTML = animationNames[a] + ' (' + a + ')';
-                } else {
-                    console.log("Missing animation name for " + a + ", let a dev know!");
-                    opt.innerHTML = 'Animation ' + a;
-                }
-
-                animSelect.appendChild(opt);
-            });
-
-            animSelect.style.display = "block";
+        
+        if (animIDArray.length > 0) {
+          const animationOptions = [];
+          
+          animIDArray.forEach(function(a) {
+            var opt = document.createElement('option');
+            opt.value = a;
+            if (a in animationNames) {
+              opt.innerHTML = animationNames[a] + ' (' + a + ')';
+            } else {
+              console.log("Missing animation name for " + a + ", let a dev know!");
+              opt.innerHTML = 'Animation ' + a;
+            }
+            animationOptions.push(opt);
+          });
+        
+          animationOptions.sort(function(a,b) {
+            if (a.innerHTML > b.innerHTML)
+              return 1;
+            return 0;
+          });
+        
+          animationOptions.forEach(function(a) {
+            animSelect.append(a);
+          });
+          
+          animSelect.value = 0;
+          animSelect.style.display = "block";
         }
     };
 
