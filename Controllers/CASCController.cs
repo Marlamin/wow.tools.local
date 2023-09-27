@@ -106,6 +106,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool UpdateListfile()
         {
+            BuildDiffCache.Invalidate();
             CASC.LoadListfile(true);
             return true;
         }
