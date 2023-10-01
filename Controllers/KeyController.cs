@@ -30,6 +30,8 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string Info()
         {
+            KeyMetadata.ReloadKeys();
+
             var tklStorage = dbcManager.GetOrLoad("TactKeyLookup", CASC.BuildName, true).Result;
 
             foreach (dynamic tklRow in tklStorage.Values)
