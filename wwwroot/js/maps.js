@@ -376,6 +376,7 @@ async function loadMapMask(mapID, directory, wdtFileDataID) {
 	state.mask = tiles;
 	if (tiles.every(fdid => fdid === 0)) {
 		d("No tiles found for map " + mapID + " in directory " + directory + " with wdtFileDataID " + wdtFileDataID);
+		tiles.fill(1376431);
 	}
 	state.cache = new Array(CONSTANTS.MAP_SIZE_SQ);
 	setDefaultPosition();

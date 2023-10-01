@@ -194,7 +194,10 @@ const uiMapFlags = {
     0x2000: 'FlightMapShowZoomOut',
     0x4000: 'FlightMapAutoZoom',
     0x8000: 'ForceOnNavbar',
-    0x10000: 'AlwaysAllowUserWaypoints'
+    0x10000: 'AlwaysAllowUserWaypoints',
+    0x20000: 'AlwaysAllowTaxiPathing',
+    0x40000: 'ForceAllowMapLinks',
+    0x80000: 'DoNotShowOnNavbar'
 }
 
 const garrAbilityFlags =
