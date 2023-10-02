@@ -275,7 +275,7 @@
             KeyInfo.Add(0xA119C0820C85C7C0, (479, "WOW-46368patch3.4.0_Classic", "Festering Emerald Drake"));
             KeyInfo.Add(0x153ECC70B31595F6, (480, "WOW-48480patch10.1.0_PTR", "79 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x617562110EE5B9DA, (481, "WOW-48520patch10.0.7_VANPTR", "50 file(s) in 10.0.7.48520"));
-            KeyInfo.Add(0x08B3D95E2BE3957E, (482, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
+            KeyInfo.Add(0x08B3D95E2BE3957E, (482, "WOW-48520patch10.0.7_VANPTR", "Unknown mount A key 1"));
             KeyInfo.Add(0xFDB19DFAF1CFB214, (483, "WOW-46144patch10.0.2_Beta", "fdid 4867717, 4867718, 4867719, 4867720, 4867721"));
             KeyInfo.Add(0x024B699A3997EB72, (484, "WOW-46144patch10.0.2_Beta", "Dracthyr intro cinematic"));
             KeyInfo.Add(0x84F8A76EC1A549BF, (485, "WOW-46259patch10.0.2_Beta", "Anniversary store bundle"));
@@ -311,7 +311,7 @@
             KeyInfo.Add(0x6288676A4F77D526, (7543, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xA3CCAD8A4B0FA129, (7544, "WOW-48520patch10.0.7_VANPTR", "Unknown model"));
             KeyInfo.Add(0x0759D1F6D8CE459E, (7546, "WOW-?????patch3.4.?_Classic", "Flurky murloc pet"));
-            KeyInfo.Add(0x4758A4E70A0237AC, (7547, "WOW-48520patch10.0.7_VANPTR", "Unknown mount"));
+            KeyInfo.Add(0x4758A4E70A0237AC, (7547, "WOW-48520patch10.0.7_VANPTR", "Bakar mount(s?)"));
             KeyInfo.Add(0x14BF95DCD8C32D85, (7548, "WOW-48480patch10.1.0_PTR", "Blue dragonflight campaign"));
             KeyInfo.Add(0xF277310B18A1FFBA, (7549, "WOW-48520patch10.0.7_VANPTR", "Battle.net pet bundle assets"));
             KeyInfo.Add(0xB5147B68B5E93830, (7550, "WOW-48480patch10.1.0_PTR", "Evoker legendary"));
@@ -369,7 +369,7 @@
             KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "Unknown toy"));
             KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0xDB8278F99AAEE0F1, (7611, "WOW-?????patch3.4.3_Classic", "Unknown battle pet/mount"));
-            KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "4 file(s) as of 10.1.7.50442"));
+            KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "Unknown mount B key 1"));
             KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 1"));
             KeyInfo.Add(0xAA6A7C5C5ED8DBC6, (7615, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 2"));
@@ -408,7 +408,7 @@
             KeyInfo.Add(0x7A2BDD5F02385D8B, (7648, "WOW-50199patch10.1.5_XPTR", "High Scholars Pack assets"));
             KeyInfo.Add(0x385A3DE86C1FAB00, (7649, "WOW-51239patch10.2.0_XPTR", "Unknown achievement/questline/map/scene"));
             KeyInfo.Add(0xD665BEB963A65FF2, (7650, "WOW-51239patch10.2.0_XPTR", "Unknown achievement/title/questline/scene"));
-            KeyInfo.Add(0xCE967C5C045FA50A, (7651, "WOW-50199patch10.1.5_XPTR", "Unknown mount"));
+            KeyInfo.Add(0xCE967C5C045FA50A, (7651, "WOW-50199patch10.1.5_XPTR", "Unknown mount A key 2"));
             KeyInfo.Add(0x9C348A0A912745F6, (7652, "WOW-50442patch10.1.7_PTR", "Bronze/Infinite dragonflight quests"));
             KeyInfo.Add(0x312822946C76E11C, (7653, "WOW-50442patch10.1.7_PTR", "Velen Man'Ari questline"));
             KeyInfo.Add(0xFEA26F852E83A774, (7654, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
@@ -451,7 +451,7 @@
             KeyInfo.Add(0x250D2516CD67302D, (7700, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0x620C98A7953A9039, (7701, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xC7E4419BE0D8D21C, (7702, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
-            KeyInfo.Add(0x460AA8E1D10CF66D, (7703, "WOW-51059patch10.1.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0x460AA8E1D10CF66D, (7703, "WOW-51059patch10.1.7_PTR", "Unknown mount B key 2"));
             KeyInfo.Add(0x28010BDF216BF085, (7704, "WOW-51239patch10.2.0_XPTR", "Unknown item set"));
             KeyInfo.Add(0x1F829D3464165A14, (7705, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
             KeyInfo.Add(0xFA33F3906CAEBA24, (7706, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
