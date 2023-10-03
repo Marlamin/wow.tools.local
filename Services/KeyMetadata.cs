@@ -287,7 +287,7 @@
             KeyInfo.Add(0xC3699851FCBE7080, (492, "WOW-48520patch10.0.7_VANPTR", "Orc heritage armor/related content"));
             KeyInfo.Add(0xD98F0C2F9BE0F78D, (493, "WOW-48520patch10.0.7_VANPTR", "Unknown scene/creature/broadcasttext"));
             KeyInfo.Add(0x2D972D03742086AA, (494, "WOW-48520patch10.0.7_VANPTR", "Unknown quest/scene/zone/achievement/npcs"));
-            KeyInfo.Add(0x209852729191E058, (495, "WOW-48520patch10.0.7_VANPTR", "Unknown quest/toy/item/achievement/mail"));
+            KeyInfo.Add(0x209852729191E058, (495, "WOW-48520patch10.0.7_VANPTR", "Warcraft Rumble promo"));
             KeyInfo.Add(0x398A71B6F3EB3779, (7055, "WOW-47118patch10.0.5_PTR", "Trading post content (April 2023)"));
             KeyInfo.Add(0x553C9B2CCBF1255F, (7058, "WOW-47118patch10.0.5_PTR", "Trading post content"));
             KeyInfo.Add(0x092562185FBD7B96, (7073, "WOW-47118patch10.0.5_PTR", "Trading post content"));
@@ -454,7 +454,7 @@
             KeyInfo.Add(0x460AA8E1D10CF66D, (7703, "WOW-51059patch10.1.7_PTR", "Unknown mount B key 2"));
             KeyInfo.Add(0x28010BDF216BF085, (7704, "WOW-51239patch10.2.0_XPTR", "Unknown item set"));
             KeyInfo.Add(0x1F829D3464165A14, (7705, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
-            KeyInfo.Add(0xFA33F3906CAEBA24, (7706, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
+            KeyInfo.Add(0xFA33F3906CAEBA24, (7706, "WOW-51059patch10.1.7_PTR", "Lil' Maggz store assets"));
             KeyInfo.Add(0x70B3917E630C86A2, (7707, "WOW-51059patch10.1.7_PTR", "High Scholars Pack store assets"));
             KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
             KeyInfo.Add(0x03893B2A239C5105, (7709, "WOW-51572patch3.4.3_Classic", "Unknown character service/item/quest/spell"));
