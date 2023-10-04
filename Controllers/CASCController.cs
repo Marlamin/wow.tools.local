@@ -1,6 +1,5 @@
 ﻿using CASCLib;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
 using System.Text;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -11,6 +10,13 @@ namespace wow.tools.local.Controllers
     [ApiController]
     public class CASCController : Controller
     {
+        private readonly DBCManager dbcManager;
+
+        public CASCController(IDBCManager dbcManager)
+        {
+            this.dbcManager = dbcManager as DBCManager;
+        }
+
         [Route("fdid")]
         [HttpGet]
         public ActionResult File(uint fileDataID, string filename = "", string build = "")
@@ -65,7 +71,7 @@ namespace wow.tools.local.Controllers
                     var splitLine = line.Split("|");
                     if (splitLine[0] == "Branch!STRING:0")
                     {
-                        foreach(var header in splitLine)
+                        foreach (var header in splitLine)
                             headerMap.Add(header.Split("!")[0], (byte)Array.IndexOf(splitLine, header));
 
                         continue;
@@ -508,7 +514,7 @@ namespace wow.tools.local.Controllers
                 data = diff.all.ToArray()
             });
         }
-        
+
         [Route("samehashes")]
         [HttpGet]
         public string SameHashes(string chash)
@@ -518,7 +524,7 @@ namespace wow.tools.local.Controllers
             var html = "The table below lists files that are identical in content to the requested file.<br><table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th></tr></thead>";
 
             var filedataids = CASC.GetSameFiles(chash);
-            foreach(var filedataid in filedataids)
+            foreach (var filedataid in filedataids)
             {
                 html += "<tr><td>" + filedataid + "</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out string filename) ? filename : "N/A") + "</td></tr>";
             }
@@ -529,7 +535,7 @@ namespace wow.tools.local.Controllers
 
         [Route("moreinfo")]
         [HttpGet]
-        public string MoreInfo(int filedataid)
+        public async Task<string> MoreInfo(int filedataid)
         {
             CASC.EnsureCHashesLoaded();
 
@@ -562,18 +568,61 @@ namespace wow.tools.local.Controllers
 
                 var usedKeys = CASC.EncryptedFDIDs[filedataid];
                 html += "<tr><td>Encryption status</td><td>" + prettyEncryptionStatus + "<br>";
-                html += "<table class='table table-sm'>";
+                html += "<table class='table table-sm table-inverse'>";
                 html += "<tr><th></th><th>Key</th><th>ID</th><th>First seen</th><th>Description</th></tr>";
+
+                var usedKeyInfo = new List<(ulong lookup, int ID, string FirstSeen, string Description)>();
                 foreach (var key in usedKeys)
                 {
-                    if (KeyMetadata.KeyInfo.TryGetValue(key, out var keyInfo)){
-                        html += "<tr><td>" + (KeyService.HasKey(key) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.ToString("X16").PadLeft(16, '0') + "'>" + key.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + keyInfo.ID + "</td><td>" + keyInfo.FirstSeen + "</td><td>" + keyInfo.Description + "</td></tr>";
+                    if (KeyMetadata.KeyInfo.TryGetValue(key, out var keyInfo))
+                    {
+                        usedKeyInfo.Add((key, keyInfo.ID, keyInfo.FirstSeen, keyInfo.Description));
                     }
                     else
                     {
-                        html += "<tr><td>" + (KeyService.HasKey(key) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.ToString("X16").PadLeft(16, '0') + "'>" + key.ToString("X16").PadLeft(16, '0') + "</a></td><td colspan='3'>No metadata known for this key, this is fine if this is a voice over file or a recently added key. Check back in a future version.</td></tr>";
+                        usedKeyInfo.Add((key, 0, "N/A", "No metadata known for this key, this is fine if this is a voice over file or a recently added key. Check back in a future version."));
                     }
                 }
+
+                var db2EncryptionMetaData = new Dictionary<ulong, int[]>();
+
+                try
+                {
+                    if (
+                        CASC.Types.ContainsKey(filedataid) && CASC.Types[filedataid].ToLower() == "db2" &&
+                        CASC.Listfile.TryGetValue(filedataid, out var db2filename) && db2filename != ""
+                        )
+                    {
+                        var storage = await dbcManager.GetOrLoad(Path.GetFileNameWithoutExtension(db2filename), CASC.BuildName);
+                        db2EncryptionMetaData = storage.GetEncryptedIDs();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to get encrypted DB2 info for DB2 " + filedataid + ": " + e.Message);
+                }
+
+                foreach (var key in usedKeyInfo.OrderBy(x => x.ID))
+                {
+                    html += "<tr><td>" + (KeyService.HasKey(key.lookup) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "'>" + key.lookup.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + key.ID + "</td><td>" + key.FirstSeen + "</td><td>" + key.Description + "</td></tr>";
+
+                    if (db2EncryptionMetaData.TryGetValue(key.lookup, out var encryptedIDs))
+                    {
+                        html += "<tr><td colspan='3'>&nbsp;</td><td colspan='2'><b>" + encryptedIDs.Length;
+                        if (KeyService.HasKey(key.lookup))
+                        {
+                            html += " <a href='/dbc/?dbc=" + Path.GetFileNameWithoutExtension(CASC.Listfile[filedataid]).ToLower() + "&build=" + CASC.BuildName + "#page=1&search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "' target='_BLANK' class='text-success'>available</a>";
+                        }
+                        else
+                        {
+                            html += " <span class='text-danger'>unavailable</span>";
+                        }
+                        html += " record(s). IDs:</b> ";
+                        html += string.Join(", ", encryptedIDs);
+                        html += "</td></tr>";
+                    }
+                }
+
                 html += "</table></td></tr>";
             }
             else
