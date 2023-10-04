@@ -68,8 +68,8 @@ namespace wow.tools.local.Services
             }
             else if (Searching && SearchValue.StartsWith("encrypted:"))
             {
-                if (Storage.GetEncryptedSections().TryGetValue(ulong.Parse(SearchValue.Substring(10), NumberStyles.HexNumber), out var encryptedSection))
-                    rowIDFilter.AddRange(Storage.GetEncryptedIDs().Where(x => x.Key == encryptedSection).SelectMany(x => x.Value));
+                if (Storage.GetEncryptedIDs().TryGetValue(ulong.Parse(SearchValue.Substring(10), NumberStyles.HexNumber), out var encryptedIDs))
+                    rowIDFilter.AddRange(encryptedIDs);
 
                 Searching = false;
             }
