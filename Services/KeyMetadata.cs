@@ -239,7 +239,7 @@
             KeyInfo.Add(0xF294CB91E66CDBA7, (417, "WOW-44649patch10.0.0_Beta", "Galakrond flashback cinematic"));
             KeyInfo.Add(0x5157D7ACE0AF2642, (418, "WOW-44649patch10.0.0_Beta", "Tyr friends cutscene"));
             KeyInfo.Add(0x3ACBD2001F88F34B, (419, "WOW-44649patch10.0.0_Beta", "starts at fdid 3483604, 103 files"));
-            KeyInfo.Add(0xD289F4D4AF724C4D, (420, "WOW-44649patch10.0.0_Beta", "Unk 10.0 campaign db2 data"));
+            KeyInfo.Add(0xD289F4D4AF724C4D, (420, "WOW-44649patch10.0.0_Beta", "Dragonscale campaign finale"));
             KeyInfo.Add(0xD4C28A92DDFB407B, (421, "WOW-44649patch10.0.0_Beta", "Wrathion/Sabellian cutscene"));
             KeyInfo.Add(0x482F9F5FF11201C7, (422, "WOW-44649patch10.0.0_Beta", "Raszageth confrontation cutscene"));
             KeyInfo.Add(0x073344682FE80C0F, (423, "WOW-44649patch10.0.0_Beta", "Kalecgos blue flight cutscene"));
@@ -274,7 +274,7 @@
             KeyInfo.Add(0xDBB51BB7EBD83AD7, (478, "WOW-45569patch10.0.2_Beta", "Unknown spell/quest"));
             KeyInfo.Add(0xA119C0820C85C7C0, (479, "WOW-46368patch3.4.0_Classic", "Festering Emerald Drake"));
             KeyInfo.Add(0x153ECC70B31595F6, (480, "WOW-48480patch10.1.0_PTR", "79 file(s) as of 10.1.0.48480"));
-            KeyInfo.Add(0x617562110EE5B9DA, (481, "WOW-48520patch10.0.7_VANPTR", "50 file(s) in 10.0.7.48520"));
+            KeyInfo.Add(0x617562110EE5B9DA, (481, "WOW-48520patch10.0.7_VANPTR", "Arfus (Retail)"));
             KeyInfo.Add(0x08B3D95E2BE3957E, (482, "WOW-48520patch10.0.7_VANPTR", "Unknown mount A key 1"));
             KeyInfo.Add(0xFDB19DFAF1CFB214, (483, "WOW-46144patch10.0.2_Beta", "fdid 4867717, 4867718, 4867719, 4867720, 4867721"));
             KeyInfo.Add(0x024B699A3997EB72, (484, "WOW-46144patch10.0.2_Beta", "Dracthyr intro cinematic"));
@@ -438,8 +438,8 @@
             KeyInfo.Add(0x8B67488DE1E962A7, (7678, "WOW-50199patch10.1.5_XPTR", "Wondrous Wavewhisker store assets"));
             KeyInfo.Add(0x4E3AA2CB1B379256, (7679, "WOW-50199patch10.1.5_XPTR", "Ukraine Pack store assets"));
             KeyInfo.Add(0x04132CC1A52E9DD3, (7680, "WOW-50199patch10.1.5_XPTR", "Corsage Pack store assets"));
-            KeyInfo.Add(0x74FFB4F6918309D6, (7681, "WOW-50442patch10.1.7_PTR", "Unknown scene"));
-            KeyInfo.Add(0x3D7F53C63B044491, (7682, "WOW-50442patch10.1.7_PTR", "Night Elf Heritage quests"));
+            KeyInfo.Add(0x74FFB4F6918309D6, (7681, "WOW-50442patch10.1.7_PTR", "Forsaken Heritage"));
+            KeyInfo.Add(0x3D7F53C63B044491, (7682, "WOW-50442patch10.1.7_PTR", "Night Elf Heritage"));
             KeyInfo.Add(0x7F070B1D792933D7, (7686, "WOW-50442patch10.1.7_PTR", "15 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xCFFE42581EF7E189, (7688, "WOW-50438patch10.1.5_XPTR", "Solemn Watchmans Garb DB2 entries"));
             KeyInfo.Add(0x972EFE7B2D050C9C, (7689, "WOW-50438patch10.1.5_XPTR", "Fanciful Corsage DB2 entries"));
@@ -458,15 +458,17 @@
             KeyInfo.Add(0x70B3917E630C86A2, (7707, "WOW-51059patch10.1.7_PTR", "High Scholars Pack store assets"));
             KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
             KeyInfo.Add(0x03893B2A239C5105, (7709, "WOW-51572patch3.4.3_Classic", "Unknown character service/item/quest/spell"));
-            KeyInfo.Add(0x16CA0F75F3C7ABB4, (7710, "WOW-51239patch10.2.0_XPTR", ""));
+            KeyInfo.Add(0x16CA0F75F3C7ABB4, (7710, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
             KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", ""));
             KeyInfo.Add(0x96FB6AFCFCBDD736, (7712, "WOW-51239patch10.2.0_XPTR", "Unknown item/empowered spell"));
             KeyInfo.Add(0x3FBFE168FCA55C1B, (7713, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xFEB58DE398AB4CC3, (7714, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xA5E1F389C526BACA, (7715, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0x5F521605989E9EA8, (7716, "WOW-51239patch10.2.0_XPTR", "Unknown battle pet"));
+            KeyInfo.Add(0x812C5EF33C2DC56B, (7717, "WOW-51601patch10.2.0_XPTR", ""));
             KeyInfo.Add(0x36384E25F050FE3E, (7718, "WOW-51521patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x479E3C4BB7143BA0, (7719, "WOW-51521patch10.2.0_XPTR", "Unknown items"));
+            KeyInfo.Add(0x10D5C454243A62C3, (7720, "WOW-51601patch10.2.0_XPTR", "Unknown item/creature/toy/spell"));
         }
 
         public static void ReloadKeys()
