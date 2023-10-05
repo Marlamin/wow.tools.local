@@ -27,6 +27,8 @@ namespace wow.tools.local.Services
 
         public static Dictionary<int, List<Version>> VersionHistory = new();
         public static Dictionary<int, HashSet<string>> FDIDToCHashSet = new();
+        public static Dictionary<string, long> CHashToSize = new();
+
         public struct Version
         {
             public string buildName;
@@ -500,15 +502,17 @@ namespace wow.tools.local.Services
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                         subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
 
-                        FDIDToCHash.Add(entry.Key, preferredEntry.cKey.ToHexString());
+                        var ckey = preferredEntry.cKey.ToHexString();
 
-                        if (CHashToFDID.ContainsKey(preferredEntry.cKey.ToHexString()))
+                        FDIDToCHash.Add(entry.Key, ckey);
+
+                        if (CHashToFDID.ContainsKey(ckey))
                         {
-                            CHashToFDID[preferredEntry.cKey.ToHexString()].Add(entry.Key);
+                            CHashToFDID[ckey].Add(entry.Key);
                         }
                         else
                         {
-                            CHashToFDID.Add(preferredEntry.cKey.ToHexString(), new List<int>() { entry.Key });
+                            CHashToFDID.Add(ckey, new List<int>() { entry.Key });
                         }
                     }
                 }
@@ -518,17 +522,27 @@ namespace wow.tools.local.Services
                     {
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
+                        
+                        var ckey = preferredEntry.cKey.ToHexString();
+                        
+                        FDIDToCHash.Add(entry.Key, ckey);
 
-                        FDIDToCHash.Add(entry.Key, preferredEntry.cKey.ToHexString());
-
-                        if (CHashToFDID.ContainsKey(preferredEntry.cKey.ToHexString()))
+                        if (CHashToFDID.ContainsKey(ckey))
                         {
-                            CHashToFDID[preferredEntry.cKey.ToHexString()].Add(entry.Key);
+                            CHashToFDID[ckey].Add(entry.Key);
                         }
                         else
                         {
-                            CHashToFDID.Add(preferredEntry.cKey.ToHexString(), new List<int>() { entry.Key });
+                            CHashToFDID.Add(ckey, new List<int>() { entry.Key });
                         }
+                    }
+                }
+
+                foreach(var chash in CHashToFDID.Keys)
+                {
+                    if (cascHandler.Encoding.GetEntry(chash.FromHexString().ToMD5(), out var eKey))
+                    {
+                        CHashToSize.Add(chash, eKey.Size);
                     }
                 }
             }

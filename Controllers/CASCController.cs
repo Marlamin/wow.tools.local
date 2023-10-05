@@ -545,9 +545,10 @@ namespace wow.tools.local.Controllers
             html += "<tr><td>Filename</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out var filename) ? filename : "unknown/" + filedataid + ".unk") + "</td></tr>";
             html += "<tr><td>Type</td><td>" + (CASC.Types.ContainsKey(filedataid) ? CASC.Types[filedataid] : "unk") + "</td></tr>";
 
-            if (CASC.FDIDToCHash.ContainsKey(filedataid))
+            if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKey))
             {
-                html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-toggle='modal' data-target='#chashModal' onClick='fillChashModal(\"" + CASC.FDIDToCHash[filedataid].ToLower() + "\")'>" + CASC.FDIDToCHash[filedataid].ToLower() + "</a></td></tr>";
+                html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-toggle='modal' data-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
+                html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.ContainsKey(cKey) ? CASC.CHashToSize[cKey] + " bytes" : "N/A") + "</td></tr>";
             }
 
             if (CASC.EncryptionStatuses.TryGetValue(filedataid, out var encryptionStatus))
