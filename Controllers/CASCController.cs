@@ -454,7 +454,7 @@ namespace wow.tools.local.Controllers
             {
                 return delegate (KeyValuePair<int, string> entry)
                 {
-                    var file = allListfileNames.TryGetValue(entry.Key, out var filename) ? filename : "unknown/" + entry.Key + ".unk";
+                    var file = allListfileNames.TryGetValue(entry.Key, out var filename) ? filename : "";
 
                     return new DiffEntry
                     {
