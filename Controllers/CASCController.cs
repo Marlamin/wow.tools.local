@@ -565,6 +565,9 @@ namespace wow.tools.local.Controllers
                     case CASC.EncryptionStatus.EncryptedMixed:
                         prettyEncryptionStatus = "Partially encrypted (some known keys, some unknown)";
                         break;
+                    case CASC.EncryptionStatus.EncryptedButNot:
+                        prettyEncryptionStatus = "Supposed to be encrypted, but isn't (duplicate with unencrypted file)";
+                        break;
                 }
 
                 var usedKeys = CASC.EncryptedFDIDs[filedataid];

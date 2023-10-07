@@ -39,7 +39,8 @@ namespace wow.tools.local.Services
         {
             EncryptedKnownKey,
             EncryptedUnknownKey,
-            EncryptedMixed
+            EncryptedMixed,
+            EncryptedButNot
         }
 
         private static HttpClient WebClient = new HttpClient();
@@ -152,11 +153,23 @@ namespace wow.tools.local.Services
                         if (EncryptedFDIDs.ContainsKey(entry.Key))
                             continue;
 
+                        if (subentry.ContentFlags.HasFlag(ContentFlags.Encrypted))
+                            EncryptedFDIDs.Add(entry.Key, new List<ulong>());
+
                         if (cascHandler.Encoding.GetEntry(subentry.cKey, out var eKey))
                         {
                             var usedKeys = cascHandler.Encoding.GetEncryptionKeys(eKey.Keys[0]);
                             if (usedKeys != null)
-                                EncryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
+                            {
+                                if (EncryptedFDIDs.ContainsKey(entry.Key))
+                                {
+                                    EncryptedFDIDs[entry.Key].AddRange(usedKeys);
+                                }
+                                else
+                                {
+                                    EncryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
+                                }
+                            }
                         }
                     }
                 }
@@ -170,11 +183,23 @@ namespace wow.tools.local.Services
                         if (EncryptedFDIDs.ContainsKey(entry.Key))
                             continue;
 
+                        if (subentry.ContentFlags.HasFlag(ContentFlags.Encrypted))
+                            EncryptedFDIDs.Add(entry.Key, new List<ulong>());
+
                         if (cascHandler.Encoding.GetEntry(subentry.cKey, out var eKey))
                         {
                             var usedKeys = cascHandler.Encoding.GetEncryptionKeys(eKey.Keys[0]);
                             if (usedKeys != null)
-                                EncryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
+                            {
+                                if (EncryptedFDIDs.ContainsKey(entry.Key))
+                                {
+                                    EncryptedFDIDs[entry.Key].AddRange(usedKeys);
+                                }
+                                else
+                                {
+                                    EncryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
+                                }
+                            }
                         }
                     }
                 }
@@ -184,7 +209,11 @@ namespace wow.tools.local.Services
             foreach (var encryptedFile in EncryptedFDIDs)
             {
                 EncryptionStatus encryptionStatus;
-                if (encryptedFile.Value.All(value => KnownKeys.Contains(value)))
+                if (encryptedFile.Value.Count == 0)
+                {
+                    encryptionStatus = EncryptionStatus.EncryptedButNot;
+                }
+                else if (encryptedFile.Value.All(value => KnownKeys.Contains(value)))
                 {
                     encryptionStatus = EncryptionStatus.EncryptedKnownKey;
                 }
@@ -538,7 +567,7 @@ namespace wow.tools.local.Services
                     }
                 }
 
-                foreach(var chash in CHashToFDID.Keys)
+                foreach (var chash in CHashToFDID.Keys)
                 {
                     if (cascHandler.Encoding.GetEntry(chash.FromHexString().ToMD5(), out var eKey))
                     {

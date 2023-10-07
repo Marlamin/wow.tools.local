@@ -498,6 +498,8 @@
                                 var test = "<i style='color: green' title='File is encrypted (key is available)' class='fa fa-unlock'></i> ";
                             } else if (full[5] == "EncryptedMixed") {
                                 var test = "<i style='color: yellow' title='File is encrypted (keys are partially available)' class='fa fa-lock'></i> ";
+                            } else if (full[5] == "EncryptedButNot") {
+                                var test = "<i style='color: white' title='File is supposed to be encrypted' class='fa fa-unlock'></i> ";
                             } else {
                                 var test = "";
                             }
