@@ -39,7 +39,7 @@ namespace wow.tools.local.Controllers
                 draw = draw
             };
 
-            if (!Directory.Exists(Path.Combine("dbcs", build)))
+            if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, build)))
             {
                 result.error = "Could not find DBCs on disk for build " + build + "!";
                 return result;
