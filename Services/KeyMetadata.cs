@@ -172,7 +172,7 @@
             KeyInfo.Add(0x7412D6BD04C6686D, (339, "WOW-37503patch9.0.5_PTR", "Wandering Ancient mount"));
             KeyInfo.Add(0x598F3D6BC8233EA5, (340, "WOW-38312patch9.1.0_PTR", "Gurgl Murloc pet"));
             KeyInfo.Add(0x943AE6AC59D361D9, (341, "WOW-41089patch9.2.0_PTR", "Murkastrasza pet"));
-            KeyInfo.Add(0xFC9637CDB85FD83E, (342, "WOW-41089patch9.2.0_PTR", "Snow Elemental mount (BlizzCon 2023?)"));
+            KeyInfo.Add(0xFC9637CDB85FD83E, (342, "WOW-41089patch9.2.0_PTR", "Snow Elemental mount (BlizzCon 2023)"));
             KeyInfo.Add(0x47FEFED7D7CE2893, (343, "WOW-38312patch9.1.0_PTR", "Soulrender/Garrosh IGC"));
             KeyInfo.Add(0xF23FDEAD4B55445F, (344, "WOW-38312patch9.1.0_PTR", "Sabellian IGC"));
             KeyInfo.Add(0xD735851256FD94F8, (345, "WOW-38312patch9.1.0_PTR", "starts at fdid 841604, 22 files"));
@@ -459,7 +459,7 @@
             KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
             KeyInfo.Add(0x03893B2A239C5105, (7709, "WOW-51572patch3.4.3_Classic", "Unknown character service/item/quest/spell"));
             KeyInfo.Add(0x16CA0F75F3C7ABB4, (7710, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
-            KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", ""));
+            KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
             KeyInfo.Add(0x96FB6AFCFCBDD736, (7712, "WOW-51239patch10.2.0_XPTR", "Unknown item/empowered spell"));
             KeyInfo.Add(0x3FBFE168FCA55C1B, (7713, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xFEB58DE398AB4CC3, (7714, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
@@ -469,6 +469,7 @@
             KeyInfo.Add(0x36384E25F050FE3E, (7718, "WOW-51521patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x479E3C4BB7143BA0, (7719, "WOW-51521patch10.2.0_XPTR", "Unknown items"));
             KeyInfo.Add(0x10D5C454243A62C3, (7720, "WOW-51601patch10.2.0_XPTR", "Unknown item/creature/toy/spell"));
+            KeyInfo.Add(0x47FA63F74CE13160, (7721, "WOW-51685patch10.2.0_XPTR", "Unknown scene"));
         }
 
         public static void ReloadKeys()
