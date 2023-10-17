@@ -1161,7 +1161,7 @@ const effectAuraType = {
     209: 'MOD_MOUNTED_FLIGHT_SPEED_ALWAYS',
     210: 'MOD_VEHICLE_SPEED_ALWAYS',
     211: 'MOD_FLIGHT_SPEED_NOT_STACK',
-    // 212: '212',
+    212: 'MOD_HONOR_GAIN_PCT',
     213: 'MOD_RAGE_FROM_DAMAGE_DEALT',
     // 214: '214',
     215: 'ARENA_PREPARATION',
@@ -1171,10 +1171,10 @@ const effectAuraType = {
     219: 'MOD_MANA_REGEN_FROM_STAT',
     220: 'MOD_ABILITY_SCHOOL_MASK',
     221: 'MOD_DETAUNT',
-    // 222: '222',
-    223: 'RAID_PROC_FROM_CHARGE',
+    222: 'REMOVE_TRANSMOG_COST',
+    223: 'REMOVE_BARBER_SHOP_COST',
     224: 'GAIN_TALENT',
-    225: 'RAID_PROC_FROM_CHARGE_WITH_VALUE',
+    225: 'MOD_VISIBILITY_RANGE',
     226: 'PERIODIC_DUMMY',
     227: 'PERIODIC_TRIGGER_SPELL_WITH_VALUE',
     228: 'DETECT_STEALTH',
@@ -1395,7 +1395,7 @@ const effectAuraType = {
     443: 'MOD_LEECH',
     // 444: '444', // UNUSED IN 9.0.1.34199
     // 445: '445', // UNUSED IN 9.0.1.34199
-    // 446: '446', // UNUSED IN 9.0.1.34199
+    446: 'SPELL_AURA_ADVANCED_FLYING',
     447: 'MOD_XP_FROM_CREATURE_TYPE',
     // 448: '448', // Related to PvP rules
     // 449: '449', // UNUSED IN 9.0.1.34199
@@ -6413,6 +6413,13 @@ conditionalFKs.set("uieventtoast.EventAsset",
         ['uieventtoast.EventType=17', 'spell::ID'], // PlayerAuraRemoved
     ]
 );
+
+conditionalFKs.set("spellkeyboundoverride.Data",
+    [
+        ['spellkeyboundoverride.Type=1', 'spell::ID'],
+    ]
+);
+
 
 /* Colors */
 let colorFields = new Array();

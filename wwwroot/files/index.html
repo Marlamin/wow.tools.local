@@ -534,7 +534,7 @@
                             //    test += "</div>";
                             //} else if (full[3].length == 1 && full[3][0].buildconfig != null) {
                             if (full[1]) {
-                                var filename = full[1].replace(/^.*[\\\/]/, '');
+                                var filename = full[1].replace(/^.*[\\\/]/, '').replace('\'', '');
                             } else {
                                 var filename = "";
                             }
