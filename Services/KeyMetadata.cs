@@ -453,7 +453,7 @@
             KeyInfo.Add(0xC7E4419BE0D8D21C, (7702, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0x460AA8E1D10CF66D, (7703, "WOW-51059patch10.1.7_PTR", "Unknown mount B key 2"));
             KeyInfo.Add(0x28010BDF216BF085, (7704, "WOW-51239patch10.2.0_XPTR", "Unknown item set"));
-            KeyInfo.Add(0x1F829D3464165A14, (7705, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
+            KeyInfo.Add(0x1F829D3464165A14, (7705, "WOW-51059patch10.1.7_PTR", "The Hallow's End Pack store assets"));
             KeyInfo.Add(0xFA33F3906CAEBA24, (7706, "WOW-51059patch10.1.7_PTR", "Lil' Maggz store assets"));
             KeyInfo.Add(0x70B3917E630C86A2, (7707, "WOW-51059patch10.1.7_PTR", "High Scholars Pack store assets"));
             KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
