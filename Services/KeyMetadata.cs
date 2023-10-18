@@ -470,6 +470,10 @@
             KeyInfo.Add(0x479E3C4BB7143BA0, (7719, "WOW-51521patch10.2.0_XPTR", "Unknown items"));
             KeyInfo.Add(0x10D5C454243A62C3, (7720, "WOW-51601patch10.2.0_XPTR", "Unknown item/creature/toy/spell"));
             KeyInfo.Add(0x47FA63F74CE13160, (7721, "WOW-51685patch10.2.0_XPTR", "Unknown scene"));
+            KeyInfo.Add(0xE413669EA65AE0B9, (7722, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0x9F5CD2E96413825E, (7723, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0x3A2FEDBDA68666F5, (7724, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0x4D408847CCF75A56, (7725, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
         }
 
         public static void ReloadKeys()
