@@ -170,11 +170,11 @@ function openFKModal(value, location, build){
             fkTable.insertAdjacentHTML("beforeend", "<tr><td colspan='2'>This row is not available in clients or an error occurred.</td></tr>");
         });
 
-    if (db == "soundkit" && col == "ID"){
-        fkModal.insertAdjacentHTML("beforeend", "<div id='soundkitList'></div>");
-        // TODO: Get rid of JQuery
-        $( "#soundkitList" ).load( "/files/sounds.php?embed=1&skitid=" + value );
-    }
+    //if (db == "soundkit" && col == "ID"){
+    //    fkModal.insertAdjacentHTML("beforeend", "<div id='soundkitList'></div>");
+    //    // TODO: Get rid of JQuery
+    //    $( "#soundkitList" ).load( "/files/sounds.php?embed=1&skitid=" + value );
+    //}
 }
 
 function dec2hex(str, big = false){
@@ -340,24 +340,4 @@ function parseDate(date){
         const utcDate = new Date(Date.UTC(year, month - 1, dotm, hour, minute, 0));
         return utcDate.toUTCString();
     }
-}
-
-function loadLogForm(pushID){
-    fetch("/dbc/hotfix_api.php?logByPushID=" + pushID + "&cb=" + Date.now())
-    .then(function (response) {
-        return response.json();
-    }).then(function (logEntry) {
-        document.getElementById("logPushID").value = pushID;
-
-        if(logEntry === false){
-            return;
-        }
-
-        document.getElementById("logName").value = logEntry['name'];
-        document.getElementById("logDescription").value = logEntry['description'];
-        document.getElementById("logStatus").value = logEntry['status'];
-        document.getElementById("logContributed").value = logEntry['contributedby'];
-    }).catch(function (error) {
-        console.log("An error occurred retrieving data: " + error);
-    });
 }

@@ -91,8 +91,10 @@ function tooltip2(el, event){
             } else {
                 generateFKTooltip(el.dataset.fk, tooltipTargetValue, tooltipDiv, localBuild);
             }
-        } else if (tooltipType == 'file'){
+        } else if (tooltipType == 'file') {
             generateFileTooltip(tooltipTargetValue, tooltipDiv);
+        } else if (tooltipType == 'wex') {
+            generateWExTooltip(tooltipTargetValue, tooltipDiv);
         } else {
             console.log("Unsupported tooltip type " + tooltipType);
             return;
@@ -249,6 +251,39 @@ function generateFileTooltip(id, tooltip)
             //}
 
             tooltipDesc.innerHTML = tooltipTable;
+        }).catch(function (error) {
+            console.log("An error occurred retrieving data to generate the tooltip: " + error);
+            tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
+        });
+}
+
+function generateWExTooltip(ex, tooltip) {
+
+    const tooltipDesc = tooltip.querySelector(".tooltip-desc");
+
+    Promise.all([
+        fetch("/dbc/tooltip/wex/" + ex),
+    ])
+        .then(function (responses) {
+            return Promise.all(responses.map(function (response) {
+                if (tooltipDesc == undefined) {
+                    console.log("Tooltip closed before rendering finished, nevermind");
+                    return;
+                }
+                return response.json();
+            })).catch(function (error) {
+                console.log("An error occurred retrieving data to generate the tooltip: " + error);
+                tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
+            });
+        }).then(function (data) {
+            if (tooltipDesc == undefined) {
+                console.log("Tooltip closed before rendering finished, nevermind");
+                return;
+            }
+
+            const calcData = data[0];
+
+            tooltipDesc.innerHTML = data[0]["result"];
         }).catch(function (error) {
             console.log("An error occurred retrieving data to generate the tooltip: " + error);
             tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;

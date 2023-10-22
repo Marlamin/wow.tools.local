@@ -1153,57 +1153,56 @@
                                     if (fk == "FileData::ID") {
                                         returnVar =
                                             "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#moreInfoModal' data-tooltip='file' data-id='" +
-                                            full[meta.col] + "' onclick='fillModal(" + full[meta
-                                                .col] + ")'>" + full[meta.col] + "</a>";
-                                    //} else if (fk == "SoundEntries::ID" && parseInt(
-                                    //    currentParams["build"][0]) > 6) {
-                                    //    returnVar =
-                                    //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
-                                    //        full[meta.col] + ", \"SoundKit::ID\",\"" +
-                                    //        currentParams["build"] + "\")'>" + full[meta.col] +
-                                    //        "</a>";
-                                    //} else if (fk == "Item::ID" && full[meta.col] > 0) {
-                                    //    returnVar =
-                                    //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='item' data-id='" +
-                                    //        full[meta.col] +
-                                    //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
-                                    //        full[meta.col] + ", \"" + fk + "\", \"" +
-                                    //        currentParams["build"] + "\")'>" + full[meta.col] +
-                                    //        "</a>";
-                                    //} else if (fk.toLowerCase() == "questv2::id" && full[meta
-                                    //    .col] > 0) {
-                                    //    returnVar =
-                                    //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='quest' data-id='" +
-                                    //        full[meta.col] +
-                                    //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
-                                    //        full[meta.col] + ", \"" + fk + "\", \"" +
-                                    //        currentParams["build"] + "\")'>" + full[meta.col] +
-                                    //        "</a>";
-                                    //} else if (fk == "Creature::ID" && full[meta.col] > 0) {
-                                    //    returnVar =
-                                    //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='creature' data-id='" +
-                                    //        full[meta.col] +
-                                    //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
-                                    //        full[meta.col] + ", \"" + fk + "\", \"" +
-                                    //        currentParams["build"] + "\")'>" + full[meta.col] +
-                                    //        "</a>";
-                                    //} else if (fk.toLowerCase() == "spell::id" && full[meta
-                                    //    .col] > 0) {
-                                    //    returnVar =
-                                    //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
-                                    //        full[meta.col] +
-                                    //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
-                                    //        full[meta.col] + ", \"" + fk + "\", \"" +
-                                    //        currentParams["build"] + "\")'>" + full[meta.col] +
-                                    //        "</a>";
+                                            full[meta.col] + "' onclick='fillModal(" + full[meta.col] + ")'>" + full[meta.col] + "</a>";
+                                        //} else if (fk == "SoundEntries::ID" && parseInt(
+                                        //    currentParams["build"][0]) > 6) {
+                                        //    returnVar =
+                                        //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        full[meta.col] + ", \"SoundKit::ID\",\"" +
+                                        //        currentParams["build"] + "\")'>" + full[meta.col] +
+                                        //        "</a>";
+                                        //} else if (fk == "Item::ID" && full[meta.col] > 0) {
+                                        //    returnVar =
+                                        //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='item' data-id='" +
+                                        //        full[meta.col] +
+                                        //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        full[meta.col] + ", \"" + fk + "\", \"" +
+                                        //        currentParams["build"] + "\")'>" + full[meta.col] +
+                                        //        "</a>";
+                                        //} else if (fk.toLowerCase() == "questv2::id" && full[meta
+                                        //    .col] > 0) {
+                                        //    returnVar =
+                                        //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='quest' data-id='" +
+                                        //        full[meta.col] +
+                                        //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        full[meta.col] + ", \"" + fk + "\", \"" +
+                                        //        currentParams["build"] + "\")'>" + full[meta.col] +
+                                        //        "</a>";
+                                        //} else if (fk == "Creature::ID" && full[meta.col] > 0) {
+                                        //    returnVar =
+                                        //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='creature' data-id='" +
+                                        //        full[meta.col] +
+                                        //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        full[meta.col] + ", \"" + fk + "\", \"" +
+                                        //        currentParams["build"] + "\")'>" + full[meta.col] +
+                                        //        "</a>";
+                                        //} else if (fk.toLowerCase() == "spell::id" && full[meta
+                                        //    .col] > 0) {
+                                        //    returnVar =
+                                        //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
+                                        //        full[meta.col] +
+                                        //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        full[meta.col] + ", \"" + fk + "\", \"" +
+                                        //        currentParams["build"] + "\")'>" + full[meta.col] +
+                                        //        "</a>";
                                     } else {
-                                    returnVar =
-                                        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-id='" +
-                                        full[meta.col] + "' data-fk='" + fk +
-                                        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
-                                        full[meta.col] + ", \"" + fk + "\", \"" +
-                                        currentParams["build"] + "\")'>" + full[meta.col] +
-                                        "</a>";
+                                        returnVar =
+                                            "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-id='" +
+                                            full[meta.col] + "' data-fk='" + fk +
+                                            "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                            full[meta.col] + ", \"" + fk + "\", \"" +
+                                            currentParams["build"] + "\")'>" + full[meta.col] +
+                                            "</a>";
                                     }
                                 } else if (json["headers"][meta.col].startsWith("Flags") ||
                                     flagMap.has(columnWithTable)) {
@@ -1216,15 +1215,14 @@
                                     returnVar =
                                         "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='item' data-id='" +
                                         full[meta.col] + "'>" + full[meta.col] + "</span>";
-                                } else if (columnWithTable == "spell.ID" || columnWithTable ==
-                                    "spellname.ID") {
+                                } else if (columnWithTable == "spell.ID" || columnWithTable == "spellname.ID") {
                                     returnVar =
                                         "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
                                         full[meta.col] + "'>" + full[meta.col] + "</span>";
-                                } else if (currentParams["dbc"].toLowerCase() ==
-                                    "playercondition" && json["headers"][meta.col].endsWith(
-                                        "Logic") && full[meta.col] != 0) {
+                                } else if (currentParams["dbc"].toLowerCase() == "playercondition" && json["headers"][meta.col].endsWith("Logic") && full[meta.col] != 0) {
                                     returnVar += " <i>(" + parseLogic(full[meta.col]) + ")</i>";
+                                } else if (currentParams["dbc"].toLowerCase() == "worldstateexpression" && json["headers"][meta.col] == "Expression"){
+                                    returnVar = "<span style='cursor: help; border-bottom: 1px dotted;' data-tooltip='wex' data-id='" + full[meta.col] + "'>" + full[meta.col] + "</span>";
                                 }
 
                                 if (json["headers"][meta.col] in json["relationsToColumns"] &&

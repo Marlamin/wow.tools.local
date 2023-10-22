@@ -26,5 +26,18 @@ namespace wow.tools.local.Controllers
             returnValues.Add("type", CASC.Types.TryGetValue(fileDataID, out string type) ? type : "Unknown");
             return returnValues;
         }
+
+        [Route("wex/{expression}")]
+        [HttpGet]
+        public Dictionary<string, string> WorldStateExpression(string expression)
+        {
+            var worldState = new WSExpressionParser(expression);
+            var humanReadable = new HumanReadableWorldStateExpression();
+            var result = humanReadable.StateToString(worldState.state.Values.ToList());
+            var returnValues = new Dictionary<string, string>();
+            returnValues.Add("expression", expression);
+            returnValues.Add("result", result);
+            return returnValues;
+        }
     }
 }
