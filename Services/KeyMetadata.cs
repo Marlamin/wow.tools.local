@@ -252,7 +252,7 @@
             KeyInfo.Add(0x71046E55CD9DA78A, (431, "WOW-44795patch10.0.0_Beta", "fdid 841626, 1139443, 1260801, 1329070, 1572924"));
             KeyInfo.Add(0xBB2E41027A527755, (432, "WOW-44895patch10.0.0_Beta", "Frostbrood Proto-Wyrm mount"));
             KeyInfo.Add(0xF12E55A36ED24821, (434, "WOW-44930patch3.4.0_Beta", ""));
-            KeyInfo.Add(0xBAAA5D1EFF565D36, (435, "WOW-44930patch3.4.0_Beta", "Rabbit mount (Classic)"));
+            KeyInfo.Add(0xBAAA5D1EFF565D36, (435, "WOW-44930patch3.4.0_Beta", "Rabbit pet (Classic)"));
             KeyInfo.Add(0xAF48C0D6BCD5A444, (437, "WOW-44999patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x7749CBD9B0C7B41C, (439, "WOW-45141patch10.0.0_Beta", "10.0 cinematics"));
             KeyInfo.Add(0xDE6E109D89A7F4D5, (440, "WOW-45141patch10.0.0_Beta", "Dracthyr warbringers cinematic"));
@@ -279,7 +279,7 @@
             KeyInfo.Add(0xFDB19DFAF1CFB214, (483, "WOW-46144patch10.0.2_Beta", "fdid 4867717, 4867718, 4867719, 4867720, 4867721"));
             KeyInfo.Add(0x024B699A3997EB72, (484, "WOW-46144patch10.0.2_Beta", "Dracthyr intro cinematic"));
             KeyInfo.Add(0x84F8A76EC1A549BF, (485, "WOW-46259patch10.0.2_Beta", "Anniversary store bundle"));
-            KeyInfo.Add(0xBDF61DC4BC161F89, (486, "WOW-?????patch3.4.?_Classic", "Unknown model/spell/creature/item"));
+            KeyInfo.Add(0xBDF61DC4BC161F89, (486, "WOW-?????patch3.4.?_Classic", "Glub pet (Classic)"));
             KeyInfo.Add(0x625D0BAE331A3D20, (487, "WOW-46801patch10.0.2_Retail", "Tyr model"));
             KeyInfo.Add(0x32AA16A8A49B352D, (488, "WOW-47118patch10.0.5_PTR", "Trading post category"));
             KeyInfo.Add(0x1F2B201FCC73342F, (489, "WOW-47118patch10.0.5_PTR", "Trading post category"));
@@ -303,14 +303,14 @@
             KeyInfo.Add(0xF50C5E7920A90AC4, (7534, "WOW-48520patch10.0.7_VANPTR", "Secrets of the Reach cinematic"));
             KeyInfo.Add(0xF093CA07D3990E07, (7536, "WOW-47186patch10.0.5_PTR", "Unknown mount"));
             KeyInfo.Add(0x5C8B601AC2E8E3F8, (7537, "WOW-48520patch10.0.7_VANPTR", "Rocket Shredder 9001 mount"));
-            KeyInfo.Add(0x7059D88EB22902D0, (7538, "WOW-48520patch10.0.7_VANPTR", "Unknown mount"));
+            KeyInfo.Add(0x7059D88EB22902D0, (7538, "WOW-48520patch10.0.7_VANPTR", "Gleaming Moonbeast mount"));
             KeyInfo.Add(0x628E075788F3FE01, (7539, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xDB431E8EDB029366, (7540, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xCB117F47F4C8AC57, (7541, "WOW-48520patch10.0.7_VANPTR", "Recruit-a-friend v3 assets"));
             KeyInfo.Add(0xB0C155EC50F0939A, (7542, "WOW-48520patch10.0.7_VANPTR", "Baine questline/assets"));
             KeyInfo.Add(0x6288676A4F77D526, (7543, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xA3CCAD8A4B0FA129, (7544, "WOW-48520patch10.0.7_VANPTR", "Unknown model"));
-            KeyInfo.Add(0x0759D1F6D8CE459E, (7546, "WOW-?????patch3.4.?_Classic", "Flurky murloc pet"));
+            KeyInfo.Add(0x0759D1F6D8CE459E, (7546, "WOW-?????patch3.4.?_Classic", "Flurky murloc pet (Classic)"));
             KeyInfo.Add(0x4758A4E70A0237AC, (7547, "WOW-48520patch10.0.7_VANPTR", "Bakar mount(s?)"));
             KeyInfo.Add(0x14BF95DCD8C32D85, (7548, "WOW-48480patch10.1.0_PTR", "Blue dragonflight campaign"));
             KeyInfo.Add(0xF277310B18A1FFBA, (7549, "WOW-48520patch10.0.7_VANPTR", "Battle.net pet bundle assets"));
@@ -343,10 +343,10 @@
             KeyInfo.Add(0xB25044202A4BD9B7, (7576, "WOW-48480patch10.1.0_PTR", "Vyranoth/Alexstrasza scene"));
             KeyInfo.Add(0xAC86DE77F65B93AF, (7577, "WOW-48520patch10.0.7_VANPTR", "Waveborne Diplomat's Regalia transmog set"));
             KeyInfo.Add(0x1F4C7A21EE3DB81F, (7583, "WOW-?????patch3.4.?_Classic", "0 file(s) as of 3.4.2.50664"));
-            KeyInfo.Add(0x2D2E8988E3A90F8E, (7584, "WOW-?????patch3.4.?_Classic", "Unknown battle pet"));
+            KeyInfo.Add(0x2D2E8988E3A90F8E, (7584, "WOW-?????patch3.4.?_Classic", "Cypress pet (Classic)"));
             KeyInfo.Add(0xF4B9684EB2D14B51, (7585, "WOW-?????patch3.4.?_Classic", "Unknown mount"));
-            KeyInfo.Add(0x5F837E4EF654FC39, (7586, "WOW-?????patch3.4.?_Classic", "Arfus (Classic)"));
-            KeyInfo.Add(0x0FAB680C2AC0E38E, (7587, "WOW-49516patch10.1.5_VANPTR", "Fyrn Pet"));
+            KeyInfo.Add(0x5F837E4EF654FC39, (7586, "WOW-?????patch3.4.?_Classic", "Arfus pet (Classic)"));
+            KeyInfo.Add(0x0FAB680C2AC0E38E, (7587, "WOW-49516patch10.1.5_VANPTR", "Fyrn pet"));
             KeyInfo.Add(0xC85DA43484057737, (7588, "WOW-50442patch10.1.7_PTR", "Coalition of Flames questline"));
             KeyInfo.Add(0x78C70CF0F282D257, (7589, "WOW-48776patch10.1.0_PTR", "Unknown model"));
             KeyInfo.Add(0x2DFCA73AC64AEECF, (7590, "WOW-48776patch10.1.0_PTR", "Unknown items (?)"));
@@ -368,7 +368,7 @@
             KeyInfo.Add(0x5468F352E97569AE, (7607, "WOW-50442patch10.1.7_PTR", "11.0 preorder"));
             KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "Mannequin Charm toy"));
             KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
-            KeyInfo.Add(0xDB8278F99AAEE0F1, (7611, "WOW-?????patch3.4.3_Classic", "Unknown battle pet/mount"));
+            KeyInfo.Add(0xDB8278F99AAEE0F1, (7611, "WOW-?????patch3.4.3_Classic", "Lil' Wrathion battle pet/unknown mount"));
             KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "Unknown mount B key 1"));
             KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 1"));
@@ -456,7 +456,7 @@
             KeyInfo.Add(0x1F829D3464165A14, (7705, "WOW-51059patch10.1.7_PTR", "The Hallow's End Pack store assets"));
             KeyInfo.Add(0xFA33F3906CAEBA24, (7706, "WOW-51059patch10.1.7_PTR", "Lil' Maggz store assets"));
             KeyInfo.Add(0x70B3917E630C86A2, (7707, "WOW-51059patch10.1.7_PTR", "High Scholars Pack store assets"));
-            KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Unknown store assets"));
+            KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Year of Azeroth store assets (2023-2024)"));
             KeyInfo.Add(0x03893B2A239C5105, (7709, "WOW-51572patch3.4.3_Classic", "Unknown character service/item/quest/spell"));
             KeyInfo.Add(0x16CA0F75F3C7ABB4, (7710, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
             KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
