@@ -272,7 +272,7 @@
             KeyInfo.Add(0x2252456E1E394005, (476, "WOW-45335patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x8526E0E4D352CD05, (477, "WOW-45335patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0xDBB51BB7EBD83AD7, (478, "WOW-45569patch10.0.2_Beta", "Unknown spell/quest"));
-            KeyInfo.Add(0xA119C0820C85C7C0, (479, "WOW-46368patch3.4.0_Classic", "Festering Emerald Drake"));
+            KeyInfo.Add(0xA119C0820C85C7C0, (479, "WOW-46368patch3.4.0_Classic", "Festering Emerald Drake (Classic)"));
             KeyInfo.Add(0x153ECC70B31595F6, (480, "WOW-48480patch10.1.0_PTR", "79 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x617562110EE5B9DA, (481, "WOW-48520patch10.0.7_VANPTR", "Arfus (Retail)"));
             KeyInfo.Add(0x08B3D95E2BE3957E, (482, "WOW-48520patch10.0.7_VANPTR", "Unknown mount A key 1"));
@@ -344,7 +344,7 @@
             KeyInfo.Add(0xAC86DE77F65B93AF, (7577, "WOW-48520patch10.0.7_VANPTR", "Waveborne Diplomat's Regalia transmog set"));
             KeyInfo.Add(0x1F4C7A21EE3DB81F, (7583, "WOW-?????patch3.4.?_Classic", "0 file(s) as of 3.4.2.50664"));
             KeyInfo.Add(0x2D2E8988E3A90F8E, (7584, "WOW-?????patch3.4.?_Classic", "Cypress pet (Classic)"));
-            KeyInfo.Add(0xF4B9684EB2D14B51, (7585, "WOW-?????patch3.4.?_Classic", "Unknown mount"));
+            KeyInfo.Add(0xF4B9684EB2D14B51, (7585, "WOW-?????patch3.4.?_Classic", "Auspicious Arborwyrm mount (Classic)"));
             KeyInfo.Add(0x5F837E4EF654FC39, (7586, "WOW-?????patch3.4.?_Classic", "Arfus pet (Classic)"));
             KeyInfo.Add(0x0FAB680C2AC0E38E, (7587, "WOW-49516patch10.1.5_VANPTR", "Fyrn pet"));
             KeyInfo.Add(0xC85DA43484057737, (7588, "WOW-50442patch10.1.7_PTR", "Coalition of Flames questline"));
@@ -368,7 +368,7 @@
             KeyInfo.Add(0x5468F352E97569AE, (7607, "WOW-50442patch10.1.7_PTR", "11.0 preorder"));
             KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "Mannequin Charm toy"));
             KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
-            KeyInfo.Add(0xDB8278F99AAEE0F1, (7611, "WOW-?????patch3.4.3_Classic", "Lil' Wrathion battle pet/unknown mount"));
+            KeyInfo.Add(0xDB8278F99AAEE0F1, (7611, "WOW-?????patch3.4.3_Classic", "Lil' Wrathion pet/Avatar of Flame mount (Classic)"));
             KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "Unknown mount B key 1"));
             KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 1"));
@@ -397,7 +397,7 @@
             KeyInfo.Add(0x936C3D23B1865A5A, (7637, "WOW-?????patch3.4.?_Classic", ""));
             KeyInfo.Add(0x70B9EBFAB71855B5, (7638, "WOW-50442patch10.1.7_PTR", "Undead Heritage quest/scarlet tabard icon"));
             KeyInfo.Add(0x724CFA81FCC5334C, (7639, "WOW-49595patch10.1.5_XPTR", "Trading post content"));
-            KeyInfo.Add(0x224718A71A9DEA8F, (7640, "WOW-?????patch3.4.?_Classic", "Unknown mount/quest"));
+            KeyInfo.Add(0x224718A71A9DEA8F, (7640, "WOW-?????patch3.4.?_Classic", "Nightmarish Emerald Drake (Classic)"));
             KeyInfo.Add(0x5F21546AEF75EAAA, (7641, "WOW-50199patch10.1.5_XPTR", "Seafarer Pack store assets"));
             KeyInfo.Add(0xCEEEEBD0D1C95671, (7642, "WOW-50442patch10.1.7_PTR", "10.1.7 cinematic"));
             KeyInfo.Add(0x8AF3FBB11B5AEA5A, (7643, "WOW-50442patch10.1.7_PTR", "Fyrakk/Vyranoth in-game cutscene"));
