@@ -275,7 +275,7 @@
             KeyInfo.Add(0xA119C0820C85C7C0, (479, "WOW-46368patch3.4.0_Classic", "Festering Emerald Drake (Classic)"));
             KeyInfo.Add(0x153ECC70B31595F6, (480, "WOW-48480patch10.1.0_PTR", "79 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x617562110EE5B9DA, (481, "WOW-48520patch10.0.7_VANPTR", "Arfus (Retail)"));
-            KeyInfo.Add(0x08B3D95E2BE3957E, (482, "WOW-48520patch10.0.7_VANPTR", "Unknown mount A key 1"));
+            KeyInfo.Add(0x08B3D95E2BE3957E, (482, "WOW-48520patch10.0.7_VANPTR", "Auspicious Arborwyrm mount (?) (Retail) key 1"));
             KeyInfo.Add(0xFDB19DFAF1CFB214, (483, "WOW-46144patch10.0.2_Beta", "fdid 4867717, 4867718, 4867719, 4867720, 4867721"));
             KeyInfo.Add(0x024B699A3997EB72, (484, "WOW-46144patch10.0.2_Beta", "Dracthyr intro cinematic"));
             KeyInfo.Add(0x84F8A76EC1A549BF, (485, "WOW-46259patch10.0.2_Beta", "Anniversary store bundle"));
@@ -408,7 +408,7 @@
             KeyInfo.Add(0x7A2BDD5F02385D8B, (7648, "WOW-50199patch10.1.5_XPTR", "High Scholars Pack assets"));
             KeyInfo.Add(0x385A3DE86C1FAB00, (7649, "WOW-51239patch10.2.0_XPTR", "A Hero's Resolve campaign (Aberrus)"));
             KeyInfo.Add(0xD665BEB963A65FF2, (7650, "WOW-51239patch10.2.0_XPTR", "Retrieving the Disc campaign (Nighthold)"));
-            KeyInfo.Add(0xCE967C5C045FA50A, (7651, "WOW-50199patch10.1.5_XPTR", "Unknown mount A key 2"));
+            KeyInfo.Add(0xCE967C5C045FA50A, (7651, "WOW-50199patch10.1.5_XPTR", "Auspicious Arborwyrm mount (?) (Retail) key 2"));
             KeyInfo.Add(0x9C348A0A912745F6, (7652, "WOW-50442patch10.1.7_PTR", "Bronze/Infinite dragonflight quests"));
             KeyInfo.Add(0x312822946C76E11C, (7653, "WOW-50442patch10.1.7_PTR", "Velen Man'Ari questline"));
             KeyInfo.Add(0xFEA26F852E83A774, (7654, "WOW-50199patch10.1.5_XPTR", "0 file(s) as of 10.1.5.50199"));
