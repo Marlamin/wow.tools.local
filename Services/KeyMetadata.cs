@@ -213,7 +213,7 @@
             KeyInfo.Add(0xA8BBCCA0A621E518, (380, "WOW-41962patch9.2.0_PTR", "Jailer Intro cinematic"));
             KeyInfo.Add(0x7D38C6BF343CAB32, (381, "WOW-41962patch9.2.0_PTR", "Pelagos cinematic"));
             KeyInfo.Add(0xD01FFF442611F3C0, (382, "WOW-41962patch9.2.0_PTR", "Jailer Finale cinematic"));
-            KeyInfo.Add(0x1E4534FEEC561A02, (384, "WOW-42850patch9.2.5_PTR", "fdid 841604, 1108759, 1237434, 1237435, 1237436, 1282621, 1720141"));
+            KeyInfo.Add(0x1E4534FEEC561A02, (384, "WOW-42850patch9.2.5_PTR", "Test key reused for Secrets of Azeroth Mount day 4"));
             KeyInfo.Add(0x1917CCB5CF95CD5E, (385, "WOW-42850patch9.2.5_PTR", "Trading post launch rewards"));
             KeyInfo.Add(0x77C4EB395B13E06C, (386, "WOW-42850patch9.2.5_PTR", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0xB9A5FE4AAF12D195, (387, "WOW-42850patch9.2.5_PTR", "Tirisfal story content "));
@@ -303,7 +303,7 @@
             KeyInfo.Add(0xF50C5E7920A90AC4, (7534, "WOW-48520patch10.0.7_VANPTR", "Secrets of the Reach cinematic"));
             KeyInfo.Add(0xF093CA07D3990E07, (7536, "WOW-47186patch10.0.5_PTR", "Unknown mount"));
             KeyInfo.Add(0x5C8B601AC2E8E3F8, (7537, "WOW-48520patch10.0.7_VANPTR", "Rocket Shredder 9001 mount"));
-            KeyInfo.Add(0x7059D88EB22902D0, (7538, "WOW-48520patch10.0.7_VANPTR", "Gleaming Moonbeast mount"));
+            KeyInfo.Add(0x7059D88EB22902D0, (7538, "WOW-48520patch10.0.7_VANPTR", "Gleaming Moonbeast mount DB2s"));
             KeyInfo.Add(0x628E075788F3FE01, (7539, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xDB431E8EDB029366, (7540, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xCB117F47F4C8AC57, (7541, "WOW-48520patch10.0.7_VANPTR", "Recruit-a-friend v3 assets"));
@@ -348,7 +348,7 @@
             KeyInfo.Add(0x5F837E4EF654FC39, (7586, "WOW-?????patch3.4.?_Classic", "Arfus pet (Classic)"));
             KeyInfo.Add(0x0FAB680C2AC0E38E, (7587, "WOW-49516patch10.1.5_VANPTR", "Fyrn pet"));
             KeyInfo.Add(0xC85DA43484057737, (7588, "WOW-50442patch10.1.7_PTR", "Coalition of Flames questline"));
-            KeyInfo.Add(0x78C70CF0F282D257, (7589, "WOW-48776patch10.1.0_PTR", "Unknown model"));
+            KeyInfo.Add(0x78C70CF0F282D257, (7589, "WOW-48776patch10.1.0_PTR", "Gleaming Moonbeast mount model"));
             KeyInfo.Add(0x2DFCA73AC64AEECF, (7590, "WOW-48776patch10.1.0_PTR", "Unknown items (?)"));
             KeyInfo.Add(0xE8175532FAA4D0D7, (7591, "WOW-48776patch10.1.0_PTR", "Unknown model"));
             KeyInfo.Add(0x6C36AE2EE5E4B9DC, (7592, "WOW-48776patch10.1.0_PTR", "Unknown model"));
@@ -380,11 +380,11 @@
             KeyInfo.Add(0xC9BA30DA927A14B9, (7620, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 7"));
             KeyInfo.Add(0x4C9249E0480C8264, (7621, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 8"));
             KeyInfo.Add(0x6A552F8A1D3B8637, (7622, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 9"));
-            KeyInfo.Add(0x5AA7FAB564B04D7D, (7623, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Content"));
-            KeyInfo.Add(0xE8A4042B5D3FD25D, (7624, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Content"));
-            KeyInfo.Add(0x1D6294FC250DF4A1, (7625, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Content"));
-            KeyInfo.Add(0xCC8D5FD991958339, (7626, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Content"));
-            KeyInfo.Add(0x8553C9D58E44FD19, (7627, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Content"));
+            KeyInfo.Add(0x5AA7FAB564B04D7D, (7623, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 10"));
+            KeyInfo.Add(0xE8A4042B5D3FD25D, (7624, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 11"));
+            KeyInfo.Add(0x1D6294FC250DF4A1, (7625, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 12"));
+            KeyInfo.Add(0xCC8D5FD991958339, (7626, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 13"));
+            KeyInfo.Add(0x8553C9D58E44FD19, (7627, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 14"));
             KeyInfo.Add(0x4626421172DFF459, (7628, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Mount Day 1"));
             KeyInfo.Add(0x81EEFCCFC9DF862A, (7629, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Mount Day 2"));
             KeyInfo.Add(0x38CB18F712F9C63E, (7630, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Mount Day 3"));
@@ -460,7 +460,7 @@
             KeyInfo.Add(0x03893B2A239C5105, (7709, "WOW-51572patch3.4.3_Classic", "Unknown character service/item/quest/spell"));
             KeyInfo.Add(0x16CA0F75F3C7ABB4, (7710, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
             KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
-            KeyInfo.Add(0x96FB6AFCFCBDD736, (7712, "WOW-51239patch10.2.0_XPTR", "Unknown item/empowered spell"));
+            KeyInfo.Add(0x96FB6AFCFCBDD736, (7712, "WOW-51239patch10.2.0_XPTR", "10.2 legendary item/empowered spell"));
             KeyInfo.Add(0x3FBFE168FCA55C1B, (7713, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xFEB58DE398AB4CC3, (7714, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xA5E1F389C526BACA, (7715, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
@@ -474,6 +474,7 @@
             KeyInfo.Add(0x9F5CD2E96413825E, (7723, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x3A2FEDBDA68666F5, (7724, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x4D408847CCF75A56, (7725, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0xFF3A8536F580B160, (7728, "WOW-51943patch3.4.3_Classic", "Unknown store assets"));
         }
 
         public static void ReloadKeys()
