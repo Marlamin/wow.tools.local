@@ -352,14 +352,14 @@
             KeyInfo.Add(0x2DFCA73AC64AEECF, (7590, "WOW-48776patch10.1.0_PTR", "Unknown items (?)"));
             KeyInfo.Add(0xE8175532FAA4D0D7, (7591, "WOW-48776patch10.1.0_PTR", "Unknown model"));
             KeyInfo.Add(0x6C36AE2EE5E4B9DC, (7592, "WOW-48776patch10.1.0_PTR", "Unknown model"));
-            KeyInfo.Add(0x0599D267A15C719F, (7593, "WOW-48776patch10.1.0_PTR", "Unknown textures"));
+            KeyInfo.Add(0x0599D267A15C719F, (7593, "WOW-48776patch10.1.0_PTR", "Scarlet Crusade set (?)"));
             KeyInfo.Add(0x4CE29C24FDFDFB18, (7594, "WOW-48776patch10.1.0_PTR", "Guardian transmog set"));
             KeyInfo.Add(0x2D71F7DD989FED1F, (7595, "WOW-48776patch10.1.0_PTR", "Turtle Mount"));
             KeyInfo.Add(0xC4B1348F2B37B3B4, (7596, "WOW-48776patch10.1.0_PTR", "Blue dragonflight campaign timer"));
             KeyInfo.Add(0xA765D5EDE5034CFA, (7597, "WOW-48898patch10.1.0_PTR", "Trading post content"));
             KeyInfo.Add(0x468AFCD3B345C56C, (7598, "WOW-48898patch10.1.0_PTR", "Trading post content"));
             KeyInfo.Add(0xFAE576DB8432F32E, (7599, "WOW-48898patch10.1.0_PTR", "Trading post content (October 2023)"));
-            KeyInfo.Add(0xB3DA923C2F13FD5B, (7600, "WOW-48898patch10.1.0_PTR", "Trading post content"));
+            KeyInfo.Add(0xB3DA923C2F13FD5B, (7600, "WOW-48898patch10.1.0_PTR", "Trading post content (November 2023)"));
             KeyInfo.Add(0x4EAD7F8A0C378D7F, (7601, "WOW-48898patch10.1.0_PTR", "Trading post content"));
             KeyInfo.Add(0x6899BB495C433867, (7602, "WOW-48865patch10.0.7_Retail", "Unknown store assets"));
             KeyInfo.Add(0x69CB2A2C597E9F67, (7603, "WOW-48865patch10.0.7_Retail", "Faction pack store assets"));
@@ -444,7 +444,7 @@
             KeyInfo.Add(0xCFFE42581EF7E189, (7688, "WOW-50438patch10.1.5_XPTR", "Solemn Watchmans Garb DB2 entries"));
             KeyInfo.Add(0x972EFE7B2D050C9C, (7689, "WOW-50438patch10.1.5_XPTR", "Fanciful Corsage DB2 entries"));
             KeyInfo.Add(0x3C2909D607694F17, (7690, "WOW-50438patch10.1.5_XPTR", "Gothic Corsage DB2 entries"));
-            KeyInfo.Add(0x62F7CF550FD52D4B, (7691, "WOW-50442patch10.1.7_PTR", "Unknown quest/spell/item"));
+            KeyInfo.Add(0x62F7CF550FD52D4B, (7691, "WOW-50442patch10.1.7_PTR", "Cosmic Weapon Cache (Trading Post Nov 2023)"));
             KeyInfo.Add(0x2CBBC28266D3782D, (7697, "WOW-50505patch10.1.7_PTR", "Stormrider's Stormhammers"));
             KeyInfo.Add(0xA9BD6DED128A1E1B, (7698, "WOW-51059patch10.1.7_PTR", "Unknown item appearance"));
             KeyInfo.Add(0x20C5E0988CA2F493, (7699, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
