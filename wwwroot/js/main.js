@@ -37,8 +37,15 @@ $(function() {
         }
     });
 
+    updateTitle();
     checkForUpdates();
 });
+
+async function updateTitle() {
+    if (Math.floor(Math.random() * 21) == 20) {
+        document.getElementById("nocog").innerHTML = "<img src='/img/w.svg' alt='Logo W'><img src='/img/w.svg' alt='Logo W'><span>.tools <small><i>butt local</i></small></span>";
+    }
+}
 
 async function checkForUpdates(force = false) {
     if (document.cookie && !force) {
