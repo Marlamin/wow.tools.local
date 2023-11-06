@@ -457,7 +457,7 @@
             KeyInfo.Add(0xFA33F3906CAEBA24, (7706, "WOW-51059patch10.1.7_PTR", "Lil' Maggz store assets"));
             KeyInfo.Add(0x70B3917E630C86A2, (7707, "WOW-51059patch10.1.7_PTR", "High Scholars Pack store assets"));
             KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Year of Azeroth store assets (2023-2024)"));
-            KeyInfo.Add(0x03893B2A239C5105, (7709, "WOW-51572patch3.4.3_Classic", "Unknown character service/item/quest/spell"));
+            KeyInfo.Add(0x03893B2A239C5105, (7709, "WOW-51572patch3.4.3_Classic", "Cataclysm Classic pre-order char upgrade"));
             KeyInfo.Add(0x16CA0F75F3C7ABB4, (7710, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
             KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
             KeyInfo.Add(0x96FB6AFCFCBDD736, (7712, "WOW-51239patch10.2.0_XPTR", "10.2 legendary item/empowered spell"));
@@ -467,7 +467,7 @@
             KeyInfo.Add(0x5F521605989E9EA8, (7716, "WOW-51239patch10.2.0_XPTR", "Unknown battle pet"));
             KeyInfo.Add(0x812C5EF33C2DC56B, (7717, "WOW-51601patch10.2.0_XPTR", ""));
             KeyInfo.Add(0x36384E25F050FE3E, (7718, "WOW-51521patch10.2.0_XPTR", "Unknown store assets"));
-            KeyInfo.Add(0x479E3C4BB7143BA0, (7719, "WOW-51521patch10.2.0_XPTR", "Unknown items"));
+            KeyInfo.Add(0x479E3C4BB7143BA0, (7719, "WOW-51521patch10.2.0_XPTR", "Sargeras swords (Trading Post Nov 2023)"));
             KeyInfo.Add(0x10D5C454243A62C3, (7720, "WOW-51601patch10.2.0_XPTR", "Unknown item/creature/toy/spell"));
             KeyInfo.Add(0x47FA63F74CE13160, (7721, "WOW-51685patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xE413669EA65AE0B9, (7722, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
