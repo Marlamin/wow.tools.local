@@ -431,7 +431,7 @@
             KeyInfo.Add(0xEBEAAC307E3D823F, (7671, "WOW-50442patch10.1.7_PTR", "Night Elf Heritage scene"));
             KeyInfo.Add(0xC26B17EC8991C3DE, (7672, "WOW-50199patch10.1.5_XPTR", "High Scholars Pack DB2 entries"));
             KeyInfo.Add(0x5D3122DA6FBBA7F2, (7673, "WOW-50442patch10.1.7_PTR", "Tyr campaign scene"));
-            KeyInfo.Add(0x05568845E026E686, (7674, "WOW-51239patch10.2.0_XPTR", "Unknown scene/quest/spells/items/models"));
+            KeyInfo.Add(0x05568845E026E686, (7674, "WOW-51239patch10.2.0_XPTR", "10.2 campaign"));
             KeyInfo.Add(0xEAB45D6B59CDCE29, (7675, "WOW-50199patch10.1.5_XPTR", "Mighty Kodo pack mount"));
             KeyInfo.Add(0x614FA5E9FE31B27A, (7676, "WOW-50199patch10.1.5_XPTR", "Mighty Kodo pack pet"));
             KeyInfo.Add(0x8DB2A67206C3BBFE, (7677, "WOW-50199patch10.1.5_XPTR", "Solemn Watchmans Garb store assets"));
@@ -447,10 +447,10 @@
             KeyInfo.Add(0x62F7CF550FD52D4B, (7691, "WOW-50442patch10.1.7_PTR", "Cosmic Weapon Cache (Trading Post Nov 2023)"));
             KeyInfo.Add(0x2CBBC28266D3782D, (7697, "WOW-50505patch10.1.7_PTR", "Stormrider's Stormhammers"));
             KeyInfo.Add(0xA9BD6DED128A1E1B, (7698, "WOW-51059patch10.1.7_PTR", "Unknown item appearance"));
-            KeyInfo.Add(0x20C5E0988CA2F493, (7699, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
-            KeyInfo.Add(0x250D2516CD67302D, (7700, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
-            KeyInfo.Add(0x620C98A7953A9039, (7701, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
-            KeyInfo.Add(0xC7E4419BE0D8D21C, (7702, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
+            KeyInfo.Add(0x20C5E0988CA2F493, (7699, "WOW-51239patch10.2.0_XPTR", "Prophet of the Flame scene"));
+            KeyInfo.Add(0x250D2516CD67302D, (7700, "WOW-51239patch10.2.0_XPTR", "Assault on the Wellspring scene"));
+            KeyInfo.Add(0x620C98A7953A9039, (7701, "WOW-51239patch10.2.0_XPTR", "Fyrakk, the Prophet & the Tree scene"));
+            KeyInfo.Add(0xC7E4419BE0D8D21C, (7702, "WOW-51239patch10.2.0_XPTR", "10.2 raid finale scene/cinematic"));
             KeyInfo.Add(0x460AA8E1D10CF66D, (7703, "WOW-51059patch10.1.7_PTR", "Unknown mount B key 2"));
             KeyInfo.Add(0x28010BDF216BF085, (7704, "WOW-51239patch10.2.0_XPTR", "Unknown item set"));
             KeyInfo.Add(0x1F829D3464165A14, (7705, "WOW-51059patch10.1.7_PTR", "The Hallow's End Pack store assets"));
@@ -458,10 +458,10 @@
             KeyInfo.Add(0x70B3917E630C86A2, (7707, "WOW-51059patch10.1.7_PTR", "High Scholars Pack store assets"));
             KeyInfo.Add(0xAFA1E7197F42CFC2, (7708, "WOW-51059patch10.1.7_PTR", "Year of Azeroth store assets (2023-2024)"));
             KeyInfo.Add(0x03893B2A239C5105, (7709, "WOW-51572patch3.4.3_Classic", "Cataclysm Classic pre-order char upgrade"));
-            KeyInfo.Add(0x16CA0F75F3C7ABB4, (7710, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
-            KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", "Unknown 10.2 cinematic"));
+            KeyInfo.Add(0x16CA0F75F3C7ABB4, (7710, "WOW-51239patch10.2.0_XPTR", "A Crown of Flame cinematic"));
+            KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", ""));
             KeyInfo.Add(0x96FB6AFCFCBDD736, (7712, "WOW-51239patch10.2.0_XPTR", "10.2 legendary item/empowered spell"));
-            KeyInfo.Add(0x3FBFE168FCA55C1B, (7713, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
+            KeyInfo.Add(0x3FBFE168FCA55C1B, (7713, "WOW-51239patch10.2.0_XPTR", "Emerald Dream tree flythrough scene"));
             KeyInfo.Add(0xFEB58DE398AB4CC3, (7714, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xA5E1F389C526BACA, (7715, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0x5F521605989E9EA8, (7716, "WOW-51239patch10.2.0_XPTR", "Unknown battle pet"));
@@ -469,7 +469,7 @@
             KeyInfo.Add(0x36384E25F050FE3E, (7718, "WOW-51521patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x479E3C4BB7143BA0, (7719, "WOW-51521patch10.2.0_XPTR", "Sargeras swords (Trading Post Nov 2023)"));
             KeyInfo.Add(0x10D5C454243A62C3, (7720, "WOW-51601patch10.2.0_XPTR", "Unknown item/creature/toy/spell"));
-            KeyInfo.Add(0x47FA63F74CE13160, (7721, "WOW-51685patch10.2.0_XPTR", "Unknown scene"));
+            KeyInfo.Add(0x47FA63F74CE13160, (7721, "WOW-51685patch10.2.0_XPTR", "Fyrakk raid intro scene"));
             KeyInfo.Add(0xE413669EA65AE0B9, (7722, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x9F5CD2E96413825E, (7723, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x3A2FEDBDA68666F5, (7724, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
