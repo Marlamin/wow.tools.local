@@ -369,7 +369,7 @@
             KeyInfo.Add(0xD4A78D149406F94F, (7608, "WOW-49516patch10.1.5_VANPTR", "Mannequin Charm toy"));
             KeyInfo.Add(0x65347C95BA2C6634, (7610, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0xDB8278F99AAEE0F1, (7611, "WOW-?????patch3.4.3_Classic", "Lil' Wrathion pet/Avatar of Flame mount (Classic)"));
-            KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "Unknown mount B key 1"));
+            KeyInfo.Add(0x65394BA0A4F0509A, (7612, "WOW-50442patch10.1.7_PTR", "Cataclysm Classic pre-order mount key 1 (Retail)"));
             KeyInfo.Add(0x42C1954DF757827B, (7613, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth content"));
             KeyInfo.Add(0x3722BAA1FE7809C5, (7614, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 1"));
             KeyInfo.Add(0xAA6A7C5C5ED8DBC6, (7615, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Day 2"));
@@ -451,7 +451,7 @@
             KeyInfo.Add(0x250D2516CD67302D, (7700, "WOW-51239patch10.2.0_XPTR", "Assault on the Wellspring scene"));
             KeyInfo.Add(0x620C98A7953A9039, (7701, "WOW-51239patch10.2.0_XPTR", "Fyrakk, the Prophet & the Tree scene"));
             KeyInfo.Add(0xC7E4419BE0D8D21C, (7702, "WOW-51239patch10.2.0_XPTR", "10.2 raid finale scene/cinematic"));
-            KeyInfo.Add(0x460AA8E1D10CF66D, (7703, "WOW-51059patch10.1.7_PTR", "Unknown mount B key 2"));
+            KeyInfo.Add(0x460AA8E1D10CF66D, (7703, "WOW-51059patch10.1.7_PTR", "Cataclysm Classic pre-order mount key 2 (Retail)"));
             KeyInfo.Add(0x28010BDF216BF085, (7704, "WOW-51239patch10.2.0_XPTR", "Unknown item set"));
             KeyInfo.Add(0x1F829D3464165A14, (7705, "WOW-51059patch10.1.7_PTR", "The Hallow's End Pack store assets"));
             KeyInfo.Add(0xFA33F3906CAEBA24, (7706, "WOW-51059patch10.1.7_PTR", "Lil' Maggz store assets"));
