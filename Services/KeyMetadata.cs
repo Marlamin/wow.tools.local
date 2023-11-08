@@ -464,7 +464,7 @@
             KeyInfo.Add(0x3FBFE168FCA55C1B, (7713, "WOW-51239patch10.2.0_XPTR", "Emerald Dream tree flythrough scene"));
             KeyInfo.Add(0xFEB58DE398AB4CC3, (7714, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
             KeyInfo.Add(0xA5E1F389C526BACA, (7715, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
-            KeyInfo.Add(0x5F521605989E9EA8, (7716, "WOW-51239patch10.2.0_XPTR", "Unknown battle pet"));
+            KeyInfo.Add(0x5F521605989E9EA8, (7716, "WOW-51239patch10.2.0_XPTR", "Lil' Wrathion (Retail)"));
             KeyInfo.Add(0x812C5EF33C2DC56B, (7717, "WOW-51601patch10.2.0_XPTR", ""));
             KeyInfo.Add(0x36384E25F050FE3E, (7718, "WOW-51521patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x479E3C4BB7143BA0, (7719, "WOW-51521patch10.2.0_XPTR", "Sargeras swords (Trading Post Nov 2023)"));
