@@ -1,6 +1,7 @@
 ﻿using CASCLib;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using wow.tools.local.Services;
 
@@ -53,6 +54,12 @@ namespace wow.tools.local.Controllers
                     copy.Description = CASC.EncryptedFDIDs.Where(x => x.Value.Contains(key)).Select(x => x.Key).ToList().Count.ToString() + " file(s) as of " + CASC.BuildName;
                     KeyMetadata.KeyInfo[key] = copy;
                 }
+
+                if(KeyService.HasKey(key) && !CASC.KnownKeys.Contains(key))
+                {
+                    Console.WriteLine("Adding known key from CascLib: " + key);
+                    CASC.KnownKeys.Add(key);
+                }
             }
 
             var tkStorage = dbcManager.GetOrLoad("TactKey", CASC.BuildName, true).Result;
@@ -68,7 +75,6 @@ namespace wow.tools.local.Controllers
 
                     if (KeyService.HasKey(keyInfo.Key))
                         continue;
-
 
                     Console.WriteLine("Setting key " + (int)tkRow.ID + " from TactKey.db2");
                     KeyService.SetKey(keyInfo.Key, tkRow.Key);
@@ -116,10 +122,11 @@ namespace wow.tools.local.Controllers
                                         var tactKeyLookup = bin.ReadUInt64();
                                         var tactKeyBytes = bin.ReadBytes(16);
 
+                                        if (!CASC.KnownKeys.Contains(tactKeyLookup))
+                                            CASC.KnownKeys.Add(tactKeyLookup);
+
                                         if (KeyService.HasKey(tactKeyLookup))
                                             continue;
-
-                                        CASC.KnownKeys.Add(tactKeyLookup);
 
                                         KeyService.SetKey(tactKeyLookup, tactKeyBytes);
 
@@ -173,10 +180,11 @@ namespace wow.tools.local.Controllers
                                         var tactKeyLookup = bin.ReadUInt64();
                                         var tactKeyBytes = bin.ReadBytes(16);
 
+                                        if (!CASC.KnownKeys.Contains(tactKeyLookup))
+                                            CASC.KnownKeys.Add(tactKeyLookup);
+
                                         if (KeyService.HasKey(tactKeyLookup))
                                             continue;
-
-                                        CASC.KnownKeys.Add(tactKeyLookup);
 
                                         KeyService.SetKey(tactKeyLookup, tactKeyBytes);
 
