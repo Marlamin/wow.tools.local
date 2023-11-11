@@ -454,8 +454,11 @@
                                 if (full[8] == "true") {
                                     test += "data-content='Lookup " + full[2] + " matches filename'><i class='text-success fa fa-check'></i>&nbsp;</a>";
                                 } else {
-                                    if(full[1])
+                                    if (full[1]) {
                                         test += "data-content='Lookup " + full[2] + " does not match filename'><i class='text-danger fa fa-close'></i>&nbsp;</a>";
+                                    } else {
+                                        test += "data-content='Lookup " + full[2] + " does not match unknown filename'><i class='text-warning fa fa-question'></i>&nbsp;</a>";
+                                    }
                                 }
 
                                 test += "</span>";
