@@ -543,6 +543,36 @@ namespace wow.tools.local.Controllers
             var html = "<table class='table table-striped'><thead><tr><th style='width:400px'></th><th></th></tr></thead>";
             html += "<tr><td>FileDataID</td><td>" + filedataid + "</td></tr>";
             html += "<tr><td>Filename</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out var filename) ? filename : "unknown/" + filedataid + ".unk") + "</td></tr>";
+            html += "<tr><td>Lookup</td>";
+
+            if (CASC.LookupMap.TryGetValue(filedataid, out var lookup))
+            {
+                var hasher = new Jenkins96();
+                html += "<td>" + lookup.ToString("X16");
+
+                if (CASC.Listfile.TryGetValue(filedataid, out var lookupFilename) && lookupFilename != "")
+                {
+                    if(hasher.ComputeHash(lookupFilename) == lookup)
+                    {
+                        html += " <span class='text-success'>(Filename matches)</span>";
+                    }
+                    else
+                    {
+                        html += " <span class='text-danger'>(Filename doesn't match)</span>";
+                    }
+                }
+                else
+                {
+                    html += " <span class='text-warning'>(Can't check filename, none set)</span>";
+                }
+
+                html += "</td></tr>";
+            }
+            else
+            {
+                html += "<td>N/A</td></tr>";
+            }
+
             html += "<tr><td>Type</td><td>" + (CASC.Types.ContainsKey(filedataid) ? CASC.Types[filedataid] : "unk") + "</td></tr>";
 
             if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKey))

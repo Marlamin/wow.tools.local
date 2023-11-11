@@ -165,6 +165,7 @@
                     <kbd>type:type</kbd> for filtering by type (requires files to be analyzed to include unknown files)<br>
                     <!--<kbd>chash:md5</kbd> for filter by contenthash<br>-->
                     <kbd>unnamed</kbd> for files without filenames<br>
+                    <kbd>haslookup</kbd> for files with filename hashes/lookups<br />
                     <!--<kbd>communitynames</kbd> for files with community filenames<br>-->
                     <kbd>encrypted</kbd> for encrypted files<br>
                     <kbd>encrypted:KEY</kbd> for encrypted by key<br>
@@ -445,6 +446,19 @@
                                 if (full[7]) {
                                     test = full[7];
                                 }
+                            }
+
+                            if (full[2]) {
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;'";
+
+                                if (full[8] == "true") {
+                                    test += "data-content='Lookup " + full[2] + " matches filename'><i class='text-success fa fa-check'></i>&nbsp;</a>";
+                                } else {
+                                    if(full[1])
+                                        test += "data-content='Lookup " + full[2] + " does not match filename'><i class='text-danger fa fa-close'></i>&nbsp;</a>";
+                                }
+
+                                test += "</span>";
                             }
 
                             //if (full[6]) {

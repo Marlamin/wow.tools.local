@@ -21,6 +21,7 @@ namespace wow.tools.local.Services
         public static Dictionary<int, List<ulong>> EncryptedFDIDs = new();
         public static Dictionary<int, string> Types = new();
         public static Dictionary<string, List<int>> TypeMap = new();
+        public static Dictionary<int, ulong> LookupMap = new();
 
         public static Dictionary<string, List<int>> CHashToFDID = new();
         public static Dictionary<int, string> FDIDToCHash = new();
@@ -122,6 +123,10 @@ namespace wow.tools.local.Services
             EncryptionStatuses = new Dictionary<int, EncryptionStatus>();
             TypeMap = new Dictionary<string, List<int>>();
             Types = new Dictionary<int, string>();
+            LookupMap = new Dictionary<int, ulong>();
+
+            if (File.Exists("cachedLookups.txt"))
+                LookupMap = File.ReadAllLines("cachedLookups.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => ulong.Parse(x[1]));
 
             AvailableFDIDs.ForEach(x => Listfile.Add(x, ""));
 
@@ -143,7 +148,7 @@ namespace wow.tools.local.Services
                 Environment.Exit(1);
             }
 
-            Console.WriteLine("Analyzing encrypted files");
+            Console.WriteLine("Analyzing files");
             if (cascHandler.Root is WowTVFSRootHandler ewtrh)
             {
                 foreach (var entry in ewtrh.RootEntries)
@@ -176,6 +181,7 @@ namespace wow.tools.local.Services
             }
             else if (cascHandler.Root is WowRootHandler ewrh)
             {
+                // Encryption
                 foreach (var entry in ewrh.RootEntries)
                 {
                     foreach (var subentry in entry.Value)
@@ -203,6 +209,17 @@ namespace wow.tools.local.Services
                         }
                     }
                 }
+
+                // Lookups
+                foreach(var entry in ewrh.FileDataToLookup)
+                {
+                    if(!LookupMap.ContainsKey(entry.Key) && entry.Value != FileDataHash.ComputeHash(entry.Key))
+                    {
+                        LookupMap.Add(entry.Key, entry.Value);
+                    }
+                }
+
+                File.WriteAllLines("cachedLookups.txt", LookupMap.Select(x => x.Key + ";" + x.Value));
             }
 
             Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");

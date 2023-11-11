@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using CASCLib;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Linq;
@@ -64,6 +65,11 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.Listfile.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
                 listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
+            else if(search == "haslookup")
+            {
+                var fdids = new HashSet<int>(CASC.LookupMap.Keys);
+                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+            }
             else
             {
                 // Simple search
@@ -72,6 +78,7 @@ namespace wow.tools.local.Controllers
             return listfileResults;
         }
 
+        // Files page uses this, not modelviewer
         [Route("files")]
         [HttpGet]
         public DataTablesResult FileDataTables(int draw, int start, int length)
@@ -137,24 +144,39 @@ namespace wow.tools.local.Controllers
                 start = 0;
                 length = sortedResults.Count;
             }
+
+            var hasher = new Jenkins96();
             foreach (var listfileResult in sortedResults.Skip(start).Take(length))
             {
+                var lookupMatch = false;
+                ulong lookup = 0;
+
+                if(CASC.LookupMap.TryGetValue(listfileResult.Key, out lookup))
+                {
+                    if(hasher.ComputeHash(listfileResult.Value) == lookup)
+                    {
+                        lookupMatch = true;
+                    }
+                }
+
                 result.data.Add(
                     new List<string>() {
                         listfileResult.Key.ToString(), // ID
                         listfileResult.Value, // Filename 
-                        "", // Lookup
+                        lookup != 0 ? lookup.ToString("X16") : "", // Lookup
                         "", // Versions
                         CASC.Types.ContainsKey(listfileResult.Key) ? CASC.Types[listfileResult.Key] : "unk", // Type
                         CASC.EncryptionStatuses.ContainsKey(listfileResult.Key) ? CASC.EncryptionStatuses[listfileResult.Key].ToString() : "", // Extra data
                         "", // Comment
-                        ""
+                        "", // Placeholder filename
+                        lookupMatch ? "true" : "false" // Lookup match
                     });
             }
 
             return result;
         }
 
+        // Modelviewer uses this, not files page
         [Route("datatables")]
         [HttpGet]
         public DataTablesResult DataTables(int draw, int start, int length)
@@ -188,7 +210,7 @@ namespace wow.tools.local.Controllers
                     new List<string>() {
                         listfileResult.Key.ToString(), // ID
                         listfileResult.Value, // Filename 
-                        "", // Lookup
+                        CASC.LookupMap.ContainsKey(listfileResult.Key) ? CASC.LookupMap[listfileResult.Key].ToString("X16") : "", // Lookup
                         "", // Versions
                         CASC.Types.ContainsKey(listfileResult.Key) ? CASC.Types[listfileResult.Key] : "unk", // Type
                         CASC.EncryptionStatuses.ContainsKey(listfileResult.Key) ? CASC.EncryptionStatuses[listfileResult.Key].ToString() : "0"
