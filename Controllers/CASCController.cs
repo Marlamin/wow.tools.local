@@ -395,6 +395,9 @@ namespace wow.tools.local.Controllers
                             case "SYHP":
                                 type = "phys";
                                 break;
+                            case "TAFG":
+                                type = "gfat";
+                                break;
                             default:
                                 break;
                         }
