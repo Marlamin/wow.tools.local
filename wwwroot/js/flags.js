@@ -365,7 +365,7 @@ const lfgFlagsB = {
     0x1000: 'INSTANT_SHUTDOWN',
     0x2000: 'ALLOW_CROSS_FACTION_PARTY_QUEUE',
     0x4000: 'HIDE_IF_PLAYER_CONDITION_UNMET',
-    0x8000: 'IGNORE_PARTIES'
+    0x8000: 'IGNORE_PARTIES',
 }
 
 const questTagModifierFlags = {
@@ -536,8 +536,13 @@ const areaPOIFlags = {
     0x10000: 'Display as Banner',
     0x20000: 'Show on flightmap',
     0x40000: 'Worldmap Micro-Dungeon Zoom',
-    0x80000: 'Assault',
-    0x100000: 'ShouldGlow'
+    0x80000: 'Assault/SEND_TO_MOBILE',
+    0x100000: 'ShouldGlow',
+    0x200000: 'Always visible on flightmap',
+    0x400000: 'HIDE_TIMER_IN_TOOLTIP',
+    0x800000: 'NO_PADDING_ABOVE_TOOLTIP_WIDGETS',
+    0x1000000: 'HIGHLIGHT_WORLD_QUESTS_ON_HOVER',
+    0x2000000: 'HIGHLIGHT_VIGNETTES_ON_HOVER',
 }
 
 const summonPropertiesFlags = {
@@ -2467,7 +2472,10 @@ const traitCondFlag = {
 }
 
 const traitNodeFlag = {
-    0x1: 'ShowMultipleIcons'
+    0x1: 'ShowMultipleIcons',
+    0x2: 'NeverPurchasable',
+    0x4: 'TestPositionLocked',
+    0x8: 'TestGridPositioned',
 }
 
 const traitNodeGroupFlag = {
@@ -2576,7 +2584,8 @@ const questPOIBlobFlags = {
 const renownRewardsFlags = {
     0x1: 'MILESTONE',
     0x2: 'CAPSTONE',
-    0x4: 'HIDDEN'
+    0x4: 'HIDDEN',
+    0x8: 'ACCOUNT_UNLOCK'
 }
 
 const soundAmbienceFlags = {
@@ -2588,6 +2597,14 @@ const soundAmbienceFlags = {
 
 const soundEmitterFlags = {
     0x1: 'OBSOLETE'
+}
+
+const chrModelMaterialFlags = {
+    0x1: 'IS_SECONDARY_MATERIAL'
+}
+
+const questLineXQuestFlags = {
+    0x1: 'IgnoreForCompletion'
 }
 
 window.flagMap = new Map();
@@ -2615,6 +2632,7 @@ window.flagMap.set("chrcustomizationcategory.Flags", chrCustomizationCategoryFla
 window.flagMap.set("chrcustomizationoption.Flags", chrCustomizationOptionFlags);
 window.flagMap.set("chrcustomizationvisreq.Flags", chrCustomizationVisReqFlags);
 window.flagMap.set("chrmodel.Flags", chrModelFlags);
+window.flagMap.set("chrmodelmaterial.Flags", chrModelMaterialFlags);
 window.flagMap.set("chrraces.Flags", chrRacesFlags);
 window.flagMap.set("contentrestrictionrule.Flags", contentRestrictionRuleFlags);
 window.flagMap.set("contentrestrictionruleset.Flags", contentRestrictionRuleSetFlags);
@@ -2753,6 +2771,7 @@ window.flagMap.set("garrtalenttree.Flags", garrTalentTreeFlags);
 window.flagMap.set("garrtype.Flags", garrTypeFlags);
 window.flagMap.set("languages.Flags", languageFlags);
 window.flagMap.set("creatureimmunities.Flags", creatureImmunitiesFlags);
+window.flagMap.set("questlinexquest.Flags", questLineXQuestFlags);
 
 // Conditional flags
 let conditionalFlags = new Map();

@@ -2693,7 +2693,8 @@ const questTagType = {
     12: 'FACTION_ASSAULT',
     13: 'ISLANDS',
     14: 'THREAT',
-    15: 'COVENANT_CALLING'
+    15: 'COVENANT_CALLING',
+    16: 'DRAGON_RIDER_RADING',
 }
 
 const questObjectiveType = {
@@ -2716,7 +2717,8 @@ const questObjectiveType = {
     16: 'REACH_CURRENCY',
     17: 'INCREASE_CURRENCY',
     18: 'AREA_TRIGGER_ENTER',
-    19: 'AREA_TRIGGER_EXIT'
+    19: 'AREA_TRIGGER_EXIT',
+    20: 'KILL_WITH_LABEL',
 }
 
 const itemModification = {
@@ -2757,7 +2759,27 @@ const itemModification = {
     34: 'TRANSMOGRIFY_SECONDARY_ITEM_MODIFIED_APPEARANCE_ID_SPEC_2',
     35: 'TRANSMOGRIFY_SECONDARY_ITEM_MODIFIED_APPEARANCE_ID_SPEC_3',
     36: 'TRANSMOGRIFY_SECONDARY_ITEM_MODIFIED_APPEARANCE_ID_SPEC_4',
-    37: 'SOULBIND_CONDUIT_RANK'
+    37: 'SOULBIND_CONDUIT_RANK',
+    38: 'CRAFTING_QUALITY_ID',
+    39: 'CRAFTING_SKILL_LINE_ABILITY_ID',
+    40: 'CRAFTING_DATA_ID',
+    41: 'CRAFTING_SKILL_REAGENTS',
+    42: 'CRAFTING_SKILL_WATERMARK',
+    43: 'CRAFTING_REAGENT_SLOT_0',
+    44: 'CRAFTING_REAGENT_SLOT_1',
+    45: 'CRAFTING_REAGENT_SLOT_2',
+    46: 'CRAFTING_REAGENT_SLOT_3',
+    47: 'CRAFTING_REAGENT_SLOT_4',
+    48: 'CRAFTING_REAGENT_SLOT_5',
+    49: 'CRAFTING_REAGENT_SLOT_6',
+    50: 'CRAFTING_REAGENT_SLOT_7',
+    51: 'CRAFTING_REAGENT_SLOT_8',
+    52: 'CRAFTING_REAGENT_SLOT_9',
+    53: 'CRAFTING_REAGENT_SLOT_10',
+    54: 'CRAFTING_REAGENT_SLOT_11',
+    55: 'CRAFTING_REAGENT_SLOT_12',
+    56: 'CRAFTING_REAGENT_SLOT_13',
+    57: 'CRAFTING_REAGENT_SLOT_14',
 }
 
 const globalCurveType = {
@@ -2796,7 +2818,9 @@ const socketColorEnum = {
     19: 'PUNCHCARD_RED',
     20: 'PUNCHCARD_YELLOW',
     21: 'PUNCHCARD_BLUE',
-    22: 'CYPHER'
+    22: 'CYPHER',
+    23: 'TINKER',
+    24: 'PRIMORDIAL'
 }
 
 // 176
@@ -3055,6 +3079,13 @@ const itemContext = {
     94: "Raid: Raid Finder (Extended 3)",
     95: "Raid: Heroic (Extended 3)",
     96: "Raid: Mythic (Extended 3)",
+    97: "Template Character 1",
+    98: "Template Character 2",
+    99: "Template Character 3",
+    100: "Template Character 4",
+    101: "Normal Dungeon Jackpot",
+    102: "Heroic Dungeon Jackpot",
+    103: "Mythic Dungeon Jackpot",
 }
 
 // 457
@@ -5517,6 +5548,45 @@ const soundEmitterType = {
     0: 'SPHERE',
     1: 'SEGMENTED_PILL'
 }
+
+const lfgType = {
+    0: 'NONE',
+    1: 'DUNGEON',
+    2: 'MANUAL RAID',
+    3: 'QUEST',
+    4: 'ZONE',
+    5: 'HEROIC DUNGEON (deprecated)',
+    6: 'RANDOM DUNGEON'
+}
+
+const lfgSubType = {
+    0: 'NONE',
+    1: 'DUNGEON',
+    2: 'RAID',
+    3: 'SCENARIO',
+    4: 'FLEXRAID',
+    5: 'WORLD PVP',
+    6: 'BATTLEFIELD',
+}
+
+const profession = {
+    0: 'First Aid',
+    1: 'Blacksmithing',
+    2: 'Leatherworking',
+    3: 'Alchemy',
+    4: 'Herbalism',
+    5: 'Cooking',
+    6: 'Mining',
+    7: 'Tailoring',
+    8: 'Engineering',
+    9: 'Enchanting',
+    10: 'Fishing',
+    11: 'Skinning',
+    12: 'Jewelcrafting',
+    13: 'Inscription',
+    14: 'Archaeology',
+}
+
 // Regular enums
 let enumMap = new Map();
 enumMap.set("animationdata.ID", animationNames);
@@ -5664,6 +5734,9 @@ enumMap.set("highlightcolor.Type", highlightColorType);
 enumMap.set("groupfinderactivity.DisplayType", groupFinderActivityDisplayType);
 enumMap.set("chatprofanity.Language", ChatProfanityLanguage);
 enumMap.set("characterloadout.Purpose", characterLoadoutPurpose);
+enumMap.set("lfgdungeons.TypeID", lfgType);
+enumMap.set("lfgdungeons.Subtype", lfgSubType);
+enumMap.set("profession.ProfessionEnumValue", profession);
 
 /* Race IDs */
 enumMap.set("chrracexchrmodel.ChrRacesID", tempChrRaceIDEnum);
