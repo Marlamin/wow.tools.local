@@ -304,7 +304,7 @@
             KeyInfo.Add(0xF093CA07D3990E07, (7536, "WOW-47186patch10.0.5_PTR", "Unknown mount"));
             KeyInfo.Add(0x5C8B601AC2E8E3F8, (7537, "WOW-48520patch10.0.7_VANPTR", "Rocket Shredder 9001 mount"));
             KeyInfo.Add(0x7059D88EB22902D0, (7538, "WOW-48520patch10.0.7_VANPTR", "Gleaming Moonbeast mount DB2s"));
-            KeyInfo.Add(0x628E075788F3FE01, (7539, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
+            KeyInfo.Add(0x628E075788F3FE01, (7539, "WOW-48520patch10.0.7_VANPTR", "Vyranoth Confronts Odyn scene"));
             KeyInfo.Add(0xDB431E8EDB029366, (7540, "WOW-48520patch10.0.7_VANPTR", "0 file(s) in 10.0.7.48520"));
             KeyInfo.Add(0xCB117F47F4C8AC57, (7541, "WOW-48520patch10.0.7_VANPTR", "Recruit-a-friend v3 assets"));
             KeyInfo.Add(0xB0C155EC50F0939A, (7542, "WOW-48520patch10.0.7_VANPTR", "Baine questline/assets"));
@@ -402,7 +402,7 @@
             KeyInfo.Add(0xCEEEEBD0D1C95671, (7642, "WOW-50442patch10.1.7_PTR", "10.1.7 cinematic"));
             KeyInfo.Add(0x8AF3FBB11B5AEA5A, (7643, "WOW-50442patch10.1.7_PTR", "Fyrakk/Vyranoth in-game cutscene"));
             KeyInfo.Add(0x512EB72CDF6ABDA2, (7644, "WOW-50442patch10.1.7_PTR", "Alexstrasza/Vyranoth in-game cutscene"));
-            KeyInfo.Add(0x854AD69871A3BE8E, (7645, "WOW-51059patch10.1.7_PTR", "Amirdrassil map/unknown item/quest"));
+            KeyInfo.Add(0x854AD69871A3BE8E, (7645, "WOW-51059patch10.1.7_PTR", "10.2 campaign chapter 6 (Amirdrassil map)"));
             KeyInfo.Add(0x0C34FD02900A67D6, (7646, "WOW-50442patch10.1.7_PTR", "Lil' Maggz Pet"));
             KeyInfo.Add(0xDB08C8015AE584F9, (7647, "WOW-50199patch10.1.5_XPTR", "High Scholars Grand Staff"));
             KeyInfo.Add(0x7A2BDD5F02385D8B, (7648, "WOW-50199patch10.1.5_XPTR", "High Scholars Pack assets"));
@@ -462,8 +462,8 @@
             KeyInfo.Add(0x431824B3B16C0870, (7711, "WOW-51239patch10.2.0_XPTR", ""));
             KeyInfo.Add(0x96FB6AFCFCBDD736, (7712, "WOW-51239patch10.2.0_XPTR", "10.2 legendary item/empowered spell"));
             KeyInfo.Add(0x3FBFE168FCA55C1B, (7713, "WOW-51239patch10.2.0_XPTR", "Emerald Dream tree flythrough scene"));
-            KeyInfo.Add(0xFEB58DE398AB4CC3, (7714, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
-            KeyInfo.Add(0xA5E1F389C526BACA, (7715, "WOW-51239patch10.2.0_XPTR", "Unknown scene"));
+            KeyInfo.Add(0xFEB58DE398AB4CC3, (7714, "WOW-51239patch10.2.0_XPTR", "Galoks new weapon scene"));
+            KeyInfo.Add(0xA5E1F389C526BACA, (7715, "WOW-51239patch10.2.0_XPTR", "Merithra defeats Galok scene"));
             KeyInfo.Add(0x5F521605989E9EA8, (7716, "WOW-51239patch10.2.0_XPTR", "Lil' Wrathion (Retail)"));
             KeyInfo.Add(0x812C5EF33C2DC56B, (7717, "WOW-51601patch10.2.0_XPTR", ""));
             KeyInfo.Add(0x36384E25F050FE3E, (7718, "WOW-51521patch10.2.0_XPTR", "Unknown store assets"));
@@ -472,7 +472,7 @@
             KeyInfo.Add(0x47FA63F74CE13160, (7721, "WOW-51685patch10.2.0_XPTR", "Fyrakk raid intro scene"));
             KeyInfo.Add(0xE413669EA65AE0B9, (7722, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x9F5CD2E96413825E, (7723, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
-            KeyInfo.Add(0x3A2FEDBDA68666F5, (7724, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0x3A2FEDBDA68666F5, (7724, "WOW-51790patch10.2.0_XPTR", "Cataclysm Classic store assets"));
             KeyInfo.Add(0x4D408847CCF75A56, (7725, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0xFF3A8536F580B160, (7728, "WOW-51943patch3.4.3_Classic", "Unknown store assets"));
         }
