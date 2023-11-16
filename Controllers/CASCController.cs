@@ -645,7 +645,7 @@ namespace wow.tools.local.Controllers
 
                     if (db2EncryptionMetaData.TryGetValue(key.lookup, out var encryptedIDs))
                     {
-                        html += "<tr><td colspan='4'>&nbsp;</td><td><b>" + encryptedIDs.Length;
+                        html += "<tr><td colspan='4'>&nbsp;</td><td style='padding-left: 20px;'><b>" + encryptedIDs.Length;
                         if (KeyService.HasKey(key.lookup))
                         {
                             html += " <a href='/dbc/?dbc=" + Path.GetFileNameWithoutExtension(CASC.Listfile[filedataid]).ToLower() + "&build=" + CASC.BuildName + "#page=1&search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "' target='_BLANK' class='text-success'>available</a>";
