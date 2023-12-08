@@ -379,6 +379,7 @@ namespace wow.tools.local.Controllers
                             case "AFSB":
                                 type = "anim";
                                 break;
+                            case "WDC5":
                             case "WDC4":
                             case "WDC3":
                                 type = "db2";
