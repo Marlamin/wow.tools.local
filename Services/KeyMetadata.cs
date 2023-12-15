@@ -264,8 +264,8 @@
             KeyInfo.Add(0x80FF7EDA8451FFFE, (446, "WOW-45232patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x2F454B153E142B76, (469, "WOW-47118patch10.0.5_PTR", "Ysergle The Dreamurk Pet"));
             KeyInfo.Add(0xB5F633819B0DE383, (470, "WOW-47118patch10.0.5_PTR", "Unknown creature"));
-            KeyInfo.Add(0x1FFB6C550D055F12, (471, "WOW-49516patch10.1.5_VANPTR", ""));
-            KeyInfo.Add(0x8C5276FE6714BE1C, (472, "WOW-49516patch10.1.5_VANPTR", ""));
+            KeyInfo.Add(0x1FFB6C550D055F12, (471, "WOW-49516patch10.1.5_VANPTR", "Unknown model"));
+            KeyInfo.Add(0x8C5276FE6714BE1C, (472, "WOW-49516patch10.1.5_VANPTR", "Unknown model"));
             KeyInfo.Add(0x258D1178AB798566, (473, "WOW-45335patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x1E6AC96860BD524B, (474, "WOW-45335patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x6F5EBDF150B3441D, (475, "WOW-45335patch10.0.0_Beta", "Kalec Iskaara cutscene"));
@@ -440,6 +440,8 @@
             KeyInfo.Add(0x04132CC1A52E9DD3, (7680, "WOW-50199patch10.1.5_XPTR", "Corsage Pack store assets"));
             KeyInfo.Add(0x74FFB4F6918309D6, (7681, "WOW-50442patch10.1.7_PTR", "Forsaken Heritage"));
             KeyInfo.Add(0x3D7F53C63B044491, (7682, "WOW-50442patch10.1.7_PTR", "Night Elf Heritage"));
+            KeyInfo.Add(0xBF92448FA7DCCF65, (7683, "WOW-52554patch10.2.5_PTR", "Unknown questline"));
+            KeyInfo.Add(0xA938133C7B074BC8, (7684, "WOW-52554patch10.2.5_PTR", "Unknown questline"));
             KeyInfo.Add(0x7F070B1D792933D7, (7686, "WOW-50442patch10.1.7_PTR", "15 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xCFFE42581EF7E189, (7688, "WOW-50438patch10.1.5_XPTR", "Solemn Watchmans Garb DB2 entries"));
             KeyInfo.Add(0x972EFE7B2D050C9C, (7689, "WOW-50438patch10.1.5_XPTR", "Fanciful Corsage DB2 entries"));
@@ -465,7 +467,7 @@
             KeyInfo.Add(0xFEB58DE398AB4CC3, (7714, "WOW-51239patch10.2.0_XPTR", "Galoks new weapon scene"));
             KeyInfo.Add(0xA5E1F389C526BACA, (7715, "WOW-51239patch10.2.0_XPTR", "Merithra defeats Galok scene"));
             KeyInfo.Add(0x5F521605989E9EA8, (7716, "WOW-51239patch10.2.0_XPTR", "Lil' Wrathion (Retail)"));
-            KeyInfo.Add(0x812C5EF33C2DC56B, (7717, "WOW-51601patch10.2.0_XPTR", ""));
+            KeyInfo.Add(0x812C5EF33C2DC56B, (7717, "WOW-51601patch10.2.0_XPTR", "Trading post content"));
             KeyInfo.Add(0x36384E25F050FE3E, (7718, "WOW-51521patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x479E3C4BB7143BA0, (7719, "WOW-51521patch10.2.0_XPTR", "Sargeras swords (Trading Post Nov 2023)"));
             KeyInfo.Add(0x10D5C454243A62C3, (7720, "WOW-51601patch10.2.0_XPTR", "Unknown item/creature/toy/spell"));
@@ -474,7 +476,14 @@
             KeyInfo.Add(0x9F5CD2E96413825E, (7723, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x3A2FEDBDA68666F5, (7724, "WOW-51790patch10.2.0_XPTR", "Cataclysm Classic store assets"));
             KeyInfo.Add(0x4D408847CCF75A56, (7725, "WOW-51790patch10.2.0_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0xD21C989AFFBEDF04, (7727, "WOW-52554patch10.2.5_PTR", "10.2.5 Gilneas"));
+            KeyInfo.Add(0x63DF5470A7ED3EDF, (7729, "WOW-52554patch10.2.5_PTR", "Unknown scene"));
+            KeyInfo.Add(0xFD76DB2ABDE3E615, (7730, "WOW-52554patch10.2.5_PTR", "Unknown scene"));
+            KeyInfo.Add(0xC66ECAF971993D58, (7732, "WOW-52554patch10.2.5_PTR", "Unknown scene"));
             KeyInfo.Add(0xFF3A8536F580B160, (7728, "WOW-51943patch3.4.3_Classic", "Unknown store assets"));
+            KeyInfo.Add(0xAC2081B4DCE1BB00, (7733, "WOW-52554patch10.2.5_PTR", "10.2.5 cinematic"));
+            KeyInfo.Add(0xC13CD1F666AAC6CE, (7734, "WOW-52554patch10.2.5_PTR", "Unknown holiday/trading post related spell"));
+            KeyInfo.Add(0x86D224319102E911, (7735, "WOW-52554patch10.2.5_PTR", "Unknown scene"));
         }
 
         public static void ReloadKeys()
