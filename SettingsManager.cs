@@ -7,6 +7,7 @@
         public static string tactKeyURL;
         public static string? wowFolder;
         public static string dbcFolder;
+        public static string manifestFolder;
         public static string wowProduct;
         public static string region;
         public static CASCLib.LocaleFlags locale;
@@ -17,7 +18,8 @@
         private const string _wowProductFlag = "-product";
         private const string _dbdFolderFlag = "-dbdFolder";
         private const string _dbcFolderFlag = "-dbcFolder";
-        private const string _listfileURLFlag = "-listfileURL";
+		private const string _manifestFolderFlag = "-manifestFolder";
+		private const string _listfileURLFlag = "-listfileURL";
         private const string _tactKeyURLFlag = "-tactKeyURL";
         private const string _regionFlag = "-region";
         private const string _localeFlag = "-locale";
@@ -64,7 +66,7 @@
                 config = new ConfigurationBuilder().SetBasePath(appDir).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
                 Environment.CurrentDirectory = appDir;
             }
-            
+
             definitionDir = config.GetSection("config")["definitionDir"];
             listfileURL = config.GetSection("config")["listfileURL"];
             tactKeyURL = config.GetSection("config")["tactKeyURL"];
@@ -85,6 +87,15 @@
             else
             {
                 locale = CASCLib.LocaleFlags.enUS;
+            }
+
+            if (config.GetSection("config")["manifestFolder"] != null)
+            {
+				manifestFolder = config.GetSection("config")["manifestFolder"];
+			}
+            else
+            {
+                manifestFolder = "manifests";
             }
 
             dbcFolder = config.GetSection("config")["dbcFolder"];
@@ -169,7 +180,10 @@
                     case (_dbcFolderFlag):
                         dbcFolder = value;
                         break;
-                    case (_listfileURLFlag):
+					case (_manifestFolderFlag):
+						manifestFolder = value;
+						break;
+					case (_listfileURLFlag):
                         listfileURL = value;
                         break;
                     case (_tactKeyURLFlag):

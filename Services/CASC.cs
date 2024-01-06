@@ -73,14 +73,15 @@ namespace wow.tools.local.Services
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
 
             cascHandler.Root.SetFlags(locale);
+            var manifestFolder = SettingsManager.manifestFolder;
 
-            if (!Directory.Exists("manifests"))
-                Directory.CreateDirectory("manifests");
+            if (!Directory.Exists(manifestFolder))
+                Directory.CreateDirectory(manifestFolder);
 
-            if (cascHandler.Root is WowTVFSRootHandler wtrh)
+			if (cascHandler.Root is WowTVFSRootHandler wtrh)
             {
                 AvailableFDIDs = wtrh.RootEntries.Keys.ToList();
-                if (!File.Exists(Path.Combine("manifests", BuildName + ".txt")))
+                if (!File.Exists(Path.Combine(manifestFolder, BuildName + ".txt")))
                 {
                     var manifestLines = new List<string>();
                     foreach (var entry in wtrh.RootEntries)
@@ -93,13 +94,13 @@ namespace wow.tools.local.Services
 
                     manifestLines.Sort();
 
-                    File.WriteAllLines(Path.Combine("manifests", BuildName + ".txt"), manifestLines);
+                    File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
                 }
             }
             else if (cascHandler.Root is WowRootHandler wrh)
             {
                 AvailableFDIDs = wrh.RootEntries.Keys.ToList();
-                if (!File.Exists(Path.Combine("manifests", BuildName + ".txt")))
+                if (!File.Exists(Path.Combine(manifestFolder, BuildName + ".txt")))
                 {
                     var manifestLines = new List<string>();
                     foreach (var entry in wrh.RootEntries)
@@ -112,7 +113,7 @@ namespace wow.tools.local.Services
 
                     manifestLines.Sort();
 
-                    File.WriteAllLines(Path.Combine("manifests", BuildName + ".txt"), manifestLines);
+                    File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
                 }
             }
 
@@ -645,7 +646,7 @@ namespace wow.tools.local.Services
 
             Console.WriteLine("Loading file history");
 
-            foreach (var manifest in Directory.GetFiles("manifests", "*.txt"))
+            foreach (var manifest in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
             {
                 var buildName = Path.GetFileNameWithoutExtension(manifest);
 

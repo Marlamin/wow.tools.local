@@ -87,7 +87,7 @@ namespace wow.tools.local.Controllers
                     var build = splitVersion[3];
 
                     var isActive = CASC.CurrentProduct == product;
-                    var hasManifest = System.IO.File.Exists("manifests/" + patch + "." + build + ".txt");
+					var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
                     var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
                     result.data.Add(new List<string>() { patch, build, product, buildConfig, cdnConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString() });
                 }
@@ -147,9 +147,9 @@ namespace wow.tools.local.Controllers
         public List<string> ListManifests()
         {
             var cachedManifests = new List<string>();
-            if (Directory.Exists("manifests"))
+            if (Directory.Exists(SettingsManager.manifestFolder))
             {
-                foreach (var file in Directory.GetFiles("manifests", "*.txt"))
+                foreach (var file in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
                     cachedManifests.Add(Path.GetFileNameWithoutExtension(file));
             }
             return cachedManifests.OrderByDescending(x => int.Parse(x.Split(".")[3])).ToList();
@@ -472,8 +472,8 @@ namespace wow.tools.local.Controllers
                 };
             }
 
-            var rootFromEntries = System.IO.File.ReadAllLines(Path.Combine("manifests", from + ".txt")).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
-            var rootToEntries = System.IO.File.ReadAllLines(Path.Combine("manifests", to + ".txt")).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            var rootFromEntries = System.IO.File.ReadAllLines(Path.Combine(SettingsManager.manifestFolder, from + ".txt")).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            var rootToEntries = System.IO.File.ReadAllLines(Path.Combine(SettingsManager.manifestFolder, to + ".txt")).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
 
             var fromEntries = rootFromEntries.Keys.ToHashSet();
             var toEntries = rootToEntries.Keys.ToHashSet();
