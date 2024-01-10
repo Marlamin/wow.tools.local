@@ -1,7 +1,9 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Processing;
 using wow.tools.local.Services;
 using wow.tools.Services;
 

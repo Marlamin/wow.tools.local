@@ -53,7 +53,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.2" />
   </ItemGroup>
   
   <ItemGroup>
