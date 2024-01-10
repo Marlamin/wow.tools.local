@@ -10,3 +10,6 @@
 [submodule "DBDiffer"]
 	path = DBDiffer
 	url = https://github.com/Marlamin/DBDiffer
+[submodule "SereniaBLPLib"]
+	path = SereniaBLPLib
+	url = https://github.com/Marlamin/SereniaBLPLib

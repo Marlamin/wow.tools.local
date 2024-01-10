@@ -16,24 +16,28 @@
     <Compile Remove="DBCD\**" />
     <Compile Remove="dbcs\**" />
     <Compile Remove="DBDiffer\**" />
+    <Compile Remove="SereniaBLPLib\**" />
     <Compile Remove="WoWDBDefs\**" />
     <Content Remove="cache\**" />
     <Content Remove="CascLib\**" />
     <Content Remove="DBCD\**" />
     <Content Remove="dbcs\**" />
     <Content Remove="DBDiffer\**" />
+    <Content Remove="SereniaBLPLib\**" />
     <Content Remove="WoWDBDefs\**" />
     <EmbeddedResource Remove="cache\**" />
     <EmbeddedResource Remove="CascLib\**" />
     <EmbeddedResource Remove="DBCD\**" />
     <EmbeddedResource Remove="dbcs\**" />
     <EmbeddedResource Remove="DBDiffer\**" />
+    <EmbeddedResource Remove="SereniaBLPLib\**" />
     <EmbeddedResource Remove="WoWDBDefs\**" />
     <None Remove="cache\**" />
     <None Remove="CascLib\**" />
     <None Remove="DBCD\**" />
     <None Remove="dbcs\**" />
     <None Remove="DBDiffer\**" />
+    <None Remove="SereniaBLPLib\**" />
     <None Remove="WoWDBDefs\**" />
   </ItemGroup>
 
@@ -53,6 +57,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.2" />
   </ItemGroup>
   
@@ -60,6 +65,7 @@
     <ProjectReference Include="CascLib\CascLib\CascLib.csproj" />
     <ProjectReference Include="DBCD\DBCD\DBCD.csproj" />
     <ProjectReference Include="DBDiffer\DBDiffer\DBDiffer.csproj" />
+    <ProjectReference Include="SereniaBLPLib\SereniaBLPLib\SereniaBLPLib.csproj" />
   </ItemGroup>
   
   <ItemGroup>
