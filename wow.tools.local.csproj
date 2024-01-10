@@ -18,6 +18,7 @@
     <Compile Remove="DBDiffer\**" />
     <Compile Remove="SereniaBLPLib\**" />
     <Compile Remove="WoWDBDefs\**" />
+    <Compile Remove="WoWFormatLib\**" />
     <Content Remove="cache\**" />
     <Content Remove="CascLib\**" />
     <Content Remove="DBCD\**" />
@@ -25,6 +26,7 @@
     <Content Remove="DBDiffer\**" />
     <Content Remove="SereniaBLPLib\**" />
     <Content Remove="WoWDBDefs\**" />
+    <Content Remove="WoWFormatLib\**" />
     <EmbeddedResource Remove="cache\**" />
     <EmbeddedResource Remove="CascLib\**" />
     <EmbeddedResource Remove="DBCD\**" />
@@ -32,6 +34,7 @@
     <EmbeddedResource Remove="DBDiffer\**" />
     <EmbeddedResource Remove="SereniaBLPLib\**" />
     <EmbeddedResource Remove="WoWDBDefs\**" />
+    <EmbeddedResource Remove="WoWFormatLib\**" />
     <None Remove="cache\**" />
     <None Remove="CascLib\**" />
     <None Remove="DBCD\**" />
@@ -39,6 +42,7 @@
     <None Remove="DBDiffer\**" />
     <None Remove="SereniaBLPLib\**" />
     <None Remove="WoWDBDefs\**" />
+    <None Remove="WoWFormatLib\**" />
   </ItemGroup>
 
   <ItemGroup>
