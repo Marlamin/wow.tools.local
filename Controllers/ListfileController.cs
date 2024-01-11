@@ -12,6 +12,7 @@ namespace wow.tools.local.Controllers
     public class ListfileController : Controller
     {
         private readonly DBCManager dbcManager;
+        private readonly Jenkins96 hasher = new Jenkins96();
 
         public ListfileController(IDBCManager dbcManager)
         {
@@ -145,15 +146,13 @@ namespace wow.tools.local.Controllers
                 length = sortedResults.Count;
             }
 
-            var hasher = new Jenkins96();
             foreach (var listfileResult in sortedResults.Skip(start).Take(length))
             {
                 var lookupMatch = false;
-                ulong lookup = 0;
 
-                if(CASC.LookupMap.TryGetValue(listfileResult.Key, out lookup))
+                if (CASC.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup))
                 {
-                    if(hasher.ComputeHash(listfileResult.Value) == lookup)
+                    if (hasher.ComputeHash(listfileResult.Value) == lookup)
                     {
                         lookupMatch = true;
                     }

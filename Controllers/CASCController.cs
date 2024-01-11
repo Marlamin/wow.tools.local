@@ -668,8 +668,32 @@ namespace wow.tools.local.Controllers
                 html += "<tr><td>Encryption status</td><td>Not encrypted</td></tr>";
             }
 
+            // File version
+            var fileVersions = SQLiteDB.GetFileVersions(filedataid);
+            if (fileVersions.Count > 0)
+            {
+                html += "<tr><td colspan='2'><b>Known versions</b></td></tr>";
+                html += "<tr><td colspan='2'><table class='table table-sm'>";
+                html += "<tr><th>Build</th><th>Contenthash</th><th><small><i>Downloads powered by <a href='https://wago.tools' target='_BLANK'>wago.tools</a></i></small></th></tr>";
+                foreach (var fileVersion in fileVersions)
+                {
+                    // Temp build filter
+                    var build = int.Parse(fileVersion.buildName.Split(".")[3]);
+
+                    if (build > 25600)
+                    {
+                        html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><a href='https://wago.tools/api/casc/" + filedataid + "/?version=" + fileVersion.buildName + "&download' target='_BLANK' download>Download</a></td></tr>";
+                    }
+                    else
+                    {
+                        html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><i>Download not available</i></td></tr>";
+                    }
+                }
+                html += "</table></td></tr>";
+            }
+
             // Linked files
-            var linkedParentFiles = Linker.GetParentFiles(filedataid);
+            var linkedParentFiles = SQLiteDB.GetParentFiles(filedataid);
 
             if (linkedParentFiles.Count > 0)
             {
@@ -709,7 +733,7 @@ namespace wow.tools.local.Controllers
                     Console.WriteLine("Error generating links for file " + filedataid + ": " + e.Message + "\n" + e.StackTrace);
                 }
 
-                var linkedChildFiles = Linker.GetFilesByParent(filedataid);
+                var linkedChildFiles = SQLiteDB.GetFilesByParent(filedataid);
 
                 if (linkedChildFiles.Count > 0)
                 {
@@ -724,8 +748,9 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            // TODO: Soundkits?
 
+            // TODO: Soundkits?
+            // TODO: With SQLite, import manifests one time to DB and then implement version history again
             // Disable for now, slow to load manifests :<
             /*
             CASC.EnsureVersionHistoryLoaded();
@@ -772,6 +797,38 @@ namespace wow.tools.local.Controllers
         public string StartLinking()
         {
             Linker.Link();
+            return "";
+        }
+
+        [Route("generateFileHistory")]
+        [HttpGet]
+        public string GenerateFileHistory()
+        {
+            CASC.GenerateFileHistory();
+            return "";
+        }
+
+        [Route("loadFileHistory")]
+        [HttpGet]
+        public string LoadFileHistory()
+        {
+            CASC.LoadFileHistory();
+            return "";
+        }
+
+        [Route("importAllFileHistory")]
+        [HttpGet]
+        public string ImportAllFileHistory()
+        {
+            CASC.ImportAllFileHistory();
+            return "";
+        }
+
+        [Route("importBuildIntoFileHistory")]
+        [HttpGet]
+        public string ImportBuildIntoFileHistory(string build)
+        {
+            SQLiteDB.ImportBuildIntoFileHistory(build);
             return "";
         }
     }

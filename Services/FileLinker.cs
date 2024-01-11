@@ -11,27 +11,18 @@ namespace wow.tools.local.Services
             public string linkType;
         }
 
-        private static SqliteConnection dbConn = new SqliteConnection("Data Source=WTL.db");
+        
         private static SqliteCommand insertCmd;
         private static HashSet<int> existingParents = new HashSet<int>();
         static Linker()
         {
-            dbConn.Open();
-
-            // Create table if not exists
-            var createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_rootfiles_links (parent INTEGER, child INTEGER, type TEXT)", dbConn);
-            createCmd.ExecuteNonQuery();
-
-            var indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_rootfiles_links_idx ON wow_rootfiles_links (parent, child)", dbConn);
-            indexCmd.ExecuteNonQuery();
-
-            insertCmd = new SqliteCommand("INSERT INTO wow_rootfiles_links VALUES (@parent, @child, @type)", dbConn);
+            insertCmd = new SqliteCommand("INSERT INTO wow_rootfiles_links VALUES (@parent, @child, @type)", SQLiteDB.dbConn);
             insertCmd.Parameters.AddWithValue("@parent", 0);
             insertCmd.Parameters.AddWithValue("@child", 0);
             insertCmd.Parameters.AddWithValue("@type", "");
             insertCmd.Prepare();
 
-            using (var cmd = dbConn.CreateCommand())
+            using (var cmd = SQLiteDB.dbConn.CreateCommand())
             {
                 cmd.CommandText = "SELECT parent FROM wow_rootfiles_links";
 
@@ -66,56 +57,6 @@ namespace wow.tools.local.Services
                     Console.WriteLine("Error inserting FDID (" + desc + "): " + e.Message);
                 }
             }
-        }
-
-        public static List<LinkedFile> GetParentFiles(int fileDataID)
-        {
-            var files = new List<LinkedFile>();
-
-            using (var cmd = dbConn.CreateCommand())
-            {
-                cmd.CommandText = "SELECT parent, type FROM wow_rootfiles_links WHERE child = @child";
-                cmd.Parameters.AddWithValue("@child", fileDataID);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    files.Add(new LinkedFile()
-                    {
-                        fileDataID = uint.Parse(reader["parent"].ToString()),
-                        linkType = reader["type"].ToString()
-                    });
-                }
-
-                reader.Close();
-            }
-
-            return files;
-        }
-
-        public static List<LinkedFile> GetFilesByParent(int fileDataID)
-        {
-            var files = new List<LinkedFile>();
-
-            using (var cmd = dbConn.CreateCommand())
-            {
-                cmd.CommandText = "SELECT child, type FROM wow_rootfiles_links WHERE parent = @parent";
-                cmd.Parameters.AddWithValue("@parent", fileDataID);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    files.Add(new LinkedFile()
-                    {
-                        fileDataID = uint.Parse(reader["child"].ToString()),
-                        linkType = reader["type"].ToString()
-                    });
-                }
-
-                reader.Close();
-            }
-
-            return files;
         }
 
         public static void LinkM2(uint fileDataID)
@@ -368,7 +309,7 @@ namespace wow.tools.local.Services
             #region WDT
             var wdtids = new List<uint>();
             var wdtfullnamemap = new Dictionary<string, uint>();
-            using (var cmd = dbConn.CreateCommand())
+            using (var cmd = SQLiteDB.dbConn.CreateCommand())
             {
                 Console.WriteLine("[WDT] Generating list of WDT files..");
                 cmd.CommandText = "SELECT id, filename from wow_rootfiles WHERE type = 'wdt' AND filename IS NOT NULL ORDER BY id DESC";
@@ -384,7 +325,7 @@ namespace wow.tools.local.Services
                 }
             }
 
-            using (var cmd = dbConn.CreateCommand())
+            using (var cmd = SQLiteDB.dbConn.CreateCommand())
             {
                 if (fullrun)
                 {
@@ -449,7 +390,7 @@ namespace wow.tools.local.Services
             var adtids = new Dictionary<uint, Dictionary<(byte, byte), uint>>();
             var wdtmapping = new Dictionary<string, uint>();
 
-            using (var cmd = dbConn.CreateCommand())
+            using (var cmd = SQLiteDB.dbConn.CreateCommand())
             {
                 if (fullrun)
                 {

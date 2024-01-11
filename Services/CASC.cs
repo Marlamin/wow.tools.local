@@ -1,5 +1,8 @@
 ﻿using CASCLib;
+using Microsoft.Data.Sqlite;
+using Newtonsoft.Json;
 using System.Globalization;
+using System.Transactions;
 
 namespace wow.tools.local.Services
 {
@@ -95,6 +98,8 @@ namespace wow.tools.local.Services
                     manifestLines.Sort();
 
                     File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
+
+                    SQLiteDB.ImportBuildIntoFileHistory(BuildName);
                 }
             }
             else if (cascHandler.Root is WowRootHandler wrh)
@@ -114,6 +119,8 @@ namespace wow.tools.local.Services
                     manifestLines.Sort();
 
                     File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
+
+                    SQLiteDB.ImportBuildIntoFileHistory(BuildName);
                 }
             }
 
@@ -643,14 +650,23 @@ namespace wow.tools.local.Services
         }
 
 
-        public static bool EnsureVersionHistoryLoaded()
+        public static bool GenerateFileHistory()
         {
-            if (VersionHistory.Count > 0)
-                return true;
+            Console.WriteLine("Generating file history, this may take a while");
 
-            Console.WriteLine("Loading file history");
+            if(File.Exists("versionHistory.json"))
+                File.Delete("versionHistory.json");
 
+            var sortedManifestList = new List<string>();
             foreach (var manifest in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
+            {
+                sortedManifestList.Add(manifest);
+            }
+
+            // sort by build
+            sortedManifestList.Sort((x, y) => int.Parse(Path.GetFileNameWithoutExtension(x).Split(".")[3]).CompareTo(int.Parse(Path.GetFileNameWithoutExtension(y).Split(".")[3])));
+
+            foreach(var manifest in sortedManifestList)
             {
                 var buildName = Path.GetFileNameWithoutExtension(manifest);
 
@@ -678,6 +694,75 @@ namespace wow.tools.local.Services
 
                 Console.WriteLine(Path.GetFileNameWithoutExtension(manifest));
             }
+
+            File.WriteAllText("versionHistory.json", JsonConvert.SerializeObject(VersionHistory, Formatting.Indented));
+
+            return true;
+        }
+
+        public static bool LoadFileHistory()
+        {
+            if (!File.Exists("versionHistory.json"))
+            {
+                Console.WriteLine("versionHistory.json not found, please generate it first");
+                return false;
+            }
+
+            VersionHistory = JsonConvert.DeserializeObject<Dictionary<int, List<Version>>>(File.ReadAllText("versionHistory.json"));
+
+            return true;
+        }
+
+        public static bool ImportAllFileHistory()
+        {
+            if (VersionHistory.Count == 0)
+                LoadFileHistory();
+
+            var truncateCmd = new SqliteCommand("DELETE FROM wow_rootfiles_chashes", SQLiteDB.dbConn);
+            truncateCmd.ExecuteNonQuery();
+
+            var dropIndexCmd = new SqliteCommand("DROP INDEX IF EXISTS wow_rootfiles_chashes_idx", SQLiteDB.dbConn);
+            dropIndexCmd.ExecuteNonQuery();
+
+            var transaction = SQLiteDB.dbConn.BeginTransaction();
+
+            var insertCmd = new SqliteCommand("INSERT INTO wow_rootfiles_chashes VALUES (@filedataid, @build, @chash)", SQLiteDB.dbConn);
+            insertCmd.Parameters.AddWithValue("@filedataid", 0);
+            insertCmd.Parameters.AddWithValue("@build", "");
+            insertCmd.Parameters.AddWithValue("@chash", "");
+            insertCmd.Prepare();
+
+            var count = VersionHistory.Count;
+            var done = 0;
+            foreach(var entry in VersionHistory)
+            {
+                insertCmd.Parameters["@filedataid"].Value = entry.Key;
+                insertCmd.Transaction = transaction;
+
+                foreach (var version in entry.Value)
+                {
+                    insertCmd.Parameters["@build"].Value = version.buildName;
+                    insertCmd.Parameters["@chash"].Value = version.contentHash;
+
+                    insertCmd.ExecuteNonQuery();
+                }
+
+                done++;
+
+                Console.Write("\r" + done + "/" + count + " (" + (done * 100 / count) + "%)");
+
+                if(done % 1000 == 0)
+                {
+                    transaction.Commit();
+                    transaction = SQLiteDB.dbConn.BeginTransaction();
+                }
+            }
+
+            Console.WriteLine();
+            transaction.Commit();
+
+            var indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_rootfiles_chashes_idx ON wow_rootfiles_chashes (fileDataID, chash)", SQLiteDB.dbConn);
+            indexCmd.ExecuteNonQuery();
 
             return true;
         }

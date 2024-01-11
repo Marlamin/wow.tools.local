@@ -412,5 +412,6 @@ knownPushIDs.json
 *.csv
 *.csv.bak
 *.txt
+versionHistory.json
 WTL.db
 WTL.db-journal
