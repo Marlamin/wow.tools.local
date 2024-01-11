@@ -57,6 +57,7 @@
   
   <ItemGroup>
     <None Remove="debug.log" />
+    <None Remove="WTL.db" />
   </ItemGroup>
 
   <ItemGroup>

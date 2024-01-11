@@ -87,7 +87,7 @@ namespace wow.tools.local.Controllers
                     var build = splitVersion[3];
 
                     var isActive = CASC.CurrentProduct == product;
-					var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
+                    var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
                     var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
                     result.data.Add(new List<string>() { patch, build, product, buildConfig, cdnConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString() });
                 }
@@ -556,7 +556,7 @@ namespace wow.tools.local.Controllers
 
                 if (CASC.Listfile.TryGetValue(filedataid, out var lookupFilename) && lookupFilename != "")
                 {
-                    if(hasher.ComputeHash(lookupFilename) == lookup)
+                    if (hasher.ComputeHash(lookupFilename) == lookup)
                     {
                         html += " <span class='text-success'>(Filename matches)</span>";
                     }
@@ -668,6 +668,62 @@ namespace wow.tools.local.Controllers
                 html += "<tr><td>Encryption status</td><td>Not encrypted</td></tr>";
             }
 
+            // Linked files
+            var linkedParentFiles = Linker.GetParentFiles(filedataid);
+
+            if (linkedParentFiles.Count > 0)
+            {
+                html += "<tr><td colspan='2'><b>Files linking to this file</b> (<i>Note, this can not scan on request, scan other files for them to show up here.)</i></td></tr>";
+                html += "<tr><td colspan='2'><table class='table table-sm'>";
+                html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
+                foreach (var linkedFile in linkedParentFiles)
+                {
+                    html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + "</td><td>" + (CASC.Listfile.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (CASC.Types.ContainsKey((int)linkedFile.fileDataID) ? CASC.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
+                }
+                html += "</table></td></tr></table>";
+            }
+
+            if (CASC.Types.ContainsKey(filedataid) &&
+    (CASC.Types[filedataid] == "m2" || CASC.Types[filedataid] == "wmo" || CASC.Types[filedataid] == "adt" || CASC.Types[filedataid] == "wdt"))
+            {
+                try
+                {
+                    switch (CASC.Types[filedataid])
+                    {
+                        case "m2":
+                            Linker.LinkM2((uint)filedataid);
+                            break;
+                        case "wmo":
+                            Linker.LinkWMO((uint)filedataid);
+                            break;
+                        case "adt":
+                            Linker.LinkADT((uint)filedataid);
+                            break;
+                        case "wdt":
+                            Linker.LinkWDT((uint)filedataid);
+                            break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error generating links for file " + filedataid + ": " + e.Message + "\n" + e.StackTrace);
+                }
+
+                var linkedChildFiles = Linker.GetFilesByParent(filedataid);
+
+                if (linkedChildFiles.Count > 0)
+                {
+                    html += "<tr><td colspan='2'><b>Files this file links to</b></td></tr>";
+                    html += "<tr><td colspan='2'><table class='table table-sm'>";
+                    html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
+                    foreach (var linkedFile in linkedChildFiles)
+                    {
+                        html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + "</td><td>" + (CASC.Listfile.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (CASC.Types.ContainsKey((int)linkedFile.fileDataID) ? CASC.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
+                    }
+                    html += "</table></td></tr></table>";
+                }
+            }
+
             // TODO: Soundkits?
 
             // Disable for now, slow to load manifests :<
@@ -709,6 +765,14 @@ namespace wow.tools.local.Controllers
         public string GetVersion()
         {
             return System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+        }
+
+        [Route("startLinking")]
+        [HttpGet]
+        public string StartLinking()
+        {
+            Linker.Link();
+            return "";
         }
     }
 }
