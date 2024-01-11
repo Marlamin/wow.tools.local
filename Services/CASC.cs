@@ -5,7 +5,7 @@ namespace wow.tools.local.Services
 {
     public class CASC
     {
-        private static CASCHandler cascHandler;
+        public static CASCHandler cascHandler;
         public static bool IsCASCInit = false;
         public static string BuildName;
         public static string CurrentProduct;

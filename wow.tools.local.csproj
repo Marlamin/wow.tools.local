@@ -70,6 +70,7 @@
     <ProjectReference Include="DBCD\DBCD\DBCD.csproj" />
     <ProjectReference Include="DBDiffer\DBDiffer\DBDiffer.csproj" />
     <ProjectReference Include="SereniaBLPLib\SereniaBLPLib\SereniaBLPLib.csproj" />
+    <ProjectReference Include="WoWFormatLib\WoWFormatLib\WoWFormatLib.csproj" />
   </ItemGroup>
   
   <ItemGroup>
