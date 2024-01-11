@@ -360,9 +360,13 @@ namespace wow.tools.local.Services
 
                     Listfile[fdid] = splitLine[1];
 
-                    Types.Add(fdid, ext);
-                    TypeMap[ext].Add(fdid);
-
+                    // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
+                    if (ext != "wmo")
+                    {
+                        Types.Add(fdid, ext);
+                        TypeMap[ext].Add(fdid);
+                    }
+                
                     if (ext == "db2")
                         DB2Map.Add(splitLine[1].ToLower(), fdid);
 
