@@ -1,8 +1,8 @@
-# WoW.tools but local
+# WoW.tools but local (WTL)
 This contains a very slimmed down version of the WoW.tools site (currently modelviewer for M2s only and DBC browsing/exporting) meant for local use without relying on anything from the main WoW.tools website (or the internet in general, after external dependencies have been downloaded, see relevant section at the bottom of this README).
 
 ## Requirements
-All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least ~4-6GB of free RAM. Please note that some features (e.g. DB2 global search) will take up far more RAM than that.
+All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least ~6GB of free RAM. Please note that some features (e.g. DB2 global search) will take up far more RAM than that.
 
 ## Download 
 The latest version can be downloaded [here](https://github.com/Marlamin/wow.tools.local/releases).
@@ -42,6 +42,12 @@ DB2 diffs are available between DB2s that are either extracted on disk (see step
 ## Hotfixes
 Hotfixes are loaded from DBCache files that exist in the WoW directory (for all products) or manually placed `*.bin` files in the `caches` directory in the wow.tools.local directory. Hotfix diffs are available on the Hotfixes page but keep in mind the "First detected" column will only be updated upon requesting that page. After updating the DBCache files (either manually or by logging into/then quitting the game), a restart of wow.tools.local is currently required. The hotfixes page only shows hotfixes from the currently loaded build.
 
+## File links
+File links (e.g. textures in M2 files, M2 doodads in WMO files, etc) are parsed (and then saved) when the "More Information" screen is loaded and will be available for that file from that point on. For a pre-compiled database with most file links (for retail WoW) already present, download "WTL.db" from the latest release that has one and replace the file on disk.
+
+## File history
+File history for a build is only processed and saved when a build is loaded for the first time. For a pre-compiled database with a mostly complete history all the way back to 6.0.1, download "WTL.db" from the latest release that has one and replace the file on disk.
+
 ## External dependencies
 ### Definitions
 wow.tools.local relies on updated database definitions from the [WoWDBDefs](https://github.com/wowdev/WoWDBDefs) repo. While definitions are included in releases, these are likely to go out of date quickly leading to errors such as "No definition found for this file" while attempting to load DB2s with recently changed structures. Updating definitions can be done by pressing the "Update WoWDBDefs" button on the DBC browsing page. If you instead want to do this manually, go [here](https://github.com/wowdev/WoWDBDefs) and download the ZIP by click Code -> Download ZIP, then overwrite the `WoWDBDefs/definitions` folder with the `definitions` folder from the ZIP.
@@ -52,6 +58,9 @@ To have named files throughout the wow.tools.local, it downloads [this listfile]
 ### TACT keys
 wow.tools.local relies on updated TACT keys from the [TACTKeys](https://github.com/wowdev/TACTKeys) repo to be able to load encrypted files. This can go out of date in time as new things are encrypted and new keys become available, to prevent this the list of keys is automatically updated if it has not been updated for over a day. If you want to force an update, click "Update TACTKeys" on the files page.
 
+### Files from older builds
+For downloading files from builds that are not currently loaded, WTL relies on downloads from [wago.tools](https://wago.tools).
+
 ## Maintaining/Credits
 Outside of some glue and all the parts pretty much taken directly from WoW.tools projects, this project uses a few other projects to do the heavy lifting in the hopes that maintaining it in the future (if there need to be changes) should be relatively simple*, if the below projects are still being maintained. Many thanks to their authors!
 
@@ -59,5 +68,7 @@ Outside of some glue and all the parts pretty much taken directly from WoW.tools
 
 - [Deamon's WebWowViewerCpp](https://github.com/Deamon87/WebWowViewerCpp) (Emscripten version) which also powers the WoW.tools modelviewer. Does the actual model rendering.
 - [DBCD](https://github.com/wowdev/DBCD) used to read WoW's DB2 tables.
-- [CascLib](https://github.com/WoW-Tools/CascLib) used to read information from WoW's game files.
+- [CascLib](https://github.com/WoW-Tools/CascLib) used to retrieve files from WoW's file storage.
 - [WoWDBDefs](https://github.com/wowdev/WoWDBDefs) definitions required to read WoW's DB2 tables.
+- [SereniaBLPLib](https://github.com/Marlamin/SereniaBLPLib) used to read convert WoW's BLP textures to PNGs.
+- [WoWFormatLib](https://github.com/Marlamin/WoWFormatLib) used to parse WoW files with WoW-specific formats.
