@@ -299,7 +299,7 @@ namespace wow.tools.local.Services
 
                 processedWMOs++;
 
-                Console.Write("\rWMOs processed: " + processedWMOs + "/" + m2ids.Count);
+                Console.Write("\rWMOs processed: " + processedWMOs + "/" + wmoids.Count);
             }
 
             Console.WriteLine();

@@ -407,6 +407,7 @@ TactKey.csv
 dbcs
 cache
 caches
+temp
 manifests
 knownPushIDs.json
 *.csv

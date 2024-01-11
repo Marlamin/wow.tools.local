@@ -2,7 +2,6 @@
 using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
 using System.Globalization;
-using System.Transactions;
 
 namespace wow.tools.local.Services
 {
@@ -81,7 +80,7 @@ namespace wow.tools.local.Services
             if (!Directory.Exists(manifestFolder))
                 Directory.CreateDirectory(manifestFolder);
 
-			if (cascHandler.Root is WowTVFSRootHandler wtrh)
+            if (cascHandler.Root is WowTVFSRootHandler wtrh)
             {
                 AvailableFDIDs = wtrh.RootEntries.Keys.ToList();
                 if (!File.Exists(Path.Combine(manifestFolder, BuildName + ".txt")))
@@ -219,9 +218,9 @@ namespace wow.tools.local.Services
                 }
 
                 // Lookups
-                foreach(var entry in ewrh.FileDataToLookup)
+                foreach (var entry in ewrh.FileDataToLookup)
                 {
-                    if(!LookupMap.ContainsKey(entry.Key) && entry.Value != FileDataHash.ComputeHash(entry.Key))
+                    if (!LookupMap.ContainsKey(entry.Key) && entry.Value != FileDataHash.ComputeHash(entry.Key))
                     {
                         LookupMap.Add(entry.Key, entry.Value);
                     }
@@ -373,7 +372,7 @@ namespace wow.tools.local.Services
                         Types.Add(fdid, ext);
                         TypeMap[ext].Add(fdid);
                     }
-                
+
                     if (ext == "db2")
                         DB2Map.Add(splitLine[1].ToLower(), fdid);
 
@@ -497,23 +496,57 @@ namespace wow.tools.local.Services
             return true;
         }
 
-        public static Stream? GetFileByID(uint filedataid)
+        public static Stream? GetFileByID(uint filedataid, string? build = null)
         {
-            try
+            if (string.IsNullOrEmpty(build))
+                build = BuildName;
+
+            if (build == BuildName)
             {
-                return cascHandler.OpenFile((int)filedataid);
+                try
+                {
+                    return cascHandler.OpenFile((int)filedataid);
+                }
+                catch (Exception e)
+                {
+                    if (!e.Message.Contains("keyname"))
+                    {
+                        Console.WriteLine("Exception retrieving FileDataID " + filedataid + ": " + e.Message);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Missing key for " + filedataid + ": " + e.Message);
+                    }
+                    return null;
+                }
             }
-            catch (Exception e)
+            else
             {
-                if (!e.Message.Contains("keyname"))
+                try
                 {
-                    Console.WriteLine("Exception retrieving FileDataID " + filedataid + ": " + e.Message);
+                    if(!Directory.Exists("temp"))
+                        Directory.CreateDirectory("temp");
+
+                    if(!Directory.Exists("temp/" + build))
+                        Directory.CreateDirectory("temp/" + build);
+
+                    if (!File.Exists("temp/" + build + "/" + filedataid))
+                    {
+                        var stream = WebClient.GetStreamAsync("https://wago.tools/api/casc/" + filedataid + "/?version=" + build + "&download").Result;
+                        using(var fs = new FileStream("temp/" + build + "/" + filedataid, FileMode.Create))
+                        {
+                            stream.CopyTo(fs);
+                            fs.Close();
+                        }
+                    }
+
+                    return new FileStream("temp/" + build + "/" + filedataid, FileMode.Open, FileAccess.Read);
                 }
-                else
+                catch (Exception e)
                 {
-                    Console.WriteLine("Missing key for " + filedataid + ": " + e.Message);
+                    Console.WriteLine("Error retrieving file " + filedataid + " from build " + build + " from wago.tools: " + e.Message);
+                    return null;
                 }
-                return null;
             }
         }
 
@@ -609,9 +642,9 @@ namespace wow.tools.local.Services
                     {
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-                        
+
                         var ckey = preferredEntry.cKey.ToHexString();
-                        
+
                         FDIDToCHash.Add(entry.Key, ckey);
 
                         if (CHashToFDID.ContainsKey(ckey))
@@ -654,7 +687,7 @@ namespace wow.tools.local.Services
         {
             Console.WriteLine("Generating file history, this may take a while");
 
-            if(File.Exists("versionHistory.json"))
+            if (File.Exists("versionHistory.json"))
                 File.Delete("versionHistory.json");
 
             var sortedManifestList = new List<string>();
@@ -666,7 +699,7 @@ namespace wow.tools.local.Services
             // sort by build
             sortedManifestList.Sort((x, y) => int.Parse(Path.GetFileNameWithoutExtension(x).Split(".")[3]).CompareTo(int.Parse(Path.GetFileNameWithoutExtension(y).Split(".")[3])));
 
-            foreach(var manifest in sortedManifestList)
+            foreach (var manifest in sortedManifestList)
             {
                 var buildName = Path.GetFileNameWithoutExtension(manifest);
 
@@ -734,7 +767,7 @@ namespace wow.tools.local.Services
 
             var count = VersionHistory.Count;
             var done = 0;
-            foreach(var entry in VersionHistory)
+            foreach (var entry in VersionHistory)
             {
                 insertCmd.Parameters["@filedataid"].Value = entry.Key;
                 insertCmd.Transaction = transaction;
@@ -751,7 +784,7 @@ namespace wow.tools.local.Services
 
                 Console.Write("\r" + done + "/" + count + " (" + (done * 100 / count) + "%)");
 
-                if(done % 1000 == 0)
+                if (done % 1000 == 0)
                 {
                     transaction.Commit();
                     transaction = SQLiteDB.dbConn.BeginTransaction();

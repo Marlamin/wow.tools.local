@@ -1,5 +1,8 @@
 ﻿using CASCLib;
 using Microsoft.AspNetCore.Mvc;
+using SereniaBLPLib;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using System.Text;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -34,7 +37,7 @@ namespace wow.tools.local.Controllers
                     filename += "." + CASC.Types[(int)fileDataID];
             }
 
-            var file = CASC.GetFileByID(fileDataID);
+            var file = CASC.GetFileByID(fileDataID, build);
             if (file == null)
                 return NotFound();
 
@@ -790,6 +793,70 @@ namespace wow.tools.local.Controllers
         public string GetVersion()
         {
             return System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+        }
+
+        [Route("diffFile")]
+        [HttpGet]
+        public string DiffFile(int fileDataID, string from, string to)
+        {
+            var oldFile = CASC.GetFileByID((uint)fileDataID, from);
+            var newFile = CASC.GetFileByID((uint)fileDataID, to);
+
+            var html = "";
+            if(CASC.Types.TryGetValue(fileDataID, out string fileType))
+            {
+                if(fileType == "blp")
+                {
+                    html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
+                    html += "<li class='nav-item'>";
+                    html += "<a class='nav-link active' id='sbs-tab' data-toggle='tab' href='#sbs' role='tab' aria-controls='sbs' aria-selected='true'>Side-by-Side</a>";
+                    html += "</li>";
+                    html += "<li class='nav-item'>";
+                    html += "<a class='nav-link' id='toggle-tab' data-toggle='tab' href='#toggle' role='tab' aria-controls='toggle' aria-selected='false'>Switcher</a>";
+                    html += "</li>";
+                    //html += "<li class='nav-item'><a class='nav-link' id='imagediff-tab' data-toggle='tab' href='#imagediff' role='tab' aria-controls='imagediff' aria-selected='false'>Diff</a>";
+                    //html += "</li>";
+                    html += "</ul>";
+                    html += "<div class='tab-content'>";
+                        html += "<div class='tab-pane show active' id='sbs' role='tabpanel' aria-labelledby='sbs-tab'>";
+                            html += "<div class='row'>";
+                                html += "<div class='col-md-6' id='from-diff'>";
+                                    html += "<h3>Build " + from + " (Before)</h3>";
+                                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                                html += "</div>";
+                                html += "<div class='col-md-6' id='to-diff'>";
+                                    html += "<h3>Build " + to + " (After)</h3>";
+                                    html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
+                                html += "</div>";
+                            html += "</div>";
+                        html += "</div>";
+                    html += "<div class='tab-pane' id='toggle' role='tabpanel' aria-labelledby='toggle-tab'>";
+                            html += "<div id='toggle-content' data-current='from'><div class='col-md-6' id='from-diff'><h3>Build </h3><img style='max-width: 100%;' src=''></div></div><button class='btn btn-primary' id='toggle-button'>Switch</button>";
+                        html += "</div>";
+                    html += "</div>";
+                    html += "<script type='text/javascript'>";
+                    html += "$(document).ready(function() { $('#toggle-content').html($('#from-diff').html()); $('#toggle-button').click(function() { if(document.getElementById('toggle-content').dataset.current == 'from'){ $('#toggle-content').html($('#to-diff').html()); document.getElementById('toggle-content').dataset.current = 'to'; }else{ $('#toggle-content').html($('#from-diff').html()); document.getElementById('toggle-content').dataset.current = 'from'; }});});";
+                    html += "</script>";
+                }
+            }
+            return html;
+        }
+
+        [Route("blp2png")]
+        [HttpGet]
+        public ActionResult Blp2Png(int fileDataID, string build)
+        {
+            var file = CASC.GetFileByID((uint)fileDataID, build);
+            if (file == null)
+                return NotFound();
+
+            var blp = new BlpFile(file);
+            var image = blp.GetImage(0);
+
+            var ms = new MemoryStream();
+            image.SaveAsPng(ms);
+            ms.Position = 0;
+            return new FileStreamResult(ms, "image/png");
         }
 
         [Route("startLinking")]

@@ -207,7 +207,7 @@
 
                                         }
                                         break;
-                                    //case "blp":
+                                    case "blp":
                                     //case "htm":
                                     //case "html":
                                     // case "lua":
@@ -217,11 +217,11 @@
                                     // case "xml":
                                     // case "xsd":
                                     // case "wtf":
-                                    //     content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModal(\"<?= $fromBuild['hash'] ?>\", \"<?= $toBuild['hash'] ?>\", \"" + full.id + "\")'>Preview</a>";
-                                    //     break;
-                                    // case "ogg":
-                                    //     content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModalByContenthash(\"<?= $toBuild['hash'] ?>\", \"" + full.id + "\",\"" + full.md5 + "\")'>Preview</a>";
-                                    //     break;
+                                        content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Preview</a>";
+                                         break;
+                                     //case "ogg":
+                                     //    content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModalByContenthash(\"<?= $toBuild['hash'] ?>\", \"" + full.id + "\",\"" + full.md5 + "\")'>Preview</a>";
+                                     //    break;
                                     default:
                                         content = "N/A";
                                         break;

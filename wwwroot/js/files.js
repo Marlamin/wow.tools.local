@@ -246,7 +246,7 @@ function fillPreviewModalByContenthash(buildconfig, filedataid, contenthash){
 }
 
 function fillDiffModal(from, to, filedataid){
-    $( "#previewModalContent" ).load( "/files/diff.php?from=" + from + "&to=" + to + "&filedataid=" + filedataid + "&raw=0");
+    $( "#previewModalContent" ).load( "/casc/diffFile?from=" + from + "&to=" + to + "&filedataid=" + filedataid);
 }
 
 function fillDiffModalRaw(from, to, filedataid){
