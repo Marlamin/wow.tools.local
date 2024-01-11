@@ -1,8 +1,9 @@
 ﻿using CASCLib;
+using DBDiffer;
 using Microsoft.AspNetCore.Mvc;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
+using System.Diagnostics;
 using System.Text;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -799,13 +800,13 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string DiffFile(int fileDataID, string from, string to)
         {
-            var oldFile = CASC.GetFileByID((uint)fileDataID, from);
-            var newFile = CASC.GetFileByID((uint)fileDataID, to);
 
             var html = "";
-            if(CASC.Types.TryGetValue(fileDataID, out string fileType))
+            if (CASC.Types.TryGetValue(fileDataID, out string fileType))
             {
-                if(fileType == "blp")
+                var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt" };
+
+                if (fileType == "blp")
                 {
                     html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
                     html += "<li class='nav-item'>";
@@ -818,25 +819,52 @@ namespace wow.tools.local.Controllers
                     //html += "</li>";
                     html += "</ul>";
                     html += "<div class='tab-content'>";
-                        html += "<div class='tab-pane show active' id='sbs' role='tabpanel' aria-labelledby='sbs-tab'>";
-                            html += "<div class='row'>";
-                                html += "<div class='col-md-6' id='from-diff'>";
-                                    html += "<h3>Build " + from + " (Before)</h3>";
-                                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
-                                html += "</div>";
-                                html += "<div class='col-md-6' id='to-diff'>";
-                                    html += "<h3>Build " + to + " (After)</h3>";
-                                    html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
-                                html += "</div>";
-                            html += "</div>";
-                        html += "</div>";
+                    html += "<div class='tab-pane show active' id='sbs' role='tabpanel' aria-labelledby='sbs-tab'>";
+                    html += "<div class='row'>";
+                    html += "<div class='col-md-6' id='from-diff'>";
+                    html += "<h3>Build " + from + " (Before)</h3>";
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                    html += "</div>";
+                    html += "<div class='col-md-6' id='to-diff'>";
+                    html += "<h3>Build " + to + " (After)</h3>";
+                    html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
+                    html += "</div>";
+                    html += "</div>";
+                    html += "</div>";
                     html += "<div class='tab-pane' id='toggle' role='tabpanel' aria-labelledby='toggle-tab'>";
-                            html += "<div id='toggle-content' data-current='from'><div class='col-md-6' id='from-diff'><h3>Build </h3><img style='max-width: 100%;' src=''></div></div><button class='btn btn-primary' id='toggle-button'>Switch</button>";
-                        html += "</div>";
+                    html += "<div id='toggle-content' data-current='from'><div class='col-md-6' id='from-diff'><h3>Build </h3><img style='max-width: 100%;' src=''></div></div><button class='btn btn-primary' id='toggle-button'>Switch</button>";
+                    html += "</div>";
                     html += "</div>";
                     html += "<script type='text/javascript'>";
                     html += "$(document).ready(function() { $('#toggle-content').html($('#from-diff').html()); $('#toggle-button').click(function() { if(document.getElementById('toggle-content').dataset.current == 'from'){ $('#toggle-content').html($('#to-diff').html()); document.getElementById('toggle-content').dataset.current = 'to'; }else{ $('#toggle-content').html($('#from-diff').html()); document.getElementById('toggle-content').dataset.current = 'from'; }});});";
                     html += "</script>";
+                }
+                else if (textTypes.Contains(fileType))
+                {
+
+
+                    html = @"Note: Git is required to be installed on the system to generate text diffs<br>
+    <link rel='stylesheet' type='text/css' href='/css/diff2html.min.css' />
+    <script src='https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js'></script>
+    <script type='text/javascript' charset='utf-8'>
+        $(document).ready(function() {
+            $.get('/casc/diffText?fileDataID=";
+                    html += fileDataID + "&from=" + from + "&to=" + to;
+                    
+                    html += @"', function(data) {
+                var diffHtml = Diff2Html.html(
+                    data, {
+                        inputFormat: 'diff',
+                        drawFileList: false,
+                        matching: 'lines',
+                        outputFormat: 'side-by-side'
+                    }
+                    );
+                document.getElementById('rawdiff').innerHTML = diffHtml;
+            });
+        });
+    </script><div id='rawdiff'></div>";
                 }
             }
             return html;
@@ -857,6 +885,48 @@ namespace wow.tools.local.Controllers
             image.SaveAsPng(ms);
             ms.Position = 0;
             return new FileStreamResult(ms, "image/png");
+        }
+
+        [Route("diffText")]
+        [HttpGet]
+        public string DiffText(int fileDataID, string from, string to)
+        {
+            var oldFile = CASC.GetFileByID((uint)fileDataID, from);
+            var newFile = CASC.GetFileByID((uint)fileDataID, to);
+
+            if (!Directory.Exists("temp/diffs/" + from))
+                Directory.CreateDirectory("temp/diffs/" + from);
+
+            using (var fs = new FileStream("temp/diffs/" + from + "/" + fileDataID, FileMode.Create))
+            {
+                oldFile.CopyTo(fs);
+            }
+
+            if (!Directory.Exists("temp/diffs/" + to))
+                Directory.CreateDirectory("temp/diffs/" + to);
+
+            using (var fs = new FileStream("temp/diffs/" + to + "/" + fileDataID, FileMode.Create))
+            {
+                newFile.CopyTo(fs);
+            }
+
+            try
+            {
+                Process p = new Process();
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.FileName = "git";
+                p.StartInfo.Arguments = "diff --no-index temp/diffs/" + from + "/" + fileDataID + " temp/diffs/" + to + "/" + fileDataID;
+                p.Start();
+                string output = p.StandardOutput.ReadToEnd();
+                p.WaitForExit();
+                return output;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error generating diff: " + e.Message);
+                return "Error generating diff: " + e.Message;
+            }
         }
 
         [Route("startLinking")]
