@@ -829,13 +829,13 @@ function handleDownloadFinished(url){
 
 // Called by texture model save button
 function updateTextures(){
-    const textureArray = new Int32Array(18);
-    for (let i = 0; i < 18; i++){
+    const textureArray = new Int32Array(27);
+    for (let i = 0; i < 27; i++){
         if (document.getElementById('tex' + i)){
             textureArray[i] = document.getElementById('tex' + i).value;
         }
     }
-    setModelTexture(textureArray, 0);
+    setModelTextures(textureArray);
 }
 
 function getScenePos(){
@@ -919,20 +919,42 @@ async function setModelDisplay(displayID, type){
             updateEnabledGeosets();
         }
     } else if (type == "item"){
-        // TODO: Items, this is very rough support, only supports ModelMaterialResourcesID[0]
-
-        // Textures
-        // Probably don't request loadItemDisplays all over again
-        const displays = await loadItemDisplays();
-        for (const display of displays){
-            if (display.ID != displayID)
-                continue;
-            
-            console.log(display);
-
-            setModelTexture([materialResourceMap.get(display['ModelMaterialResourcesID[0]'])], 2);
+        const response = await fetch("/dbc/peek/ItemDisplayInfo/?build=" + Current.buildName + "&col=ID&val=" + displayID);
+        const idiRow = await response.json();
+        const displayMatResponse = await fetch("/dbc/find/ItemDisplayInfoModelMatRes/?build=" + Current.buildName + "&col=ItemDisplayInfoID&val=" + displayID);
+        const displayMatResults = await displayMatResponse.json();
+        const typedArray = new Int32Array(27);
+        
+        for (const displayMatRow of displayMatResults){
+            if (displayMatRow.ModelIndex == "1")  // I think ModelIndex of 1 is for opposite shoulder appearances, etc. Could probably support it somehow, but ignoring it for now.
+              continue;
+          
+            const materialResponse = await fetch("/dbc/peek/TextureFileData/?build=" + Current.buildName + "&col=MaterialResourcesID&val=" + displayMatRow.MaterialResourcesID);
+            const materialJson = await materialResponse.json();
+            if (materialJson.values.FileDataID != undefined){
+               if (typedArray.length <= Number(displayMatRow.TextureType)) {
+                 console.log("TextureType of " + displayMatRow.TextureType + " encountered, which is greater than the max texture array index ("+(typedArray.length-1)+").");
+                 continue;
+               }
+              typedArray[Number(displayMatRow.TextureType)] = materialJson.values.FileDataID;
+            }
         }
-
+        setModelTextures(typedArray);
+        
+        // Particle colors
+        if (idiRow.values['ParticleColorID'] != 0){
+            const particleResponse = await fetch("/dbc/peek/ParticleColor/?build=" + Current.buildName + "&col=ID&val=" + idiRow.values['ParticleColorID']);
+            const particleRow = await particleResponse.json();
+            console.log(particleRow);
+            Module._resetReplaceParticleColor();
+            Module._setReplaceParticleColors(
+                particleRow.values["Start[0]"], particleRow.values["Start[1]"], particleRow.values["Start[2]"],
+                particleRow.values["MID[0]"], particleRow.values["MID[1]"], particleRow.values["MID[2]"],
+                particleRow.values["End[0]"], particleRow.values["End[1]"], particleRow.values["End[2]"]
+            );
+        } else {
+            Module._resetReplaceParticleColor();
+        }
     }
 }
 
@@ -948,21 +970,26 @@ function updateEnabledGeosets(){
 
 function setModelTexture(textures, offset){
     //Create real texture replace array
-    const typedArray = new Int32Array(18);
+    const typedArray = new Int32Array(27);
 
     for (let i = 0; i < textures.length; i++){
-        if (offset == 11 && i == 3){
+        if (offset == 11 && i == 3)
             typedArray[5] = textures[i];
-            const inputTarget = 5;
-            if (document.getElementById('tex' + inputTarget)) {
-                document.getElementById('tex' + inputTarget).value = textures[i];
-            }
-        } else {
+        else if (offset == 2 && i == 3)
+            typedArray[24] = textures[i];
+        else
             typedArray[offset + i] = textures[i];
-            const inputTarget = offset + i;
-            if (document.getElementById('tex' + inputTarget)){
-                document.getElementById('tex' + inputTarget).value = textures[i];
-            }
+    }
+    
+    setModelTextures(typedArray);
+}
+
+function setModelTextures(typedArray){
+    // Takes an array with values for all texture slots
+
+    for (let i = 0; i < typedArray.length; i++) {
+        if (document.getElementById('tex' + i)){
+            document.getElementById('tex' + i).value = typedArray[i];
         }
     }
 
@@ -971,9 +998,7 @@ function setModelTexture(textures, offset){
 
     // Assign the data to the heap - Keep in mind bytes per element
     Module.HEAP32.set(typedArray, buffer >> 2);
-
     Module._setTextures(buffer, typedArray.length);
-
     Module._free(buffer);
 }
 
