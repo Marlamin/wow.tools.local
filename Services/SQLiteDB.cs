@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Data.Sqlite;
 using static wow.tools.local.Services.Linker;
 
 namespace wow.tools.local.Services
@@ -145,6 +146,16 @@ namespace wow.tools.local.Services
             }
 
             transaction.Commit();
+        }
+
+        public static void ClearLinks()
+        {
+            new SqliteCommand("DELETE FROM wow_rootfiles_links", dbConn).ExecuteNonQuery();
+        }
+
+        public static void ClearHistory()
+        {
+            new SqliteCommand("DELETE FROM wow_rootfiles_chashes", dbConn).ExecuteNonQuery();
         }
     }
 }

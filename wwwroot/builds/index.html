@@ -102,6 +102,17 @@
                 </table>
             </div>
         </div>
+        <br />
+        <h3>Admin</h3>
+        <p>Only <a href='#' onClick='$("#adminStuff").toggle()'>show</a> and use this section if you know what you are doing.</p>
+        <p style="display: none" id="adminStuff">
+            <b>File types</b><br />
+            <a class="btn btn-danger btn-sm" target="_blank" href="/casc/clearFileTypes">Clear file types</a> <a class="btn btn-primary btn-sm" target="_blank" href="/casc/analyzeUnknown">Analyze file types</a><br />
+            <b>File links</b><br />
+            <a class="btn btn-danger btn-sm" target="_blank" href="/casc/clearFileLinks">Clear file links</a> <a class="btn btn-primary btn-sm" target="_blank" href="/casc/startLinking">Start linking</a><br />
+            <b>File history</b><br />
+            <a class="btn btn-danger btn-sm" target="_blank" href="/casc/clearFileHistory">Clear file history</a> <a class="btn btn-primary btn-sm" target="_blank" href="/casc/generateFileHistory">Generate file history</a> <a class="btn btn-success btn-sm" target="_blank" href="/casc/importAllFileHistory">Import file history</a>
+        </p>
     </div>
     <footer>
         <div class="container text-muted">

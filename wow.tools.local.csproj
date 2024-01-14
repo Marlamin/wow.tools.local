@@ -62,6 +62,7 @@
   <ItemGroup>
     <None Remove="debug.log" />
     <None Remove="WTL.db" />
+    <None Remove="WTL.db-journal" />
   </ItemGroup>
 
   <ItemGroup>

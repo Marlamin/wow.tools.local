@@ -163,6 +163,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool AnalyzeUnknown()
         {
+            Console.WriteLine("Analyzing unknown files");
             var knownUnknowns = new Dictionary<int, string>();
 
             if (System.IO.File.Exists("cachedUnknowns.txt"))
@@ -677,7 +678,7 @@ namespace wow.tools.local.Controllers
             if (fileVersions.Count > 0)
             {
                 html += "<tr><td colspan='2'><b>Known versions</b></td></tr>";
-                html += "<tr><td colspan='2'><table class='table table-sm'>";
+                html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
                 html += "<tr><th>Build</th><th>Contenthash</th><th><small><i>Downloads powered by <a href='https://wago.tools' target='_BLANK'>wago.tools</a></i></small></th></tr>";
                 foreach (var fileVersion in fileVersions)
                 {
@@ -702,11 +703,11 @@ namespace wow.tools.local.Controllers
             if (linkedParentFiles.Count > 0)
             {
                 html += "<tr><td colspan='2'><b>Files linking to this file</b> (<i>Note, this can not scan on request, scan other files for them to show up here.)</i></td></tr>";
-                html += "<tr><td colspan='2'><table class='table table-sm'>";
+                html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
                 html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
                 foreach (var linkedFile in linkedParentFiles)
                 {
-                    html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + "</td><td>" + (CASC.Listfile.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (CASC.Types.ContainsKey((int)linkedFile.fileDataID) ? CASC.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
+                    html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (CASC.Listfile.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (CASC.Types.ContainsKey((int)linkedFile.fileDataID) ? CASC.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                 }
                 html += "</table></td></tr></table>";
             }
@@ -742,11 +743,11 @@ namespace wow.tools.local.Controllers
                 if (linkedChildFiles.Count > 0)
                 {
                     html += "<tr><td colspan='2'><b>Files this file links to</b></td></tr>";
-                    html += "<tr><td colspan='2'><table class='table table-sm'>";
+                    html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
                     html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
                     foreach (var linkedFile in linkedChildFiles)
                     {
-                        html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + "</td><td>" + (CASC.Listfile.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (CASC.Types.ContainsKey((int)linkedFile.fileDataID) ? CASC.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
+                        html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (CASC.Listfile.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (CASC.Types.ContainsKey((int)linkedFile.fileDataID) ? CASC.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                     }
                     html += "</table></td></tr></table>";
                 }
@@ -937,6 +938,23 @@ namespace wow.tools.local.Controllers
             return "";
         }
 
+        [Route("clearFileLinks")]
+        [HttpGet]
+        public string ClearLinks()
+        {
+            SQLiteDB.ClearLinks();
+            return "";
+        }
+
+        [Route("clearFileHistory")]
+        [HttpGet]
+        public string ClearFileHistory()
+        {
+            SQLiteDB.ClearHistory();
+            CASC.ClearFileHistory();
+            return "";
+        }
+
         [Route("generateFileHistory")]
         [HttpGet]
         public string GenerateFileHistory()
@@ -967,6 +985,15 @@ namespace wow.tools.local.Controllers
         {
             SQLiteDB.ImportBuildIntoFileHistory(build);
             return "";
+        }
+
+        [Route("clearFileTypes")]
+        [HttpGet]
+        public void ClearFileTypes()
+        {
+            System.IO.File.Delete("cachedUnknowns.txt");
+            CASC.Types.Clear();
+            CASC.TypeMap.Clear();
         }
     }
 }

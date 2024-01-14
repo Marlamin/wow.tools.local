@@ -703,6 +703,10 @@ namespace wow.tools.local.Services
             {
                 var buildName = Path.GetFileNameWithoutExtension(manifest);
 
+                // Skip wowdev build
+                if (buildName == "10.0.0.43342")
+                    continue;
+
                 foreach (var line in File.ReadAllLines(manifest))
                 {
                     var splitLine = line.Split(";");
@@ -744,6 +748,11 @@ namespace wow.tools.local.Services
             VersionHistory = JsonConvert.DeserializeObject<Dictionary<int, List<Version>>>(File.ReadAllText("versionHistory.json"));
 
             return true;
+        }
+
+        public static void ClearFileHistory()
+        {
+            VersionHistory = new Dictionary<int, List<Version>>();
         }
 
         public static bool ImportAllFileHistory()
