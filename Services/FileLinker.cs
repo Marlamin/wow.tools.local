@@ -52,7 +52,7 @@ namespace wow.tools.local.Services
             }
             catch (Exception e)
             {
-                if (!e.Message.StartsWith("Duplicate entry"))
+                if (!e.Message.StartsWith("UNIQUE constraint failed"))
                 {
                     Console.WriteLine("Error inserting FDID (" + desc + "): " + e.Message);
                 }
@@ -273,14 +273,27 @@ namespace wow.tools.local.Services
             }
 
             var processedM2s = 0;
+
+            var transaction = SQLiteDB.dbConn.BeginTransaction();
+            insertCmd.Transaction = transaction;
+
             for (var i = 0; i < m2ids.Count; i++)
             {
                 LinkM2((uint)m2ids[i]);
 
                 processedM2s++;
 
+                if(processedM2s % 1000 == 0)
+                {
+                    transaction.Commit();
+                    transaction = SQLiteDB.dbConn.BeginTransaction();
+                    insertCmd.Transaction = transaction;
+                }
+
                 Console.Write("\rM2s processed: " + processedM2s + "/" + m2ids.Count);
             }
+
+            transaction.Commit();
 
             Console.WriteLine();
             #endregion
@@ -293,14 +306,26 @@ namespace wow.tools.local.Services
             }
 
             var processedWMOs = 0;
+            transaction = SQLiteDB.dbConn.BeginTransaction();
+            insertCmd.Transaction = transaction;
             for (var i = 0; i < wmoids.Count; i++)
             {
+
                 LinkWMO((uint)wmoids[i]);
 
                 processedWMOs++;
 
+                if (processedM2s % 1000 == 0)
+                {
+                    transaction.Commit();
+                    transaction = SQLiteDB.dbConn.BeginTransaction();
+                    insertCmd.Transaction = transaction;
+                }
+
                 Console.Write("\rWMOs processed: " + processedWMOs + "/" + wmoids.Count);
             }
+
+            transaction.Commit();
 
             Console.WriteLine();
             #endregion
@@ -335,7 +360,7 @@ namespace wow.tools.local.Services
                         var wdtreader = new WDTReader();
                         wdtreader.LoadWDT((uint)wdtid);
 
-                        var transaction = SQLiteDB.dbConn.BeginTransaction();
+                        transaction = SQLiteDB.dbConn.BeginTransaction();
                         insertCmd.Transaction = transaction;
 
                         if (wdtreader.wdtfile.modf.id != 0 && !existingParents.Contains(wdtid))
