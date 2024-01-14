@@ -52,7 +52,7 @@ namespace wow.tools.local.Services
             }
             catch (Exception e)
             {
-                if (!e.Message.StartsWith("UNIQUE constraint failed"))
+                if (!e.Message.Contains("UNIQUE constraint failed"))
                 {
                     Console.WriteLine("Error inserting FDID (" + desc + "): " + e.Message);
                 }
