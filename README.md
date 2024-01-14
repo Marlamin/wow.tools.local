@@ -2,7 +2,7 @@
 This contains a very slimmed down version of the WoW.tools site (currently modelviewer for M2s only and DBC browsing/exporting) meant for local use without relying on anything from the main WoW.tools website (or the internet in general, after external dependencies have been downloaded, see relevant section at the bottom of this README).
 
 ## Requirements
-All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least ~6GB of free RAM. Please note that some features (e.g. DB2 global search) will take up far more RAM than that.
+All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least ~6-8GB of free RAM. Please note that some features (e.g. DB2 global search) will take up far more RAM than that.
 
 ## Download 
 The latest version can be downloaded [here](https://github.com/Marlamin/wow.tools.local/releases).
@@ -60,7 +60,8 @@ DB2 diffs are available between DB2s that are either extracted on disk (see step
 Hotfixes are loaded from DBCache files that exist in the WoW directory (for all products) or manually placed `*.bin` files in the `caches` directory in the wow.tools.local directory. Hotfix diffs are available on the Hotfixes page but keep in mind the "First detected" column will only be updated upon requesting that page. After updating the DBCache files (either manually or by logging into/then quitting the game), a restart of WTL is currently required. The hotfixes page only shows hotfixes from the currently loaded build.
 
 ## File links
-File links (e.g. textures in M2 files, M2 doodads in WMO files, etc) are parsed (and then saved) when the "More Information" screen is loaded and will be available for that file from that point on. For a pre-compiled database with most file links (for retail WoW) already present, download "WTL.db" from the latest release that has one and replace the file on disk. 
+File links (e.g. textures in M2 files, M2 doodads in WMO files, etc) are parsed (and then saved) when the "More Information" screen is loaded and will be available for that file from that point on. For a pre-compiled database with most file links (for retail WoW) already present, download "WTL.db" from the latest release that has one and replace the file on disk.
+
 ### Updating file links 
 To update all file links, manually browse to /casc/startLinking and keep an eye on the console window for progress. After the page loads, it is done. 
 

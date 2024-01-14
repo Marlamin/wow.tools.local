@@ -60,6 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="knownPushIDs.json" />
     <Content Remove="versionHistory.json" />
   </ItemGroup>
   
