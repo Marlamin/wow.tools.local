@@ -11,7 +11,7 @@ namespace wow.tools.local.Services
             public string linkType;
         }
 
-        
+
         private static SqliteCommand insertCmd;
         private static HashSet<int> existingParents = new HashSet<int>();
         static Linker()
@@ -305,67 +305,50 @@ namespace wow.tools.local.Services
             Console.WriteLine();
             #endregion
 
-            return;
-            #region WDT
-            var wdtids = new List<uint>();
-            var wdtfullnamemap = new Dictionary<string, uint>();
-            using (var cmd = SQLiteDB.dbConn.CreateCommand())
+            #region Maps
+            if (!CASC.TypeMap.TryGetValue("wdt", out var wdtids))
             {
-                Console.WriteLine("[WDT] Generating list of WDT files..");
-                cmd.CommandText = "SELECT id, filename from wow_rootfiles WHERE type = 'wdt' AND filename IS NOT NULL ORDER BY id DESC";
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    var filename = (string)reader["filename"];
-                    var wdtid = uint.Parse(reader["id"].ToString());
-                    if (filename.Contains("_mpv") || filename.Contains("_lgt") || filename.Contains("_occ") || filename.Contains("_fogs"))
-                        continue;
-                    wdtfullnamemap.Add(filename, wdtid);
-                }
+                Console.WriteLine("Unable to get WDT files, make sure types have been detected at least once.");
+                return;
             }
 
             using (var cmd = SQLiteDB.dbConn.CreateCommand())
             {
-                if (fullrun)
-                {
-                    cmd.CommandText = "SELECT id, filename from wow_rootfiles WHERE type = 'wdt' ORDER BY id DESC";
-                }
-                else
-                {
-                    Console.WriteLine("[WDT] Generating list of files to process..");
-                    cmd.CommandText = "SELECT id, filename from wow_rootfiles WHERE type = 'wdt' AND id NOT IN (SELECT parent FROM wow_rootfiles_links) ORDER BY id DESC";
-                }
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    //var filename = (string)reader["filename"];
-                    var wdtid = uint.Parse(reader["id"].ToString());
-                    //if (filename.Contains("_mpv") || filename.Contains("_lgt") || filename.Contains("_occ") || filename.Contains("_fogs"))
-                    //   continue;
-                    wdtids.Add(wdtid);
-                }
-
-                reader.Close();
-
                 foreach (var wdtid in wdtids)
                 {
-                    Console.WriteLine("[WDT] Loading " + wdtid);
+
+                    if (!CASC.Listfile.TryGetValue(wdtid, out var wdtFilename))
+                    {
+                        Console.WriteLine("Unable to find filename for WDT " + wdtid + ", skipping linking!");
+                        continue;
+                    }
+
+                    if (wdtFilename.Contains("_mpv") || wdtFilename.Contains("_lgt") || wdtFilename.Contains("_occ") || wdtFilename.Contains("_fogs"))
+                        continue;
+
+                    Console.WriteLine("[WDT] Loading " + wdtid + " (" + wdtFilename + ")");
 
                     insertCmd.Parameters[0].Value = wdtid;
-                    try
+
+                    //try
+                    //{
+                    var wdtreader = new WDTReader();
+                    wdtreader.LoadWDT((uint)wdtid);
+
+                    var transaction = SQLiteDB.dbConn.BeginTransaction();
+                    insertCmd.Transaction = transaction;
+
+                    if (wdtreader.wdtfile.modf.id != 0 && !existingParents.Contains(wdtid))
                     {
-                        var wdtreader = new WDTReader();
-                        wdtreader.LoadWDT(wdtid);
+                        insertEntry(insertCmd, wdtreader.wdtfile.modf.id, "wdt wmo");
+                    }
 
-                        if (wdtreader.wdtfile.modf.id != 0)
-                        {
-                            Console.WriteLine("WDT has WMO ID: " + wdtreader.wdtfile.modf.id);
-                            insertEntry(insertCmd, wdtreader.wdtfile.modf.id, "wdt wmo");
-                        }
+                    foreach (var records in wdtreader.wdtfile.tileFiles)
+                    {
+                        // Switch to WDT fdid (previous could be ADT fdid)
+                        insertCmd.Parameters[0].Value = wdtid;
 
-                        foreach (var records in wdtreader.stringTileFiles)
+                        if (!existingParents.Contains(wdtid))
                         {
                             insertEntry(insertCmd, records.Value.rootADT, "root adt");
                             insertEntry(insertCmd, records.Value.tex0ADT, "tex0 adt");
@@ -376,126 +359,32 @@ namespace wow.tools.local.Services
                             insertEntry(insertCmd, records.Value.mapTextureN, "mapn texture");
                             insertEntry(insertCmd, records.Value.minimapTexture, "minimap texture");
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message + "\n" + e.StackTrace);
-                    }
 
-                }
-            }
-            #endregion
-
-            #region ADT
-            var adtids = new Dictionary<uint, Dictionary<(byte, byte), uint>>();
-            var wdtmapping = new Dictionary<string, uint>();
-
-            using (var cmd = SQLiteDB.dbConn.CreateCommand())
-            {
-                if (fullrun)
-                {
-                    cmd.CommandText = " SELECT id, filename from wow_rootfiles WHERE filename LIKE '%adt' AND filename NOT LIKE '%_obj0.adt' AND filename NOT LIKE '%_obj1.adt' AND filename NOT LIKE '%_lod.adt' AND filename NOT LIKE '%tex0.adt' AND filename NOT LIKE '%tex1.adt' ORDER BY id DESC ";
-                }
-                else
-                {
-                    Console.WriteLine("[ADT] Generating list of files to process..");
-                    cmd.CommandText = " SELECT id, filename from wow_rootfiles WHERE filename LIKE '%adt' AND filename NOT LIKE '%_obj0.adt' AND filename NOT LIKE '%_obj1.adt' AND filename NOT LIKE '%_lod.adt' AND filename NOT LIKE '%tex0.adt' AND filename NOT LIKE '%tex1.adt' AND id NOT IN (SELECT parent FROM wow_rootfiles_links) ORDER BY id DESC";
-                }
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    var filename = (string)reader["filename"];
-                    var mapname = filename.Replace("world/maps/", "").Substring(0, filename.Replace("world/maps/", "").IndexOf("/"));
-                    var exploded = Path.GetFileNameWithoutExtension(filename).Split('_');
-
-                    for (var i = 0; i < exploded.Length; i++)
-                    {
-                        //Console.WriteLine(i + ": " + exploded[i]);
-                    }
-
-                    byte tileX = 0;
-                    byte tileY = 0;
-
-                    if (!byte.TryParse(exploded[exploded.Length - 2], out tileX) || !byte.TryParse(exploded[exploded.Length - 1], out tileY))
-                    {
-                        Console.WriteLine("An error occured converting coordinates from " + filename + " to bytes");
-                        continue;
-                    }
-
-                    if (!wdtmapping.ContainsKey(mapname))
-                    {
-                        var wdtname = "world/maps/" + mapname + "/" + mapname + ".wdt";
-                        if (!wdtfullnamemap.ContainsKey(wdtname))
-                        {
-                            Console.WriteLine("Unable to get filedataid for " + mapname + ", skipping...");
-                            wdtmapping.Remove(mapname);
+                        if (records.Value.rootADT == 0)
                             continue;
-                        }
-                        wdtmapping.Add(mapname, wdtfullnamemap[wdtname]);
-                        if (wdtmapping[mapname] == 0)
-                        {
-                            // TODO: Support WDTs removed in current build
-                            Console.WriteLine("Unable to get filedataid for " + mapname + ", skipping...");
-                            wdtmapping.Remove(mapname);
+
+                        if(existingParents.Contains((int)records.Value.rootADT))
                             continue;
-                            /*
-                            var wdtconn = new MySqlConnection(File.ReadAllText("connectionstring.txt"));
-                            wdtconn.Open();
-                            using (var wdtcmd = wdtconn.CreateCommand())
-                            {
-                                wdtcmd.CommandText = "SELECT id from wow_rootfiles WHERE filename = '" + wdtname + "'";
-                                var wdtread = wdtcmd.ExecuteReader();
-                                while (wdtread.Read())
-                                {
-                                    wdtmapping[mapname] = uint.Parse(wdtread["id"].ToString());
-                                }
-                            }
-                            wdtconn.Close();*/
-                        }
 
-                        adtids.Add(wdtmapping[mapname], new Dictionary<(byte, byte), uint>());
-                    }
+                        // Switch to ADT FDID                            
+                        insertCmd.Parameters[0].Value = records.Value.rootADT;
 
-                    var id = uint.Parse(reader["id"].ToString());
-
-                    if (id == 0)
-                    {
-                        Console.WriteLine("Root ADT " + tileX + ", " + tileY + " with ID 0 on WDT " + wdtmapping[mapname]);
-                        continue;
-                    }
-
-                    if (wdtmapping.ContainsKey(mapname))
-                    {
-                        adtids[wdtmapping[mapname]].Add((tileX, tileY), id);
-                    }
-                }
-
-                reader.Close();
-
-                foreach (var wdtid in adtids)
-                {
-                    foreach (var adtid in wdtid.Value)
-                    {
                         var inserted = new List<uint>();
-                        Console.WriteLine("[ADT] Loading " + adtid.Key.Item1 + ", " + adtid.Key.Item2 + "(" + adtid.Value + ")");
-
-                        insertCmd.Parameters[0].Value = adtid.Value;
 
                         var adtreader = new ADTReader();
-                        try
-                        {
-                            adtreader.LoadADT(wdtid.Key, adtid.Key.Item1, adtid.Key.Item2);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                            continue;
-                        }
+                        //try
+                        //{
+                        adtreader.LoadADT(wdtreader.wdtfile, records.Key.Item1, records.Key.Item2);
+                        //}
+                        //catch (Exception e)
+                        //{
+                        //    Console.WriteLine(e.Message);
+                        //    continue;
+                        //}
 
                         if (adtreader.adtfile.objects.m2Names.filenames != null)
                         {
-                            Console.WriteLine(adtid + " is still using old filenames, skipping!");
+                            Console.WriteLine(records.Value.rootADT + " is still using old filenames, skipping!");
                         }
                         else
                         {
@@ -517,7 +406,30 @@ namespace wow.tools.local.Services
                                 inserted.Add(doodad.mmidEntry);
                             }
                         }
+
+                        foreach (var texture in adtreader.adtfile.diffuseTextureFileDataIDs)
+                        {
+                            if (texture == 0)
+                                continue;
+
+                            insertEntry(insertCmd, texture, "adt diffuse texture");
+                        }
+
+                        foreach (var texture in adtreader.adtfile.heightTextureFileDataIDs)
+                        {
+                            if (texture == 0)
+                                continue;
+
+                            insertEntry(insertCmd, texture, "adt height texture");
+                        }
                     }
+
+                    transaction.Commit();
+                    //}
+                    //catch (Exception e)
+                    //{
+                    //    Console.WriteLine(e.Message + "\n" + e.StackTrace);
+                    //}
                 }
             }
             #endregion
