@@ -176,9 +176,7 @@ namespace wow.tools.local.Controllers
             if (knownUnknowns.Count > 0)
             {
                 foreach (var knownUnknown in knownUnknowns)
-                {
                     CASC.SetFileType(knownUnknown.Key, knownUnknown.Value);
-                }
 
                 unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
             }

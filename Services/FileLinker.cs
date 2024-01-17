@@ -277,9 +277,9 @@ namespace wow.tools.local.Services
             var transaction = SQLiteDB.dbConn.BeginTransaction();
             insertCmd.Transaction = transaction;
 
-            for (var i = 0; i < m2ids.Count; i++)
+            foreach (var m2 in m2ids)
             {
-                LinkM2((uint)m2ids[i]);
+                LinkM2((uint)m2);
 
                 processedM2s++;
 
@@ -308,10 +308,9 @@ namespace wow.tools.local.Services
             var processedWMOs = 0;
             transaction = SQLiteDB.dbConn.BeginTransaction();
             insertCmd.Transaction = transaction;
-            for (var i = 0; i < wmoids.Count; i++)
+            foreach (var wmo in wmoids)
             {
-
-                LinkWMO((uint)wmoids[i]);
+                LinkWMO((uint)wmo);
 
                 processedWMOs++;
 

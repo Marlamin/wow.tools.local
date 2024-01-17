@@ -22,7 +22,7 @@ namespace wow.tools.local.Services
         public static Dictionary<int, EncryptionStatus> EncryptionStatuses = new();
         public static Dictionary<int, List<ulong>> EncryptedFDIDs = new();
         public static Dictionary<int, string> Types = new();
-        public static Dictionary<string, List<int>> TypeMap = new();
+        public static Dictionary<string, HashSet<int>> TypeMap = new();
         public static Dictionary<int, ulong> LookupMap = new();
 
         public static Dictionary<string, List<int>> CHashToFDID = new();
@@ -128,7 +128,7 @@ namespace wow.tools.local.Services
             M2Listfile = new SortedDictionary<int, string>();
             EncryptedFDIDs = new Dictionary<int, List<ulong>>();
             EncryptionStatuses = new Dictionary<int, EncryptionStatus>();
-            TypeMap = new Dictionary<string, List<int>>();
+            TypeMap = new Dictionary<string, HashSet<int>>();
             Types = new Dictionary<int, string>();
             LookupMap = new Dictionary<int, ulong>();
 
@@ -362,7 +362,7 @@ namespace wow.tools.local.Services
                     var ext = Path.GetExtension(splitLine[1]).Replace(".", "").ToLower();
 
                     if (!TypeMap.ContainsKey(ext))
-                        TypeMap.Add(ext, new List<int>());
+                        TypeMap.Add(ext, new HashSet<int>());
 
                     Listfile[fdid] = splitLine[1];
 
@@ -599,15 +599,16 @@ namespace wow.tools.local.Services
             if (!Listfile.ContainsKey(filedataid))
                 return;
 
-            if (!Types.ContainsKey(filedataid))
+            if (!Types.TryGetValue(filedataid, out string? value))
                 Types.Add(filedataid, type);
-            else if (Types[filedataid] == "unk")
+            else if (value == "unk")
                 Types[filedataid] = type;
 
             if (!TypeMap.ContainsKey(type))
-                TypeMap.Add(type, new List<int>());
+                TypeMap.Add(type, new HashSet<int>());
 
-            TypeMap[type].Add(filedataid);
+            if (!TypeMap[type].Contains(filedataid))
+                TypeMap[type].Add(filedataid);
         }
 
         public static bool EnsureCHashesLoaded()

@@ -21,62 +21,53 @@ namespace wow.tools.local.Controllers
 
         public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
         {
-            var listfileResults = new Dictionary<int, string>();
             if (search.StartsWith("type:"))
             {
                 var cleaned = search.Replace("type:", "").ToLowerInvariant();
-                if (!CASC.TypeMap.ContainsKey(cleaned))
-                    return listfileResults;
+                if (CASC.TypeMap.TryGetValue(cleaned, out var fdids))
+                    return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
 
-                var fdids = new HashSet<int>(CASC.TypeMap[cleaned]);
-                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+                return [];
             }
             else if (search == "unnamed")
             {
-                listfileResults = resultsIn.Where(p => p.Value == "").ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(p => p.Value.Length == 0).ToDictionary();
             }
             else if (search == "encrypted")
             {
                 var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Keys);
-                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
             else if (search.StartsWith("encrypted:"))
             {
                 var cleaned = search.Trim().Replace("encrypted:", "");
                 if (!ulong.TryParse(cleaned, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var converted))
-                    return listfileResults;
+                    return [];
 
                 var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
-                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
             else if (search.StartsWith("range:"))
             {
                 string[] fdidRange = search.Trim().Replace("range:", "").Split("-");
 
-                if (fdidRange.Length != 2)
-                {
-                    return listfileResults;
-                }
-
-                if (!int.TryParse(fdidRange[0], out var fdidLower))
-                    return listfileResults;
-                if (!int.TryParse(fdidRange[1], out var fdidUpper))
-                    return listfileResults;
+                if (fdidRange.Length != 2 || !int.TryParse(fdidRange[0], out var fdidLower) || !int.TryParse(fdidRange[1], out var fdidUpper))
+                    return [];
 
                 var fdids = new HashSet<int>(CASC.Listfile.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
-                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
             else if(search == "haslookup")
             {
                 var fdids = new HashSet<int>(CASC.LookupMap.Keys);
-                listfileResults = resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
             else
             {
                 // Simple search
-                listfileResults = resultsIn.Where(x => x.Value.ToLower().Contains(search.ToLower()) || x.Key.ToString().ToLower() == search.ToLower() || x.Key.ToString().ToLower().Contains(search.ToLower())).ToDictionary(x => x.Key, x => x.Value);
+                var searchLower = search.ToLowerInvariant();
+                return resultsIn.Where(x => x.Value.Contains(searchLower, StringComparison.CurrentCultureIgnoreCase) || x.Key.ToString().Equals(searchLower, StringComparison.CurrentCultureIgnoreCase) || x.Key.ToString().Contains(searchLower, StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Key, x => x.Value);
             }
-            return listfileResults;
         }
 
         // Files page uses this, not modelviewer
@@ -87,8 +78,8 @@ namespace wow.tools.local.Controllers
             var result = new DataTablesResult()
             {
                 draw = draw,
-                recordsTotal = CASC.M2Listfile.Count,
-                data = new List<List<string>>()
+                recordsTotal = CASC.Listfile.Count,
+                data = []
             };
 
             var listfileResults = new Dictionary<int, string>(CASC.Listfile);
@@ -108,15 +99,9 @@ namespace wow.tools.local.Controllers
                     listfileResults = DoSearch(listfileResults, search);
                 }
 
-                result.recordsFiltered = listfileResults.Count;
-            }
-            else
-            {
-                listfileResults = CASC.Listfile;
-                result.recordsFiltered = CASC.Listfile.Count;
             }
 
-            var sortedResults = listfileResults;
+            result.recordsFiltered = listfileResults.Count;
 
             if (Request.Query.TryGetValue("order[0][column]", out var orderCol) && !string.IsNullOrEmpty(orderCol) && Request.Query.TryGetValue("order[0][dir]", out var orderDir) && !string.IsNullOrEmpty(orderDir))
             {
@@ -124,52 +109,47 @@ namespace wow.tools.local.Controllers
                 {
                     case "0":
                         if (orderDir == "desc")
-                            sortedResults = new Dictionary<int, string>(sortedResults.OrderByDescending(x => x.Key));
+                            listfileResults = listfileResults.OrderByDescending(x => x.Key).ToDictionary();
                         else
-                            sortedResults = new Dictionary<int, string>(sortedResults.OrderBy(x => x.Key));
-                        
+                            listfileResults = listfileResults.OrderBy(x => x.Key).ToDictionary();
                         break;
                     case "1":
                         if (orderDir == "desc")
-                            sortedResults = new Dictionary<int, string>(sortedResults.OrderByDescending(x => x.Value));
+                            listfileResults = listfileResults.OrderByDescending(x => x.Value).ToDictionary();
                         else
-                            sortedResults = new Dictionary<int, string>(sortedResults.OrderBy(x => x.Value));
+                            listfileResults = listfileResults.OrderBy(x => x.Value).ToDictionary();
                         break;
                 }
             }
 
-            var rows = new List<string>();
-
             if(length == -1)
             {
                 start = 0;
-                length = sortedResults.Count;
+                length = listfileResults.Count;
             }
 
-            foreach (var listfileResult in sortedResults.Skip(start).Take(length))
+            foreach (var listfileResult in listfileResults.Skip(start).Take(length))
             {
                 var lookupMatch = false;
 
                 if (CASC.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup))
                 {
                     if (hasher.ComputeHash(listfileResult.Value) == lookup)
-                    {
                         lookupMatch = true;
-                    }
                 }
 
                 result.data.Add(
-                    new List<string>() {
+                    [
                         listfileResult.Key.ToString(), // ID
                         listfileResult.Value, // Filename 
                         lookup != 0 ? lookup.ToString("X16") : "", // Lookup
                         "", // Versions
-                        CASC.Types.ContainsKey(listfileResult.Key) ? CASC.Types[listfileResult.Key] : "unk", // Type
-                        CASC.EncryptionStatuses.ContainsKey(listfileResult.Key) ? CASC.EncryptionStatuses[listfileResult.Key].ToString() : "", // Extra data
+                        CASC.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
+                        CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encryptionStatus) ? encryptionStatus.ToString() : "", // Extra data
                         "", // Comment
                         "", // Placeholder filename
                         lookupMatch ? "true" : "false" // Lookup match
-                    });
+                    ]);
             }
 
             return result;
