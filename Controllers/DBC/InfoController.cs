@@ -75,9 +75,17 @@ namespace wow.tools.local.Controllers
                 {
                     var db2Info = new List<string>();
 
-                    bin.BaseStream.Position = 4;
+
+                    var magic = new string(bin.ReadChars(4));
 
                     db2Info.Add(db2); // name
+
+                    if (magic == "WDC5")
+                    {
+                        bin.ReadUInt32();
+                        bin.ReadBytes(128);
+                    }
+
                     db2Info.Add(bin.ReadUInt32().ToString()); // recordCount
                     db2Info.Add(bin.ReadUInt32().ToString()); // fieldCount
                     db2Info.Add(bin.ReadUInt32().ToString()); // recordSize
