@@ -1,0 +1,194 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WoW.tools</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- JQuery -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+    <script type="text/javascript" src="/js/bufo.js"></script>
+    <script type="text/javascript" src="/js/js-blp.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="/">
+            <div id='logo'>
+                <div id='cog'>&nbsp;</div>
+                <div id='nocog'><img src='/img/w.svg' alt='Logo W'><img src='/img/w.svg' alt='Logo W'><span>.tools <small><i>but local</i></small></span></div>
+            </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class='fa fa-bars'></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav mr-auto mt-2 mt-md-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/files/"><i class="fa fa-files-o" aria-hidden="true"></i> Files</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-table" aria-hidden="true"></i> Tables
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navDropdown">
+                        <a class="dropdown-item" href="/dbc/">Browse</a>
+                        <a class="dropdown-item" href="/dbc/diff.html">Compare</a>
+                        <a class="dropdown-item" href="/dbc/info.html">Info</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/mv/"><i class="fa fa-cube" aria-hidden="true"></i> Models</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/builds/"><i class="fa fa-hdd-o" aria-hidden="true"></i> Builds</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/dbc/hotfixes.html"><i class="fa fa-fire-extinguisher" aria-hidden="true"></i> Hotfixes</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid" id='naming_container'>
+        <div class='row'>
+            <div class="col-md-6">
+                <p>Various namers can be run on the current build to find/suggest new filenames. Keep in mind that some namers might take a while, progress/any errors can be seen in the console. Might behave badly on non-mainline/new builds.</p>
+                <h4>Available namers</h4>
+                <table class="table table-sm table-striped">
+                    <thead><tr><th>Name</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td>Anima</td><td>Anima system textures (unused since SL).</td></tr>
+                        <tr><td>Baked NPC textures</td><td>Baked NPC textures (textures/bakednpctextures).</td></tr>
+                        <tr><td>Character Customization textures</td><td>Guess.</td></tr>
+                        <tr><td>Collectables</td><td>(Unstable) Naming from the collectable system.</td></tr>
+                        <tr><td>Color grading</td><td>Environment color grading textures.</td></tr>
+                        <tr><td>CreatureDisplayInfo textures</td><td>Creature model skins referenced by CreatureDisplayInfo.</td></tr>
+                        <tr><td>DBFilesClient</td><td>Names DB2 files based on the manifest.json file from the WoWDBDefs repo.</td></tr>
+                        <tr><td>Emote sounds</td><td>Character emote sounds.</td></tr>
+                        <tr><td>Full screen effects</td><td>Full screen effect textures.</td></tr>
+                        <tr><td>GameObject DisplayInfo</td><td>Doodad sound naming based on GameObjectDisplayInfo.db2.</td></tr>
+                        <tr><td>Interface files</td><td>Names interface files from ManifestInterfaceData.db2.</td></tr>
+                        <tr><td>Item textures</td><td>Item textures referenced from ItemDisplayInfo* DB2s.</td></tr>
+                        <tr><td><b style="color:red">(NYI)</b> M2 models</td><td>Generates automatic (largely placeholder) names for M2 models and related files.</td></tr>
+                        <tr><td><b style="color:red">(NYI)</b> Map</td><td>Map-based naming of WDT, WDL, ADT, minimaps and maptextures.</td></tr>
+                        <tr><td>Music (zones)</td><td>Zone music referenced from ZoneMusic.db2 and ZoneIntroMusicTable.db2.</td></tr>
+                        <tr><td>SoundKits</td><td>Name sound files based on various sources.</td></tr>
+                        <tr><td>Spell textures</td><td>Very specific spell textures (chain effects and blendsets).</td></tr>
+                        <tr><td>Terrain Cube Maps</td><td>Cube maps used for reflections of terrain.</td></tr>
+                        <tr><td>Voice dialog (NPC)</td><td>Requires a data recording addon. Currently supported: WoWDB Profiler, Wowhead Looter.</td></tr>
+                        <tr><td><b style="color:red">(NYI)</b> WMO models</td><td>Generates automatic (largely placeholder) names for WMO models.</td></tr>
+                        <tr><td>WWF files</td><td>Weather particulate files used to show various environmental particle effects.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h4>Settings</h4>
+                <form method="post" class="form" id="namingForm">
+                    <div class="form-group">
+                        <label for="creatureCacheWDBFilename">creaturecache.wdb location override (creaturecache is used for creature model and creature voice over naming)</label>
+                        <input type="text" class="form-control" id="creatureCacheWDBFilename" name="creatureCacheWDBFilename" placeholder="Override creaturecache.wdb location (default from retail WoW)">
+                    </div>
+                    <label for="namers">Select one or all namers below (default: all)</label>
+                    <select style="height: 500px" multiple class="form-control" id="namers" name="namers">
+                        <option value="Anima" selected>Anima system textures</option>
+                        <option value="BakedNPC" selected>Baked NPC textures</option>
+                        <option value="CharCust" selected>Character Customization textures</option>
+                        <option value="Collectables" selected>Collectables</option>
+                        <option value="ColorGrading" selected>Color grading</option>
+                        <option value="CDI" selected>CreatureDisplayInfo textures</option>
+                        <option value="DB2" selected>DBFilesClient</option>
+                        <option value="Emotes" selected>Emote sounds</option>
+                        <option value="FSE" selected>Full screen effects</option>
+                        <option value="GDI" selected>GameObject DisplayInfo</option>
+                        <option value="Interface" selected>Interface files</option>
+                        <option value="ItemTex" selected>Item textures</option>
+                        <option value="Music" selected>Zone music</option>
+                        <option value="SoundKits" selected>SoundKits</option>
+                        <option value="SpellTex" selected>Spell textures</option>
+                        <option value="TerrainCubeMaps" selected>Terrain Cube Maps</option>
+                        <option value="VO" selected>NPC dialog (requires data profiler addon)</option>
+                        <option value="WWF" selected>WWF files</option>
+                    </select>
+                    <br>
+                    <input type="submit" id="submitButton" class="btn btn-success form-control" value="Engage!">
+                </form>
+            </div>
+        </div>
+        <br />
+        <h4 id="resultTitle">Result</h4>
+        <p><b><a href="#" onClick="resultsAsTxt()">Download</a></b> as a .txt file and <a href="https://github.com/wowdev/wow-listfile/issues/new?assignees=&labels=suggestion&projects=&template=csv-listfile-suggestion.md&title=CSV+listfile+suggestion" target="_BLANK">submit an issue on GitHub</a> (login required) with the .txt file attached to submit these names to the community listfile.</p>
+        <textarea id="result" rows="15" cols="200">Nothing here yet.</textarea>
+    </div>
+    
+    <script src="/js/files.js"></script>
+    <script type='text/javascript'>
+        const namingForm = document.getElementById("namingForm");
+        const submitButton = document.getElementById("submitButton");
+        const result = document.getElementById("result");
+
+        namingForm.onsubmit = function(e) {
+            e.preventDefault();
+
+            submitButton.disabled = true;
+            submitButton.classList.add("disabled");
+            submitButton.value = "Naming, you can keep an eye on the console for progress... ";
+
+            var data = new FormData(namingForm);
+
+            fetch('/naming/start', {
+                method: 'POST',
+                body: data,
+            }).then(function(response) {
+                return response.text();
+            }).then(function (data) {
+                resultTitle.innerHTML = "Result (" + (data.split('\n').length - 1) + " names)";
+                result.innerHTML = data;
+                submitButton.disabled = false;
+                submitButton.classList.remove("disabled");
+                submitButton.value = "Engage!";
+            });
+        }
+
+        function resultsAsTxt() {
+            var fakeLink = document.createElement("a");
+            fakeLink.href = "data:text/plain;charset=UTF-8," + result.value;
+            fakeLink.setAttribute("download", "WTL-suggestions.txt");
+            fakeLink.click();
+        }
+    </script>
+    <footer>
+        <div class="container text-muted">
+            <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
+        </div>
+    </footer>
+    <link href="/css/files.css" rel="stylesheet">
+</body>
+</html>
+

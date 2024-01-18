@@ -20,6 +20,7 @@
     <Compile Remove="temp\**" />
     <Compile Remove="WoWDBDefs\**" />
     <Compile Remove="WoWFormatLib\**" />
+    <Compile Remove="WoWNamingLib\**" />
     <Content Remove="cache\**" />
     <Content Remove="CascLib\**" />
     <Content Remove="DBCD\**" />
@@ -29,6 +30,7 @@
     <Content Remove="temp\**" />
     <Content Remove="WoWDBDefs\**" />
     <Content Remove="WoWFormatLib\**" />
+    <Content Remove="WoWNamingLib\**" />
     <EmbeddedResource Remove="cache\**" />
     <EmbeddedResource Remove="CascLib\**" />
     <EmbeddedResource Remove="DBCD\**" />
@@ -38,6 +40,7 @@
     <EmbeddedResource Remove="temp\**" />
     <EmbeddedResource Remove="WoWDBDefs\**" />
     <EmbeddedResource Remove="WoWFormatLib\**" />
+    <EmbeddedResource Remove="WoWNamingLib\**" />
     <None Remove="cache\**" />
     <None Remove="CascLib\**" />
     <None Remove="DBCD\**" />
@@ -47,6 +50,7 @@
     <None Remove="temp\**" />
     <None Remove="WoWDBDefs\**" />
     <None Remove="WoWFormatLib\**" />
+    <None Remove="WoWNamingLib\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -62,10 +66,18 @@
   <ItemGroup>
     <Content Remove="knownPushIDs.json" />
     <Content Remove="versionHistory.json" />
+    <Content Remove="wwwroot\files\naming.html" />
   </ItemGroup>
   
   <ItemGroup>
+    <None Remove="cachedLookups.txt" />
+    <None Remove="cachedUnknowns.txt" />
+    <None Remove="db2fdid.txt" />
     <None Remove="debug.log" />
+    <None Remove="exported-tactkeys.csv" />
+    <None Remove="exported-unknown.csv" />
+    <None Remove="TactKey.csv" />
+    <None Remove="WoW.txt" />
     <None Remove="WTL.db" />
     <None Remove="WTL.db-journal" />
   </ItemGroup>
@@ -82,6 +94,7 @@
     <ProjectReference Include="DBDiffer\DBDiffer\DBDiffer.csproj" />
     <ProjectReference Include="SereniaBLPLib\SereniaBLPLib\SereniaBLPLib.csproj" />
     <ProjectReference Include="WoWFormatLib\WoWFormatLib\WoWFormatLib.csproj" />
+    <ProjectReference Include="WoWNamingLib\WoWNamingLib\WoWNamingLib.csproj" />
   </ItemGroup>
   
   <ItemGroup>

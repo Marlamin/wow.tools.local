@@ -16,3 +16,6 @@
 [submodule "WoWFormatLib"]
 	path = WoWFormatLib
 	url = https://github.com/Marlamin/WoWFormatLib
+[submodule "WoWNamingLib"]
+	path = WoWNamingLib
+	url = https://github.com/Marlamin/WoWNamingLib
