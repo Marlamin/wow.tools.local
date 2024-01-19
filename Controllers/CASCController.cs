@@ -683,7 +683,7 @@ namespace wow.tools.local.Controllers
                     // Temp build filter
                     var build = int.Parse(fileVersion.buildName.Split(".")[3]);
 
-                    if (build > 25600)
+                    if (build > 18378)
                     {
                         html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><a href='https://wago.tools/api/casc/" + filedataid + "/?version=" + fileVersion.buildName + "&download' target='_BLANK' download>Download</a></td></tr>";
                     }
