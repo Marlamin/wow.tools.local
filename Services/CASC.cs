@@ -464,36 +464,39 @@ namespace wow.tools.local.Services
 
             // If there are known statuses, make sure to reload.
             if (EncryptionStatuses.Count > 0)
-            {
-                EncryptionStatuses = new Dictionary<int, EncryptionStatus>();
-
-                foreach (var encryptedFile in EncryptedFDIDs)
-                {
-                    EncryptionStatus encryptionStatus;
-                    if (encryptedFile.Value.Count == 0)
-                    {
-                        encryptionStatus = EncryptionStatus.EncryptedButNot;
-                    }
-                    else if (encryptedFile.Value.All(value => KnownKeys.Contains(value)))
-                    {
-                        encryptionStatus = EncryptionStatus.EncryptedKnownKey;
-                    }
-                    else if (encryptedFile.Value.Any(value => KnownKeys.Contains(value)))
-                    {
-                        encryptionStatus = EncryptionStatus.EncryptedMixed;
-                    }
-                    else
-                    {
-                        encryptionStatus = EncryptionStatus.EncryptedUnknownKey;
-                    }
-
-                    EncryptionStatuses.Add(encryptedFile.Key, encryptionStatus);
-                }
-            }
+                RefreshEncryptionStatus();
 
             Console.WriteLine("Finished loading TACT keys: " + KnownKeys.Count + " known keys");
 
             return true;
+        }
+
+        public static void RefreshEncryptionStatus()
+        {
+            EncryptionStatuses = new Dictionary<int, EncryptionStatus>();
+
+            foreach (var encryptedFile in EncryptedFDIDs)
+            {
+                EncryptionStatus encryptionStatus;
+                if (encryptedFile.Value.Count == 0)
+                {
+                    encryptionStatus = EncryptionStatus.EncryptedButNot;
+                }
+                else if (encryptedFile.Value.All(value => KnownKeys.Contains(value)))
+                {
+                    encryptionStatus = EncryptionStatus.EncryptedKnownKey;
+                }
+                else if (encryptedFile.Value.Any(value => KnownKeys.Contains(value)))
+                {
+                    encryptionStatus = EncryptionStatus.EncryptedMixed;
+                }
+                else
+                {
+                    encryptionStatus = EncryptionStatus.EncryptedUnknownKey;
+                }
+
+                EncryptionStatuses.Add(encryptedFile.Key, encryptionStatus);
+            }
         }
 
         public static Stream? GetFileByID(uint filedataid, string? build = null)
