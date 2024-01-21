@@ -89,6 +89,12 @@ namespace wow.tools.local.Controllers
                     case "ItemTex":
                         Namer.NameItemTexture();
                         break;
+                    case "M2":
+                        Namer.NameM2s([], true);
+                        break;
+                    case "Map":
+                        Namer.NameMap();
+                        break;
                     case "Music":
                         Namer.NameMusic();
                         break;
@@ -111,6 +117,9 @@ namespace wow.tools.local.Controllers
                             throw new FileNotFoundException("creaturecache.wdb not found");
 
                         Namer.NameVO(creatureCacheWDBFilename);
+                        break;
+                    case "WMO":
+                        Namer.NameWMO();
                         break;
                     case "WWF":
                         Namer.NameWWF();
