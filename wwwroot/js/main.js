@@ -37,8 +37,10 @@ $(function() {
         }
     });
 
-    updateTitle();
-    checkForUpdates();
+    $("#navbar").load("/header.html", function () {
+        updateTitle();
+        checkForUpdates();
+    });
 });
 
 async function updateTitle() {
@@ -82,7 +84,7 @@ function newUpdateAvailable(isUpdateAvailable) {
     if (isUpdateAvailable) {
         updateDiv.innerHTML = "<i class='fa fa-exclamation-circle' style='color: red'></i> <a href='https://github.com/marlamin/wow.tools.local/releases' target='_BLANK'>An update to version " + JSON.parse(document.cookie).latestVersion + " is available!</a> <a href='#' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
     } else {
-        updateDiv.innerHTML = "<i class='fa fa-check-circle' style='color: green'></i> Up to date. <a href='#' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
+        updateDiv.innerHTML = "<i class='fa fa-check-circle' style='color: green;'></i> Up to date. <a style='cursor: pointer' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
     }
     navBar[0].appendChild(updateDiv);
 }

@@ -67,6 +67,7 @@
     <Content Remove="knownPushIDs.json" />
     <Content Remove="versionHistory.json" />
     <Content Remove="wwwroot\files\naming.html" />
+    <Content Remove="wwwroot\header.html" />
   </ItemGroup>
   
   <ItemGroup>
