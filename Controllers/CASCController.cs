@@ -677,7 +677,7 @@ namespace wow.tools.local.Controllers
             {
                 html += "<tr><td colspan='2'><b>Known versions</b></td></tr>";
                 html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
-                html += "<tr><th>Build</th><th>Contenthash</th><th><small><i>Non-current build downloads powered by <a href='https://wago.tools' target='_BLANK'>wago.tools</a></i></small></th></tr>";
+                html += "<tr><th>Build</th><th>Contenthash</th><th><small><i>Locally unavailable downloads powered by <a href='https://wago.tools' target='_BLANK'>wago.tools</a></i></small></th></tr>";
                 foreach (var fileVersion in fileVersions)
                 {
                     if (CASC.CHashToFDID.TryGetValue(fileVersion.contentHash, out var fdidsWithChash) && fdidsWithChash.Contains(filedataid))
@@ -720,7 +720,7 @@ namespace wow.tools.local.Controllers
             }
 
             if (CASC.Types.ContainsKey(filedataid) &&
-    (CASC.Types[filedataid] == "m2" || CASC.Types[filedataid] == "wmo" || CASC.Types[filedataid] == "adt" || CASC.Types[filedataid] == "wdt"))
+    (CASC.Types[filedataid] == "m2" || CASC.Types[filedataid] == "wmo") && !Linker.existingParents.Contains(filedataid))
             {
                 try
                 {
@@ -731,12 +731,6 @@ namespace wow.tools.local.Controllers
                             break;
                         case "wmo":
                             Linker.LinkWMO((uint)filedataid);
-                            break;
-                        case "adt":
-                            Linker.LinkADT((uint)filedataid);
-                            break;
-                        case "wdt":
-                            Linker.LinkWDT((uint)filedataid);
                             break;
                     }
                 }
@@ -947,10 +941,6 @@ namespace wow.tools.local.Controllers
                     Linker.LinkM2(fileDataID, true);
                 else if (fileType == "wmo")
                     Linker.LinkWMO(fileDataID, true);
-                else if (fileType == "adt")
-                    Linker.LinkADT(fileDataID, true);
-                else if (fileType == "wdt")
-                    Linker.LinkWDT(fileDataID, true);
             }
 
             return "";

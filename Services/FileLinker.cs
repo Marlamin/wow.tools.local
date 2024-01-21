@@ -1,5 +1,7 @@
 ﻿using Microsoft.Data.Sqlite;
+using System.Transactions;
 using WoWFormatLib.FileReaders;
+using WoWFormatLib.Structs.WDT;
 
 namespace wow.tools.local.Services
 {
@@ -14,7 +16,7 @@ namespace wow.tools.local.Services
 
         private static SqliteCommand insertCmd;
         private static SqliteCommand clearCmd;
-        private static HashSet<int> existingParents = new HashSet<int>();
+        public static HashSet<int> existingParents = new HashSet<int>();
         static Linker()
         {
             insertCmd = new SqliteCommand("INSERT INTO wow_rootfiles_links VALUES (@parent, @child, @type)", SQLiteDB.dbConn);
@@ -274,14 +276,134 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static void LinkADT(uint fileDataID, bool forceRecheck = false)
+        public static void LinkWDT(int wdtid, bool forceRecheck = false)
         {
-            throw new NotImplementedException();
-        }
+            if (!forceRecheck)
+            {
+                if (existingParents.Contains(wdtid))
+                    return;
+            }
+            else
+            {
+                clearCmd.Parameters[0].Value = wdtid;
+                clearCmd.ExecuteNonQuery();
 
-        public static void LinkWDT(uint fileDataID, bool forceRecheck = false)
-        {
-            throw new NotImplementedException();
+                existingParents.Remove(wdtid);
+            }
+
+            if (!CASC.Listfile.TryGetValue(wdtid, out var wdtFilename))
+            {
+                Console.WriteLine("Unable to find filename for WDT " + wdtid + ", skipping linking!");
+                return;
+            }
+
+            if (wdtFilename.Contains("_mpv") || wdtFilename.Contains("_lgt") || wdtFilename.Contains("_occ") || wdtFilename.Contains("_fogs"))
+                return;
+
+            Console.WriteLine("[WDT] Loading " + wdtid + " (" + wdtFilename + ")");
+
+            insertCmd.Parameters[0].Value = wdtid;
+
+            try
+            {
+                var wdtreader = new WDTReader();
+                wdtreader.LoadWDT((uint)wdtid);
+
+                var transaction = SQLiteDB.dbConn.BeginTransaction();
+                insertCmd.Transaction = transaction;
+
+                if (wdtreader.wdtfile.modf.entries != null && wdtreader.wdtfile.modf.entries[0].mwidEntry != 0 && !existingParents.Contains(wdtid))
+                {
+                    insertEntry(insertCmd, wdtreader.wdtfile.modf.entries[0].mwidEntry, "wdt wmo");
+                }
+
+                foreach (var records in wdtreader.wdtfile.tileFiles)
+                {
+                    // Switch to WDT fdid (previous could be ADT fdid)
+                    insertCmd.Parameters[0].Value = wdtid;
+
+                    if (!existingParents.Contains(wdtid))
+                    {
+                        insertEntry(insertCmd, records.Value.rootADT, "root adt");
+                        insertEntry(insertCmd, records.Value.tex0ADT, "tex0 adt");
+                        insertEntry(insertCmd, records.Value.lodADT, "lod adt");
+                        insertEntry(insertCmd, records.Value.obj0ADT, "obj0 adt");
+                        insertEntry(insertCmd, records.Value.obj1ADT, "obj1 adt");
+                        insertEntry(insertCmd, records.Value.mapTexture, "map texture");
+                        insertEntry(insertCmd, records.Value.mapTextureN, "mapn texture");
+                        insertEntry(insertCmd, records.Value.minimapTexture, "minimap texture");
+                    }
+
+                    if (records.Value.rootADT == 0)
+                        continue;
+
+                    if (existingParents.Contains((int)records.Value.rootADT))
+                        continue;
+
+                    // Switch to ADT FDID                            
+                    insertCmd.Parameters[0].Value = records.Value.rootADT;
+
+                    var inserted = new List<uint>();
+
+                    var adtreader = new ADTReader();
+                    try
+                    {
+                        adtreader.LoadADT(wdtreader.wdtfile, records.Key.Item1, records.Key.Item2);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        continue;
+                    }
+
+                    if (adtreader.adtfile.objects.m2Names.filenames != null)
+                    {
+                        Console.WriteLine(records.Value.rootADT + " is still using old filenames, skipping!");
+                    }
+                    else
+                    {
+                        foreach (var worldmodel in adtreader.adtfile.objects.worldModels.entries)
+                        {
+                            if (inserted.Contains(worldmodel.mwidEntry))
+                                continue;
+
+                            inserted.Add(worldmodel.mwidEntry);
+                            insertEntry(insertCmd, worldmodel.mwidEntry, "adt worldmodel");
+                        }
+
+                        foreach (var doodad in adtreader.adtfile.objects.models.entries)
+                        {
+                            if (inserted.Contains(doodad.mmidEntry))
+                                continue;
+
+                            insertEntry(insertCmd, doodad.mmidEntry, "adt doodad");
+                            inserted.Add(doodad.mmidEntry);
+                        }
+                    }
+
+                    foreach (var texture in adtreader.adtfile.diffuseTextureFileDataIDs)
+                    {
+                        if (texture == 0)
+                            continue;
+
+                        insertEntry(insertCmd, texture, "adt diffuse texture");
+                    }
+
+                    foreach (var texture in adtreader.adtfile.heightTextureFileDataIDs)
+                    {
+                        if (texture == 0)
+                            continue;
+
+                        insertEntry(insertCmd, texture, "adt height texture");
+                    }
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message + "\n" + e.StackTrace);
+            }
         }
 
         public static void Link(bool fullrun = false)
@@ -361,120 +483,7 @@ namespace wow.tools.local.Services
             {
                 foreach (var wdtid in wdtids)
                 {
-
-                    if (!CASC.Listfile.TryGetValue(wdtid, out var wdtFilename))
-                    {
-                        Console.WriteLine("Unable to find filename for WDT " + wdtid + ", skipping linking!");
-                        continue;
-                    }
-
-                    if (wdtFilename.Contains("_mpv") || wdtFilename.Contains("_lgt") || wdtFilename.Contains("_occ") || wdtFilename.Contains("_fogs"))
-                        continue;
-
-                    Console.WriteLine("[WDT] Loading " + wdtid + " (" + wdtFilename + ")");
-
-                    insertCmd.Parameters[0].Value = wdtid;
-
-                    try
-                    {
-                        var wdtreader = new WDTReader();
-                        wdtreader.LoadWDT((uint)wdtid);
-
-                        transaction = SQLiteDB.dbConn.BeginTransaction();
-                        insertCmd.Transaction = transaction;
-
-                        if (wdtreader.wdtfile.modf.id != 0 && !existingParents.Contains(wdtid))
-                        {
-                            insertEntry(insertCmd, wdtreader.wdtfile.modf.id, "wdt wmo");
-                        }
-
-                        foreach (var records in wdtreader.wdtfile.tileFiles)
-                        {
-                            // Switch to WDT fdid (previous could be ADT fdid)
-                            insertCmd.Parameters[0].Value = wdtid;
-
-                            if (!existingParents.Contains(wdtid))
-                            {
-                                insertEntry(insertCmd, records.Value.rootADT, "root adt");
-                                insertEntry(insertCmd, records.Value.tex0ADT, "tex0 adt");
-                                insertEntry(insertCmd, records.Value.lodADT, "lod adt");
-                                insertEntry(insertCmd, records.Value.obj0ADT, "obj0 adt");
-                                insertEntry(insertCmd, records.Value.obj1ADT, "obj1 adt");
-                                insertEntry(insertCmd, records.Value.mapTexture, "map texture");
-                                insertEntry(insertCmd, records.Value.mapTextureN, "mapn texture");
-                                insertEntry(insertCmd, records.Value.minimapTexture, "minimap texture");
-                            }
-
-                            if (records.Value.rootADT == 0)
-                                continue;
-
-                            if (existingParents.Contains((int)records.Value.rootADT))
-                                continue;
-
-                            // Switch to ADT FDID                            
-                            insertCmd.Parameters[0].Value = records.Value.rootADT;
-
-                            var inserted = new List<uint>();
-
-                            var adtreader = new ADTReader();
-                            try
-                            {
-                                adtreader.LoadADT(wdtreader.wdtfile, records.Key.Item1, records.Key.Item2);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                                continue;
-                            }
-
-                            if (adtreader.adtfile.objects.m2Names.filenames != null)
-                            {
-                                Console.WriteLine(records.Value.rootADT + " is still using old filenames, skipping!");
-                            }
-                            else
-                            {
-                                foreach (var worldmodel in adtreader.adtfile.objects.worldModels.entries)
-                                {
-                                    if (inserted.Contains(worldmodel.mwidEntry))
-                                        continue;
-
-                                    inserted.Add(worldmodel.mwidEntry);
-                                    insertEntry(insertCmd, worldmodel.mwidEntry, "adt worldmodel");
-                                }
-
-                                foreach (var doodad in adtreader.adtfile.objects.models.entries)
-                                {
-                                    if (inserted.Contains(doodad.mmidEntry))
-                                        continue;
-
-                                    insertEntry(insertCmd, doodad.mmidEntry, "adt doodad");
-                                    inserted.Add(doodad.mmidEntry);
-                                }
-                            }
-
-                            foreach (var texture in adtreader.adtfile.diffuseTextureFileDataIDs)
-                            {
-                                if (texture == 0)
-                                    continue;
-
-                                insertEntry(insertCmd, texture, "adt diffuse texture");
-                            }
-
-                            foreach (var texture in adtreader.adtfile.heightTextureFileDataIDs)
-                            {
-                                if (texture == 0)
-                                    continue;
-
-                                insertEntry(insertCmd, texture, "adt height texture");
-                            }
-                        }
-
-                        transaction.Commit();
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message + "\n" + e.StackTrace);
-                    }
+                    LinkWDT(wdtid, fullrun);
                 }
             }
             #endregion

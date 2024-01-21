@@ -177,10 +177,14 @@ function fillModal(fileDataID){
 function relinkFile(fileDataID) {
     var button = document.getElementById('fileRelinkButton');
     button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Recrawling, please wait...';
+    button.disabled = true;
+    button.classList.add('disabled');
     fetch("/casc/relinkFile?fileDataID=" + fileDataID)
         .then(response => response.text())
         .then(result => {
             fillModal(fileDataID);
+            button.disabled = false;
+            button.classList.remove('disabled');
         });
 }
 
