@@ -176,6 +176,16 @@ function fillModal(fileDataID){
     });
 }
 
+function relinkFile(fileDataID) {
+    var button = document.getElementById('fileRelinkButton');
+    button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Recrawling, please wait...';
+    fetch("/casc/relinkFile?fileDataID=" + fileDataID)
+        .then(response => response.text())
+        .then(result => {
+            fillModal(fileDataID);
+        });
+}
+
 function makeEditable(){
     this.contentEditable = true;
     this.focus();

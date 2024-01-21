@@ -547,7 +547,7 @@ namespace wow.tools.local.Controllers
             CASC.EnsureCHashesLoaded();
 
             // Yes, generating HTML here is ugly but that's how the old system worked and I can't be arsed to redo it.
-            var html = "<table class='table table-striped'><thead><tr><th style='width:400px'></th><th></th></tr></thead>";
+            var html = "<div style='float: right'><a class='btn btn-sm btn-primary' id='fileRelinkButton' onClick='relinkFile(" + filedataid + ")'>Recrawl file links</a></div><table style='clear: both' class='table table-striped'><thead><tr><th style='width:400px'></th><th></th></tr></thead>";
             html += "<tr><td>FileDataID</td><td>" + filedataid + "</td></tr>";
             html += "<tr><td>Filename</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out var filename) ? filename : "unknown/" + filedataid + ".unk") + "</td></tr>";
             html += "<tr><td>Lookup</td>";
@@ -926,6 +926,25 @@ namespace wow.tools.local.Controllers
                 Console.WriteLine("Error generating diff: " + e.Message);
                 return "Error generating diff: " + e.Message;
             }
+        }
+
+        [Route("relinkFile")]
+        [HttpGet]
+        public string RelinkFile(uint fileDataID)
+        {
+            if(CASC.Types.TryGetValue((int)fileDataID, out var fileType))
+            {
+                if (fileType == "m2")
+                    Linker.LinkM2(fileDataID, true);
+                else if (fileType == "wmo")
+                    Linker.LinkWMO(fileDataID, true);
+                else if (fileType == "adt")
+                    Linker.LinkADT(fileDataID, true);
+                else if (fileType == "wdt")
+                    Linker.LinkWDT(fileDataID, true);
+            }
+
+            return "";
         }
 
         [Route("startLinking")]

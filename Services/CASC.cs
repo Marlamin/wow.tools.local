@@ -230,28 +230,7 @@ namespace wow.tools.local.Services
             }
 
             Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");
-            foreach (var encryptedFile in EncryptedFDIDs)
-            {
-                EncryptionStatus encryptionStatus;
-                if (encryptedFile.Value.Count == 0)
-                {
-                    encryptionStatus = EncryptionStatus.EncryptedButNot;
-                }
-                else if (encryptedFile.Value.All(value => KnownKeys.Contains(value)))
-                {
-                    encryptionStatus = EncryptionStatus.EncryptedKnownKey;
-                }
-                else if (encryptedFile.Value.Any(value => KnownKeys.Contains(value)))
-                {
-                    encryptionStatus = EncryptionStatus.EncryptedMixed;
-                }
-                else
-                {
-                    encryptionStatus = EncryptionStatus.EncryptedUnknownKey;
-                }
-
-                EncryptionStatuses.Add(encryptedFile.Key, encryptionStatus);
-            }
+            RefreshEncryptionStatus();
             Console.WriteLine("Done analyzing encrypted files");
 
             // Loaded cached types from disk

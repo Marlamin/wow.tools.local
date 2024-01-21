@@ -13,6 +13,7 @@ namespace wow.tools.local.Services
 
 
         private static SqliteCommand insertCmd;
+        private static SqliteCommand clearCmd;
         private static HashSet<int> existingParents = new HashSet<int>();
         static Linker()
         {
@@ -21,6 +22,10 @@ namespace wow.tools.local.Services
             insertCmd.Parameters.AddWithValue("@child", 0);
             insertCmd.Parameters.AddWithValue("@type", "");
             insertCmd.Prepare();
+
+            clearCmd = new SqliteCommand("DELETE FROM wow_rootfiles_links WHERE parent = @parent", SQLiteDB.dbConn);
+            clearCmd.Parameters.AddWithValue("@parent", 0);
+            clearCmd.Prepare();
 
             using (var cmd = SQLiteDB.dbConn.CreateCommand())
             {
@@ -59,14 +64,22 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static void LinkM2(uint fileDataID)
+        public static void LinkM2(uint fileDataID, bool forceRecheck = false)
         {
             if (!CASC.FileExists(fileDataID))
                 return;
 
-            if (existingParents.Contains((int)fileDataID))
-                return;
-
+            if (!forceRecheck)
+            {
+                if (existingParents.Contains((int)fileDataID))
+                    return;
+            }
+            else
+            {
+                clearCmd.Parameters[0].Value = fileDataID;
+                clearCmd.ExecuteNonQuery();
+            }
+      
             try
             {
                 var reader = new M2Reader();
@@ -133,13 +146,21 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static void LinkWMO(uint fileDataID)
+        public static void LinkWMO(uint fileDataID, bool forceRecheck = false)
         {
             if (!CASC.FileExists(fileDataID))
                 return;
 
-            if (existingParents.Contains((int)fileDataID))
-                return;
+            if (!forceRecheck)
+            {
+                if (existingParents.Contains((int)fileDataID))
+                    return;
+            }
+            else
+            {
+                clearCmd.Parameters[0].Value = fileDataID;
+                clearCmd.ExecuteNonQuery();
+            }
 
             try
             {
@@ -253,12 +274,12 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static void LinkADT(uint fileDataID)
+        public static void LinkADT(uint fileDataID, bool forceRecheck = false)
         {
             throw new NotImplementedException();
         }
 
-        public static void LinkWDT(uint fileDataID)
+        public static void LinkWDT(uint fileDataID, bool forceRecheck = false)
         {
             throw new NotImplementedException();
         }
