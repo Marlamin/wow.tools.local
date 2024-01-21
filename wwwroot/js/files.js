@@ -6,14 +6,6 @@ $("#files").on('click', '.fileTableDL', function(e){
     }
 });
 
-window.onkeydown = function (e) {
-    if (e.shiftKey && e.keyCode == 65) {
-        showButtons();
-        queueAllFiles();
-        event.preventDefault();
-    }
-}
-
 $("#multipleFileAddAll").on('click', function(e){
     queueAllFiles();
     event.preventDefault();

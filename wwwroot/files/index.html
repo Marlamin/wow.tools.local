@@ -195,6 +195,14 @@
             showFileTree: false
         }
 
+        window.onkeydown = function (e) {
+            if (e.shiftKey && e.keyCode == 65) {
+                showButtons();
+                queueAllFiles();
+                event.preventDefault();
+            }
+        }
+
         async function exportListfile() {
             var button = document.getElementById("exportListfileButton");
             var beforeText = button.innerHTML;
