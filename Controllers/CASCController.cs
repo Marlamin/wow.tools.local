@@ -719,25 +719,28 @@ namespace wow.tools.local.Controllers
                 html += "</table></td></tr></table>";
             }
 
-            if (CASC.Types.ContainsKey(filedataid) &&
-    (CASC.Types[filedataid] == "m2" || CASC.Types[filedataid] == "wmo") && !Linker.existingParents.Contains(filedataid))
+            if (CASC.Types.ContainsKey(filedataid) && (CASC.Types[filedataid] == "m2" || CASC.Types[filedataid] == "wmo"))
             {
-                try
+                if (!Linker.existingParents.Contains(filedataid))
                 {
-                    switch (CASC.Types[filedataid])
+                    try
                     {
-                        case "m2":
-                            Linker.LinkM2((uint)filedataid);
-                            break;
-                        case "wmo":
-                            Linker.LinkWMO((uint)filedataid);
-                            break;
+                        switch (CASC.Types[filedataid])
+                        {
+                            case "m2":
+                                Linker.LinkM2((uint)filedataid);
+                                break;
+                            case "wmo":
+                                Linker.LinkWMO((uint)filedataid);
+                                break;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error generating links for file " + filedataid + ": " + e.Message + "\n" + e.StackTrace);
                     }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Error generating links for file " + filedataid + ": " + e.Message + "\n" + e.StackTrace);
-                }
+       
 
                 var linkedChildFiles = SQLiteDB.GetFilesByParent(filedataid);
 
@@ -959,6 +962,7 @@ namespace wow.tools.local.Controllers
         public string ClearLinks()
         {
             SQLiteDB.ClearLinks();
+            Linker.existingParents.Clear();
             return "";
         }
 

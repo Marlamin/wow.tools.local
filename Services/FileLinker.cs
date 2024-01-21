@@ -66,7 +66,7 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static void LinkM2(uint fileDataID, bool forceRecheck = false)
+        public static void LinkM2(uint fileDataID, bool forceRecheck = false, bool needTransaction = true)
         {
             if (!CASC.FileExists(fileDataID))
                 return;
@@ -80,8 +80,15 @@ namespace wow.tools.local.Services
             {
                 clearCmd.Parameters[0].Value = fileDataID;
                 clearCmd.ExecuteNonQuery();
+                existingParents.Remove((int)fileDataID);
             }
-      
+
+            if (needTransaction)
+            {
+                var transaction = SQLiteDB.dbConn.BeginTransaction();
+                insertCmd.Transaction = transaction;
+            }
+
             try
             {
                 var reader = new M2Reader();
@@ -146,9 +153,12 @@ namespace wow.tools.local.Services
             {
                 Console.WriteLine(e.Message);
             }
+
+            if (needTransaction)
+                insertCmd.Transaction.Commit();
         }
 
-        public static void LinkWMO(uint fileDataID, bool forceRecheck = false)
+        public static void LinkWMO(uint fileDataID, bool forceRecheck = false, bool needTransaction = true)
         {
             if (!CASC.FileExists(fileDataID))
                 return;
@@ -162,6 +172,13 @@ namespace wow.tools.local.Services
             {
                 clearCmd.Parameters[0].Value = fileDataID;
                 clearCmd.ExecuteNonQuery();
+                existingParents.Remove((int)fileDataID);
+            }
+
+            if(needTransaction)
+            {
+                var transaction = SQLiteDB.dbConn.BeginTransaction();
+                insertCmd.Transaction = transaction;
             }
 
             try
@@ -274,6 +291,9 @@ namespace wow.tools.local.Services
             {
                 Console.WriteLine(e.Message + "\n" + e.StackTrace);
             }
+
+            if (needTransaction)
+                insertCmd.Transaction.Commit();
         }
 
         public static void LinkWDT(int wdtid, bool forceRecheck = false)
@@ -422,7 +442,7 @@ namespace wow.tools.local.Services
 
             foreach (var m2 in m2ids)
             {
-                LinkM2((uint)m2);
+                LinkM2((uint)m2, fullrun, false);
 
                 processedM2s++;
 
@@ -453,7 +473,7 @@ namespace wow.tools.local.Services
             insertCmd.Transaction = transaction;
             foreach (var wmo in wmoids)
             {
-                LinkWMO((uint)wmo);
+                LinkWMO((uint)wmo, fullrun, false);
 
                 processedWMOs++;
 
