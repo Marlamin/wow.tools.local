@@ -312,7 +312,7 @@ namespace wow.tools.local.Services
                 var transaction = SQLiteDB.dbConn.BeginTransaction();
                 insertCmd.Transaction = transaction;
 
-                if (wdtreader.wdtfile.modf.entries != null && wdtreader.wdtfile.modf.entries[0].mwidEntry != 0 && !existingParents.Contains(wdtid))
+                if (wdtreader.wdtfile.modf.entries != null && wdtreader.wdtfile.modf.entries.Length > 0 && wdtreader.wdtfile.modf.entries[0].mwidEntry != 0 && !existingParents.Contains(wdtid))
                 {
                     insertEntry(insertCmd, wdtreader.wdtfile.modf.entries[0].mwidEntry, "wdt wmo");
                 }
