@@ -43,22 +43,6 @@
     <div class="container-fluid" id='files_container'>
         <div id='files_buttons' class='notree'>
             <!--<a href='#' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a> -->
-            <!-- <a href='/files/submitFiles.php' class='btn btn-success btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-content='Submit suggestions for filenames'><i class='fa fa-upload'></i> Suggest names</a> -->
-            <!-- <div class="btn-group">
-                <a href='/casc/listfile/download/csv/unverified' class='btn btn-primary btn-sm' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true' data-content='<span class="badge badge-danger">WARNING!</span> Listfile downloads are going away soon, please get the listfile from GitHub instead (see link in footer)!'><i class='fa fa-download'></i> Listfile</a>
-                <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <div class="dropdown-menu">
-                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download">TXT (Blizzard filenames only)</a>
-                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv">CSV (Blizzard filenames only)</a>
-                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unknown">CSV (FileDataIDs with no filenames)</a>
-                    <a target='_BLANK' class="dropdown-item" href="/casc/listfile/download/csv/unverified">Community CSV (all filenames, incl. guessed ones)</a>
-                </div>
-            </div>
-                    <a href='#' id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
-                    <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
-                    <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
             <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
             <div class="btn-group" role="group">
                 <a id='updateListfileButton' class='btn btn-primary btn-sm' onclick="updateListfile();" href="#"><i class='fa fa-refresh'></i> Update listfile</a>
@@ -66,6 +50,11 @@
             </div>
             <div class="btn-group" role="group">
                 <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
+            </div>
+            <div class="btn-group" role="group">
+                <a id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
+                <a id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
+                <a id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>
             </div>
         </div>
         <div id='files_treeFilter' style='display: none'>

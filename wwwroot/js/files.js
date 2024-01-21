@@ -68,22 +68,20 @@ function addFileToDownloadQueue(file){
     // Parse URL
     var url = new URL(file);
     const urlParams = new URLSearchParams(url.search);
-    var buildConfig  = urlParams.get('buildconfig');
-    var cdnConfig = urlParams.get('cdnconfig');
-    var fileDataID = urlParams.get('filedataid');
+    //var buildConfig  = urlParams.get('buildconfig');
+    //var cdnConfig = urlParams.get('cdnconfig');
+    var fileDataID = urlParams.get('fileDataID');
 
     // Update localstorage
-    var currentBuildConfig = localStorage.getItem('queue[buildconfig]');
-    if (!currentBuildConfig){
-        localStorage.setItem('queue[buildconfig]', buildConfig);
-    } else if (currentBuildConfig != buildConfig){
-        showDifferentBuildWarning();
-    }
+    //var currentBuildConfig = localStorage.getItem('queue[buildconfig]');
+    //if (!currentBuildConfig){
+    //    localStorage.setItem('queue[buildconfig]', buildConfig);
+    //} 
 
-    var currentCDNConfig = localStorage.getItem('queue[cdnconfig]');
-    if (!currentCDNConfig){
-        localStorage.setItem('queue[cdnconfig]', cdnConfig);
-    }
+    //var currentCDNConfig = localStorage.getItem('queue[cdnconfig]');
+    //if (!currentCDNConfig){
+    //    localStorage.setItem('queue[cdnconfig]', cdnConfig);
+    //}
 
     var fdids = localStorage.getItem('queue[fdids]');
     if (!fdids){
@@ -108,7 +106,7 @@ function showButtons(){
 function updateButton(){
     var fdids = localStorage.getItem('queue[fdids]').split(',');
     $("#multipleFileDLButton").text('Download selected files (' + fdids.length + ')');
-    $("#multipleFileDLButton").attr('href', 'https://wow.tools/casc/zip/fdids?buildConfig=' + localStorage.getItem('queue[buildconfig]') + '&cdnConfig=' + localStorage.getItem('queue[cdnconfig]') + '&ids=' + localStorage.getItem('queue[fdids]') + '&filename=selection.zip');
+    $("#multipleFileDLButton").attr('href', '/casc/zip/fdids?ids=' + localStorage.getItem('queue[fdids]') + '&filename=selection.zip');
 }
 
 function resetQueue(){
