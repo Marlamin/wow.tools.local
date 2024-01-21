@@ -1,10 +1,10 @@
 ﻿using CASCLib;
-using DBDiffer;
 using Microsoft.AspNetCore.Mvc;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
 using System.Text;
+using System.Web;
 using wow.tools.local.Services;
 using wow.tools.Services;
 
@@ -677,20 +677,29 @@ namespace wow.tools.local.Controllers
             {
                 html += "<tr><td colspan='2'><b>Known versions</b></td></tr>";
                 html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
-                html += "<tr><th>Build</th><th>Contenthash</th><th><small><i>Downloads powered by <a href='https://wago.tools' target='_BLANK'>wago.tools</a></i></small></th></tr>";
+                html += "<tr><th>Build</th><th>Contenthash</th><th><small><i>Non-current build downloads powered by <a href='https://wago.tools' target='_BLANK'>wago.tools</a></i></small></th></tr>";
                 foreach (var fileVersion in fileVersions)
                 {
-                    // Temp build filter
-                    var build = int.Parse(fileVersion.buildName.Split(".")[3]);
-
-                    if (build > 18378)
+                    if (CASC.CHashToFDID.TryGetValue(fileVersion.contentHash, out var fdidsWithChash) && fdidsWithChash.Contains(filedataid))
                     {
-                        html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><a href='https://wago.tools/api/casc/" + filedataid + "/?version=" + fileVersion.buildName + "&download' target='_BLANK' download>Download</a></td></tr>";
+                        var dlFilename = CASC.Listfile.TryGetValue(filedataid, out var listfileName) ? Path.GetFileName(listfileName) : filedataid + ".unk";
+                        html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><a href='/casc/fdid?fileDataID=" + filedataid + "&filename=" + HttpUtility.UrlEncode(dlFilename) + "' target='_BLANK' download>Download</a></td></tr>";
                     }
                     else
                     {
-                        html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><i>Download not available</i></td></tr>";
+                        // Temp build filter, wago.tools does not have builds below 18379
+                        var build = int.Parse(fileVersion.buildName.Split(".")[3]);
+
+                        if (build > 18378)
+                        {
+                            html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><a href='https://wago.tools/api/casc/" + filedataid + "/?version=" + fileVersion.buildName + "&download' target='_BLANK' download>Download</a></td></tr>";
+                        }
+                        else
+                        {
+                            html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><i>Download not available</i></td></tr>";
+                        }
                     }
+
                 }
                 html += "</table></td></tr>";
             }
@@ -850,7 +859,7 @@ namespace wow.tools.local.Controllers
         $(document).ready(function() {
             $.get('/casc/diffText?fileDataID=";
                     html += fileDataID + "&from=" + from + "&to=" + to;
-                    
+
                     html += @"', function(data) {
                 var diffHtml = Diff2Html.html(
                     data, {
@@ -932,7 +941,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string RelinkFile(uint fileDataID)
         {
-            if(CASC.Types.TryGetValue((int)fileDataID, out var fileType))
+            if (CASC.Types.TryGetValue((int)fileDataID, out var fileType))
             {
                 if (fileType == "m2")
                     Linker.LinkM2(fileDataID, true);
