@@ -228,10 +228,12 @@ function fillPreviewModal(buildconfig, filedataid, type) {
         }
         html += "<audio autoplay=\"\" controls=\"\"><source src=\"" + url + "\" type=\"" + mimeType + "\"></audio>";
     } else if (type == "m2" || type == "wmo") {
-        if (type == "wmo") {
-            html += "<p><b>Note for WMO previews:</b> If filename ends in _000 or other numbers this is likely a child WMO. These can not be previewed. Preview the root WMO (without the numbers) instead.</p>"
+        html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
+        if (type == "m2") {
+            html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
+        }else if(type == "wmo"){
+            html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
         }
-        html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe><div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
     } else if (type == "xml" || type == "lua" || type == "txt" || type == "srt") {
         fetch(url).then((response) => response.text()).then((text) => {
             document.getElementById('codeHolder').innerHTML = text;

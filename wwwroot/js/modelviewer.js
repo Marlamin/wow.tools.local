@@ -205,7 +205,7 @@ if (urlType){
 var urlEmbed = new URL(window.location).searchParams.get("embed");
 if (urlEmbed){
     Current.embedded = true;
-    $("#mvPageNav").hide();
+    $("#navbar").hide();
     $("#js-sidebar-button").hide();
     $("#fpsLabel").hide();
     console.log("Running modelviewer in embedded mode!");
