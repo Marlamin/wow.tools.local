@@ -41,6 +41,10 @@
 <body>
     <nav class="navbar navbar-expand-lg" id="navbar"></nav>
     <div class="container-fluid">
+        <div class="btn-group" role="group">
+            <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
+            <a id='exportTACTKeysButton' class='btn btn-secondary btn-sm' onclick="exportTACTKeys();" href="#"><i class='fa fa-save'></i> Export TACTKeys to WoW.txt</a>
+        </div><br /><br />
         <div id='output' style='font-family: "Courier New", monospace; white-space: pre;'>
 
         </div>
@@ -56,7 +60,7 @@
             json.forEach(function (entry) {
                 console.log(entry);
                 let keyBytes = "????????????????????????????????";
-                
+
                 if (entry.Key != "") {
                     keyBytes = entry.Key;
                 }

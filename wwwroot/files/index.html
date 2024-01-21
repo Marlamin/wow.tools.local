@@ -67,7 +67,6 @@
             </div>
             <div class="btn-group" role="group">
                 <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
-                <a id='exportTACTKeysButton' class='btn btn-secondary btn-sm' onclick="exportTACTKeys();" href="#"><i class='fa fa-save'></i> Export TACTKeys to WoW.txt</a>
             </div>
         </div>
         <div id='files_treeFilter' style='display: none'>
@@ -218,33 +217,11 @@
             button.innerHTML = beforeText;
         }
 
-        async function exportTACTKeys() {
-            var button = document.getElementById("exportTACTKeysButton");
-            var beforeText = button.innerHTML;
-
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Exporting, please wait!";
-
-            await fetch("/casc/exportTACTKeys");
-
-            // Make it last long enough to show something happened, lol
-            await new Promise(resolve => setTimeout(resolve, 100));
-
-            button.innerHTML = beforeText;
-        }
-
         async function updateListfile() {
             var button = document.getElementById("updateListfileButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateListfile");
-            window.location.reload();
-        }
-
-        async function updateTACTKeys() {
-            var button = document.getElementById("updateTACTKeysButton");
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
-
-            await fetch("/casc/updateTACTKeys");
             window.location.reload();
         }
 

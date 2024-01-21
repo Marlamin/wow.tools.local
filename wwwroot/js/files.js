@@ -422,3 +422,25 @@ function treeClick(event, returnAfterClear = true){
             $(".treeEntry").first().css("margin-top", "40px");
         });
 }
+
+async function exportTACTKeys() {
+    var button = document.getElementById("exportTACTKeysButton");
+    var beforeText = button.innerHTML;
+
+    button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Exporting, please wait!";
+
+    await fetch("/casc/exportTACTKeys");
+
+    // Make it last long enough to show something happened, lol
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    button.innerHTML = beforeText;
+}
+
+async function updateTACTKeys() {
+    var button = document.getElementById("updateTACTKeysButton");
+    button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
+
+    await fetch("/casc/updateTACTKeys");
+    window.location.reload();
+}
