@@ -60,10 +60,9 @@
                     <a href='#' id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
                     <a href='#' id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>-->
             <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
-            <a id='copyToClipBoardButton' class='btn btn-success btn-sm' onclick="copyResultsToClipboard();" href="#"><i class='fa fa-copy'></i> Copy to clipboard</a>
             <div class="btn-group" role="group">
                 <a id='updateListfileButton' class='btn btn-primary btn-sm' onclick="updateListfile();" href="#"><i class='fa fa-refresh'></i> Update listfile</a>
-                <a id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#"><i class='fa fa-save'></i> Export listfile to exported-listfile.csv</a>
+                <a id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#" data-trigger='hover' data-container='body' data-toggle='popover' data-content='Export listfile to exported-listfile.csv'><i class='fa fa-save'></i></a>
             </div>
             <div class="btn-group" role="group">
                 <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
@@ -355,7 +354,7 @@
                 },
                 "pageLength": 25,
                 "language": {
-                    "search": "Search: _INPUT_ <a style='margin-top: -5px;' class='btn btn-outline-primary btn-sm' href='#' data-toggle='modal' data-target='#helpModal'><i class='fa fa-question'></i></a><a role='button' style='margin-top: -5px;' id='togglePreviewWindow' onClick='togglePreviewPane()' class='btn btn-danger btn-sm' style='color: white' data-trigger='hover' data-container='body' data-toggle='popover' data-content='Click this to toggle between showing previews on the right of the table, or in a separate popup.'><i class='fa fa-columns'></i></a>",
+                    "search": "Search: _INPUT_ <a style='margin-top: -5px;' class='btn btn-outline-primary btn-sm' data-toggle='modal' data-target='#helpModal'><i class='fa fa-question'></i></a> <a role='button' style='margin-top: -5px;' id='togglePreviewWindow' onClick='togglePreviewPane()' class='btn btn-danger btn-sm' style='color: white' data-trigger='hover' data-container='body' data-toggle='popover' data-content='Click this to toggle between showing previews on the right of the table, or in a separate popup.'><i class='fa fa-columns'></i></a> <a id='copyToClipBoardButton' class='btn btn-success btn-sm' onclick='copyResultsToClipboard();' data-trigger='hover' data-container='body' data-html='false' data-placement='left' data-toggle='popover' data-content='Copy table to clipboard' style='margin-top: -5px;'><i class='fa fa-copy'></i></a>",
                     "info": "Showing _START_ to _END_ of _TOTAL_ files",
                 },
                 "displayStart": page * 25,
