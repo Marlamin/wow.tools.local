@@ -35,6 +35,7 @@ namespace wow.tools.local.Controllers
 
             var tklStorage = dbcManager.GetOrLoad("TactKeyLookup", CASC.BuildName, true).Result;
 
+            var newKeysFound = false;
             foreach (dynamic tklRow in tklStorage.Values)
             {
                 ulong key = BitConverter.ToUInt64(tklRow.TACTID);
@@ -59,6 +60,7 @@ namespace wow.tools.local.Controllers
                 {
                     Console.WriteLine("Adding known key from CascLib: " + key);
                     CASC.KnownKeys.Add(key);
+                    newKeysFound = true;
                 }
             }
 
@@ -78,6 +80,7 @@ namespace wow.tools.local.Controllers
 
                     Console.WriteLine("Setting key " + (int)tkRow.ID + " from TactKey.db2");
                     KeyService.SetKey(keyInfo.Key, tkRow.Key);
+                    newKeysFound = true;
                 }
             }
 
@@ -129,7 +132,7 @@ namespace wow.tools.local.Controllers
                                             continue;
 
                                         KeyService.SetKey(tactKeyLookup, tactKeyBytes);
-
+                                        newKeysFound = true;
                                         Console.WriteLine("Found TACT Key " + string.Format("{0:X}", tactKeyLookup).PadLeft(16, '0') + " " + Convert.ToHexString(tactKeyBytes));
                                     }
                                 }
@@ -187,7 +190,7 @@ namespace wow.tools.local.Controllers
                                             continue;
 
                                         KeyService.SetKey(tactKeyLookup, tactKeyBytes);
-
+                                        newKeysFound = true;
                                         Console.WriteLine("Found TACT Key " + string.Format("{0:X}", tactKeyLookup).PadLeft(16, '0') + " " + Convert.ToHexString(tactKeyBytes));
                                     }
                                 }
@@ -211,6 +214,9 @@ namespace wow.tools.local.Controllers
                        Description = keyInfo.Value.Description
                    });
             }
+
+            if (newKeysFound)
+                CASC.RefreshEncryptionStatus();
 
             return JsonSerializer.Serialize(keyInfos.OrderBy(x => x.ID));
         }
