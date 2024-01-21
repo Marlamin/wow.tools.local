@@ -221,7 +221,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
         if (type == "wmo") {
             html += "<p><b>Note for WMO previews:</b> If filename ends in _000 or other numbers this is likely a child WMO. These can not be previewed. Preview the root WMO (without the numbers) instead.</p>"
         }
-        html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
+        html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe><div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
     } else if (type == "xml" || type == "lua" || type == "txt" || type == "srt") {
         fetch(url).then((response) => response.text()).then((text) => {
             document.getElementById('codeHolder').innerHTML = text;
