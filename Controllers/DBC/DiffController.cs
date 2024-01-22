@@ -8,14 +8,9 @@ namespace wow.tools.Local.Controllers
 {
     [Route("dbc/diff")]
     [ApiController]
-    public class DiffController : ControllerBase
+    public class DiffController(IDBCManager dbcManager) : ControllerBase
     {
-        private readonly DBCManager dbcManager;
-
-        public DiffController(IDBCManager dbcManager)
-        {
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         public async Task<string> Diff(string name, string build1, string build2, bool useHotfixesFor1 = false, bool useHotfixesFor2 = false)
         {

@@ -8,16 +8,10 @@ namespace wow.tools.local.Controllers.DBC
 {
     [Route("dbc/updateDefs")]
     [ApiController]
-    public class UpdateDefsController : ControllerBase
+    public class UpdateDefsController(IDBDProvider dbdProvider, IDBCManager dbcManager) : ControllerBase
     {
-        private readonly DBDProvider dbdProvider;
-        private readonly DBCManager dbcManager;
-
-        public UpdateDefsController(IDBDProvider dbdProvider, IDBCManager dbcManager)
-        {
-            this.dbdProvider = dbdProvider as DBDProvider;
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         [HttpGet]
         public async Task<string> Get()

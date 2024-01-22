@@ -9,22 +9,17 @@ namespace wow.tools.local.Controllers
 {
     [Route("keys/")]
     [ApiController]
-    public class KeyController : Controller
+    public class KeyController(IDBCManager dbcManager) : Controller
     {
-        private readonly DBCManager dbcManager;
-
-        public KeyController(IDBCManager dbcManager)
-        {
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         private class KeyInfoEntry
         {
             public int ID { get; set; }
-            public string Lookup { get; set; }
-            public string Key { get; set; }
-            public string FirstSeen { get; set; }
-            public string Description { get; set; }
+            public string Lookup { get; set; } = "";
+            public string Key { get; set; } = "";
+            public string FirstSeen { get; set; } = "";
+            public string Description { get; set; } = "";
         }
 
         [Route("info")]
@@ -40,18 +35,18 @@ namespace wow.tools.local.Controllers
             {
                 ulong key = BitConverter.ToUInt64(tklRow.TACTID);
 
-                if (!KeyMetadata.KeyInfo.ContainsKey(key))
+                if (!KeyMetadata.KeyInfo.TryGetValue(key, out (int ID, string FirstSeen, string Description) metaData))
                 {
                     KeyMetadata.KeyInfo.Add(
                         key,
                         ((int)tklRow.ID,
-                        CASC.GetFullBuild(),
+                        CASC.cascHandler.Config.BuildName,
                         CASC.EncryptedFDIDs.Where(x => x.Value.Contains(key)).Select(x => x.Key).ToList().Count.ToString() + " file(s) as of " + CASC.BuildName)
                     );
                 }
-                else if (KeyMetadata.KeyInfo[key].Description == "" || KeyMetadata.KeyInfo[key].Description.Contains("file(s) as of"))
+                else if (metaData.Description == "" || metaData.Description.Contains("file(s) as of"))
                 {
-                    var copy = KeyMetadata.KeyInfo[key];
+                    var copy = metaData;
                     copy.Description = CASC.EncryptedFDIDs.Where(x => x.Value.Contains(key)).Select(x => x.Key).ToList().Count.ToString() + " file(s) as of " + CASC.BuildName;
                     KeyMetadata.KeyInfo[key] = copy;
                 }

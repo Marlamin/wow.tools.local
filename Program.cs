@@ -1,12 +1,10 @@
-using CASCLib;
-using Microsoft.AspNetCore.StaticFiles;
 using wow.tools.local.Services;
 
 namespace wow.tools.local
 {
     public class Program
     {
-        public async static Task Main(string[] args)
+        public static void Main(string[] args)
         {
             try
             {
@@ -23,7 +21,7 @@ namespace wow.tools.local
             {
                 Console.WriteLine("Exception initializing CASC: " + e.Message);
             }
-            
+
             CreateWebHostBuilder(args).Build().Run();
         }
 

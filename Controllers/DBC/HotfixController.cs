@@ -16,14 +16,16 @@ namespace wow.tools.local.Controllers
 
             var currentBuild = uint.Parse(CASC.BuildName.Split('.').Last());
 
-            var result = new DataTablesResult();
-            result.draw = Request.QueryString.Value.Contains("draw") ? int.Parse(Request.Query["draw"]) : 0;
-            result.data = new List<List<string>>();
+            var result = new DataTablesResult
+            {
+                draw = Request.QueryString.Value.Contains("draw") ? int.Parse(Request.Query["draw"]) : 0,
+                data = []
+            };
 
-            if (!HotfixManager.dbcacheParsers.ContainsKey(currentBuild))
+            if (!HotfixManager.dbcacheParsers.TryGetValue(currentBuild, out List<DBCacheParser>? parsers))
                 return result;
 
-            var allHotfixes = HotfixManager.dbcacheParsers[currentBuild].Select(x => x.hotfixes).ToList();
+            var allHotfixes = parsers.Select(x => x.hotfixes).ToList();
             var uniquePushes = allHotfixes.SelectMany(x => x).Where(x => x.pushID != -1).GroupBy(x => x.pushID).OrderByDescending(x => x.First().pushID).OrderByDescending(x => HotfixManager.pushIDDetected[x.Key]).ToList();
 
             Console.WriteLine("Found " + uniquePushes.Count + " unique pushes");
@@ -35,8 +37,8 @@ namespace wow.tools.local.Controllers
                     if(!HotfixManager.tableNames.TryGetValue(hotfix.tableHash, out var tableName))
                         tableName = "Unknown";
 
-                    result.data.Add(new List<string>
-                    {
+                    result.data.Add(
+                    [
                         hotfix.pushID.ToString(),
                         tableName,
                         hotfix.recordID.ToString(),
@@ -44,7 +46,7 @@ namespace wow.tools.local.Controllers
                         hotfix.status.ToString(),
                         HotfixManager.pushIDDetected[hotfix.pushID].ToString(),
                         CASC.DB2Map.ContainsKey("dbfilesclient/" + tableName.ToLower() + ".db2") ? "1" : "0"
-                    });
+                    ]);
                 }
             }
 

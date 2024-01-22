@@ -8,20 +8,12 @@ using wow.tools.Services;
 
 namespace wow.tools.local.Services
 {
-    public class DBCManager : IDBCManager
+    public class DBCManager(IDBDProvider dbdProvider) : IDBCManager
     {
-        private readonly DBDProvider dbdProvider;
+        private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
 
-        private MemoryCache Cache;
-        private ConcurrentDictionary<(string, string, bool), SemaphoreSlim> Locks;
-
-        public DBCManager(IDBDProvider dbdProvider)
-        {
-            this.dbdProvider = dbdProvider as DBDProvider;
-
-            Cache = new MemoryCache(new MemoryCacheOptions() { SizeLimit = 250 });
-            Locks = new ConcurrentDictionary<(string, string, bool), SemaphoreSlim>();
-        }
+        private MemoryCache Cache = new(new MemoryCacheOptions() { SizeLimit = 250 });
+        private readonly ConcurrentDictionary<(string, string, bool), SemaphoreSlim> Locks = [];
 
         public async Task<IDBCDStorage> GetOrLoad(string name, string build)
         {
@@ -93,14 +85,12 @@ namespace wow.tools.local.Services
             if (!HotfixManager.hotfixReaders.ContainsKey(buildNumber))
                 HotfixManager.LoadCaches();
 
-            if (HotfixManager.hotfixReaders.ContainsKey(buildNumber))
+            if (HotfixManager.hotfixReaders.TryGetValue(buildNumber, out HotfixReader? hotfixReaders))
             {
-                //storage = storage.ApplyingHotfixes(HotfixManager.hotfixReaders[buildNumber], pushIDFilter);
-
                 // DBCD PR #17 support
                 if (pushIDFilter != null)
                 {
-                    storage = storage.ApplyingHotfixes(HotfixManager.hotfixReaders[buildNumber], (row, shouldDelete) =>
+                    storage = storage.ApplyingHotfixes(hotfixReaders, (row, shouldDelete) =>
                     {
                         if (!pushIDFilter.Contains(row.PushId))
                             return RowOp.Ignore;
@@ -110,7 +100,7 @@ namespace wow.tools.local.Services
                 }
                 else
                 {
-                    storage = storage.ApplyingHotfixes(HotfixManager.hotfixReaders[buildNumber]);
+                    storage = storage.ApplyingHotfixes(hotfixReaders);
                 }
             }
 
@@ -132,10 +122,9 @@ namespace wow.tools.local.Services
 
         public List<string> GetDBCNames(string? build = null)
         {
-            var db2s = dbdProvider.definitionLookup.Keys;
             var existingDB2s = new List<string>();
 
-            foreach (var db2 in db2s)
+            foreach (var db2 in dbdProvider.GetNames())
             {
                 if (string.IsNullOrEmpty(build) || build == CASC.BuildName)
                 {
@@ -156,7 +145,7 @@ namespace wow.tools.local.Services
                 }
             }
 
-            return existingDB2s.Order().ToList();
+            return [.. existingDB2s.Order()];
         }
 
         public async Task<List<DBCDRow>> FindRecords(string name, string build, string col, int val, bool single = false)

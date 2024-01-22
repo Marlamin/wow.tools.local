@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using static wow.tools.local.Services.Linker;
 
 namespace wow.tools.local.Services
 {
     public static class SQLiteDB
     {
-        public static SqliteConnection dbConn = new SqliteConnection("Data Source=WTL.db");
+        public static SqliteConnection dbConn = new("Data Source=WTL.db");
 
         static SQLiteDB()
         {
@@ -119,7 +118,7 @@ namespace wow.tools.local.Services
             insertCmd.Prepare();
 
             var manifestPath = Path.Combine(SettingsManager.manifestFolder, buildName + ".txt");
-            if(!File.Exists(manifestPath))
+            if (!File.Exists(manifestPath))
             {
                 Console.WriteLine("Manifest file for build {0} not found, can't import", buildName);
                 return;

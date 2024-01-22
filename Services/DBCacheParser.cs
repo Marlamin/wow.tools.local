@@ -14,7 +14,7 @@
 
     public class DBCacheParser
     {
-        public List<HotfixEntry> hotfixes = new();
+        public List<HotfixEntry> hotfixes = [];
         public int build;
 
         public DBCacheParser(string filename)

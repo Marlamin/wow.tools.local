@@ -11,7 +11,7 @@ namespace wow.tools.local.Controllers
     {
         [Route("fdids")]
         [HttpGet]
-        public async Task<ActionResult> GetByFileDataID(string ids, string filename)
+        public ActionResult GetByFileDataID(string ids, string filename)
         {
             var filedataidlist = new List<uint>();
             foreach (var fdid in ids.Split(','))

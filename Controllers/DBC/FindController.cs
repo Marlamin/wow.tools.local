@@ -1,19 +1,14 @@
 ﻿using DBCD;
-using DBDefsLib;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Xml.Linq;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers.DBC
 {
     [Route("dbc/find")]
     [ApiController]
-    public class FindController : ControllerBase
+    public class FindController(IDBCManager dbcManager) : ControllerBase
     {
-        private readonly DBCManager dbcManager;
-
-        public FindController(IDBCManager dbcManager) => this.dbcManager = (DBCManager)dbcManager;
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         // GET: find/
         [HttpGet]
@@ -25,10 +20,8 @@ namespace wow.tools.local.Controllers.DBC
 
             var result = new List<Dictionary<string, string>>();
 
-            if (!storage.Values.Any())
-            {
+            if (storage.Values.Count == 0)
                 return result;
-            }
 
             foreach (DBCDRow row in storage.Values)
             {
@@ -40,7 +33,7 @@ namespace wow.tools.local.Controllers.DBC
 
                     if (field is Array arrayFields)
                     {
-                        foreach(var arrayField in arrayFields)
+                        foreach (var arrayField in arrayFields)
                         {
                             if (arrayField.ToString() == value)
                             {
@@ -109,10 +102,8 @@ namespace wow.tools.local.Controllers.DBC
 
             var result = new List<Dictionary<string, string>>();
 
-            if (!storage.Values.Any())
-            {
+            if (storage.Values.Count == 0)
                 return result;
-            }
 
             if (!calcOffset && col == "ID")
             {
@@ -158,7 +149,7 @@ namespace wow.tools.local.Controllers.DBC
             {
                 var arrIndex = 0;
 
-                if (col.Contains("["))
+                if (col.Contains('['))
                 {
                     arrIndex = int.Parse(col.Split("[")[1].Replace("]", string.Empty));
                     col = col.Split("[")[0];

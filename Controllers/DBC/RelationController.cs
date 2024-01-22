@@ -1,20 +1,14 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
-using wow.tools.local.Services;
 using wow.tools.Services;
 
 namespace wow.tools.local.Controllers
 {
     [Route("dbc/relations")]
     [ApiController]
-    public class RelationshipController : ControllerBase
+    public class RelationshipController(IDBDProvider dbdProvider) : ControllerBase
     {
-        private readonly DBDProvider dbdProvider;
-
-        public RelationshipController(IDBDProvider dbdProvider, IDBCManager dbcManager)
-        {
-            this.dbdProvider = dbdProvider as DBDProvider;
-        }
+        private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
 
         [HttpGet]
         public Dictionary<string, List<string>> Get()

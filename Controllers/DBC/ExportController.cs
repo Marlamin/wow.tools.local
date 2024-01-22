@@ -1,16 +1,9 @@
-﻿using DBCD;
+﻿using CASCLib;
+using DBCD;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.IO.Compression;
-using System.Collections.Generic;
-using System.Net;
-using wow.tools.local.Services;
 using wow.tools.local;
-using CASCLib;
-using DBDefsLib;
+using wow.tools.local.Services;
 
 namespace wow.tools.Local.Controllers
 {
@@ -18,22 +11,17 @@ namespace wow.tools.Local.Controllers
 
     [Route("dbc/export")]
     [ApiController]
-    public class ExportController : ControllerBase
+    public class ExportController(IDBCManager dbcManager) : ControllerBase
     {
         private static readonly Parameters DefaultParameters = new Dictionary<string, string>();
-        private static readonly char[] QuoteableChars = new char[] { ',', '"', '\r', '\n' };
+        private static readonly char[] QuoteableChars = [',', '"', '\r', '\n'];
 
-        private readonly DBCManager dbcManager;
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
-        public ExportController(IDBCManager dbcManager)
-        {
-            this.dbcManager = dbcManager as DBCManager;
-        }
-
-        private async Task<byte[]> GenerateCSVStream(IDBCDStorage storage, Parameters parameters, bool newLinesInStrings = true)
+        private static async Task<byte[]> GenerateCSVStream(IDBCDStorage storage, Parameters parameters, bool newLinesInStrings = true)
         {
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
-            
+
             if (storage.AvailableColumns.Length == 0)
             {
                 throw new Exception("No columns found!");
@@ -103,10 +91,10 @@ namespace wow.tools.Local.Controllers
 
         [Route("alltodisk")]
         [HttpGet]
-        public async Task<bool> ExportAllToDisk()
+        public bool ExportAllToDisk()
         {
             Console.WriteLine("Exporting all DBCs from current build to disk");
-           
+
             foreach (var dbname in dbcManager.GetDBCNames(CASC.BuildName))
             {
                 try
@@ -136,7 +124,7 @@ namespace wow.tools.Local.Controllers
 
             return true;
         }
-        
+
         [Route("all")]
         [HttpGet]
         public async Task<ActionResult> ExportAllCSV(string? build, bool useHotfixes = false, bool newLinesInStrings = true, LocaleFlags locale = LocaleFlags.All_WoW)
@@ -144,7 +132,7 @@ namespace wow.tools.Local.Controllers
             Console.WriteLine("Exporting all DBCs build " + build + " and locale " + locale);
             if (build == null)
                 build = CASC.BuildName;
-            
+
             using (var zip = new MemoryStream())
             {
                 using (var archive = new ZipArchive(zip, ZipArchiveMode.Create))
@@ -236,7 +224,7 @@ namespace wow.tools.Local.Controllers
                         };
                     }
                 }
-                    
+
             }
             catch (FileNotFoundException)
             {
@@ -259,7 +247,7 @@ namespace wow.tools.Local.Controllers
             return await dbcManager.GetOrLoad(name, build, useHotfixes, locale);
         }
 
-        private IEnumerable<string> GetColumnNames(IDBCDStorage storage)
+        private static IEnumerable<string> GetColumnNames(IDBCDStorage storage)
         {
             var record = storage.Values.FirstOrDefault();
 

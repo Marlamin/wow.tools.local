@@ -15,15 +15,15 @@ namespace wow.tools.local.Services
 
     public struct ApiDiff
     {
-        public IEnumerable<DiffEntry> added;
-        public IEnumerable<DiffEntry> removed;
-        public IEnumerable<DiffEntry> modified;
+        public IEnumerable<DiffEntry> Added;
+        public IEnumerable<DiffEntry> Removed;
+        public IEnumerable<DiffEntry> Modified;
 
-        public IEnumerable<DiffEntry> all
+        public readonly IEnumerable<DiffEntry> All
         {
             get
             {
-                return added.Concat(removed.Concat(modified));
+                return Added.Concat(Removed.Concat(Modified));
             }
         }
     }
@@ -32,7 +32,7 @@ namespace wow.tools.local.Services
     {
         private static readonly MemoryCache Cache = new(new MemoryCacheOptions() { SizeLimit = 15 });
 
-        private static HashSet<string> Keys = new();
+        private static HashSet<string> Keys = [];
 
         public static bool Get(string from, string to, out ApiDiff diff)
         {
@@ -57,7 +57,7 @@ namespace wow.tools.local.Services
                 Cache.Remove(key);
             }
 
-            Keys = new HashSet<string>();
+            Keys = [];
         }
     }
 }

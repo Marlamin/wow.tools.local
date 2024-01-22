@@ -8,7 +8,7 @@ namespace wow.tools.local.Controllers
 {
     [Route("dbc/data")]
     [ApiController]
-    public class DataController : ControllerBase
+    public class DataController(IDBCManager dbcManager) : ControllerBase
     {
         public class DataTablesResult
         {
@@ -19,14 +19,7 @@ namespace wow.tools.local.Controllers
             public string error { get; set; }
         }
 
-        private readonly DBDProvider dbdProvider;
-        private readonly DBCManager dbcManager;
-
-        public DataController(IDBDProvider dbdProvider, IDBCManager dbcManager)
-        {
-            this.dbdProvider = dbdProvider as DBDProvider;
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         // GET: data/
         [HttpGet]
@@ -37,7 +30,7 @@ namespace wow.tools.local.Controllers
 
         // GET/POST: data/name
         [HttpGet("{name}"), HttpPost("{name}")]
-        public async Task<DataTablesResult> Get(CancellationToken cancellationToken, string name, string build, int draw, int start, int length, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW)
+        public async Task<DataTablesResult> Get(string name, string build, int draw, int start, int length, CancellationToken cancellationToken, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW)
         {
             var parameters = new Dictionary<string, string>();
 
@@ -47,14 +40,14 @@ namespace wow.tools.local.Controllers
                 foreach (var post in Request.Form)
                     parameters.Add(post.Key, post.Value);
 
-                if (parameters.ContainsKey("draw"))
-                    draw = int.Parse(parameters["draw"]);
+                if (parameters.TryGetValue("draw", out string? drawString))
+                    draw = int.Parse(drawString);
 
-                if (parameters.ContainsKey("start"))
-                    start = int.Parse(parameters["start"]);
+                if (parameters.TryGetValue("start", out string? startString))
+                    start = int.Parse(startString);
 
-                if (parameters.ContainsKey("length"))
-                    length = int.Parse(parameters["length"]);
+                if (parameters.TryGetValue("length", out string? lengthString))
+                    length = int.Parse(lengthString);
             }
             else
             {
@@ -87,8 +80,8 @@ namespace wow.tools.local.Controllers
                     throw new Exception("Definitions for this DB and version combination not found in definition cache!");
                 }
 
-                result.recordsTotal = storage.Values.Count();
-                result.data = new List<string[]>();
+                result.recordsTotal = storage.Values.Count;
+                result.data = [];
 
                 if (storage.Values.Count == 0 || storage.AvailableColumns.Length == 0)
                     return result;

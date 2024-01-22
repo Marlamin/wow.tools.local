@@ -13,7 +13,7 @@ namespace wow.tools.local.Controllers.DBC
 {
     [Route("dbc/header")]
     [ApiController]
-    public class HeaderController : ControllerBase
+    public class HeaderController(IDBCManager dbcManager, IDBDProvider dbdProvider) : ControllerBase
     {
         public class HeaderResult
         {
@@ -26,14 +26,8 @@ namespace wow.tools.local.Controllers.DBC
             public string error { get; set; }
         }
 
-        private readonly DBCManager dbcManager;
-        private readonly DBDProvider dbdProvider;
-
-        public HeaderController(IDBCManager dbcManager, IDBDProvider dbdProvider)
-        {
-            this.dbcManager = dbcManager as DBCManager;
-            this.dbdProvider = dbdProvider as DBDProvider;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
+        private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
 
         // GET: api/DBC
         [HttpGet]
@@ -61,12 +55,12 @@ namespace wow.tools.local.Controllers.DBC
                     throw new KeyNotFoundException("Definition for " + name);
                 }
 
-                result.headers = new List<string>();
-                result.fks = new Dictionary<string, string>();
-                result.comments = new Dictionary<string, string>();
-                result.unverifieds = new List<string>();
+                result.headers = [];
+                result.fks = [];
+                result.comments = [];
+                result.unverifieds = [];
 
-                if (!storage.Values.Any())
+                if (storage.Values.Count == 0)
                 {
                     for (var j = 0; j < storage.AvailableColumns.Length; ++j)
                     {
@@ -154,7 +148,7 @@ namespace wow.tools.local.Controllers.DBC
                     }
                 }
 
-                result.relationsToColumns = new Dictionary<string, List<string>>();
+                result.relationsToColumns = [];
 
                 foreach (var column in result.headers)
                 {

@@ -12,14 +12,9 @@ namespace wow.tools.local.Controllers
 {
     [Route("casc/")]
     [ApiController]
-    public class CASCController : Controller
+    public class CASCController(IDBCManager dbcManager) : Controller
     {
-        private readonly DBCManager dbcManager;
-
-        public CASCController(IDBCManager dbcManager)
-        {
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         [Route("fdid")]
         [HttpGet]
@@ -64,7 +59,7 @@ namespace wow.tools.local.Controllers
             if (Request.Method == "POST" && Request.Form.TryGetValue("draw", out var draw))
             {
                 result.draw = int.Parse(draw);
-                result.data = new List<List<string>>();
+                result.data = [];
             }
 
             if (SettingsManager.wowFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.wowFolder, ".build.info")))
@@ -93,10 +88,10 @@ namespace wow.tools.local.Controllers
                     var isActive = CASC.CurrentProduct == product;
                     var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
                     var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
-                    result.data.Add(new List<string>() { patch, build, product, buildConfig, cdnConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString() });
+                    result.data.Add([patch, build, product, buildConfig, cdnConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
                 }
 
-                result.data = result.data.OrderBy(x => x[0]).ToList();
+                result.data = [.. result.data.OrderBy(x => x[0])];
                 result.recordsTotal = result.data.Count;
                 result.recordsFiltered = result.data.Count;
             }
@@ -156,7 +151,7 @@ namespace wow.tools.local.Controllers
                 foreach (var file in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
                     cachedManifests.Add(Path.GetFileNameWithoutExtension(file));
             }
-            return cachedManifests.OrderByDescending(x => int.Parse(x.Split(".")[3])).ToList();
+            return [.. cachedManifests.OrderByDescending(x => int.Parse(x.Split(".")[3]))];
         }
 
         [Route("analyzeUnknown")]
@@ -188,7 +183,7 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic mfdEntry in mfdStorage.Values)
                 {
                     var fdid = (int)mfdEntry.FileDataID;
-                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "m2");
                         unknownFiles.Remove(fdid);
@@ -207,7 +202,7 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic tfdEntry in tfdStorage.Values)
                 {
                     var fdid = (int)tfdEntry.FileDataID;
-                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "blp");
                         unknownFiles.Remove(fdid);
@@ -226,7 +221,7 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic mfdEntry in mfdStorage.Values)
                 {
                     var fdid = (int)mfdEntry.ID;
-                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "avi");
                         unknownFiles.Remove(fdid);
@@ -245,7 +240,7 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic mp3Entry in mp3Storage.Values)
                 {
                     var fdid = (int)mp3Entry.ID;
-                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "mp3");
                         unknownFiles.Remove(fdid);
@@ -264,7 +259,7 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic skEntry in skStorage.Values)
                 {
                     var fdid = (int)skEntry.FileDataID;
-                    if (!CASC.Types.ContainsKey(fdid) || CASC.Types[fdid] == "unk")
+                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "ogg");
                         unknownFiles.Remove(fdid);
@@ -287,7 +282,7 @@ namespace wow.tools.local.Controllers
             {
                 try
                 {
-                    if (CASC.EncryptionStatuses.ContainsKey(unknownFile) && CASC.EncryptionStatuses[unknownFile] == CASC.EncryptionStatus.EncryptedUnknownKey)
+                    if (CASC.EncryptionStatuses.TryGetValue(unknownFile, out CASC.EncryptionStatus value) && value == CASC.EncryptionStatus.EncryptedUnknownKey)
                     {
                         numFilesSkipped++;
                         numFilesDone++;
@@ -448,10 +443,10 @@ namespace wow.tools.local.Controllers
             {
                 return Json(new
                 {
-                    added = diff.added.Count(),
-                    modified = diff.modified.Count(),
-                    removed = diff.removed.Count(),
-                    data = diff.all.ToArray()
+                    added = diff.Added.Count(),
+                    modified = diff.Modified.Count(),
+                    removed = diff.Removed.Count(),
+                    data = diff.All.ToArray()
                 });
             }
 
@@ -469,8 +464,8 @@ namespace wow.tools.local.Controllers
                         filename = file,
                         id = entry.Key.ToString(),
                         md5 = entry.Value.ToLower(),
-                        type = CASC.Types.ContainsKey(entry.Key) ? CASC.Types[entry.Key] : "unk",
-                        encryptedStatus = CASC.EncryptionStatuses.ContainsKey(entry.Key) ? CASC.EncryptionStatuses[entry.Key].ToString() : ""
+                        type = CASC.Types.TryGetValue(entry.Key, out string? type) ? type : "unk",
+                        encryptedStatus = CASC.EncryptionStatuses.TryGetValue(entry.Key, out CASC.EncryptionStatus encStatus) ? encStatus.ToString() : ""
                     };
                 };
             }
@@ -504,21 +499,21 @@ namespace wow.tools.local.Controllers
 
             diff = new ApiDiff
             {
-                added = addedFiles.Select(toAddedDiffEntryDelegate),
-                removed = removedFiles.Select(toRemovedDiffEntryDelegate),
-                modified = modifiedFiles.Select(toModifiedDiffEntryDelegate)
+                Added = addedFiles.Select(toAddedDiffEntryDelegate),
+                Removed = removedFiles.Select(toRemovedDiffEntryDelegate),
+                Modified = modifiedFiles.Select(toModifiedDiffEntryDelegate)
             };
 
-            Console.WriteLine($"Added: {diff.added.Count()}, removed: {diff.removed.Count()}, modified: {diff.modified.Count()}, common: {commonEntries.Count()}");
+            Console.WriteLine($"Added: {diff.Added.Count()}, removed: {diff.Removed.Count()}, modified: {diff.Modified.Count()}, common: {commonEntries.Count()}");
 
             BuildDiffCache.Add(from, to, diff);
 
             return Json(new
             {
-                added = diff.added.Count(),
-                modified = diff.modified.Count(),
-                removed = diff.removed.Count(),
-                data = diff.all.ToArray()
+                added = diff.Added.Count(),
+                modified = diff.Modified.Count(),
+                removed = diff.Removed.Count(),
+                data = diff.All.ToArray()
             });
         }
 
@@ -533,7 +528,7 @@ namespace wow.tools.local.Controllers
             var filedataids = CASC.GetSameFiles(chash);
             foreach (var filedataid in filedataids)
             {
-                html += "<tr><td>" + filedataid + "</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out string filename) ? filename : "N/A") + "</td></tr>";
+                html += "<tr><td>" + filedataid + "</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
             }
             html += "</table>";
 
@@ -580,12 +575,12 @@ namespace wow.tools.local.Controllers
                 html += "<td>N/A</td></tr>";
             }
 
-            html += "<tr><td>Type</td><td>" + (CASC.Types.ContainsKey(filedataid) ? CASC.Types[filedataid] : "unk") + "</td></tr>";
+            html += "<tr><td>Type</td><td>" + (CASC.Types.TryGetValue(filedataid, out string? value) ? value : "unk") + "</td></tr>";
 
             if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKey))
             {
                 html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-toggle='modal' data-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
-                html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.ContainsKey(cKey) ? CASC.CHashToSize[cKey] + " bytes" : "N/A") + "</td></tr>";
+                html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out long size) ? size + " bytes" : "N/A") + "</td></tr>";
             }
 
             if (CASC.EncryptionStatuses.TryGetValue(filedataid, out var encryptionStatus))
@@ -630,7 +625,7 @@ namespace wow.tools.local.Controllers
                 try
                 {
                     if (
-                        CASC.Types.ContainsKey(filedataid) && CASC.Types[filedataid].ToLower() == "db2" &&
+                        CASC.Types.TryGetValue(filedataid, out string? fileType) && fileType.Equals("db2", StringComparison.CurrentCultureIgnoreCase) &&
                         CASC.Listfile.TryGetValue(filedataid, out var db2filename) && db2filename != ""
                         )
                     {
@@ -719,13 +714,13 @@ namespace wow.tools.local.Controllers
                 html += "</table></td></tr></table>";
             }
 
-            if (CASC.Types.ContainsKey(filedataid) && (CASC.Types[filedataid] == "m2" || CASC.Types[filedataid] == "wmo"))
+            if (CASC.Types.TryGetValue(filedataid, out string? type) && (type == "m2" || type == "wmo"))
             {
                 if (!Linker.existingParents.Contains(filedataid))
                 {
                     try
                     {
-                        switch (CASC.Types[filedataid])
+                        switch (value)
                         {
                             case "m2":
                                 Linker.LinkM2((uint)filedataid);
@@ -807,7 +802,7 @@ namespace wow.tools.local.Controllers
         {
 
             var html = "";
-            if (CASC.Types.TryGetValue(fileDataID, out string fileType))
+            if (CASC.Types.TryGetValue(fileDataID, out var fileType))
             {
                 var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt" };
 
@@ -917,7 +912,7 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                Process p = new Process();
+                Process p = new();
                 p.StartInfo.UseShellExecute = false;
                 p.StartInfo.RedirectStandardOutput = true;
                 p.StartInfo.FileName = "git";
@@ -971,7 +966,7 @@ namespace wow.tools.local.Controllers
         public string ClearFileHistory()
         {
             SQLiteDB.ClearHistory();
-            CASC.ClearFileHistory();
+            CASC.VersionHistory.Clear();
             return "";
         }
 

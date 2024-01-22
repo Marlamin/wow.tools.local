@@ -7,9 +7,9 @@ namespace wow.tools.Services
     public class DBDProvider : IDBDProvider
     {
         private readonly DBDReader dbdReader;
-        public Dictionary<string, (string FilePath, Structs.DBDefinition Definition)> definitionLookup;
-        private Dictionary<string, List<string>> relationshipMap;
-        
+        private Dictionary<string, (string FilePath, Structs.DBDefinition Definition)> definitionLookup = [];
+        private Dictionary<string, List<string>> relationshipMap = [];
+
         public DBDProvider()
         {
             dbdReader = new DBDReader();
@@ -30,7 +30,7 @@ namespace wow.tools.Services
 
             Console.WriteLine("Reloading relationship map");
 
-            relationshipMap = new Dictionary<string, List<string>>();
+            relationshipMap = [];
 
             foreach (var definition in definitionLookup)
             {
@@ -41,13 +41,13 @@ namespace wow.tools.Services
 
                     var currentName = definition.Key + "::" + column.Key;
                     var foreignName = column.Value.foreignTable + "::" + column.Value.foreignColumn;
-                    if (relationshipMap.ContainsKey(foreignName))
+                    if (relationshipMap.TryGetValue(foreignName, out List<string>? relations))
                     {
-                        relationshipMap[foreignName].Add(currentName);
+                        relations.Add(currentName);
                     }
                     else
                     {
-                        relationshipMap.Add(foreignName, new List<string>() { currentName });
+                        relationshipMap.Add(foreignName, [currentName]);
                     }
                 }
             }
@@ -91,7 +91,7 @@ namespace wow.tools.Services
                 var splitCol = foreignColumn.Split("::");
                 if (splitCol.Length == 2)
                 {
-                    var results = definitionLookup.Where(x => x.Key.ToLower() == splitCol[0].ToLower()).Select(x => x.Key);
+                    var results = definitionLookup.Where(x => x.Key.Equals(splitCol[0], StringComparison.CurrentCultureIgnoreCase)).Select(x => x.Key);
                     if (results.Any())
                     {
                         splitCol[0] = results.First();
@@ -100,12 +100,16 @@ namespace wow.tools.Services
                 foreignColumn = string.Join("::", splitCol);
             }
 
-            if (!relationshipMap.TryGetValue(foreignColumn, out List<string> relations))
-            {
-                return new List<string>();
-            }
+            if (!relationshipMap.TryGetValue(foreignColumn, out var relations))
+                return [];
 
             return relations;
+        }
+
+
+        public string[] GetNames()
+        {
+            return [.. definitionLookup.Keys];
         }
     }
 }

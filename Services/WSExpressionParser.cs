@@ -5,8 +5,8 @@ namespace wow.tools.local.Services
     public class WSExpressionParser
     {
         private int offset = 0;
-        private byte[] bytes = null;
-        public Dictionary<int, Dictionary<string, object>> state = new Dictionary<int, Dictionary<string, object>>();
+        private readonly byte[] bytes;
+        public Dictionary<int, Dictionary<string, object>> state = [];
 
         public WSExpressionParser(string hexBytes)
         {
@@ -22,15 +22,20 @@ namespace wow.tools.local.Services
 
         private Dictionary<string, object> EvalLogicalExp()
         {
-            Dictionary<string, object> ret = new Dictionary<string, object>();
-            ret["relational"] = EvalRelationalExp();
-            ret["op"] = bytes[offset++];
+            Dictionary<string, object> ret = new()
+            {
+                ["relational"] = EvalRelationalExp(),
+                ["op"] = bytes[offset++]
+            };
+
             byte op = Convert.ToByte(ret["op"]);
             int i = 1;
             while (op != 0)
             {
-                state[i] = new Dictionary<string, object>();
-                state[i]["relational"] = EvalRelationalExp();
+                state[i] = new Dictionary<string, object>
+                {
+                    ["relational"] = EvalRelationalExp()
+                };
                 if (offset >= bytes.Length)
                 {
                     state[i]["op"] = 0;
@@ -47,22 +52,28 @@ namespace wow.tools.local.Services
 
         private Dictionary<string, object> EvalRelationalExp()
         {
-            Dictionary<string, object> ret = new Dictionary<string, object>();
-            ret["arethmatic"] = EvalArethmaticExp();
-            ret["op"] = bytes[offset++];
+            Dictionary<string, object> ret = new()
+            {
+                ["arethmatic"] = EvalArethmaticExp(),
+                ["op"] = bytes[offset++]
+            };
+
             byte op = Convert.ToByte(ret["op"]);
             if (op != 0)
             {
                 ret["subArethmatic"] = EvalArethmaticExp();
             }
+
             return ret;
         }
 
         private Dictionary<string, object> EvalArethmaticExp()
         {
-            Dictionary<string, object> ret = new Dictionary<string, object>();
-            ret["value"] = EvalValue();
-            ret["op"] = bytes[offset++];
+            Dictionary<string, object> ret = new()
+            {
+                ["value"] = EvalValue(),
+                ["op"] = bytes[offset++]
+            };
             byte op = Convert.ToByte(ret["op"]);
             if (op != 0)
             {
@@ -72,8 +83,10 @@ namespace wow.tools.local.Services
         }
         private Dictionary<string, object> EvalValue()
         {
-            Dictionary<string, object> ret = new Dictionary<string, object>();
-            ret["type"] = bytes[offset++];
+            Dictionary<string, object> ret = new()
+            {
+                ["type"] = bytes[offset++]
+            };
             byte type = Convert.ToByte(ret["type"]);
             switch (type)
             {
@@ -100,11 +113,11 @@ namespace wow.tools.local.Services
 
     class HumanReadableWorldStateExpression
     {
-        private Dictionary<int, string> worldStateExpressionMap = new Dictionary<int, string>();
-        private string[] logOps = { "none", "and", "or", "xor" };
-        private string[] relOps = { "ID", "=", "≠", "<", "≤", ">", "≥" };
-        private string[] ariOps = { "ID", "+", "-", "*", "/", "%" };
-        private string[] valueTypes = { "0", "value", "world_state", "function" };
+        private readonly Dictionary<int, string> worldStateExpressionMap = [];
+        private readonly string[] logOps = ["none", "and", "or", "xor"];
+        private readonly string[] relOps = ["ID", "=", "≠", "<", "≤", ">", "≥"];
+        private readonly string[] ariOps = ["ID", "+", "-", "*", "/", "%"];
+        private readonly string[] valueTypes = ["0", "value", "world_state", "function"];
 
         public HumanReadableWorldStateExpression(Dictionary<int, string> worldStateExpressionMap = null)
         {
@@ -114,21 +127,21 @@ namespace wow.tools.local.Services
 
         public string StateToString(List<Dictionary<string, object>> states)
         {
-            StringBuilder str = new StringBuilder();
+            StringBuilder str = new();
             foreach (var state in states)
             {
                 if (int.Parse(state["op"].ToString()) != 0)
                 {
-                    str.Append("(");
+                    str.Append('(');
                     str.Append(RelationalToString((Dictionary<string, object>)state["relational"]));
                     str.Append(") ");
                     str.Append(logOps[Convert.ToInt32(state["op"])]);
-                    str.Append(" ");
+                    str.Append(' ');
                 }
                 else
                 {
                     str.Append(RelationalToString((Dictionary<string, object>)state["relational"]));
-                    str.Append(")");
+                    str.Append(')');
                 }
             }
             return str.ToString();
@@ -173,10 +186,10 @@ namespace wow.tools.local.Services
                 case 22:
                     if (worldStateExpressionMap.Count > 0)
                     {
-                        if (worldStateExpressionMap.ContainsKey(arg1))
+                        if (worldStateExpressionMap.TryGetValue(arg1, out string? exp))
                         {
-                            var inlineExp = new WSExpressionParser(worldStateExpressionMap[arg1]);
-                            return StateToString(inlineExp.state.Values.ToList());
+                            var inlineExp = new WSExpressionParser(exp);
+                            return StateToString([.. inlineExp.state.Values]);
                         }
                         else
                         {
@@ -204,14 +217,14 @@ namespace wow.tools.local.Services
 
         private string RelationalToString(Dictionary<string, object> relational)
         {
-            StringBuilder str = new StringBuilder("(");
+            StringBuilder str = new("(");
             Dictionary<string, object> arethmatic = (Dictionary<string, object>)relational["arethmatic"];
             if (Convert.ToInt32(arethmatic["op"]) != 0)
             {
                 str.Append(ValueToString((Dictionary<string, object>)arethmatic["value"]));
-                str.Append(" ");
+                str.Append(' ');
                 str.Append(ariOps[Convert.ToInt32(arethmatic["op"])]);
-                str.Append(" ");
+                str.Append(' ');
                 str.Append(ValueToString((Dictionary<string, object>)arethmatic["subValue"]));
             }
             else
@@ -220,16 +233,16 @@ namespace wow.tools.local.Services
             }
             if (Convert.ToInt32(relational["op"]) != 0)
             {
-                str.Append(" ");
+                str.Append(' ');
                 str.Append(relOps[Convert.ToInt32(relational["op"])]);
-                str.Append(" ");
+                str.Append(' ');
                 Dictionary<string, object> subArethmatic = (Dictionary<string, object>)relational["subArethmatic"];
                 if (Convert.ToInt32(subArethmatic["op"]) != 0)
                 {
                     str.Append(ValueToString((Dictionary<string, object>)subArethmatic["value"]));
-                    str.Append(" ");
+                    str.Append(' ');
                     str.Append(ariOps[Convert.ToInt32(subArethmatic["op"])]);
-                    str.Append(" ");
+                    str.Append(' ');
                     str.Append(ValueToString((Dictionary<string, object>)subArethmatic["subValue"]));
                 }
                 else

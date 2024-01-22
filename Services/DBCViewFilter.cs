@@ -68,7 +68,7 @@ namespace wow.tools.local.Services
             }
             else if (Searching && SearchValue.StartsWith("encrypted:"))
             {
-                if (Storage.GetEncryptedIDs().TryGetValue(ulong.Parse(SearchValue.Substring(10), NumberStyles.HexNumber), out var encryptedIDs))
+                if (Storage.GetEncryptedIDs().TryGetValue(ulong.Parse(SearchValue[10..], NumberStyles.HexNumber), out var encryptedIDs))
                     rowIDFilter.AddRange(encryptedIDs);
 
                 Searching = false;
@@ -269,7 +269,7 @@ namespace wow.tools.local.Services
             ConverterFunc = lambda.Compile();
         }
 
-        private static Expression GetProperty(ParameterExpression param, string fieldname, bool isArray, int index = 0)
+        private static IndexExpression GetProperty(ParameterExpression param, string fieldname, bool isArray, int index = 0)
         {
             if (isArray)
                 return Expression.Property(param, "Item", Expression.Constant(fieldname), Expression.Constant(index));

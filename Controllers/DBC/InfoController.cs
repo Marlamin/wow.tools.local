@@ -5,7 +5,7 @@ namespace wow.tools.local.Controllers
 {
     [Route("dbc/info")]
     [ApiController]
-    public class InfoController : ControllerBase
+    public class InfoController(IDBCManager dbcManager) : ControllerBase
     {
         public class DataTablesResult
         {
@@ -16,12 +16,7 @@ namespace wow.tools.local.Controllers
             public string error { get; set; }
         }
 
-        private readonly DBCManager dbcManager;
-
-        public InfoController(IDBCManager dbcManager)
-        {
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         [HttpGet]
         public DataTablesResult Get(string build)
@@ -31,8 +26,8 @@ namespace wow.tools.local.Controllers
                 parameters.Add(get.Key, get.Value);
 
             var draw = 0;
-            if (parameters.ContainsKey("draw"))
-                draw = int.Parse(parameters["draw"]);
+            if (parameters.TryGetValue("draw", out string? value))
+                draw = int.Parse(value);
 
             var result = new DataTablesResult
             {
@@ -45,7 +40,7 @@ namespace wow.tools.local.Controllers
                 return result;
             }
 
-            result.data = new List<string[]>();
+            result.data = [];
 
             var db2s = dbcManager.GetDBCNames(build);
 
@@ -101,7 +96,7 @@ namespace wow.tools.local.Controllers
                     bin.BaseStream.Position += 20;
                     db2Info.Add(bin.ReadUInt32().ToString()); // sectionCount
 
-                    result.data.Add(db2Info.ToArray());
+                    result.data.Add([.. db2Info]);
                 }
 
                 fs.Dispose();

@@ -7,16 +7,10 @@ namespace wow.tools.local.Controllers
 {
     [Route("dbc/reloadDefs")]
     [ApiController]
-    public class ReloadDefsController : ControllerBase
+    public class ReloadDefsController(IDBDProvider dbdProvider, IDBCManager dbcManager) : ControllerBase
     {
-        private readonly DBDProvider dbdProvider;
-        private readonly DBCManager dbcManager;
-
-        public ReloadDefsController(IDBDProvider dbdProvider, IDBCManager dbcManager)
-        {
-            this.dbdProvider = dbdProvider as DBDProvider;
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         [HttpGet]
         public string Get()

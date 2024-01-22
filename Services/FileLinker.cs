@@ -1,7 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
-using System.Transactions;
 using WoWFormatLib.FileReaders;
-using WoWFormatLib.Structs.WDT;
 
 namespace wow.tools.local.Services
 {
@@ -13,10 +11,9 @@ namespace wow.tools.local.Services
             public string linkType;
         }
 
-
-        private static SqliteCommand insertCmd;
-        private static SqliteCommand clearCmd;
-        public static HashSet<int> existingParents = new HashSet<int>();
+        private static readonly SqliteCommand insertCmd;
+        private static readonly SqliteCommand clearCmd;
+        public static HashSet<int> existingParents = [];
         static Linker()
         {
             insertCmd = new SqliteCommand("INSERT INTO wow_rootfiles_links VALUES (@parent, @child, @type)", SQLiteDB.dbConn);
@@ -175,7 +172,7 @@ namespace wow.tools.local.Services
                 existingParents.Remove((int)fileDataID);
             }
 
-            if(needTransaction)
+            if (needTransaction)
             {
                 var transaction = SQLiteDB.dbConn.BeginTransaction();
                 insertCmd.Transaction = transaction;
@@ -446,7 +443,7 @@ namespace wow.tools.local.Services
 
                 processedM2s++;
 
-                if(processedM2s % 1000 == 0)
+                if (processedM2s % 1000 == 0)
                 {
                     transaction.Commit();
                     transaction = SQLiteDB.dbConn.BeginTransaction();

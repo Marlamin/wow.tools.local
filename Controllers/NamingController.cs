@@ -13,7 +13,7 @@ namespace wow.tools.local.Controllers
 
         public NamingController(IDBCManager dbcManager)
         {
-            this.dbcManager = dbcManager as DBCManager;
+            this.dbcManager = (DBCManager)dbcManager;
 
             if (!Namer.isInitialized)
             {

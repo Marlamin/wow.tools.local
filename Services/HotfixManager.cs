@@ -5,9 +5,9 @@ namespace wow.tools.local.Services
 {
     public static class HotfixManager
     {
-        public static Dictionary<uint, HotfixReader> hotfixReaders = new Dictionary<uint, HotfixReader>();
-        public static Dictionary<uint, List<DBCacheParser>> dbcacheParsers = new Dictionary<uint, List<DBCacheParser>>();
-        public static Dictionary<int, DateTime> pushIDDetected = new Dictionary<int, DateTime>();
+        public static Dictionary<uint, HotfixReader> hotfixReaders = [];
+        public static Dictionary<uint, List<DBCacheParser>> dbcacheParsers = [];
+        public static Dictionary<int, DateTime> pushIDDetected = [];
         public static Dictionary<uint, string> tableNames = Directory.EnumerateFiles(SettingsManager.definitionDir).ToDictionary(x => Hash(Path.GetFileNameWithoutExtension(x).ToUpper()), x => Path.GetFileNameWithoutExtension(x));
 
         private static void LoadPushIDs() => pushIDDetected = JsonConvert.DeserializeObject<Dictionary<int, DateTime>>(File.ReadAllText("knownPushIDs.json"));
@@ -35,7 +35,7 @@ namespace wow.tools.local.Services
                     hotfixReaders[(uint)reader.BuildId].CombineCache(file);
 
                     if (!dbcacheParsers.ContainsKey((uint)reader.BuildId))
-                        dbcacheParsers.Add((uint)reader.BuildId, new List<DBCacheParser>());
+                        dbcacheParsers.Add((uint)reader.BuildId, []);
 
                     var newCache = new DBCacheParser(file);
                     dbcacheParsers[(uint)reader.BuildId].Add(newCache);
@@ -66,7 +66,7 @@ namespace wow.tools.local.Services
                 hotfixReaders[(uint)reader.BuildId].CombineCache(file);
 
                 if (!dbcacheParsers.ContainsKey((uint)reader.BuildId))
-                    dbcacheParsers.Add((uint)reader.BuildId, new List<DBCacheParser>());
+                    dbcacheParsers.Add((uint)reader.BuildId, []);
 
                 var newCache = new DBCacheParser(file);
                 dbcacheParsers[(uint)reader.BuildId].Add(newCache);

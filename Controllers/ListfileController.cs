@@ -9,15 +9,10 @@ namespace wow.tools.local.Controllers
 {
     [Route("listfile/")]
     [ApiController]
-    public class ListfileController : Controller
+    public class ListfileController(IDBCManager dbcManager) : Controller
     {
-        private readonly DBCManager dbcManager;
-        private readonly Jenkins96 hasher = new Jenkins96();
-
-        public ListfileController(IDBCManager dbcManager)
-        {
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
+        private readonly Jenkins96 hasher = new();
 
         public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
         {
@@ -164,7 +159,7 @@ namespace wow.tools.local.Controllers
             {
                 draw = draw,
                 recordsTotal = CASC.Listfile.Count,
-                data = new List<List<string>>()
+                data = []
             };
 
             var listfileResults = new Dictionary<int, string>(CASC.Listfile.Where(x => CASC.TypeMap["m2"].Contains(x.Key) || CASC.TypeMap["wmo"].Contains(x.Key)));
@@ -172,7 +167,7 @@ namespace wow.tools.local.Controllers
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
-                listfileResults = listfileResults.Where(x => x.Value.ToLower().Contains(searchStr) || x.Key.ToString() == search).ToDictionary(x => x.Key, x => x.Value);
+                listfileResults = listfileResults.Where(x => x.Value.Contains(searchStr, StringComparison.CurrentCultureIgnoreCase) || x.Key.ToString() == search).ToDictionary(x => x.Key, x => x.Value);
                 result.recordsFiltered = listfileResults.Count;
             }
             else
@@ -188,14 +183,14 @@ namespace wow.tools.local.Controllers
             foreach (var listfileResult in listfileResults.Skip(start).Take(length))
             {
                 result.data.Add(
-                    new List<string>() {
+                    [
                         listfileResult.Key.ToString(), // ID
                         listfileResult.Value, // Filename 
-                        CASC.LookupMap.ContainsKey(listfileResult.Key) ? CASC.LookupMap[listfileResult.Key].ToString("X16") : "", // Lookup
+                        CASC.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup) ? lookup.ToString("X16") : "", // Lookup
                         "", // Versions
-                        CASC.Types.ContainsKey(listfileResult.Key) ? CASC.Types[listfileResult.Key] : "unk", // Type
-                        CASC.EncryptionStatuses.ContainsKey(listfileResult.Key) ? CASC.EncryptionStatuses[listfileResult.Key].ToString() : "0"
-                    });
+                        CASC.Types.TryGetValue(listfileResult.Key, out string? type) ? type : "unk", // Type
+                        CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encStatus) ? encStatus.ToString() : "0"
+                    ]);
             }
 
             return result;
@@ -210,24 +205,18 @@ namespace wow.tools.local.Controllers
             {
                 foreach (var id in split)
                 {
-                    if (CASC.Listfile.TryGetValue(int.Parse(id), out string name))
-                    {
+                    if (CASC.Listfile.TryGetValue(int.Parse(id), out var name))
                         return name;
-                    }
                 }
 
                 return "";
             }
             else
             {
-                if (CASC.Listfile.TryGetValue(int.Parse(filedataid), out string name))
-                {
+                if (CASC.Listfile.TryGetValue(int.Parse(filedataid), out var name))
                     return name;
-                }
                 else
-                {
                     return "";
-                }
             }
         }
 
@@ -243,7 +232,7 @@ namespace wow.tools.local.Controllers
         {
             var versionList = new List<Version>
             {
-                new Version(CASC.BuildName)
+                new(CASC.BuildName)
             };
 
             if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && Directory.Exists(SettingsManager.dbcFolder))

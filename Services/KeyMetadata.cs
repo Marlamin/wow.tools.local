@@ -2,7 +2,7 @@
 {
     public static class KeyMetadata
     {
-        public static Dictionary<ulong, (int ID, string FirstSeen, string Description)> KeyInfo = new();
+        public static Dictionary<ulong, (int ID, string FirstSeen, string Description)> KeyInfo = [];
         static KeyMetadata()
         {
             LoadKeys();

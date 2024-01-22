@@ -1,20 +1,15 @@
-﻿using DBCD.Providers;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Processing;
 using wow.tools.local.Services;
-using wow.tools.Services;
 
 namespace wow.tools.local.Controllers
 {
     [Route("map/")]
-    public class MapController : Controller
+    public class MapController(IDBCManager dbcManager) : Controller
     {
-        private readonly DBDProvider dbdProvider;
-        private readonly DBCManager dbcManager;
-        private Dictionary<string, List<int>> mapMaskCache = new();
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
+        private readonly Dictionary<string, List<int>> mapMaskCache = [];
 
         public struct MapInfo
         {
@@ -24,15 +19,9 @@ namespace wow.tools.local.Controllers
             public uint wdtFileDataID;
         }
 
-        public MapController(IDBDProvider dbdProvider, IDBCManager dbcManager)
-        {
-            this.dbdProvider = dbdProvider as DBDProvider;
-            this.dbcManager = dbcManager as DBCManager;
-        }
-
         [Route("tile")]
         [HttpGet]
-        public async Task<FileContentResult> Tile(uint fileDataID, int targetSize)
+        public FileContentResult Tile(uint fileDataID, int targetSize)
         {
             if (!CASC.FileExists(fileDataID))
                 fileDataID = 189076;
@@ -41,11 +30,11 @@ namespace wow.tools.local.Controllers
             var blp = blpReader.GetImage(0);
             var pixelBytes = new byte[targetSize * targetSize * 4];
 
-            if(blp.Width == targetSize)
+            if (blp.Width == targetSize)
             {
                 blp.CopyPixelDataTo(pixelBytes);
             }
-            else 
+            else
             {
                 // Minimaps dont have mipmaps, so resize :(
                 blp.Mutate(x => x.Resize(new Size(targetSize, targetSize)));
@@ -64,10 +53,10 @@ namespace wow.tools.local.Controllers
 
             var mapDB = await dbcManager.GetOrLoad("Map", CASC.BuildName);
 
-            if(!mapDB.AvailableColumns.Contains("Directory") || !mapDB.AvailableColumns.Contains("MapName_lang") || !mapDB.AvailableColumns.Contains("WdtFileDataID"))
+            if (!mapDB.AvailableColumns.Contains("Directory") || !mapDB.AvailableColumns.Contains("MapName_lang") || !mapDB.AvailableColumns.Contains("WdtFileDataID"))
                 throw new Exception("Unable to initialize map list, missing one of the required columns.");
 
-            foreach(var entry in mapDB.Values)
+            foreach (var entry in mapDB.Values)
             {
                 list.Add(new MapInfo()
                 {
@@ -80,11 +69,11 @@ namespace wow.tools.local.Controllers
                 seenMaps.Add(entry["Directory"].ToString().ToLower());
             }
 
-            var allMinimaps = CASC.Listfile.Values.Where(x => x.ToLower().StartsWith("world/minimaps") && !x.ToLower().StartsWith("world/minimaps/wmo")).Select(x => Path.GetDirectoryName(x).Replace("world\\minimaps\\", "")).Distinct();
+            var allMinimaps = CASC.Listfile.Values.Where(x => x.StartsWith("world/minimaps", StringComparison.CurrentCultureIgnoreCase) && !x.StartsWith("world/minimaps/wmo", StringComparison.CurrentCultureIgnoreCase)).Select(x => Path.GetDirectoryName(x).Replace("world\\minimaps\\", "")).Distinct();
             Console.WriteLine();
-            foreach(var minimap in allMinimaps)
+            foreach (var minimap in allMinimaps)
             {
-                if (seenMaps.Contains(minimap) || minimap.Contains("\\"))
+                if (seenMaps.Contains(minimap) || minimap.Contains('\\'))
                     continue;
 
                 list.Add(new MapInfo()
@@ -103,11 +92,11 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public List<int> GetWDTMask(string mapID, string directory, uint wdtFileDataID)
         {
-          //  if (mapMaskCache.ContainsKey(mapID))
-          //      return mapMaskCache[mapID];
+            //  if (mapMaskCache.ContainsKey(mapID))
+            //      return mapMaskCache[mapID];
 
             var mask = new List<int>();
-            var allMinimaps = CASC.Listfile.Where(x => x.Value.ToLower().StartsWith("world/minimaps/" + directory.ToLower())).ToDictionary(x => x.Value, x => x.Key);
+            var allMinimaps = CASC.Listfile.Where(x => x.Value.StartsWith("world/minimaps/" + directory.ToLower(), StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Value, x => x.Key);
 
             if (wdtFileDataID == 0)
             {
@@ -122,7 +111,7 @@ namespace wow.tools.local.Controllers
                             mask.Add(0);
                     }
                 }
-                
+
                 return mask;
             }
 

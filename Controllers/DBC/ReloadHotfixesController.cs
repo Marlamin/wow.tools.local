@@ -1,22 +1,13 @@
-﻿using DBCD.Providers;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Services;
-using wow.tools.Services;
 
 namespace wow.tools.local.Controllers
 {
     [Route("dbc/reloadHotfixes")]
     [ApiController]
-    public class ReloadHotfixesController : ControllerBase
+    public class ReloadHotfixesController(IDBCManager dbcManager) : ControllerBase
     {
-        private readonly DBDProvider dbdProvider;
-        private readonly DBCManager dbcManager;
-
-        public ReloadHotfixesController(IDBDProvider dbdProvider, IDBCManager dbcManager)
-        {
-            this.dbdProvider = dbdProvider as DBDProvider;
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         [HttpGet]
         public string Get()

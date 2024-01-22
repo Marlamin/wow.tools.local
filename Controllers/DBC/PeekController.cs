@@ -7,14 +7,9 @@ namespace wow.tools.local.Controllers.DBC
 {
     [Route("dbc/peek")]
     [ApiController]
-    public class PeekController : ControllerBase
+    public class PeekController(IDBCManager dbcManager) : ControllerBase
     {
-        private readonly DBCManager dbcManager;
-
-        public PeekController(IDBCManager dbcManager)
-        {
-            this.dbcManager = dbcManager as DBCManager;
-        }
+        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         public class PeekResult
         {
@@ -43,7 +38,7 @@ namespace wow.tools.local.Controllers.DBC
 
             if (useHotfixes && pushIDs != "")
             {
-                pushIDList = new List<int>();
+                pushIDList = [];
 
                 var pushIDsExploded = pushIDs.Split(',');
 
@@ -59,7 +54,7 @@ namespace wow.tools.local.Controllers.DBC
                 }
             }
 
-            var result = new PeekResult { values = new Dictionary<string, string>() };
+            var result = new PeekResult { values = [] };
 
             if (name == "filedata")
             {
@@ -78,7 +73,7 @@ namespace wow.tools.local.Controllers.DBC
                 return result;
             }
 
-            if (!storage.Values.Any())
+            if (storage.Values.Count == 0)
             {
                 return result;
             }
