@@ -334,25 +334,25 @@ namespace wow.tools.local.Services
                 var splitLine = line.Split(";");
                 var fdid = int.Parse(splitLine[0]);
 
-                if (Listfile.ContainsKey(fdid))
+                if(SettingsManager.showAllFiles == false && !Listfile.ContainsKey(fdid))
+                    continue;
+
+                var ext = Path.GetExtension(splitLine[1]).Replace(".", "").ToLower();
+
+                if (!TypeMap.ContainsKey(ext))
+                    TypeMap.Add(ext, new HashSet<int>());
+
+                Listfile[fdid] = splitLine[1];
+
+                // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
+                if (ext != "wmo")
                 {
-                    var ext = Path.GetExtension(splitLine[1]).Replace(".", "").ToLower();
-
-                    if (!TypeMap.ContainsKey(ext))
-                        TypeMap.Add(ext, new HashSet<int>());
-
-                    Listfile[fdid] = splitLine[1];
-
-                    // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
-                    if (ext != "wmo")
-                    {
-                        Types.Add(fdid, ext);
-                        TypeMap[ext].Add(fdid);
-                    }
-
-                    if (ext == "db2")
-                        DB2Map.Add(splitLine[1].ToLower(), fdid);
+                    Types.Add(fdid, ext);
+                    TypeMap[ext].Add(fdid);
                 }
+
+                if (ext == "db2")
+                    DB2Map.Add(splitLine[1].ToLower(), fdid);
             }
 
             Console.WriteLine("Finished loading listfile: " + Listfile.Count + " named files for this build");

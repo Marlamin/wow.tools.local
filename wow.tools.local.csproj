@@ -75,8 +75,13 @@
     <None Remove="cachedUnknowns.txt" />
     <None Remove="db2fdid.txt" />
     <None Remove="debug.log" />
+    <None Remove="exported-listfile.csv" />
     <None Remove="exported-tactkeys.csv" />
     <None Remove="exported-unknown.csv" />
+    <None Remove="listfile.csv" />
+    <None Remove="listfile.csv.bak" />
+    <None Remove="listfile.txt" />
+    <None Remove="spellOutput.txt" />
     <None Remove="TactKey.csv" />
     <None Remove="WoW.txt" />
     <None Remove="WTL.db" />

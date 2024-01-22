@@ -143,7 +143,7 @@ namespace wow.tools.local.Controllers
                         listfileResult.Key.ToString(), // ID
                         listfileResult.Value, // Filename 
                         lookup != 0 ? lookup.ToString("X16") : "", // Lookup
-                        "", // Versions
+                        CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
                         CASC.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
                         CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encryptionStatus) ? encryptionStatus.ToString() : "", // Extra data
                         "", // Comment
