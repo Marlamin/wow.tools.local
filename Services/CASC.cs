@@ -125,7 +125,6 @@ namespace wow.tools.local.Services
 
             Listfile = new Dictionary<int, string>();
             DB2Map = new Dictionary<string, int>();
-            M2Listfile = new SortedDictionary<int, string>();
             EncryptedFDIDs = new Dictionary<int, List<ulong>>();
             EncryptionStatuses = new Dictionary<int, EncryptionStatus>();
             TypeMap = new Dictionary<string, HashSet<int>>();
@@ -323,7 +322,6 @@ namespace wow.tools.local.Services
 
                 DB2Map.Clear();
                 Types.Clear();
-                M2Listfile.Clear();
             }
 
             Console.WriteLine("Loading listfile");
@@ -354,9 +352,6 @@ namespace wow.tools.local.Services
 
                     if (ext == "db2")
                         DB2Map.Add(splitLine[1].ToLower(), fdid);
-
-                    if (ext == "m2")
-                        M2Listfile.Add(fdid, splitLine[1]);
                 }
             }
 

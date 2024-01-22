@@ -163,25 +163,27 @@ namespace wow.tools.local.Controllers
             var result = new DataTablesResult()
             {
                 draw = draw,
-                recordsTotal = CASC.M2Listfile.Count,
+                recordsTotal = CASC.Listfile.Count,
                 data = new List<List<string>>()
             };
 
-            var listfileResults = new Dictionary<int, string>();
+            var listfileResults = new Dictionary<int, string>(CASC.Listfile.Where(x => CASC.TypeMap["m2"].Contains(x.Key) || CASC.TypeMap["wmo"].Contains(x.Key)));
 
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
-                listfileResults = CASC.M2Listfile.Where(x => x.Value.ToLower().Contains(searchStr) || x.Key.ToString() == search).ToDictionary(x => x.Key, x => x.Value);
+                listfileResults = listfileResults.Where(x => x.Value.ToLower().Contains(searchStr) || x.Key.ToString() == search).ToDictionary(x => x.Key, x => x.Value);
                 result.recordsFiltered = listfileResults.Count;
             }
             else
             {
-                listfileResults = CASC.M2Listfile.ToDictionary(x => x.Key, x => x.Value);
-                result.recordsFiltered = CASC.M2Listfile.Count;
+                listfileResults = listfileResults.ToDictionary(x => x.Key, x => x.Value);
+                result.recordsFiltered = listfileResults.Count;
             }
 
             var rows = new List<string>();
+
+            listfileResults = listfileResults.OrderBy(x => x.Key).ToDictionary();
 
             foreach (var listfileResult in listfileResults.Skip(start).Take(length))
             {
