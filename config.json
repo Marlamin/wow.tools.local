@@ -8,6 +8,7 @@
     "wowFolder": "C:/World of Warcraft",
     "wowProduct": "wow",
     "region": "eu",
-    "locale": "enUS"
+    "locale": "enUS",
+    "showAllFiles": false
   }
 }
