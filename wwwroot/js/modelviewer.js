@@ -1,3 +1,5 @@
+const NUM_TEXTURE_SLOTS = 27; // As the first configurable texture slot is #0, the value here is 1 more than the highest texture slot #
+
 var Module = {
     onRuntimeInitialized: function() {
         createscene();
@@ -256,6 +258,57 @@ window.createscene = async function () {
     Module["canvas"].width = document.body.clientWidth;
     Module["canvas"].height = document.body.clientHeight;
 
+    // Add input elements to texture form:
+    const textureForm = document.getElementById("textureForm");
+    for (let i = 0; i < NUM_TEXTURE_SLOTS; i++)
+    {
+      const textureInputDiv = document.createElement('div');
+      const textureInput = document.createElement('input');
+      const textureInputLabel = document.createElement('label');
+      
+      textureInputDiv.classList.add("textureInputDiv");
+      
+      textureInput.type = "text";
+      textureInput.id = "tex" + i;
+      textureInput.setAttribute('name', "textures[" + i + "]");
+      textureInput.classList.add("textureInput");
+      
+      var labelSuffix = "";
+      switch (i)
+      {
+        case 2:
+            labelSuffix = " (item #1)";
+            break;
+        case 3:
+            labelSuffix = " (item #2)";
+            break;
+        case 4:
+            labelSuffix = " (item #3)";
+            break;
+        case 5:
+            labelSuffix = " (creature #4)";
+            break;
+        case 11:
+            labelSuffix = " (creature #1)";
+            break;
+        case 12:
+            labelSuffix = " (creature #2)";
+            break;
+        case 13:
+            labelSuffix = " (creature #3)";
+            break;
+        case 24:
+            labelSuffix = " (item #4)";
+            break;
+      }
+      textureInputLabel.htmlFor = "tex" + i;
+      textureInputLabel.innerHTML = "Texture #" + i + labelSuffix;
+      
+      textureInputDiv.appendChild(textureInput);
+      textureInputDiv.appendChild(textureInputLabel);
+      textureForm.appendChild(textureInputDiv);
+    }
+    
     Module["animationArrayCallback"] = function(animIDArray) {
         const animSelect = document.getElementById("animationSelect");
         animSelect.length = 0;
@@ -829,8 +882,8 @@ function handleDownloadFinished(url){
 
 // Called by texture model save button
 function updateTextures(){
-    const textureArray = new Int32Array(27);
-    for (let i = 0; i < 27; i++){
+    const textureArray = new Int32Array(NUM_TEXTURE_SLOTS);
+    for (let i = 0; i < NUM_TEXTURE_SLOTS; i++){
         if (document.getElementById('tex' + i)){
             textureArray[i] = document.getElementById('tex' + i).value;
         }
@@ -923,7 +976,7 @@ async function setModelDisplay(displayID, type){
         const idiRow = await response.json();
         const displayMatResponse = await fetch("/dbc/find/ItemDisplayInfoModelMatRes/?build=" + Current.buildName + "&col=ItemDisplayInfoID&val=" + displayID);
         const displayMatResults = await displayMatResponse.json();
-        const typedArray = new Int32Array(27);
+        const typedArray = new Int32Array(NUM_TEXTURE_SLOTS);
         
         for (const displayMatRow of displayMatResults){
             if (displayMatRow.ModelIndex == "1")  // I think ModelIndex of 1 is for opposite shoulder appearances, etc. Could probably support it somehow, but ignoring it for now.
@@ -970,7 +1023,7 @@ function updateEnabledGeosets(){
 
 function setModelTexture(textures, offset){
     //Create real texture replace array
-    const typedArray = new Int32Array(27);
+    const typedArray = new Int32Array(NUM_TEXTURE_SLOTS);
 
     for (let i = 0; i < textures.length; i++){
         if (offset == 11 && i == 3)
