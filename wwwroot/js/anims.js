@@ -1771,4 +1771,8 @@ var animationNames = [
     "FlyMountDive",
     "MountCrouch",
     "FlyMountCrouch",
+    "WAShovelLoop",
+    "FlyWAShovelLoop",
+    "EmoteTalkFrustrated",
+    "FlyEmoteTalkFrustrated",
 ];
