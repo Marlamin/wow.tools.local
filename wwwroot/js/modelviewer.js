@@ -610,16 +610,23 @@ async function setBuildNameByConfig(config){
 }
 
 async function loadModelDisplays() {
+    let results = [];
+    
+    // Query and combine display info from both creature and item tables. Occasionally, a model will appear in both tables
+    // (possibly erroneously) and if we just pick the first matching one then we risk missing out on the right data:
+    
+    itemResults = await loadItemDisplays();
+    if (itemResults != undefined && itemResults.length > 0)
+        results = results.concat(itemResults);     
+            
     const cmdRows = await findCreatureModelDataRows();
-
-    let results;
     if (cmdRows.length > 0){
-        results = await loadCreatureDisplays(cmdRows);
-    } else {
-        results = await loadItemDisplays();
+        creatureResults = await loadCreatureDisplays(cmdRows);
+    if (creatureResults != undefined && creatureResults.length > 0)
+        results = results.concat(creatureResults); 
     }
 
-    if (results == undefined || results.length == 0)
+    if (results.length == 0)
         return;
     
     const skinSelect = document.getElementById("skinSelect");
