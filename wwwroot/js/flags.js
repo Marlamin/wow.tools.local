@@ -2118,6 +2118,48 @@ const materialFlags = {
     0x00000004: 'Is Chain',
 }
 
+// 407
+const procTypeMask0 = {
+    0x00000001: 'Heartbeat',
+    0x00000002: 'Kill',
+    0x00000004: 'Deal Melee Swing',
+    0x00000008: 'Take Melee Swing',
+    0x00000010: 'Deal Melee Ability',
+    0x00000020: 'Take Melee Ability',
+    0x00000040: 'Deal Ranged Attack',
+    0x00000080: 'Take Ranged Attack',
+    0x00000100: 'Deal Ranged Ability',
+    0x00000200: 'Take Ranged Ability',
+    0x00000400: 'Deal Helpful Ability',
+    0x00000800: 'Take Helpful Ability',
+    0x00001000: 'Deal Harmful Ability',
+    0x00002000: 'Take Harmful Ability',
+    0x00004000: 'Deal Helpful Spell',
+    0x00008000: 'Take Helpful Spell',
+    0x00010000: 'Deal Harmful Spell',
+    0x00020000: 'Take Harmful Spell',
+    0x00040000: 'Deal Harmful Periodic',
+    0x00080000: 'Take Harmful Periodic',
+    0x00100000: 'Take Any Damage - DO NOT USE',
+    0x00200000: 'Deal Helpful Periodic',
+    0x00400000: 'Main Hand Weapon Swing',
+    0x00800000: 'Off Hand Weapon Swing',
+    0x01000000: 'Death',
+    0x02000000: 'Jump',
+    0x04000000: 'Proc Clone Spell',
+    0x08000000: 'Enter Combat',
+    0x10000000: 'Encounter Start',
+    0x20000000: 'Cast Ended',
+    0x40000000: 'Looted',
+    0x80000000: 'Take Helpful Periodic',
+}
+
+const procTypeMask1 = {
+    0x00000001: 'Target Dies',
+    0x00000002: 'Knockback',
+    0x00000004: 'Cast Successful',
+}
+
 // 436
 const spellCategoryFlags = {
     0x00000001: 'Cooldown modifies item',
@@ -2718,6 +2760,8 @@ window.flagMap.set("skillline.Flags", skillLineFlags);
 window.flagMap.set("soundambience.Flags", soundAmbienceFlags);
 window.flagMap.set("soundemitters.Flags", soundEmitterFlags);
 window.flagMap.set("soundkit.Flags", soundkitFlags);
+window.flagMap.set("spellauraoptions.ProcTypeMask[0]", procTypeMask0)
+window.flagMap.set("spellauraoptions.ProcTypeMask[1]", procTypeMask1)
 window.flagMap.set("spellcastingrequirements.FacingCasterFlags", facingCasterFlags);
 window.flagMap.set("spelleffect.EffectAttributes", spellEffectEffectAttributes);
 window.flagMap.set("spellinterrupts.AuraInterruptFlags[0]", auraInterruptFlags0);
