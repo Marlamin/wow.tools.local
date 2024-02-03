@@ -5932,6 +5932,11 @@ for (let i = 0; i < 3; i++){
             ['spellitemenchantment.Effect[' + i + ']=5', itemStatType]
         ]
     );
+    conditionalFKs.set("spellitemenchantment.EffectArg[" + i + "]",
+        [
+            ['spellitemenchantment.Effect[' + i + ']=4', 'resistances::id']
+        ]
+    );
 }
 
 conditionalEnums.set("spelleffect.EffectMiscValue[0]",
