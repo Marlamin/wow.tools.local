@@ -273,8 +273,29 @@
                 }
             }
 
-            if (enumMap.has(dbc.toLowerCase() + "." + col)) {
-                var enumRes = enumMap.get(dbc.toLowerCase() + "." + col);
+            const columnWithTable = dbc.toLowerCase() + "." + col
+            if (conditionalEnums.has(columnWithTable)) {
+                let conditionalEnum = conditionalEnums.get(columnWithTable);
+                conditionalEnum.forEach(function (conditionalEnumEntry) {
+                    let condition = conditionalEnumEntry[0].split('=');
+                    let conditionTarget = condition[0].split('.');
+                    let conditionValue = condition[1];
+                    let resultEnum = conditionalEnumEntry[1];
+                    let colTarget = Object.keys(row).indexOf(conditionTarget[1]);
+
+                    // Col target found?
+                    if (colTarget > -1) {
+                        if (row[conditionTarget[1]] == conditionValue) {
+                            if (val in resultEnum) {
+                                returnedValue += " (" + resultEnum[val] + ")";
+                            } else {
+                                returnedValue += " (unknown)";
+                            }
+                        }
+                    }
+                });
+            } else if (enumMap.has(columnWithTable)) {
+                var enumRes = enumMap.get(columnWithTable);
                 if (val in enumRes) {
                     if (Array.isArray(enumRes[val])) {
                         returnedValue += " (" + enumRes[val][1] + ")";
