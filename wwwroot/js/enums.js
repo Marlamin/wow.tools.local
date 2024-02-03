@@ -1482,6 +1482,49 @@ const spellVisualKitEffectType = {
     19: 'SpellVisualScreenEffectID',
 }
 
+const spellModOp = {
+    0: 'HealingAndDamage',
+    1: 'Duration',
+    2: 'Hate',
+    3: 'PointsIndex0',
+    4: 'ProcCharges',
+    5: 'Range',
+    6: 'Radius',
+    7: 'CritChance',
+    8: 'Points',
+    9: 'ResistPushback',
+    10: 'ChangeCastTime',
+    11: 'Cooldown',
+    12: 'PointsIndex1',
+    13: 'TargetResistance',
+    14: 'PowerCost0', // Used when SpellPowerEntry::PowerIndex == 0
+    15: 'CritDamageAndHealing',
+    16: 'HitChance',
+    17: 'ChainTargets',
+    18: 'ProcChance',
+    19: 'Period',
+    20: 'ChainAmplitude',
+    21: 'StartCooldown',
+    22: 'PeriodicHealingAndDamage',
+    23: 'PointsIndex2',
+    24: 'BonusCoefficient',
+    25: 'TriggerDamage', // NYI
+    26: 'ProcFrequency',
+    27: 'Amplitude',
+    28: 'DispelResistance',
+    29: 'CrowdDamage', // NYI
+    30: 'PowerCostOnMiss',
+    31: 'Doses',
+    32: 'PointsIndex3',
+    33: 'PointsIndex4',
+    34: 'PowerCost1', // Used when SpellPowerEntry::PowerIndex == 1
+    35: 'ChainJumpDistance',
+    36: 'AreaTriggerMaxSummons', // NYI
+    37: 'MaxAuraStacks',
+    38: 'ProcCooldown',
+    39: 'PowerCost2', // Used when SpellPowerEntry::PowerIndex == 2
+}
+
 const spellLabelName = {
     // 12: '12',
     16: 'Player (???)',
@@ -5889,7 +5932,21 @@ for (let i = 0; i < 3; i++){
             ['spellitemenchantment.Effect[' + i + ']=5', itemStatType]
         ]
     );
+    conditionalFKs.set("spellitemenchantment.EffectArg[" + i + "]",
+        [
+            ['spellitemenchantment.Effect[' + i + ']=4', 'resistances::id']
+        ]
+    );
 }
+
+conditionalEnums.set("spelleffect.EffectMiscValue[0]",
+    [
+        ['spelleffect.EffectAura=107', spellModOp],
+        ['spelleffect.EffectAura=108', spellModOp],
+        ['spelleffect.EffectAura=218', spellModOp],
+        ['spelleffect.EffectAura=219', spellModOp],
+    ]
+);
 
 // Conditional FKs (move to sep file?)
 conditionalFKs.set("itembonus.Value[0]",

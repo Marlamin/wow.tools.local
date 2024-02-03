@@ -1092,7 +1092,8 @@
                                 let fk = "";
                                 if (meta.col in fkCols) {
                                     fk = fkCols[meta.col];
-                                } else if (conditionalFKs.has(columnWithTable)) {
+                                }
+                                if (conditionalFKs.has(columnWithTable)) {
                                     let conditionalFK = conditionalFKs.get(columnWithTable);
                                     conditionalFK.forEach(function (conditionalFKEntry) {
                                         let condition = conditionalFKEntry[0].split(
