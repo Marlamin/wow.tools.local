@@ -939,6 +939,8 @@ namespace wow.tools.local.Controllers
                     Linker.LinkM2(fileDataID, true);
                 else if (fileType == "wmo")
                     Linker.LinkWMO(fileDataID, true);
+                else if (fileType == "wdt")
+                    Linker.LinkWDT((int)fileDataID, true);
             }
 
             return "";
