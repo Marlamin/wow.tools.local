@@ -32,6 +32,10 @@ namespace wow.tools.local.Controllers
         [HttpGet("{name}"), HttpPost("{name}")]
         public async Task<DataTablesResult> Get(string name, string build, int draw, int start, int length, CancellationToken cancellationToken, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW)
         {
+            name = name.ToLower();
+            if (string.IsNullOrEmpty(build) || build == "?" || build == "null")
+                build = CASC.BuildName;
+
             var parameters = new Dictionary<string, string>();
 
             if (Request.Method == "POST")

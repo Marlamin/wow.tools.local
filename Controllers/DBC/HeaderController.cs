@@ -41,9 +41,11 @@ namespace wow.tools.local.Controllers.DBC
         [HttpGet("{name}")]
         public async Task<HeaderResult> Get(string name, string build)
         {
-            Console.WriteLine("Serving headers for " + name + " (" + build + ")");
-            if (build == "?")
+            name = name.ToLower();
+            if (string.IsNullOrEmpty(build) || build == "?" || build == "null")
                 build = CASC.BuildName;
+
+            Console.WriteLine("Serving headers for " + name + " (" + build + ")");
 
             var result = new HeaderResult();
             try
