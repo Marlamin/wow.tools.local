@@ -714,7 +714,7 @@ namespace wow.tools.local.Controllers
                 html += "</table></td></tr></table>";
             }
 
-            if (CASC.Types.TryGetValue(filedataid, out string? type) && (type == "m2" || type == "wmo"))
+            if (CASC.Types.TryGetValue(filedataid, out string? type))
             {
                 if (!Linker.existingParents.Contains(filedataid))
                 {
