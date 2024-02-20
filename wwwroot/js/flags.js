@@ -1398,6 +1398,26 @@ const itemStaticFlags3 = {
     0x20000000: 'SEND_TELEMETRY_ON_USE'
 };
 
+// 2
+const ingameBrowserFlags = {
+    0x1: 'Deny',
+    0x2: 'Navigate',
+    0x4: 'Resource Load',
+    0x8: 'XHeader',
+    0x10: 'Referer',
+    0x20: 'Set Cookie',
+    0x40: 'Get Cookie',
+    0x80: 'Persistent Cookie',
+    0x100: 'Navigate External',
+    0x200: 'Change Scheme HTTP',
+    0x400: 'Change Scheme HTTPS',
+    0x800: 'Ticket JS',
+    0x1000: 'B.net Auth Challenge',
+    0x2000: 'Social Callback',
+    0x4000: 'Differentiate Browser',
+    0x8000: 'Requires BattleNet Login',
+}
+
 // 169
 const itemDisplayInfoFlags = {
     0x00000001: 'Emblazoned Tabard (Common)',
@@ -2816,6 +2836,8 @@ window.flagMap.set("garrtype.Flags", garrTypeFlags);
 window.flagMap.set("languages.Flags", languageFlags);
 window.flagMap.set("creatureimmunities.Flags", creatureImmunitiesFlags);
 window.flagMap.set("questlinexquest.Flags", questLineXQuestFlags);
+window.flagMap.set("wbaccesscontrollist.GrantFlags", ingameBrowserFlags);
+window.flagMap.set("wbaccesscontrollist.RevokeFlags", ingameBrowserFlags);
 
 // Conditional flags
 let conditionalFlags = new Map();
