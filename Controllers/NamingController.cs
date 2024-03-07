@@ -108,6 +108,9 @@ namespace wow.tools.local.Controllers
                         Namer.NameTerrainMaterial();
                         break;
                     case "VO":
+                        if (string.IsNullOrEmpty(SettingsManager.wowFolder))
+                            break;
+
                         var creatureCacheWDBFilename = Path.Combine(SettingsManager.wowFolder, "_retail_", "Cache", "WDB", "enUS", "creaturecache.wdb");
 
                         if (!string.IsNullOrEmpty(form["creatureCacheWDBFilename"]))
