@@ -236,7 +236,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
         }else if(type == "wmo"){
             html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
         }
-    } else if (type == "xml" || type == "lua" || type == "txt" || type == "srt") {
+    } else if (type == "xml" || type == "lua" || type == "txt" || type == "srt" || type == "toc") {
         fetch(url).then((response) => response.text()).then((text) => {
             document.getElementById('codeHolder').innerHTML = text;
             });
