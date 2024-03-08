@@ -109,9 +109,20 @@
             </div>
         </div>
         <br />
-        <h4 id="resultTitle">Result</h4>
-        <p><b><a href="#" onClick="resultsAsTxt()">Download</a></b> as a .txt file and <a href="https://github.com/wowdev/wow-listfile/issues/new?assignees=&labels=suggestion&projects=&template=csv-listfile-suggestion.md&title=CSV+listfile+suggestion" target="_BLANK">submit an issue on GitHub</a> (login required) with the .txt file attached to submit these names to the community listfile.</p>
-        <textarea id="result" rows="15" cols="200">Nothing here yet.</textarea>
+        <div class="row">
+            <div class="col-md-6">
+                <h4 id="resultTitle">Result</h4>
+                <p><b><a href="#" onClick="resultsAsTxt()">Download</a></b> as a .txt file and <a href="https://github.com/wowdev/wow-listfile/issues/new?assignees=&labels=suggestion&projects=&template=csv-listfile-suggestion.md&title=CSV+listfile+suggestion" target="_BLANK">submit an issue on GitHub</a> (login required) with the .txt file attached to submit these names to the community listfile.</p>
+                <textarea id="result" rows="15" cols="160">Nothing here yet.</textarea>
+            </div>
+            <div class="col-md-6">
+                <h4 id="filenameInput">Filenames to check</h4>
+                <p>Paste filenames here (1 per line) to check them against known filename lookups (largely Classic only). Valid names will be posted in results on the left.</p>
+
+                <textarea id="filesToCheck" rows="15" cols="160"></textarea>
+                <a id="checkFilesButton" style="cursor: pointer" class="btn btn-primary" onclick="checkFiles()">Check files</a>
+            </div>
+        </div>
     </div>
     
     <script src="/js/files.js"></script>

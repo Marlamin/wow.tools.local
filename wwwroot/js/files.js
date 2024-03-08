@@ -446,3 +446,19 @@ async function updateTACTKeys() {
     await fetch("/casc/updateTACTKeys");
     window.location.reload();
 }
+
+function checkFiles() {
+    var button = document.getElementById("checkFilesButton");
+    button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Checking, please wait!";
+    var filesToCheck = document.getElementById("filesToCheck").value;
+    fetch("/casc/checkFiles", {
+        method: "POST",
+        body: filesToCheck
+    })
+    .then(response => response.text())
+    .then(result => {
+        document.getElementById("result").innerHTML = result;
+        button.innerHTML = "Check files";
+        console.log(result);
+    });
+}

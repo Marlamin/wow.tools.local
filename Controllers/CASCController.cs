@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Web;
 using wow.tools.local.Services;
@@ -1010,5 +1011,29 @@ namespace wow.tools.local.Controllers
             CASC.Types.Clear();
             CASC.TypeMap.Clear();
         }
+
+        [Route("checkFiles")]
+        [HttpPost]
+        public async Task<string> CheckFiles()
+        {
+            string rawContent = string.Empty;
+            using (var reader = new StreamReader(Request.Body, encoding: Encoding.UTF8))
+                rawContent = await reader.ReadToEndAsync();
+
+            var filenames = rawContent.Split("\n").ToList();
+            var unknownFDIDs = CASC.Listfile.Where(x => x.Value == "").Select(x => x.Key).ToList();
+            var reverseLookup = CASC.LookupMap.ToDictionary(x => x.Value, x => x.Key);
+            var hasher = new Jenkins96();
+            var results = new List<string>();
+            foreach(var filename in filenames)
+            {
+                var lookup = hasher.ComputeHash(filename.Trim());
+                if (reverseLookup.TryGetValue(lookup, out var unkFDID))
+                {
+                    results.Add(unkFDID + ";" + filename);
+                }
+            }
+            return string.Join('\n', results);
+        }   
     }
 }
