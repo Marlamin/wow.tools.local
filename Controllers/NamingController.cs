@@ -41,6 +41,18 @@ namespace wow.tools.local.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("singleFile")]
+        public string SingleFile(int id, string name)
+        {
+            CASC.Listfile[id] = name;
+            Namer.placeholderNames.Remove(id);
+            Namer.ForceRename.Add((uint)id);
+            Namer.AddNewFile((uint)id, name, true, true);
+            Namer.NameM2s([(uint)id], false);
+            return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
+        }
+
         [HttpPost]
         [Route("start")]
         public string Start()

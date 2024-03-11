@@ -459,6 +459,5 @@ function checkFiles() {
     .then(result => {
         document.getElementById("result").innerHTML = result;
         button.innerHTML = "Check files";
-        console.log(result);
     });
 }

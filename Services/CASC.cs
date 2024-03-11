@@ -28,7 +28,7 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<int, string> FDIDToCHash = [];
         public static readonly Dictionary<int, HashSet<string>> FDIDToCHashSet = [];
         public static readonly Dictionary<string, long> CHashToSize = [];
-
+        public static readonly List<int> PlaceholderFiles = [];
         public static Dictionary<int, List<Version>> VersionHistory = [];
 
         public struct Version
@@ -322,6 +322,7 @@ namespace wow.tools.local.Services
 
                 DB2Map.Clear();
                 Types.Clear();
+                PlaceholderFiles.Clear();
             }
 
             Console.WriteLine("Loading listfile");
@@ -333,16 +334,17 @@ namespace wow.tools.local.Services
 
                 var splitLine = line.Split(";");
                 var fdid = int.Parse(splitLine[0]);
+                var filename = splitLine[1];
 
                 if (SettingsManager.showAllFiles == false && !Listfile.ContainsKey(fdid))
                     continue;
 
-                var ext = Path.GetExtension(splitLine[1]).Replace(".", "").ToLower();
+                var ext = Path.GetExtension(filename).Replace(".", "").ToLower();
 
                 if (!TypeMap.ContainsKey(ext))
                     TypeMap.Add(ext, []);
 
-                Listfile[fdid] = splitLine[1];
+                Listfile[fdid] = filename;
 
                 // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
                 if (ext != "wmo")
@@ -351,8 +353,23 @@ namespace wow.tools.local.Services
                     TypeMap[ext].Add(fdid);
                 }
 
+                var filenameLower = filename.ToLower();
+
                 if (ext == "db2")
-                    DB2Map.Add(splitLine[1].ToLower(), fdid);
+                    DB2Map.Add(filenameLower, fdid);
+
+                if (
+                    filenameLower.StartsWith("models") ||
+                    filenameLower.StartsWith("unkmaps") ||
+                    filenameLower.Contains("autogen-names") ||
+                    filenameLower.Contains(fdid.ToString()) ||
+                    filenameLower.Contains("unk_exp") ||
+                    filenameLower.Contains("tileset/unused") || 
+                    string.IsNullOrEmpty(filename)
+                    )
+                {
+                    PlaceholderFiles.Add(fdid);
+                }
             }
 
             Console.WriteLine("Finished loading listfile: " + Listfile.Count + " named files for this build");
@@ -641,6 +658,7 @@ namespace wow.tools.local.Services
 
             return true;
         }
+
         public static List<int> GetSameFiles(string contenthash)
         {
             EnsureCHashesLoaded();
@@ -653,7 +671,6 @@ namespace wow.tools.local.Services
                 return [];
             }
         }
-
 
         public static bool GenerateFileHistory()
         {

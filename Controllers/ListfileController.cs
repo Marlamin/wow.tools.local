@@ -28,6 +28,10 @@ namespace wow.tools.local.Controllers
             {
                 return resultsIn.Where(p => p.Value.Length == 0).ToDictionary();
             }
+            else if(search == "isplaceholder")
+            {
+                return resultsIn.Where(p => CASC.PlaceholderFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+            }
             else if (search == "encrypted")
             {
                 var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Keys);
