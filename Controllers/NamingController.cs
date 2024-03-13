@@ -25,20 +25,25 @@ namespace wow.tools.local.Controllers
                 Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
 
                 // We need to read the listfile again here for now because the WTL listfile is unaware of files not in the build.
-                var FullListfile = new Dictionary<int, string>();
-                foreach (var line in System.IO.File.ReadAllLines("listfile.csv"))
-                {
-                    if (string.IsNullOrEmpty(line))
-                        continue;
-
-                    var splitLine = line.Split(";");
-                    var fdid = int.Parse(splitLine[0]);
-
-                    FullListfile.Add(fdid, splitLine[1]);
-                }
-                
-                Namer.SetInitialListfile(ref FullListfile);
+                InitListfile();
             }
+        }
+
+        static void InitListfile()
+        {
+            var FullListfile = new Dictionary<int, string>();
+            foreach (var line in System.IO.File.ReadAllLines("listfile.csv"))
+            {
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                var splitLine = line.Split(";");
+                var fdid = int.Parse(splitLine[0]);
+
+                FullListfile.Add(fdid, splitLine[1]);
+            }
+
+            Namer.SetInitialListfile(ref FullListfile);
         }
 
         [HttpGet]
@@ -51,6 +56,13 @@ namespace wow.tools.local.Controllers
             Namer.AddNewFile((uint)id, name, true, true);
             Namer.NameM2s([(uint)id], false);
             return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
+        }
+
+        [HttpGet]
+        [Route("clear")]
+        public void Clear()
+        {
+            Namer.ClearNewFiles();
         }
 
         [HttpPost]
@@ -138,6 +150,10 @@ namespace wow.tools.local.Controllers
                         break;
                     case "WWF":
                         Namer.NameWWF();
+                        break;
+                    case "ContentHashes":
+                        CASC.EnsureCHashesLoaded();
+                        Namer.NameByContentHashes(CASC.FDIDToCHash);
                         break;
                     default:
                         throw new Exception("Got unknown namer: " + selectedNamer);

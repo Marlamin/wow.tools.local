@@ -37,11 +37,27 @@
     <script type="text/javascript" src="/js/anims.js"></script>
     <script type="text/javascript" src="/js/bufo.js"></script>
     <script type="text/javascript" src="/js/js-blp.js"></script>
+    <style type="text/css">
+        .table{
+            font-size: 13px;
+        }
+
+        #overlay{
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 500px;
+            height: 500px;
+            background-color: rgba(0, 0, 0, 0.63);
+            z-index: 3;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg" id="navbar"></nav>
     <div class="container-fluid" id='naming_container'>
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item">
                 <a class="nav-link" id="namers-tab" data-toggle="tab" href="#namers" role="tab" aria-controls="namers" aria-selected="false">Automatic namers</a>
             </li>
@@ -52,7 +68,7 @@
                 <a class="nav-link active" id="m2-tab" data-toggle="tab" href="#m2" role="tab" aria-controls="m2" aria-selected="true">Manual models (M2)</a>
             </li>
         </ul>
-        <div class="tab-content" id="myTabContent">
+        <div class="tab-content">
             <div class="tab-pane fade" id="namers" role="tabpanel" aria-labelledby="namers-tab">
                 <div class='row'>
                     <div class="col-md-6">
@@ -64,6 +80,7 @@
                                 <tr><td>Anima</td><td>Anima system textures (unused since SL).</td></tr>
                                 <tr><td>Baked NPC textures</td><td>Baked NPC textures (textures/bakednpctextures).</td></tr>
                                 <tr><td>Character Customization textures</td><td>Guess.</td></tr>
+                                <tr><td>Content hashes</td><td>Naming by file contents (shared textures).</td></tr>
                                 <tr><td>Collectables</td><td>(Unstable) Naming from the collectable system.</td></tr>
                                 <tr><td>Color grading</td><td>Environment color grading textures.</td></tr>
                                 <tr><td>CreatureDisplayInfo textures</td><td>Creature model skins referenced by CreatureDisplayInfo.</td></tr>
@@ -97,6 +114,7 @@
                                 <option value="Anima" selected>Anima system textures</option>
                                 <option value="BakedNPC" selected>Baked NPC textures</option>
                                 <option value="CharCust" selected>Character Customization textures</option>
+                                <option value="ContentHashes" selected>Content hashes</option>
                                 <option value="Collectables" selected>Collectables</option>
                                 <option value="ColorGrading" selected>Color grading</option>
                                 <option value="CDI" selected>CreatureDisplayInfo textures</option>
@@ -167,12 +185,13 @@
             <div class="col-md-6">
                 <h4 id="resultTitle">Result</h4>
                 <p><b><a href="#" onClick="resultsAsTxt()">Download</a></b> as a .txt file and <a href="https://github.com/wowdev/wow-listfile/issues/new?assignees=&labels=suggestion&projects=&template=csv-listfile-suggestion.md&title=CSV+listfile+suggestion" target="_BLANK">submit an issue on GitHub</a> (login required) with the .txt file attached to submit these names to the community listfile.</p>
-                <textarea id="result" rows="15" cols="160">Nothing here yet.</textarea>
+                <textarea id="result" rows="15" cols="160">Nothing here yet.</textarea><br />
+                <button onclick="clearNames()" class="btn btn-danger">Clear new name cache</button>
             </div>
-           
         </div>
     </div>
-    
+    <div id="overlay">
+    </div>
     <script src="/js/files.js"></script>
     <script type='text/javascript'>
         const namingForm = document.getElementById("namingForm");
@@ -212,8 +231,15 @@
             fakeLink.click();
         }
 
+        function clearNames() {
+            fetch('/naming/clear', {
+                method: 'GET'
+            });
+            result.innerHTML = "Nothing here yet.";
+        }
+
         (function () {
-            var page = 1
+            var page = 0;
             var searchString = "type:m2,isplaceholder";
             var sortCol = 0;
             var sortDesc = "asc";
@@ -229,7 +255,8 @@
                 "pageLength": 15,
                 "language": {
                     "search": "Search: _INPUT_",
-                    "info": "Showing _START_ to _END_ of _TOTAL_ files",
+                    "info": "_START_ to _END_ of _TOTAL_ files",
+                    "infoFiltered": ""
                 },
                 "displayStart": page * 15,
                 "autoWidth": false,
@@ -329,6 +356,38 @@
 
                         var modelPreview = document.getElementById("modelPreview");
                         modelPreview.innerHTML = "<iframe src='/mv/?filedataid=" + id + "&embed=true' style='width: 100%; height: 500px; border: none;'></iframe>";
+                    }
+                });
+            }
+
+            document.getElementById("filename").oninput = function () {
+                var filenameInput = document.getElementById("filename");
+                var name = filenameInput.value;
+                // send request to casc/fileAutocomplete with fetch
+                fetch('/casc/directoryAC?search=' + name, {
+                    method: 'GET'
+                }).then(function(response) {
+                    return response.json();
+                }).then(function (results) {
+                    var html = "";
+                    for (var i = 0; i < results.length; i++) {
+                        const resultAC = results[i];
+                        html += resultAC + "<br>";
+                    }
+                    document.getElementById("overlay").innerHTML = html;
+                });
+
+                fetch('/casc/fileCheck?search=' + name, {
+                    method: 'GET'
+                }).then(function (response) {
+                    return response.text();
+                }).then(function (data) {
+                    if (data == "true") {
+                        filenameInput.classList.add('is-invalid');
+                        filenameInput.classList.remove('is-valid');
+                    } else {
+                        filenameInput.classList.remove('is-invalid');
+                        filenameInput.classList.add('is-valid');
                     }
                 });
             }

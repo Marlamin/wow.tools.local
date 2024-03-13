@@ -526,7 +526,7 @@ namespace wow.tools.local.Controllers
 
             var html = "The table below lists files that are identical in content to the requested file.<br><table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th></tr></thead>";
 
-            var filedataids = CASC.GetSameFiles(chash);
+            var filedataids = CASC.GetSameFiles(chash).Order();
             foreach (var filedataid in filedataids)
             {
                 html += "<tr><td>" + filedataid + "</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
@@ -1034,6 +1034,23 @@ namespace wow.tools.local.Controllers
                 }
             }
             return string.Join('\n', results);
-        }   
+        }
+
+        [Route("fileCheck")]
+        [HttpGet]
+        public bool FileCheck(string search)
+        {
+            return CASC.Listfile.Where(x => x.Value.ToLower() == search.ToLower()).Any();
+        }
+
+        [Route("directoryAC")]
+        [HttpGet]
+        public List<string?> DirectoryAC(string search)
+        {
+            return CASC.Listfile.Values
+                .Where(x => !string.IsNullOrEmpty(x) && x.ToLower().StartsWith(search.ToLower()))
+                .Select(x => Path.GetDirectoryName(x).Replace('\\', '/'))
+                .DistinctBy(x => x.ToLower()).Take(20).ToList();
+        }
     }
 }

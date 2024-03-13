@@ -482,7 +482,7 @@
             KeyInfo.Add(0xC66ECAF971993D58, (7732, "WOW-52554patch10.2.5_PTR", "Unknown scene"));
             KeyInfo.Add(0xFF3A8536F580B160, (7728, "WOW-51943patch3.4.3_Classic", "Unknown store assets"));
             KeyInfo.Add(0xAC2081B4DCE1BB00, (7733, "WOW-52554patch10.2.5_PTR", "10.2.5 cinematic"));
-            KeyInfo.Add(0xC13CD1F666AAC6CE, (7734, "WOW-52554patch10.2.5_PTR", "Unknown holiday/trading post related spell"));
+            KeyInfo.Add(0xC13CD1F666AAC6CE, (7734, "WOW-52554patch10.2.5_PTR", "Hearthstone anniversary event"));
             KeyInfo.Add(0x86D224319102E911, (7735, "WOW-52554patch10.2.5_PTR", "Unknown scene"));
         }
 
