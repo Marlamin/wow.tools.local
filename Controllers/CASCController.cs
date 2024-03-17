@@ -1036,6 +1036,26 @@ namespace wow.tools.local.Controllers
             return string.Join('\n', results);
         }
 
+        [Route("checkFilesFromFile")]
+        [HttpGet]
+        public async Task<string> CheckFilesFromFile(string file = "")
+        {
+            var filenames = System.IO.File.ReadAllLines(file);
+            var unknownFDIDs = CASC.Listfile.Where(x => x.Value == "").Select(x => x.Key).ToList();
+            var reverseLookup = CASC.LookupMap.ToDictionary(x => x.Value, x => x.Key);
+            var hasher = new Jenkins96();
+            var results = new List<string>();
+            foreach (var filename in filenames)
+            {
+                var lookup = hasher.ComputeHash(filename.Trim());
+                if (reverseLookup.TryGetValue(lookup, out var unkFDID))
+                {
+                    results.Add(unkFDID + ";" + filename);
+                }
+            }
+            return string.Join('\n', results);
+        }
+
         [Route("fileCheck")]
         [HttpGet]
         public bool FileCheck(string search)
