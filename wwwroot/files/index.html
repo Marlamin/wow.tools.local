@@ -52,6 +52,9 @@
                 <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
             </div>
             <div class="btn-group" role="group">
+                <a id='extractSearchButton' class='btn btn-warning btn-sm' onclick="extractSearch();" data-trigger='hover' data-container='body' data-toggle='popover' data-content='Extract all files from this search result to the configured extraction directory'><i class='fa fa-download'></i> Extract all</a>
+                </div>
+            <div class="btn-group" role="group">
                 <a id='multipleFileDLButton' target='_BLANK' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
                 <a id='multipleFileAddAll' class='btn btn-info btn-sm' style='display: none'>Add all files on page</a>
                 <a id='multipleFileResetButton' class='btn btn-danger btn-sm' style='display: none'>Reset queue</a>
@@ -211,6 +214,20 @@
 
             await fetch("/casc/exportListfile");
             button.innerHTML = beforeText;
+        }
+
+        async function extractSearch() {
+            var button = document.getElementById("extractSearchButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
+            button.classList.add("disabled");
+
+            var searchString = document.getElementById("files_filter").getElementsByTagName("input")[0].value;
+            await fetch("/listfile/extractFiles?search=" + encodeURIComponent(searchString)).then(function (response) {
+                return response.text();
+            }).then(function (data) {
+                button.classList.remove("disabled");
+                button.innerHTML = "<i class='fa fa-download'></i> Extract all";
+            });
         }
 
         async function updateListfile() {

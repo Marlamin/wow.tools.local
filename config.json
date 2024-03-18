@@ -2,13 +2,14 @@
   "config": {
     "definitionDir": "WoWDBDefs/definitions",
     "dbcFolder": "dbcs",
-    "manifestFolder":  "manifests",
+    "manifestFolder": "manifests",
     "listfileURL": "https://github.com/wowdev/wow-listfile/releases/latest/download/community-listfile-withcapitals.csv",
     "tactKeyURL": "https://github.com/wowdev/TACTKeys/raw/master/WoW.txt",
-    "wowFolder": "C:/World of Warcraft",
+    "wowFolder": "C:\\World of Warcraft",
     "wowProduct": "wow",
     "region": "eu",
     "locale": "enUS",
-    "showAllFiles": false
+    "showAllFiles": false,
+    "extractionDir": "extract"
   }
 }

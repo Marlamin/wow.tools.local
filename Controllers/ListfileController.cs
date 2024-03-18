@@ -1,8 +1,6 @@
 ﻿using CASCLib;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
-using System.Linq;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers
@@ -28,7 +26,7 @@ namespace wow.tools.local.Controllers
             {
                 return resultsIn.Where(p => p.Value.Length == 0).ToDictionary();
             }
-            else if(search == "isplaceholder")
+            else if (search == "isplaceholder")
             {
                 return resultsIn.Where(p => CASC.PlaceholderFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
@@ -56,7 +54,7 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.Listfile.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
-            else if(search == "haslookup")
+            else if (search == "haslookup")
             {
                 var fdids = new HashSet<int>(CASC.LookupMap.Keys);
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
@@ -121,7 +119,7 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            if(length == -1)
+            if (length == -1)
             {
                 start = 0;
                 length = listfileResults.Count;
@@ -261,6 +259,65 @@ namespace wow.tools.local.Controllers
                 }
             }
             return versionList.OrderDescending().Select(v => v.ToString()).ToList();
+        }
+
+        [Route("extractFiles")]
+        [HttpGet]
+        public async Task<bool> ExtractFiles(string search)
+        {
+            if (string.IsNullOrEmpty(search))
+                return false;
+            var listfileResults = new Dictionary<int, string>(CASC.Listfile);
+            if (!string.IsNullOrEmpty(search))
+            {
+                var searchStr = search.ToString().ToLower();
+                if (searchStr.Contains(','))
+                {
+                    var filters = searchStr.Split(',');
+                    foreach (var filter in filters)
+                    {
+                        listfileResults = DoSearch(listfileResults, filter);
+                    }
+                }
+                else
+                {
+                    listfileResults = DoSearch(listfileResults, search);
+                }
+            }
+
+            foreach (var result in listfileResults)
+            {
+                try
+                {
+                    using (var file = CASC.cascHandler.OpenFile(result.Key))
+                    {
+                        if (file == null)
+                            continue;
+
+                        var filePath = result.Value;
+                        if (string.IsNullOrEmpty(result.Value))
+                        {
+                            if (CASC.Types.TryGetValue(result.Key, out var type))
+                                filePath = "unknown/" + result.Key.ToString() + "." + CASC.Types[result.Key];
+                            else
+                                filePath = "unknown/" + result.Key.ToString() + ".unk";
+                        }
+
+                        var path = Path.Combine(SettingsManager.extractionDir, filePath);
+                        if (!Directory.Exists(Path.GetDirectoryName(path)))
+                            Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+                        using (var fs = new FileStream(path, FileMode.Create))
+                            await file.CopyToAsync(fs);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to extract " + result.Key + ": " + e.Message);
+                }
+            }
+
+            return true;
         }
     }
 

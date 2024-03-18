@@ -12,6 +12,7 @@
         public static string region;
         public static CASCLib.LocaleFlags locale;
         public static bool showAllFiles = false;
+        public static string extractionDir;
 
         // supported command line flags and switches
         // flag syntax: -flag value || -flag=value or --switch
@@ -25,6 +26,7 @@
         private const string _regionFlag = "-region";
         private const string _localeFlag = "-locale";
         private const string _showAllFilesFlag = "-showAllFiles";
+        private const string _extractionDirFlag = "-extractionDir";
 
         // calling the double-hyphen args 'switch' instead of 'flag' because they don't have values
         private const string _debugSwitch = "--debug";
@@ -104,6 +106,7 @@
             wowFolder = config.GetSection("config")["wowFolder"];
             wowProduct = config.GetSection("config")["wowProduct"];
             showAllFiles = bool.Parse(config.GetSection("config")["showAllFiles"]);
+            extractionDir = config.GetSection("config")["extractionDir"];
         }
 
         private static void SetLocale(string locValue)
@@ -200,6 +203,9 @@
                         break;
                     case (_showAllFilesFlag):
                         showAllFiles = bool.Parse(value);
+                        break;
+                    case (_extractionDirFlag):
+                        extractionDir = value;
                         break;
                 }
             }
