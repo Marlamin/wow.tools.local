@@ -72,7 +72,7 @@ namespace wow.tools.local.Services
             var splitName = cascHandler.Config.BuildName.Replace("WOW-", "").Split("patch");
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
 
-            cascHandler.Root.SetFlags(locale);
+            cascHandler.Root.SetFlags(locale, false, SettingsManager.preferHighResTextures);
             var manifestFolder = SettingsManager.manifestFolder;
 
             if (!Directory.Exists(manifestFolder))

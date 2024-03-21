@@ -10,6 +10,7 @@
     "region": "eu",
     "locale": "enUS",
     "showAllFiles": false,
-    "extractionDir": "extract"
+    "extractionDir": "extract",
+    "preferHighResTextures": false
   }
 }

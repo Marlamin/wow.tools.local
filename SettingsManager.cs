@@ -13,6 +13,7 @@
         public static CASCLib.LocaleFlags locale;
         public static bool showAllFiles = false;
         public static string extractionDir;
+        public static bool preferHighResTextures = false;
 
         // supported command line flags and switches
         // flag syntax: -flag value || -flag=value or --switch
@@ -27,6 +28,7 @@
         private const string _localeFlag = "-locale";
         private const string _showAllFilesFlag = "-showAllFiles";
         private const string _extractionDirFlag = "-extractionDir";
+        private const string _preferHighResTexturesFlag = "-preferHighResTextures";
 
         // calling the double-hyphen args 'switch' instead of 'flag' because they don't have values
         private const string _debugSwitch = "--debug";
@@ -107,6 +109,7 @@
             wowProduct = config.GetSection("config")["wowProduct"];
             showAllFiles = bool.Parse(config.GetSection("config")["showAllFiles"]);
             extractionDir = config.GetSection("config")["extractionDir"];
+            preferHighResTextures = bool.Parse(config.GetSection("config")["preferHighResTextures"]);
         }
 
         private static void SetLocale(string locValue)
@@ -206,6 +209,9 @@
                         break;
                     case (_extractionDirFlag):
                         extractionDir = value;
+                        break;
+                    case (_preferHighResTexturesFlag):
+                        preferHighResTextures = bool.Parse(value);
                         break;
                 }
             }
