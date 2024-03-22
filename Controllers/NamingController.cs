@@ -55,6 +55,7 @@ namespace wow.tools.local.Controllers
             Namer.ForceRename.Add((uint)id);
             Namer.AddNewFile((uint)id, name, true, true);
             Namer.NameM2s([(uint)id], false);
+            Namer.NameCreatureDisplayInfo((uint)id);
             return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
 
@@ -73,8 +74,12 @@ namespace wow.tools.local.Controllers
 
             var checkboxes = form["namers"];
 
+            var namerOrder = new List<string> { "DB2", "Map", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI",  "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SoundKits", "SpellTex", "TerrainCubeMaps", "VO", "WWF", "ContentHashes" };
+            checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x)).ToArray();
+
             foreach(var selectedNamer in checkboxes)
             {
+                Console.WriteLine("Naming " + selectedNamer);
                 switch(selectedNamer)
                 {
                     case "Anima":
@@ -158,6 +163,7 @@ namespace wow.tools.local.Controllers
                     default:
                         throw new Exception("Got unknown namer: " + selectedNamer);
                 }
+                Console.WriteLine("Finished naming " + selectedNamer);
             }
             
 
