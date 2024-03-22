@@ -1,4 +1,5 @@
 ﻿using CASCLib;
+using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
@@ -13,9 +14,10 @@ namespace wow.tools.local.Controllers
 {
     [Route("casc/")]
     [ApiController]
-    public class CASCController(IDBCManager dbcManager) : Controller
+    public class CASCController(IDBCManager dbcManager, IDBCProvider dbcProvider) : Controller
     {
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
+        private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
 
         [Route("fdid")]
         [HttpGet]
@@ -487,6 +489,54 @@ namespace wow.tools.local.Controllers
 
             foreach (var entry in commonEntries)
             {
+
+                // DB2 files are special, we need to ignore the string in header (if current build, obviously)
+                var type = "unk";
+                if (CASC.Types.TryGetValue(entry, out string? value))
+                    type = value;
+
+                if (type == "db2")
+                {
+                    if(CASC.Listfile.TryGetValue(entry, out var filename))
+                    {
+                        var basename = Path.GetFileNameWithoutExtension(filename);
+
+                        try
+                        {
+                            var fromDB2 = dbcProvider.StreamForTableName(basename, from);
+                            var fromDB2Header = new byte[4];
+                            fromDB2.Read(fromDB2Header, 0, 4);
+
+                            var toDB2 = dbcProvider.StreamForTableName(basename, to);
+                            var toDB2Header = new byte[4];
+                            toDB2.Read(toDB2Header, 0, 4);
+
+                            if (BitConverter.ToInt32(toDB2Header, 0) == 0x35434457 && BitConverter.ToInt32(fromDB2Header, 0) == 0x35434457)
+                            {
+                                fromDB2.Position = 136;
+                                toDB2.Position = 136;
+
+                                var remainingFromBytes = new byte[fromDB2.Length - 136];
+                                fromDB2.Read(remainingFromBytes, 0, remainingFromBytes.Length);
+
+                                var remainingToBytes = new byte[toDB2.Length - 136];
+                                toDB2.Read(remainingToBytes, 0, remainingToBytes.Length);
+
+                                if (!remainingFromBytes.SequenceEqual(remainingToBytes))
+                                {
+                                    modifiedFiles.Add(new KeyValuePair<int, string>(entry, rootToEntries[entry]));
+                                }
+
+                                continue;
+                            }
+                        }
+                        catch(Exception e)
+                        {
+                            Console.WriteLine("Failed to compare DB2 " + basename + " for entry " + entry + ": " + e.Message);
+                        }
+                    }    
+                }
+
                 var originalFile = rootFromEntries[entry];
                 var patchedFile = rootToEntries[entry];
 
