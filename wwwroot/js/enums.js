@@ -2624,7 +2624,12 @@ const spellItemEnchantmentEffect = {
     5: 'Stat',
     6: 'Totem',
     7: 'Use Spell',
-    8: 'Prismatic socket'
+    8: 'Prismatic socket',
+    9: 'Artifact Power Bonus (by rank)',
+    10: 'Artifact Power Bonus (by ID)',
+    11: 'Bonus List ID',
+    12: 'Bonus List Curve',
+    13: 'Artifact Power Bonus Rank Picker'
 }
 
 const environmentalDamageType = {
@@ -3129,6 +3134,8 @@ const itemContext = {
     101: "Normal Dungeon Jackpot",
     102: "Heroic Dungeon Jackpot",
     103: "Mythic Dungeon Jackpot",
+    104: "Delves",
+    105: "Timerunning"
 }
 
 // 457
@@ -5934,7 +5941,11 @@ for (let i = 0; i < 3; i++){
     );
     conditionalFKs.set("spellitemenchantment.EffectArg[" + i + "]",
         [
-            ['spellitemenchantment.Effect[' + i + ']=4', 'resistances::id']
+            ['spellitemenchantment.Effect[' + i + ']=1', 'spell::id'],
+            ['spellitemenchantment.Effect[' + i + ']=3', 'spell::id'],
+            ['spellitemenchantment.Effect[' + i + ']=4', 'resistances::id'],
+            ['spellitemenchantment.Effect[' + i + ']=7', 'spell::id'],
+            ['spellitemenchantment.Effect[' + i + ']=11', 'itembonuslist::id'],
         ]
     );
 }
