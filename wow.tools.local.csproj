@@ -7,7 +7,7 @@
     <RepositoryUrl>https://github.com/Marlamin/wow.tools.local</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>0.4.3</Version>
+    <Version>0.4.4</Version>
   </PropertyGroup>
 
   <ItemGroup>

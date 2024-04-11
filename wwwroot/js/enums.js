@@ -5262,6 +5262,7 @@ const BattlePetSources = {
     8: 'Tcg',
     9: 'PetStore',
     10: 'Discovery',
+    11: 'TradingPost'
 }
 
 const BattlePetTypes = {
