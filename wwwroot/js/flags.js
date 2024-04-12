@@ -2856,13 +2856,15 @@ conditionalFlags.set("spelleffect.EffectMiscValue[0]",
         ['spelleffect.EffectAura=72', damageClass],
         ['spelleffect.EffectAura=73', damageClass],
         ['spelleffect.EffectAura=74', damageClass],
+        ['spelleffect.EffectAura=174', damageClass],
         ['spelleffect.EffectAura=194', damageClass],
-        // ['spelleffect.EffectAura=195', damageClass], // Classic-only, spell FK in Retail
-        // ['spelleffect.EffectAura=205', damageClass], // Classic-only, Unknown in Retail
-        ['spelleffect.EffectAura=220', damageClass], // Retail-only, CombatRatings flag in Classic
+        ['spelleffect.EffectAura=220', damageClass],
         ['spelleffect.EffectAura=267', damageClass],
         ['spelleffect.EffectAura=270', damageClass],
         ['spelleffect.EffectAura=301', damageClass],
-        ['spelleffect.EffectAura=316', damageClass], // Retail-only, Unknown in Classic
+        ['spelleffect.EffectAura=316', damageClass],
+        ['spelleffect.EffectAura=558', damageClass],
+        ['spelleffect.EffectAura=574', damageClass],
+        ['spelleffect.EffectAura=579', damageClass],
     ]
 );
