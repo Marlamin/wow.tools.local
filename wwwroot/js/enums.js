@@ -590,6 +590,16 @@ const itemPrettyStatType = {
     74: 'Strength | Intellect'
 };
 
+const primaryStats = {
+  '-2': 'Primary Stat', // Based on specialization
+  '-1': 'All Stats',
+  0: 'Strength',
+  1: 'Agility',
+  2: 'Stamina',
+  3: 'Intellect',
+  4: 'Spirit'
+};
+
 const spellEffectName = {
     1: 'INSTAKILL',
     2: 'SCHOOL_DAMAGE',
@@ -5991,10 +6001,22 @@ for (let i = 0; i < 3; i++){
 
 conditionalEnums.set("spelleffect.EffectMiscValue[0]",
     [
+        ['spelleffect.EffectAura=29', primaryStats],
+        ['spelleffect.EffectAura=80', primaryStats],
         ['spelleffect.EffectAura=107', spellModOp],
         ['spelleffect.EffectAura=108', spellModOp],
+        ['spelleffect.EffectAura=137', primaryStats],
+        ['spelleffect.EffectAura=175', primaryStats],
         ['spelleffect.EffectAura=218', spellModOp],
         ['spelleffect.EffectAura=219', spellModOp],
+    ]
+);
+
+conditionalEnums.set("spelleffect.EffectMiscValue[1]",
+    [
+        ['spelleffect.EffectAura=174', primaryStats],
+        ['spelleffect.EffectAura=571', primaryStats],
+        ['spelleffect.EffectAura=583', primaryStats],
     ]
 );
 
