@@ -1160,7 +1160,7 @@ const effectAuraType = {
     195: 'LEARN_SPELL',
     196: 'MOD_COOLDOWN',
     197: 'MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE',
-    // 198: '198',
+    198: 'MOD_COMBAT_RATING_FROM_COMBAT_RATING',
     // 199: '199',
     200: 'MOD_XP_PCT',
     201: 'FLY',
