@@ -6064,6 +6064,7 @@ conditionalFKs.set("spelleffect.EffectMiscValue[0]",
         ['spelleffect.Effect=131','soundkit::ID'],
         ['spelleffect.Effect=132','soundkit::ID'],
         ['spelleffect.Effect=134','creature::ID'],
+        ['spelleffect.Effect=195','spell::ID'],
         ['spelleffect.Effect=269','itembonuslistgroup::ID'],
         ['spelleffect.Effect=279','garrtalent::ID'],
     ]
