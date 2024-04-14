@@ -238,7 +238,7 @@ function getFlagDescriptions(db, field, value, targetFlags = 0){
 }
 
 function fancyFlagTable(flagArrs){
-    if (flagArrs.length == 0){
+    if (flagArrs.length == 0 || typeof flagArrs[0] !== 'object') {
         return "";
     }
 
