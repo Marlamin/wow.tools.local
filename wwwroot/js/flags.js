@@ -12,6 +12,7 @@ const classMask = {
     0x200 : 'MONK',
     0x400 : 'DRUID',
     0x800 : 'DEMON_HUNTER',
+    0x1000 : 'EVOKER',
 }
 
 const achievementFlags = {
