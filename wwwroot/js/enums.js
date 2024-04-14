@@ -2096,6 +2096,7 @@ const spellClassSet = {
     15: 'Death Knight',
     53: 'Monk',
     107: 'Demon Hunter',
+    224: 'Evoker',
 }
 
 
@@ -2318,7 +2319,8 @@ const itemClassEnum = {
     15: 'Miscellaneous',
     16: 'Glyph',
     17: 'Battle Pets',
-    18: 'WoW Token'
+    18: 'WoW Token',
+    19: 'Profession',
 }
 
 let itemSubClass = [];
@@ -2346,7 +2348,8 @@ itemSubClass[1] = {
     7: 'Leatherworking Bag',
     8: 'Inscription Bag',
     9: 'Tackle Box',
-    10: 'Cooking Bag'
+    10: 'Cooking Bag',
+    11: 'Reagent Bag',
 }
 
 // 953
@@ -2437,7 +2440,8 @@ itemSubClass[7] = {
     15: 'Weapon Enchantment - Obsolete',
     16: 'Inscription',
     17: 'Explosives and Devices (OBSOLETE)',
-    18: 'Optional Reagents'
+    18: 'Optional Reagents',
+    19: 'Finishing Crafting Reagent',
 }
 
 itemSubClass[8] = {
@@ -2519,7 +2523,7 @@ itemSubClass[16] = {
     9: 'Warlock',
     10: 'Monk',
     11: 'Druid',
-    12: 'Demon Hunter'
+    12: 'Demon Hunter',
 }
 
 itemSubClass[17] = {
@@ -2528,6 +2532,22 @@ itemSubClass[17] = {
 
 itemSubClass[18] = {
     0: 'WoW Token'
+}
+
+itemSubClass[19] = {
+	0: 'Blacksmithing',
+	1: 'Leatherworking',
+	2: 'Alchemy',
+	3: 'Herbalism',
+	4: 'Cooking',
+	5: 'Mining',
+	6: 'Tailoring',
+	7: 'Engineering',
+	8: 'Enchanting',
+	9: 'Fishing',
+	10: 'Skinning',
+	11: 'Jewelcrafting',
+	12: 'Inscription',
 }
 
 const uiMapSystem = {
@@ -5923,7 +5943,8 @@ conditionalEnums.set("item.SubclassID",
         ['item.ClassID=15', itemSubClass[15]],
         ['item.ClassID=16', itemSubClass[16]],
         ['item.ClassID=17', itemSubClass[17]],
-        ['item.ClassID=18', itemSubClass[18]]
+        ['item.ClassID=18', itemSubClass[18]],
+        ['item.ClassID=19', itemSubClass[19]],
     ]
 );
 
