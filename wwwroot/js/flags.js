@@ -1399,6 +1399,41 @@ const itemStaticFlags3 = {
     0x20000000: 'SEND_TELEMETRY_ON_USE'
 };
 
+const combatRatingFlags = {
+    0x00000001: 'CR_AMPLIFY',
+    0x00000002: 'CR_DEFENSE_SKILL',
+    0x00000004: 'CR_DODGE',
+    0x00000008: 'CR_PARRY',
+    0x00000010: 'CR_BLOCK',
+    0x00000020: 'CR_HIT_MELEE',
+    0x00000040: 'CR_HIT_RANGED',
+    0x00000080: 'CR_HIT_SPELL',
+    0x00000100: 'CR_CRIT_MELEE',
+    0x00000200: 'CR_CRIT_RANGED',
+    0x00000400: 'CR_CRIT_SPELL',
+    0x00000800: 'CR_CORRUPTION',
+    0x00001000: 'CR_CORRUPTION_RESISTANCE',
+    0x00002000: 'CR_SPEED',
+    0x00004000: 'CR_RESILIENCE_CRIT_TAKEN',
+    0x00008000: 'CR_RESILIENCE_PLAYER_DAMAGE',
+    0x00010000: 'CR_LIFESTEAL',
+    0x00020000: 'CR_HASTE_MELEE',
+    0x00040000: 'CR_HASTE_RANGED',
+    0x00080000: 'CR_HASTE_SPELL',
+    0x00100000: 'CR_AVOIDANCE',
+    0x00200000: 'CR_STURDINESS',
+    0x00400000: 'CR_UNUSED_7',
+    0x00800000: 'CR_EXPERTISE',
+    0x01000000: 'CR_ARMOR_PENETRATION',
+    0x02000000: 'CR_MASTERY',
+    0x04000000: 'CR_PVP_POWER',
+    0x08000000: 'CR_CLEAVE',
+    0x10000000: 'CR_VERSATILITY_DAMAGE_DONE',
+    0x20000000: 'CR_VERSATILITY_HEALING_DONE',
+    0x40000000: 'CR_VERSATILITY_DAMAGE_TAKEN',
+    0x80000000: 'CR_UNUSED_12'
+}
+
 // 2
 const ingameBrowserFlags = {
     0x1: 'Deny',
@@ -2856,13 +2891,25 @@ conditionalFlags.set("spelleffect.EffectMiscValue[0]",
         ['spelleffect.EffectAura=72', damageClass],
         ['spelleffect.EffectAura=73', damageClass],
         ['spelleffect.EffectAura=74', damageClass],
+        ['spelleffect.EffectAura=174', damageClass],
+        ['spelleffect.EffectAura=189', combatRatingFlags],
+        ['spelleffect.EffectAura=198', combatRatingFlags],
         ['spelleffect.EffectAura=194', damageClass],
-        // ['spelleffect.EffectAura=195', damageClass], // Classic-only, spell FK in Retail
-        // ['spelleffect.EffectAura=205', damageClass], // Classic-only, Unknown in Retail
-        ['spelleffect.EffectAura=220', damageClass], // Retail-only, CombatRatings flag in Classic
+        ['spelleffect.EffectAura=220', damageClass],
         ['spelleffect.EffectAura=267', damageClass],
         ['spelleffect.EffectAura=270', damageClass],
         ['spelleffect.EffectAura=301', damageClass],
-        ['spelleffect.EffectAura=316', damageClass], // Retail-only, Unknown in Classic
+        ['spelleffect.EffectAura=316', damageClass],
+        ['spelleffect.EffectAura=405', combatRatingFlags],
+        ['spelleffect.EffectAura=558', damageClass],
+        ['spelleffect.EffectAura=574', damageClass],
+        ['spelleffect.EffectAura=579', damageClass],
+        ['spelleffect.EffectAura=583', combatRatingFlags],
+    ]
+);
+
+conditionalFlags.set("spelleffect.EffectMiscValue[1]",
+    [
+        ['spelleffect.EffectAura=198', combatRatingFlags],
     ]
 );
