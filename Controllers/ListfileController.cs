@@ -44,6 +44,14 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
+            else if (search == "knownkey")
+            {
+                return resultsIn.Where(p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedKnownKey || CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed).ToDictionary(p => p.Key, p => p.Value);
+            }
+            else if (search == "unknownkey")
+            {
+                return resultsIn.Where(p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey || CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed).ToDictionary(p => p.Key, p => p.Value);
+            }
             else if (search.StartsWith("range:"))
             {
                 string[] fdidRange = search.Trim().Replace("range:", "").Split("-");
