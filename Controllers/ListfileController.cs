@@ -46,11 +46,11 @@ namespace wow.tools.local.Controllers
             }
             else if (search == "knownkey")
             {
-                return resultsIn.Where(p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedKnownKey || CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed).ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedKnownKey || CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed).ToDictionary(p => p.Key, p => p.Value);
             }
             else if (search == "unknownkey")
             {
-                return resultsIn.Where(p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey || CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed).ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey || CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed).ToDictionary(p => p.Key, p => p.Value);
             }
             else if (search.StartsWith("range:"))
             {
