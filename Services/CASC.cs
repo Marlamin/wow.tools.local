@@ -272,48 +272,14 @@ namespace wow.tools.local.Services
             return true;
         }
 
-        public static bool LoadListfile(bool forceRedownload = false)
+        public static string[] GetListfileLines(bool forceRedownload = false)
         {
-            var download = forceRedownload;
-            bool shouldBackup = false;
+            var listfileMode = "downloaded";
 
-            if (File.Exists("listfile.csv"))
-            {
-                var info = new FileInfo("listfile.csv");
-                if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
-                {
-                    Console.WriteLine("Listfile outdated, redownloading...");
-                    download = true;
-                }
-                shouldBackup = true;
-            }
-            else
-            {
-                download = true;
-            }
+            if (!SettingsManager.listfileURL.StartsWith("http") && Directory.Exists(SettingsManager.listfileURL))
+                listfileMode = "parts";
 
-            if (download)
-            {
-                Console.WriteLine("Downloading listfile");
-
-                if (shouldBackup)
-                {
-                    if (File.Exists("listfile.csv.bak"))
-                        File.Delete("listfile.csv.bak");
-
-                    File.Move("listfile.csv", "listfile.csv.bak");
-                    Console.WriteLine("Existing listfile renamed to listfile.csv.bak");
-                }
-
-                using var s = WebClient.GetStreamAsync(SettingsManager.listfileURL).Result;
-                using var fs = new FileStream("listfile.csv", FileMode.Create);
-                s.CopyTo(fs);
-            }
-
-            if (!File.Exists("listfile.csv"))
-            {
-                throw new FileNotFoundException("Could not find listfile.csv");
-            }
+            var listfileLines = new List<string>();
 
             if (forceRedownload)
             {
@@ -325,9 +291,74 @@ namespace wow.tools.local.Services
                 PlaceholderFiles.Clear();
             }
 
-            Console.WriteLine("Loading listfile");
+            if (listfileMode == "downloaded")
+            {
+                Console.WriteLine("Loading listfile");
 
-            foreach (var line in File.ReadAllLines("listfile.csv"))
+                var download = forceRedownload;
+                bool shouldBackup = false;
+
+                var listfileName = "listfile.csv";
+
+                if (!File.Exists(listfileName))
+                {
+                    download = true;
+                }
+                else
+                {
+                    var info = new FileInfo(listfileName);
+                    if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
+                    {
+                        Console.WriteLine("Listfile outdated, redownloading...");
+                        download = true;
+                    }
+                    shouldBackup = true;
+                }
+
+                if (download)
+                {
+                    Console.WriteLine("Downloading listfile");
+
+                    if (shouldBackup)
+                    {
+                        if (File.Exists(listfileName + ".bak"))
+                            File.Delete(listfileName + ".bak");
+
+                        File.Move(listfileName, listfileName + ".bak");
+                        Console.WriteLine("Existing " + listfileName + " renamed to " + listfileName + ".bak");
+                    }
+
+                    using var s = WebClient.GetStreamAsync(SettingsManager.listfileURL).Result;
+                    using var fs = new FileStream(listfileName, FileMode.Create);
+                    s.CopyTo(fs);
+                }
+
+                if (!File.Exists(listfileName))
+                {
+                    throw new FileNotFoundException("Could not find " + listfileName);
+                }
+
+                listfileLines.AddRange(File.ReadAllLines(listfileName));
+            }
+            else if (listfileMode == "parts")
+            {
+                Console.WriteLine("Loading listfile from parts");
+
+                foreach (var file in Directory.GetFiles(SettingsManager.listfileURL, "*.csv"))
+                {
+                    Console.WriteLine("Loading listfile parts from " + Path.GetFileNameWithoutExtension(file));
+                    listfileLines.AddRange(File.ReadAllLines(file));
+                }
+            }
+
+            return [.. listfileLines];
+        }
+
+        public static bool LoadListfile(bool forceRedownload = false)
+        {
+            var listfileLines = GetListfileLines(forceRedownload);
+
+            foreach (var line in listfileLines)
             {
                 if (string.IsNullOrEmpty(line))
                     continue;
@@ -364,7 +395,7 @@ namespace wow.tools.local.Services
                     filenameLower.Contains("autogen-names") ||
                     filenameLower.Contains(fdid.ToString()) ||
                     filenameLower.Contains("unk_exp") ||
-                    filenameLower.Contains("tileset/unused") || 
+                    filenameLower.Contains("tileset/unused") ||
                     string.IsNullOrEmpty(filename)
                     )
                 {
@@ -379,14 +410,9 @@ namespace wow.tools.local.Services
 
         public static Dictionary<int, string> GetAllListfileNames()
         {
-            if (!File.Exists("listfile.csv"))
-                throw new FileNotFoundException("Unable to open listfile");
-
-            Console.WriteLine("Loading full listfile");
-
             var allNames = new Dictionary<int, string>();
 
-            foreach (var line in File.ReadAllLines("listfile.csv"))
+            foreach (var line in GetListfileLines())
             {
                 if (string.IsNullOrEmpty(line))
                     continue;

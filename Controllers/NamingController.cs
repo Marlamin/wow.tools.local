@@ -32,7 +32,7 @@ namespace wow.tools.local.Controllers
         static void InitListfile()
         {
             var FullListfile = new Dictionary<int, string>();
-            foreach (var line in System.IO.File.ReadAllLines("listfile.csv"))
+            foreach (var line in CASC.GetListfileLines())
             {
                 if (string.IsNullOrEmpty(line))
                     continue;
@@ -146,7 +146,7 @@ namespace wow.tools.local.Controllers
                             creatureCacheWDBFilename = form["creatureCacheWDBFilename"];
 
                         if (!System.IO.File.Exists(creatureCacheWDBFilename))
-                            throw new FileNotFoundException("creaturecache.wdb not found");
+                            break;
 
                         Namer.NameVO(creatureCacheWDBFilename);
                         break;
