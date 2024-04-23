@@ -43,6 +43,22 @@ namespace wow.tools.local.Controllers
                 FullListfile.Add(fdid, splitLine[1]);
             }
 
+            foreach(var entry in CASC.Types)
+            {
+                if(FullListfile.ContainsKey(entry.Key))
+                    continue;
+
+                if(entry.Value == "m2" || entry.Value == "wmo")
+                {
+                    FullListfile.Add(entry.Key, "models/" + entry.Key + "." + entry.Value);
+                }
+                else
+                {
+                    FullListfile.Add(entry.Key, "unknown_unk_exp/" + entry.Key + "." + entry.Value);
+
+                }
+            }
+
             Namer.SetInitialListfile(ref FullListfile);
         }
 
