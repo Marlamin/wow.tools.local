@@ -5617,7 +5617,8 @@ const traitNodeEntryType = {
 const traitNodeType = {
     0: "Single",
     1: "Tiered",
-    2: "Selection"
+    2: "Selection",
+    3: "SubTreeSelection"
 }
 
 const traitEdgeVisualStyle = {
