@@ -22,6 +22,20 @@ namespace wow.tools.local.Controllers
 
                 return [];
             }
+            else if (search.StartsWith("added:"))
+            {
+                var builds = search.Replace("added:", "").Split("|");
+                if (builds.Length != 2)
+                    return [];
+
+                var newFiles = new HashSet<int>();
+                if (SQLiteDB.newFilesBetweenVersion.ContainsKey(builds[0] + "|" + builds[1]))
+                    newFiles = SQLiteDB.newFilesBetweenVersion[builds[0] + "|" + builds[1]];
+                else
+                    newFiles = SQLiteDB.getNewFilesBetweenVersions(builds[0], builds[1]);
+
+                return resultsIn.Where(p => newFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+            }
             else if (search == "unnamed")
             {
                 return resultsIn.Where(p => p.Value.Length == 0).ToDictionary();

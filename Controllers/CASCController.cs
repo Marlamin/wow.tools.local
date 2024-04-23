@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Web;
 using wow.tools.local.Services;
@@ -497,7 +496,7 @@ namespace wow.tools.local.Controllers
 
                 if (type == "db2")
                 {
-                    if(CASC.Listfile.TryGetValue(entry, out var filename))
+                    if (CASC.Listfile.TryGetValue(entry, out var filename))
                     {
                         var basename = Path.GetFileNameWithoutExtension(filename);
 
@@ -530,11 +529,11 @@ namespace wow.tools.local.Controllers
                                 continue;
                             }
                         }
-                        catch(Exception e)
+                        catch (Exception e)
                         {
                             Console.WriteLine("Failed to compare DB2 " + basename + " for entry " + entry + ": " + e.Message);
                         }
-                    }    
+                    }
                 }
 
                 var originalFile = rootFromEntries[entry];
@@ -786,7 +785,7 @@ namespace wow.tools.local.Controllers
                         Console.WriteLine("Error generating links for file " + filedataid + ": " + e.Message + "\n" + e.StackTrace);
                     }
                 }
-       
+
 
                 var linkedChildFiles = SQLiteDB.GetFilesByParent(filedataid);
 
@@ -1075,7 +1074,7 @@ namespace wow.tools.local.Controllers
             var reverseLookup = CASC.LookupMap.ToDictionary(x => x.Value, x => x.Key);
             var hasher = new Jenkins96();
             var results = new List<string>();
-            foreach(var filename in filenames)
+            foreach (var filename in filenames)
             {
                 var lookup = hasher.ComputeHash(filename.Trim());
                 if (reverseLookup.TryGetValue(lookup, out var unkFDID))

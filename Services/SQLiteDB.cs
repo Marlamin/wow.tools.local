@@ -6,7 +6,7 @@ namespace wow.tools.local.Services
     public static class SQLiteDB
     {
         public static SqliteConnection dbConn = new("Data Source=WTL.db");
-
+        public static Dictionary<string, HashSet<int>> newFilesBetweenVersion = new();
         static SQLiteDB()
         {
             dbConn.Open();
@@ -24,6 +24,74 @@ namespace wow.tools.local.Services
 
             indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_rootfiles_chashes_idx ON wow_rootfiles_chashes (fileDataID, chash)", dbConn);
             indexCmd.ExecuteNonQuery();
+        }
+
+        public static HashSet<int> getNewFilesBetweenVersions(string oldBuild, string newBuild)
+        {
+            // Check if valid builds
+            if(oldBuild.Split('.').Length != 4 || newBuild.Split('.').Length != 4)
+                return new HashSet<int>();
+
+            if(newFilesBetweenVersion.ContainsKey(oldBuild + "|" + newBuild))
+            {
+                return newFilesBetweenVersion[oldBuild + "|" + newBuild];
+            }
+
+            // TODO: Store this in SQLite propery, right now we only store changed files between versions
+            //using (var cmd = dbConn.CreateCommand())
+            //{
+            //    cmd.CommandText = "SELECT fileDataID FROM wow_rootfiles_chashes WHERE build = @newBuild AND fileDataID NOT IN (SELECT fileDataID FROM wow_rootfiles_chashes WHERE build = @oldBuild)";
+            //    cmd.Parameters.AddWithValue("@oldBuild", oldBuild);
+            //    cmd.Parameters.AddWithValue("@newBuild", newBuild);
+
+            //    var reader = cmd.ExecuteReader();
+
+            //    while (reader.Read())
+            //    {
+            //        newFiles.Add(int.Parse(reader["fileDataID"].ToString()));
+            //    }
+
+            //    reader.Close();
+            var newFiles = new HashSet<int>();
+
+            if (!File.Exists(Path.Combine("manifests", oldBuild + ".txt")))
+            {
+                Console.WriteLine("Manifest file for build {0} not found, can't compare", oldBuild);
+                return newFiles;
+            }
+
+            if(!File.Exists(Path.Combine("manifests", newBuild + ".txt")))
+            {
+                Console.WriteLine("Manifest file for build {0} not found, can't compare", newBuild);
+                return newFiles;
+            }
+
+            var oldBuildFiles = new List<int>();
+            foreach(var line in File.ReadAllLines(Path.Combine("manifests", oldBuild + ".txt")))
+            {
+                var splitLine = line.Split(";");
+                if(splitLine.Length != 2)
+                    continue;
+
+                oldBuildFiles.Add(int.Parse(splitLine[0]));
+            }
+
+            var newBuildFiles = new List<int>();
+            foreach(var line in File.ReadAllLines(Path.Combine("manifests", newBuild + ".txt")))
+            {
+                var splitLine = line.Split(";");
+                if(splitLine.Length != 2)
+                    continue;
+
+                newBuildFiles.Add(int.Parse(splitLine[0]));
+            }
+
+            newFiles = newBuildFiles.Except(oldBuildFiles).ToHashSet();
+
+            if (newFiles.Count > 0)
+                newFilesBetweenVersion[oldBuild + "|" + newBuild] = newFiles;
+            
+            return newFiles;
         }
 
         public static List<LinkedFile> GetParentFiles(int fileDataID)
