@@ -2913,9 +2913,10 @@ const questObjectiveType = {
     15: 'PROGRESS_BAR',
     16: 'REACH_CURRENCY',
     17: 'INCREASE_CURRENCY',
-    18: 'AREA_TRIGGER_ENTER',
-    19: 'AREA_TRIGGER_EXIT',
-    20: 'KILL_WITH_LABEL',
+    18: 'INCREASE_REPUTATION',
+    19: 'AREA_TRIGGER_ENTER',
+    20: 'AREA_TRIGGER_EXIT',
+    21: 'KILL_WITH_LABEL',
 }
 
 const itemModification = {
