@@ -6775,6 +6775,12 @@ colorFields.push("lightning.FlashColor");
 colorFields.push("lightning.BoltColor");
 colorFields.push("liquidtype.MinimapStaticCol");
 colorFields.push("itemnamedescription.Color");
+colorFields.push("lightdata.HorizonAmbientColor");
+colorFields.push("lightdata.GroundAmbientColor");
+colorFields.push("lightdata.EndFogColor");
+colorFields.push("lightdata.FogHeightColor");
+colorFields.push("lightdata.EndFogHeightColor");
+colorFields.push("lightshaft.Color");
 // colorFields.push("uidungeonscorerarity.ScoreColor");
 
 /* Dates */

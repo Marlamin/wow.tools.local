@@ -52,11 +52,10 @@ namespace wow.tools.local.Controllers
                 {
                     FullListfile.Add(entry.Key, "models/" + entry.Key + "." + entry.Value);
                 }
-                else
-                {
-                    FullListfile.Add(entry.Key, "unknown_unk_exp/" + entry.Key + "." + entry.Value);
-
-                }
+                //else
+                //{
+                //    FullListfile.Add(entry.Key, "unknown_unk_exp/" + entry.Key + "." + entry.Value);
+                //}
             }
 
             Namer.SetInitialListfile(ref FullListfile);
@@ -164,7 +163,37 @@ namespace wow.tools.local.Controllers
                         if (!System.IO.File.Exists(creatureCacheWDBFilename))
                             break;
 
-                        Namer.NameVO(creatureCacheWDBFilename);
+                        var broadcastTextDB = dbcManager.GetOrLoad("BroadcastText", CASC.BuildName, true).Result;
+                        var textToSoundKitID = new Dictionary<string, List<uint>>();
+
+                        foreach (var broadcastText in broadcastTextDB.Values)
+                        {
+                            var soundKits = (uint[])broadcastText["SoundKitID"];
+
+                            if (!string.IsNullOrEmpty(broadcastText["Text_lang"].ToString()))
+                            {
+                                if (soundKits[0] != 0)
+                                {
+                                    if (!textToSoundKitID.ContainsKey(broadcastText["Text_lang"].ToString()))
+                                        textToSoundKitID.Add(broadcastText["Text_lang"].ToString(), new List<uint>());
+
+                                    textToSoundKitID[broadcastText["Text_lang"].ToString()].Add(soundKits[0]);
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(broadcastText["Text1_lang"].ToString()))
+                            {
+                                if (soundKits[1] != 0)
+                                {
+                                    if (!textToSoundKitID.ContainsKey(broadcastText["Text1_lang"].ToString()))
+                                        textToSoundKitID.Add(broadcastText["Text1_lang"].ToString(), new List<uint>());
+
+                                    textToSoundKitID[broadcastText["Text1_lang"].ToString()].Add(soundKits[1]);
+                                }
+                            }
+                        }
+
+                        Namer.NameVO(creatureCacheWDBFilename, textToSoundKitID);
                         break;
                     case "WMO":
                         Namer.NameWMO();
