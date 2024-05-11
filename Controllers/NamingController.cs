@@ -43,12 +43,12 @@ namespace wow.tools.local.Controllers
                 FullListfile.Add(fdid, splitLine[1]);
             }
 
-            foreach(var entry in CASC.Types)
+            foreach (var entry in CASC.Types)
             {
-                if(FullListfile.ContainsKey(entry.Key))
+                if (FullListfile.ContainsKey(entry.Key))
                     continue;
 
-                if(entry.Value == "m2" || entry.Value == "wmo")
+                if (entry.Value == "m2" || entry.Value == "wmo")
                 {
                     FullListfile.Add(entry.Key, "models/" + entry.Key + "." + entry.Value);
                 }
@@ -89,13 +89,13 @@ namespace wow.tools.local.Controllers
 
             var checkboxes = form["namers"];
 
-            var namerOrder = new List<string> { "DB2", "Map", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI",  "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SoundKits", "SpellTex", "TerrainCubeMaps", "VO", "WWF", "ContentHashes" };
+            var namerOrder = new List<string> { "DB2", "Map", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SoundKits", "SpellTex", "TerrainCubeMaps", "VO", "WWF", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x)).ToArray();
 
-            foreach(var selectedNamer in checkboxes)
+            foreach (var selectedNamer in checkboxes)
             {
                 Console.WriteLine("Naming " + selectedNamer);
-                switch(selectedNamer)
+                switch (selectedNamer)
                 {
                     case "Anima":
                         Namer.NameAnima();
@@ -163,33 +163,53 @@ namespace wow.tools.local.Controllers
                         if (!System.IO.File.Exists(creatureCacheWDBFilename))
                             break;
 
-                        var broadcastTextDB = dbcManager.GetOrLoad("BroadcastText", CASC.BuildName, true).Result;
                         var textToSoundKitID = new Dictionary<string, List<uint>>();
 
-                        foreach (var broadcastText in broadcastTextDB.Values)
+                        foreach (var buildDir in Directory.GetDirectories(SettingsManager.dbcFolder))
                         {
-                            var soundKits = (uint[])broadcastText["SoundKitID"];
+                            if (!System.IO.File.Exists(Path.Combine(buildDir, "dbfilesclient", "BroadcastText.db2")))
+                                continue;
 
-                            if (!string.IsNullOrEmpty(broadcastText["Text_lang"].ToString()))
+                            var buildName = Path.GetFileName(buildDir);
+
+                            // Skip expansions lower than DF
+                            if (short.Parse(buildName.Split(".")[0]) < 10)
+                                continue;
+
+                            try
                             {
-                                if (soundKits[0] != 0)
-                                {
-                                    if (!textToSoundKitID.ContainsKey(broadcastText["Text_lang"].ToString()))
-                                        textToSoundKitID.Add(broadcastText["Text_lang"].ToString(), new List<uint>());
+                                var broadcastTextDB = dbcManager.GetOrLoad("BroadcastText", buildName, true).Result;
 
-                                    textToSoundKitID[broadcastText["Text_lang"].ToString()].Add(soundKits[0]);
+                                foreach (var broadcastText in broadcastTextDB.Values)
+                                {
+                                    var soundKits = (uint[])broadcastText["SoundKitID"];
+
+                                    if (!string.IsNullOrEmpty(broadcastText["Text_lang"].ToString()))
+                                    {
+                                        if (soundKits[0] != 0)
+                                        {
+                                            if (!textToSoundKitID.ContainsKey(broadcastText["Text_lang"].ToString()))
+                                                textToSoundKitID.Add(broadcastText["Text_lang"].ToString(), new List<uint>());
+
+                                            textToSoundKitID[broadcastText["Text_lang"].ToString()].Add(soundKits[0]);
+                                        }
+                                    }
+
+                                    if (!string.IsNullOrEmpty(broadcastText["Text1_lang"].ToString()))
+                                    {
+                                        if (soundKits[1] != 0)
+                                        {
+                                            if (!textToSoundKitID.ContainsKey(broadcastText["Text1_lang"].ToString()))
+                                                textToSoundKitID.Add(broadcastText["Text1_lang"].ToString(), new List<uint>());
+
+                                            textToSoundKitID[broadcastText["Text1_lang"].ToString()].Add(soundKits[1]);
+                                        }
+                                    }
                                 }
                             }
-
-                            if (!string.IsNullOrEmpty(broadcastText["Text1_lang"].ToString()))
+                            catch (Exception e)
                             {
-                                if (soundKits[1] != 0)
-                                {
-                                    if (!textToSoundKitID.ContainsKey(broadcastText["Text1_lang"].ToString()))
-                                        textToSoundKitID.Add(broadcastText["Text1_lang"].ToString(), new List<uint>());
-
-                                    textToSoundKitID[broadcastText["Text1_lang"].ToString()].Add(soundKits[1]);
-                                }
+                                Console.WriteLine("Error loading BroadcastText for build " + buildDir + ": " + e.Message);
                             }
                         }
 
@@ -210,7 +230,7 @@ namespace wow.tools.local.Controllers
                 }
                 Console.WriteLine("Finished naming " + selectedNamer);
             }
-            
+
 
             return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
