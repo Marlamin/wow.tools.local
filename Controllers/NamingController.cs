@@ -15,11 +15,12 @@ namespace wow.tools.local.Controllers
         {
             this.dbcManager = (DBCManager)dbcManager;
 
-            if (!Namer.isInitialized)
+            if (!Namer.isInitialized || Namer.build != CASC.BuildName)
             {
                 Namer.wowDir = SettingsManager.wowFolder;
                 Namer.localProduct = SettingsManager.wowProduct;
                 Namer.build = CASC.BuildName;
+                Namer.cacheDir = "caches";
 
                 Namer.SetProviders(new DBCProvider(), new DBDProvider());
                 Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);

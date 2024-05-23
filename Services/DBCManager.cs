@@ -82,7 +82,7 @@ namespace wow.tools.local.Services
             if (!useHotfixes)
                 return storage;
 
-            if (!HotfixManager.hotfixReaders.ContainsKey(buildNumber))
+            if (HotfixManager.hotfixReaders.Count == 0)
                 HotfixManager.LoadCaches();
 
             if (HotfixManager.hotfixReaders.TryGetValue(buildNumber, out HotfixReader? hotfixReaders))
