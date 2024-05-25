@@ -17,8 +17,18 @@ namespace wow.tools.local.Controllers
             if (search.StartsWith("type:"))
             {
                 var cleaned = search.Replace("type:", "").ToLowerInvariant();
-                if (CASC.TypeMap.TryGetValue(cleaned, out var fdids))
-                    return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+
+                if(cleaned == "model")
+                {
+                    var m2AndWMO = new HashSet<int>(CASC.TypeMap["m2"].Concat(CASC.TypeMap["wmo"]));
+                    return resultsIn.Where(p => m2AndWMO.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+                }
+                else
+                {
+                    if (CASC.TypeMap.TryGetValue(cleaned, out var fdids))
+                        return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+                }
+           
 
                 return [];
             }

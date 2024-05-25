@@ -70,8 +70,17 @@ namespace wow.tools.local.Controllers
             Namer.placeholderNames.Remove(id);
             Namer.ForceRename.Add((uint)id);
             Namer.AddNewFile((uint)id, name, true, true);
-            Namer.NameM2s([(uint)id], false);
-            Namer.NameCreatureDisplayInfo((uint)id);
+
+            if (name.ToLower().EndsWith(".m2"))
+            {
+                Namer.NameM2s([(uint)id], false);
+                Namer.NameCreatureDisplayInfo((uint)id);
+            }
+            else if (name.ToLower().EndsWith(".wmo"))
+            {
+                Namer.NameWMO((uint)id);
+            }
+
             return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
 
