@@ -2,6 +2,7 @@
 using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
@@ -1175,7 +1176,7 @@ namespace wow.tools.local.Controllers
                         wmo.group[i].mogp.normals = [];
                         wmo.group[i].mogp.textureCoords = [];
                     }
-                    return JsonConvert.SerializeObject(wmo, Formatting.Indented);
+                    return JsonConvert.SerializeObject(wmo, Formatting.Indented, new StringEnumConverter());
                 case "adt":
                     var adtReader = new ADTReader();
                     adtReader.LoadADT(MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing, fileDataID, 0, 0, false);
@@ -1187,7 +1188,7 @@ namespace wow.tools.local.Controllers
                         adtReader.adtfile.chunks[i].normals.normal_2 = [];
                         adtReader.adtfile.chunks[i].colors.color = [];
                     }
-                    return JsonConvert.SerializeObject(adtReader.adtfile, Formatting.Indented);
+                    return JsonConvert.SerializeObject(adtReader.adtfile, Formatting.Indented, new StringEnumConverter());
                 case "m2":
                     var m2Reader = new M2Reader();
                     m2Reader.LoadM2(fileDataID);
@@ -1199,7 +1200,7 @@ namespace wow.tools.local.Controllers
                         m2Reader.model.skins[i].triangles = [];
                         m2Reader.model.skins[i].properties = [];
                     }
-                    return JsonConvert.SerializeObject(m2Reader.model, Formatting.Indented);
+                    return JsonConvert.SerializeObject(m2Reader.model, Formatting.Indented, new StringEnumConverter());
                 default:
                     throw new Exception("Unsupported file type");
             }

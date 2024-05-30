@@ -184,13 +184,18 @@
                                     case "wtf":
                                         content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Preview</a>";
                                         break;
-                                    case "wdt":
                                     case "wmo":
                                     case "m2":
                                         content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
                                         break;
+                                    case "wdt":
+                                        if (full.filename.endsWith("_fogs.wdt") || full.filename.endsWith("_occ.wdt") || full.filename.endsWith("_lgt.wdt") || full.filename.endsWith("_mpv.wdt")) {
+                                            content = "N/A";
+                                        } else {
+                                            content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                        }
                                     case "adt":
-                                        if (full.filename.endsWith("_tex0.adt") || full.filename.endsWith("_obj0.adt")) {
+                                        if (full.filename.endsWith("_tex0.adt") || full.filename.endsWith("_obj0.adt") || full.filename.endsWith("_obj1.adt") || full.filename.endsWith("_lod.adt")) {
                                             content = "N/A";
                                         } else {
                                             content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
