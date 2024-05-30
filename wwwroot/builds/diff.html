@@ -175,15 +175,27 @@
                                     case "htm":
                                     case "html":
                                     case "lua":
-                                     case "json":
-                                     case "sbt":
-                                     case "toc":
-                                     case "txt":
-                                     case "xml":
-                                     case "xsd":
-                                     case "wtf":
+                                    case "json":
+                                    case "sbt":
+                                    case "toc":
+                                    case "txt":
+                                    case "xml":
+                                    case "xsd":
+                                    case "wtf":
                                         content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Preview</a>";
-                                         break;
+                                        break;
+                                    case "wdt":
+                                    case "wmo":
+                                    case "m2":
+                                        content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                        break;
+                                    case "adt":
+                                        if (full.filename.endsWith("_tex0.adt") || full.filename.endsWith("_obj0.adt")) {
+                                            content = "N/A";
+                                        } else {
+                                            content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                        }
+                                        break;
                                      //case "ogg":
                                      //    content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModalByContenthash(\"<?= $toBuild['hash'] ?>\", \"" + full.id + "\",\"" + full.md5 + "\")'>Preview</a>";
                                      //    break;

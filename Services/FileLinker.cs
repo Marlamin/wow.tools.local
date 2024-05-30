@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 
 namespace wow.tools.local.Services
@@ -40,7 +41,12 @@ namespace wow.tools.local.Services
                 reader.Close();
             }
 
-            WoWFormatLib.Utils.CASC.InitCasc(CASC.cascHandler);
+            if(!FileProvider.HasProvider(CASC.BuildName))
+            {
+                var casc = new CASCFileProvider();
+                casc.InitCasc(CASC.cascHandler);
+                FileProvider.SetProvider(casc, CASC.BuildName);
+            }
         }
 
         private static void insertEntry(SqliteCommand cmd, uint fileDataID, string desc)

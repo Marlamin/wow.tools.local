@@ -263,8 +263,8 @@ function fillDiffModal(from, to, filedataid){
     $( "#previewModalContent" ).load( "/casc/diffFile?from=" + from + "&to=" + to + "&filedataid=" + filedataid);
 }
 
-function fillDiffModalRaw(from, to, filedataid){
-    $( "#previewModalContent" ).load( "/files/diff.php?from=" + from + "&to=" + to + "&filedataid=" + filedataid + "&raw=1");
+function fillDiffModalJSON(from, to, filedataid){
+    $("#previewModalContent").load( "/casc/diffFile?from=" + from + "&to=" + to + "&filedataid=" + filedataid + "&json=true");
 }
 
 function fillDBCDiffModal(from, to, dbc) {

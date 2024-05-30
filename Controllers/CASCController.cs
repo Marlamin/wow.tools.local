@@ -1,6 +1,7 @@
 ﻿using CASCLib;
 using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
@@ -8,6 +9,9 @@ using System.Text;
 using System.Web;
 using wow.tools.local.Services;
 using wow.tools.Services;
+using WoWFormatLib.FileProviders;
+using WoWFormatLib.FileReaders;
+using WoWFormatLib.Structs.WDT;
 
 namespace wow.tools.local.Controllers
 {
@@ -848,9 +852,8 @@ namespace wow.tools.local.Controllers
 
         [Route("diffFile")]
         [HttpGet]
-        public string DiffFile(int fileDataID, string from, string to)
+        public string DiffFile(int fileDataID, string from, string to, bool json = false)
         {
-
             var html = "";
             if (CASC.Types.TryGetValue(fileDataID, out var fileType))
             {
@@ -889,17 +892,22 @@ namespace wow.tools.local.Controllers
                     html += "$(document).ready(function() { $('#toggle-content').html($('#from-diff').html()); $('#toggle-button').click(function() { if(document.getElementById('toggle-content').dataset.current == 'from'){ $('#toggle-content').html($('#to-diff').html()); document.getElementById('toggle-content').dataset.current = 'to'; }else{ $('#toggle-content').html($('#from-diff').html()); document.getElementById('toggle-content').dataset.current = 'from'; }});});";
                     html += "</script>";
                 }
-                else if (textTypes.Contains(fileType))
+                else if (textTypes.Contains(fileType) || json == true)
                 {
-
-
                     html = @"Note: Git is required to be installed on the system to generate text diffs<br>
     <link rel='stylesheet' type='text/css' href='/css/diff2html.min.css' />
     <script src='https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js'></script>
     <script type='text/javascript' charset='utf-8'>
         $(document).ready(function() {
-            $.get('/casc/diffText?fileDataID=";
+            $.get('";
+
+                    if (json)
+                        html += "/casc/jsonDiff";
+                    else
+                        html += "/casc/diffText";
+
+                    html += "?fileDataID=";
                     html += fileDataID + "&from=" + from + "&to=" + to;
 
                     html += @"', function(data) {
@@ -1120,6 +1128,117 @@ namespace wow.tools.local.Controllers
                 .Where(x => !string.IsNullOrEmpty(x) && x.ToLower().StartsWith(search.ToLower()))
                 .Select(x => Path.GetDirectoryName(x).Replace('\\', '/'))
                 .DistinctBy(x => x.ToLower()).Take(20).ToList();
+        }
+
+        [Route("json")]
+        [HttpGet]
+        public string Json(uint fileDataID, string build)
+        {
+            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt" };
+
+            if (!(CASC.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
+            {
+                return "Unsupported file type or file not found";
+            }
+
+            if (!FileProvider.HasProvider(build))
+            {
+                if (build == CASC.BuildName)
+                {
+                    var casc = new CASCFileProvider();
+                    casc.InitCasc(CASC.cascHandler);
+                    FileProvider.SetProvider(casc, CASC.BuildName);
+                }
+                else
+                {
+                    var wago = new WagoFileProvider();
+                    wago.SetBuild(build);
+                    FileProvider.SetProvider(wago, build);
+                }
+            }
+
+            FileProvider.SetDefaultBuild(build);
+
+            switch (fileType)
+            {
+                case "wdt":
+                    var wdtReader = new WDTReader();
+                    wdtReader.LoadWDT(fileDataID);
+                    return JsonConvert.SerializeObject(wdtReader.wdtfile, Formatting.Indented);
+                case "wmo":
+                    var wmoReader = new WMOReader();
+                    var wmo = wmoReader.LoadWMO(fileDataID);
+                    for(var i = 0; i < wmo.group.Length; i++)
+                    {
+                        wmo.group[i].mogp.indices = [];
+                        wmo.group[i].mogp.vertices = [];
+                        wmo.group[i].mogp.normals = [];
+                        wmo.group[i].mogp.textureCoords = [];
+                    }
+                    return JsonConvert.SerializeObject(wmo, Formatting.Indented);
+                case "adt":
+                    var adtReader = new ADTReader();
+                    adtReader.LoadADT(MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing, fileDataID, 0, 0, false);
+                    for(var i = 0; i < adtReader.adtfile.chunks.Length; i++)
+                    {
+                        adtReader.adtfile.chunks[i].vertices = new WoWFormatLib.Structs.ADT.MCVT();
+                        adtReader.adtfile.chunks[i].normals.normal_0 = [];
+                        adtReader.adtfile.chunks[i].normals.normal_1 = [];
+                        adtReader.adtfile.chunks[i].normals.normal_2 = [];
+                        adtReader.adtfile.chunks[i].colors.color = [];
+                    }
+                    return JsonConvert.SerializeObject(adtReader.adtfile, Formatting.Indented);
+                case "m2":
+                    var m2Reader = new M2Reader();
+                    m2Reader.LoadM2(fileDataID);
+                    // lets maybe not return all m2 data
+                    m2Reader.model.vertices = [];
+                    for (var i = 0; i < m2Reader.model.skins.Length; i++)
+                    {
+                        m2Reader.model.skins[i].indices = [];
+                        m2Reader.model.skins[i].triangles = [];
+                        m2Reader.model.skins[i].properties = [];
+                    }
+                    return JsonConvert.SerializeObject(m2Reader.model, Formatting.Indented);
+                default:
+                    throw new Exception("Unsupported file type");
+            }
+        }
+
+        [Route("jsonDiff")]
+        [HttpGet]
+        public string JsonDiff(uint fileDataID, string from, string to)
+        {
+            var oldJson = Json(fileDataID, from);
+            var newJson = Json(fileDataID, to);
+
+            if (!Directory.Exists("temp/diffs/" + from))
+                Directory.CreateDirectory("temp/diffs/" + from);
+
+            System.IO.File.WriteAllText("temp/diffs/" + from + "/" + fileDataID + ".json", oldJson);
+
+            if (!Directory.Exists("temp/diffs/" + to))
+                Directory.CreateDirectory("temp/diffs/" + to);
+
+            System.IO.File.WriteAllText("temp/diffs/" + to + "/" + fileDataID + ".json", newJson);
+
+            try
+            {
+                Process p = new();
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.FileName = "git";
+                p.StartInfo.Arguments = "diff --no-index temp/diffs/" + from + "/" + fileDataID + ".json" + " temp/diffs/" + to + "/" + fileDataID + ".json";
+                p.Start();
+                string output = p.StandardOutput.ReadToEnd();
+                p.WaitForExit();
+                return output;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error generating diff: " + e.Message);
+                return "Error generating diff: " + e.Message;
+            }
         }
     }
 }
