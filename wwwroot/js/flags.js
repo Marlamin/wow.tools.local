@@ -113,17 +113,17 @@ const mapFlags = {
 const mapFlags2 = {
     0x1: 'Dont Activate/Show Map',
     0x2: 'No Vote Kicks',
-    0x4: 'Dont Voxelize Path Data',
-    0x8: 'Terrain LOD',
-    0x10: 'Unclamped Point Lights',
-    0x20: 'PVP',
-    0x40: 'Ignore Instance Farm Limit',
-    0x80: 'Dont Inherit Area Lights From Parent',
-    0x100: 'Force Light Buffer On',
-    0x200: 'WMO Liquid Scale',
-    0x400: 'Spell Clutter On',
-    0x800: 'Spell Clutter Off',
-    0x1000: 'No Incoming Transfers',
+    0x4: 'No Incoming Transfers',
+    0x8: 'Dont Voxelize Path Data',
+    0x10: 'Terrain LOD',
+    0x20: 'Unclamped Point Lights',
+    0x40: 'PVP',
+    0x80: 'Ignore Instance Farm Limit',
+    0x100: 'Dont Inherit Area Lights From Parent',
+    0x200: 'Force Light Buffer On',
+    0x400: 'WMO Liquid Scale',
+    0x800: 'Spell Clutter On',
+    0x1000: 'Spell Clutter Off',
     0x2000: 'Reduced Path Map Height Validation',
     0x4000: 'NEW_MINIMAP_GENERATION',
     0x8000: 'AI_BOTS_DETECTED_LIKE_PLAYERS',
@@ -132,6 +132,24 @@ const mapFlags2 = {
     0x40000: 'DISABLE_SHARED_WEATHER_SYSTEMS',
     0x80000: 'HONOR_SPELL_ATTRIBUTE_EX_K_LOS_HITS_NOCAMCOLLIDE',
     0x100000: 'BELONGS_TO_LAYER',
+    //0x200000: '',
+    //0x400000: '',
+    //0x800000: '',
+    //0x1000000: '',
+    //0x2000000: '',
+    //0x4000000: '',
+    //0x8000000: '',
+};
+
+const mapFlags3 = {
+    //0x1: '',
+    //0x2: '',
+    //0x4: '',
+    //0x8: '',
+    //0x10: '',
+    //0x20: '',
+    //0x40: '',
+    //0x80: '',
 }
 
 const soundkitFlags = {
@@ -140,12 +158,12 @@ const soundkitFlags = {
     0x0200: 'LOOPING',
     0x0400: 'VARY_PITCH',
     0x0800: 'VARY_VOLUME'
-};
+}
 
 const globalstringsFlags ={
     0x1: 'FRAMEXML',
     0x2: 'GLUEXML'
-};
+}
 
 const inventoryTypeMask = {
     0x2: 'Head',

@@ -430,6 +430,52 @@ const criteriaAdditionalCondition = {
     326: ['HAS_VANILLA_CE', 'Player has Vanilla Collector\'s Edition'],
     // 327: ['', ''], // Bag related
     329: ['DISPLAY_SEASON_UNK', 'Display Season (unk)'],
+    333: ['DISPLAY_SEASON_UNK2', 'Display Season (unk2)'],
+    // 335: ['', ''], // UNK
+    // 336: ['', ''], // UNK
+    // 337: ['', ''], // UNK
+    // 338: ['', ''], // UNK
+    340: ['TRAIT_NODE_ENTRY_UNK', 'Trait Node Entry (unk)'],
+    341: ['TRAIT_NODE_ENTRY_UNK2', 'Trait Node Entry (unk2)'],
+    // 342: ['', ''], // Also trait related
+    // 343: ['', ''], // UNK
+    // 344: ['', ''], // UNK
+    // 350: ['', ''], // UNK
+    // 351: ['', ''], // Item mod?
+    352: ['BATTLEPET_SPECIES_ID_UNK', 'Battlepet species ID (unk)'],
+    // 353: ['', ''], // UNK
+    355: ['TRAIT_NODE_ENTRY_UNK3', 'Trait Node Entry (unk3)'],
+    356: ['TRAIT_NODE_ENTRY_UNK4', 'Trait Node Entry (unk4)'],
+    358: ['ITEM_MODIFIED_APPEARANCE_UNK', 'Item modified appearance (unk)'],
+    // 359: ['', ''], // UNK
+    360: ['ITEM_BONUS_LIST_GROUP_ENTRY_UNK', 'Item bonus list group entry (unk)'],
+    // 361: ['', ''], // UNK
+    // 362: ['', ''], // Achievement/Item related?
+    // 363: ['', ''], // UNK
+    // 364: ['', ''], // UNK
+    365: ['SKILL_LINE_ABILITY_OR_MOD_CRAFT_SLOT_UNK', 'Skill line ability or mod craft slot (unk)'],
+    366: ['DUNGEON_ENCOUNTER_UNK', 'Dungeon encounter (unk)'],
+    367: ['CURRENCY_TYPES_UNK', 'Currency types (unk)'],
+    368: ['SKILL_LINE_ABILITY_UNK', 'Skill line ability (unk)'],
+    // 369: ['', ''], // Achievement related?
+    370: ['QUEST_LABEL_UNK', 'Quest label (unk)'],
+    371: ['SCENARIO_STEP_UNK', 'Scenario step (unk)'],
+    // 373: ['', ''], // UNK
+    // 374: ['', ''], // UNK
+    // 375: ['', ''], // UNK
+    // 376: ['', ''], // UNK
+    // 377: ['', ''], // UNK
+    378: ['PLAYER_DATA_FLAG_ACCOUNT_UNK', 'Player data flag account (unk)'],
+    379: ['PLAYER_DATA_FLAG_CHARACTER_UNK', 'Player data flag character (unk)'],
+    // 380: ['', ''], // Map related?
+    382: ['QUEST_UNK', 'Quest (unk)'],
+    383: ['QUEST_UNK2', 'Quest (unk2)'],
+    384: ['QUEST_UNK3', 'Quest (unk3)'],
+    // 387: ['', ''], // UNK
+    // 388: ['', ''], // UNK
+    389: ['CREATURE_CLASSIFICATION_UNK', 'Creature::Classification (unk)'],
+
+
 };
 
 const itemStatType = {
