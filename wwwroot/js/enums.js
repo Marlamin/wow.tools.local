@@ -4608,7 +4608,10 @@ const criteriaType = {
     228: 'Socket Any Soulbind Conduit', // No FK
     229: 'Obtain Any Item With Currency Value "{CurrencyTypes}"', // No FK
     230: '(Player) Mythic+ Rating "{#DungeonScore}" attained',
-    231: '(Player) spent talent point'
+    231: '(Player) spent talent point',
+    251: 'Faction related (unk)', // Faction::ID
+    258: 'Area table related (unk)', // AreaTable::ID
+    259: 'Quest sort related (unk)', // QuestSort::ID
 };
 
 // 601
