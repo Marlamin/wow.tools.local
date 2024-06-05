@@ -352,6 +352,19 @@ namespace wow.tools.local.Controllers
                                 switch (subChunk)
                                 {
                                     case "RDHM": // ADT root
+                                        var newLength = bin.ReadInt32();
+                                        bin.ReadBytes(newLength);
+                                        var thirdChunk = bin.ReadBytes(4);
+                                        var subSubChunk = Encoding.ASCII.GetString(thirdChunk);
+                                        if(subSubChunk == "EFMM")
+                                        {
+                                            type = "wdt";
+                                        }
+                                        else
+                                        {
+                                            type = "adt";
+                                        }
+                                        break;
                                     case "FDDM": // ADT OBJ
                                     case "DDLM": // ADT OBJ
                                     case "DFLM": // ADT OBJ
