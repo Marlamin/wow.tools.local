@@ -150,6 +150,7 @@ const mapFlags3 = {
     //0x20: '',
     //0x40: '',
     //0x80: '',
+    0x800: 'Warband Scene (maybe)'
 }
 
 const soundkitFlags = {
