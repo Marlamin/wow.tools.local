@@ -3330,8 +3330,11 @@ const itemContext = {
     101: "Normal Dungeon Jackpot",
     102: "Heroic Dungeon Jackpot",
     103: "Mythic Dungeon Jackpot",
-    104: "Delves",
-    105: "Timerunning"
+    104: "Delves 1",
+    105: "Timerunning",
+    106: "Delves 2",
+    107: "Delves 3",
+    108: "Delves Jackpot"
 }
 
 // 457
