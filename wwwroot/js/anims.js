@@ -1775,4 +1775,6 @@ var animationNames = [
     "FlyWAShovelLoop",
     "EmoteTalkFrustrated",
     "FlyEmoteTalkFrustrated",
+    "MountMedium",
+    "FlyMountMedium"
 ];
