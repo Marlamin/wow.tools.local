@@ -243,17 +243,22 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                var mp3Storage = dbcd.Load("ManifestMP3", CASC.BuildName);
-                foreach (dynamic mp3Entry in mp3Storage.Values)
+                if (CASC.FileExists(1375802))
                 {
-                    var fdid = (int)mp3Entry.ID;
-                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                    var mp3Storage = dbcd.Load("ManifestMP3", CASC.BuildName);
+                    foreach (dynamic mp3Entry in mp3Storage.Values)
                     {
-                        knownUnknowns.TryAdd(fdid, "mp3");
-                        unknownFiles.Remove(fdid);
-                        CASC.SetFileType(fdid, "mp3");
+                        var fdid = (int)mp3Entry.ID;
+                        if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                        {
+                            knownUnknowns.TryAdd(fdid, "mp3");
+                            unknownFiles.Remove(fdid);
+                            CASC.SetFileType(fdid, "mp3");
+                        }
                     }
+
                 }
+                
             }
             catch (Exception e)
             {
