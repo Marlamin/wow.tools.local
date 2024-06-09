@@ -256,9 +256,7 @@ namespace wow.tools.local.Controllers
                             CASC.SetFileType(fdid, "mp3");
                         }
                     }
-
                 }
-                
             }
             catch (Exception e)
             {
@@ -361,7 +359,7 @@ namespace wow.tools.local.Controllers
                                         bin.ReadBytes(newLength);
                                         var thirdChunk = bin.ReadBytes(4);
                                         var subSubChunk = Encoding.ASCII.GetString(thirdChunk);
-                                        if(subSubChunk == "EFMM")
+                                        if (subSubChunk == "EFMM")
                                         {
                                             type = "wdt";
                                         }
@@ -421,6 +419,23 @@ namespace wow.tools.local.Controllers
                                 break;
                             case "TAFG":
                                 type = "gfat";
+                                break;
+                            case "2s3m":
+                            case "2S3m":
+                            case "HS3m":
+                            case "LS3m":
+                            case "m3S2":
+                                type = "m3shlib";
+                                break;
+                            case "BD3m":
+                                type = "m3strtbl";
+                                break;
+                            case "LM3m":
+                            case "2M3m":
+                                type = "m3matlib";
+                                break;
+                            case "*QIL":
+                                type = "liq";
                                 break;
                             default:
                                 break;
@@ -1187,7 +1202,7 @@ namespace wow.tools.local.Controllers
                 case "wmo":
                     var wmoReader = new WMOReader();
                     var wmo = wmoReader.LoadWMO(fileDataID);
-                    for(var i = 0; i < wmo.group.Length; i++)
+                    for (var i = 0; i < wmo.group.Length; i++)
                     {
                         wmo.group[i].mogp.indices = [];
                         wmo.group[i].mogp.vertices = [];
@@ -1198,7 +1213,7 @@ namespace wow.tools.local.Controllers
                 case "adt":
                     var adtReader = new ADTReader();
                     adtReader.LoadADT(MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing, fileDataID, 0, 0, false);
-                    for(var i = 0; i < adtReader.adtfile.chunks.Length; i++)
+                    for (var i = 0; i < adtReader.adtfile.chunks.Length; i++)
                     {
                         adtReader.adtfile.chunks[i].vertices = new WoWFormatLib.Structs.ADT.MCVT();
                         adtReader.adtfile.chunks[i].normals.normal_0 = [];
