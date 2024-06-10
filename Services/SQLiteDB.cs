@@ -7,6 +7,8 @@ namespace wow.tools.local.Services
     {
         public static SqliteConnection dbConn = new("Data Source=WTL.db");
         public static Dictionary<string, HashSet<int>> newFilesBetweenVersion = new();
+        private static Dictionary<int, int> broadcastTextCache = new();
+
         static SQLiteDB()
         {
             dbConn.Open();
@@ -24,15 +26,189 @@ namespace wow.tools.local.Services
 
             indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_rootfiles_chashes_idx ON wow_rootfiles_chashes (fileDataID, chash)", dbConn);
             indexCmd.ExecuteNonQuery();
+
+            // wow_creatures 
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_creatures (creatureID INTEGER, name TEXT)", dbConn);
+            createCmd.ExecuteNonQuery();
+
+            indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_creatures_idx ON wow_creatures (creatureID)", dbConn);
+            indexCmd.ExecuteNonQuery();
+
+            // wow_broadcasttext 
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_broadcasttext (broadcastTextID INTEGER, Text_lang TEXT, Text1_lang TEXT, SoundKitID0 INTEGER, SoundKitID1 INTEGER, LastUpdatedBuild INTEGER)", dbConn);
+            createCmd.ExecuteNonQuery();
+
+            indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_broadcasttext_idx ON wow_broadcasttext (broadcastTextID)", dbConn);
+            indexCmd.ExecuteNonQuery();
+
+            // prepare broadcastTextCache
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT broadcastTextID, LastUpdatedBuild FROM wow_broadcasttext";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    broadcastTextCache[int.Parse(reader["broadcastTextID"].ToString())] = int.Parse(reader["LastUpdatedBuild"].ToString());
+                }
+
+                reader.Close();
+            }
         }
 
+        public static void InsertOrUpdateCreature(int creatureID, string name)
+        {
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "INSERT OR IGNORE INTO wow_creatures (creatureID, name) VALUES (@creatureID, @name)";
+                cmd.Parameters.AddWithValue("@creatureID", creatureID);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public static void InsertOrUpdateBroadcastText(int broadcastTextID, string text_lang, string text1_lang, int soundKitID0, int soundKitID1, int build)
+        {
+            var insertNew = false;
+            var updateExisting = false;
+
+            if (!broadcastTextCache.TryGetValue(broadcastTextID, out var cachedBuild))
+            {
+                insertNew = true;
+                updateExisting = false;
+            }
+            else if (cachedBuild < build)
+            {
+                updateExisting = true;
+            }
+            else if (cachedBuild > build)
+            {
+                updateExisting = false;
+            }
+
+            if (insertNew)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT INTO wow_broadcasttext (broadcastTextID, Text_lang, Text1_lang, SoundKitID0, SoundKitID1, LastUpdatedBuild) VALUES (@broadcastTextID, @Text_lang, @Text1_lang, @SoundKitID0, @SoundKitID1, @Build)";
+                    cmd.Parameters.AddWithValue("@broadcastTextID", broadcastTextID);
+                    cmd.Parameters.AddWithValue("@Text_lang", text_lang);
+                    cmd.Parameters.AddWithValue("@Text1_lang", text1_lang);
+                    cmd.Parameters.AddWithValue("@SoundKitID0", soundKitID0);
+                    cmd.Parameters.AddWithValue("@SoundKitID1", soundKitID1);
+                    cmd.Parameters.AddWithValue("@Build", build);
+                    cmd.ExecuteNonQuery();
+
+                    broadcastTextCache[broadcastTextID] = build;
+                }
+            }
+            else if (updateExisting)
+            {
+                var needsFullUpdate = false;
+
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT Text_lang, Text1_lang, SoundKitID0, SoundKitID1 FROM wow_broadcasttext WHERE broadcastTextID = @broadcastTextID";
+                    cmd.Parameters.AddWithValue("@broadcastTextID", broadcastTextID);
+
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        var currentText_lang = reader["Text_lang"].ToString();
+                        var currentText1_lang = reader["Text1_lang"].ToString();
+                        var currentSoundKitID0 = int.Parse(reader["SoundKitID0"].ToString());
+                        var currentSoundKitID1 = int.Parse(reader["SoundKitID1"].ToString());
+
+                        if (currentText_lang != text_lang)
+                        {
+                            Console.WriteLine(build + " " + broadcastTextID + " Text_lang " + reader["Text_lang"].ToString() + " != " + text_lang);
+                            needsFullUpdate = true;
+
+                        }
+                        else if (currentText1_lang != text1_lang)
+                        {
+                            Console.WriteLine(build + " " + broadcastTextID + " Text1_lang " + reader["Text1_lang"].ToString() + " != " + text1_lang);
+                            needsFullUpdate = true;
+                        }
+                        else if (currentSoundKitID0 != soundKitID0)
+                        {
+                            Console.WriteLine(build + " " + broadcastTextID + " SoundKitID0 " + reader["SoundKitID0"].ToString() + " != " + soundKitID0);
+                            needsFullUpdate = true;
+                        }
+                        else if (currentSoundKitID1 != soundKitID1)
+                        {
+                            Console.WriteLine(build + " " + broadcastTextID + " SoundKitID1 " + reader["SoundKitID1"].ToString() + " != " + soundKitID1);
+                            needsFullUpdate = true;
+                        }
+                    }
+
+                    reader.Close();
+                }
+
+                if (needsFullUpdate)
+                {
+                    using (var cmd = dbConn.CreateCommand())
+                    {
+                        cmd.CommandText = "REPLACE INTO wow_broadcasttext (broadcastTextID, Text_lang, Text1_lang, SoundKitID0, SoundKitID1, LastUpdatedBuild) VALUES (@broadcastTextID, @Text_lang, @Text1_lang, @SoundKitID0, @SoundKitID1, @Build)";
+                        cmd.Parameters.AddWithValue("@broadcastTextID", broadcastTextID);
+                        cmd.Parameters.AddWithValue("@Text_lang", text_lang);
+                        cmd.Parameters.AddWithValue("@Text1_lang", text1_lang);
+                        cmd.Parameters.AddWithValue("@SoundKitID0", soundKitID0);
+                        cmd.Parameters.AddWithValue("@SoundKitID1", soundKitID1);
+                        cmd.Parameters.AddWithValue("@Build", build);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                broadcastTextCache[broadcastTextID] = build;
+            }
+        }
+
+        public static Dictionary<string, List<uint>> GetTextToSoundKitIDs()
+        {
+            var textToSoundKitID = new Dictionary<string, List<uint>>();
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Text_lang, Text1_lang, SoundKitID0, SoundKitID1 FROM wow_broadcasttext";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    var Text_lang = reader["Text_lang"].ToString();
+                    var Text1_lang = reader["Text1_lang"].ToString();
+                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString());
+                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString());
+
+                    if (soundKitID0 != 0 && !string.IsNullOrEmpty(Text_lang)) {
+                        if (!textToSoundKitID.ContainsKey(Text_lang))
+                            textToSoundKitID[Text_lang] = new List<uint>();
+
+                        textToSoundKitID[Text_lang].Add(soundKitID0);
+                    }
+
+                    if (soundKitID1 != 0 && !string.IsNullOrEmpty(Text1_lang))
+                    {
+                        if (!textToSoundKitID.ContainsKey(Text1_lang))
+                            textToSoundKitID[Text1_lang] = new List<uint>();
+
+                        textToSoundKitID[Text1_lang].Add(soundKitID1);
+                    }
+                }
+
+                reader.Close();
+            }
+
+            return textToSoundKitID;
+        }
         public static HashSet<int> getNewFilesBetweenVersions(string oldBuild, string newBuild)
         {
             // Check if valid builds
-            if(oldBuild.Split('.').Length != 4 || newBuild.Split('.').Length != 4)
+            if (oldBuild.Split('.').Length != 4 || newBuild.Split('.').Length != 4)
                 return new HashSet<int>();
 
-            if(newFilesBetweenVersion.ContainsKey(oldBuild + "|" + newBuild))
+            if (newFilesBetweenVersion.ContainsKey(oldBuild + "|" + newBuild))
             {
                 return newFilesBetweenVersion[oldBuild + "|" + newBuild];
             }
@@ -60,27 +236,27 @@ namespace wow.tools.local.Services
                 return newFiles;
             }
 
-            if(!File.Exists(Path.Combine("manifests", newBuild + ".txt")))
+            if (!File.Exists(Path.Combine("manifests", newBuild + ".txt")))
             {
                 Console.WriteLine("Manifest file for build {0} not found, can't compare", newBuild);
                 return newFiles;
             }
 
             var oldBuildFiles = new List<int>();
-            foreach(var line in File.ReadAllLines(Path.Combine("manifests", oldBuild + ".txt")))
+            foreach (var line in File.ReadAllLines(Path.Combine("manifests", oldBuild + ".txt")))
             {
                 var splitLine = line.Split(";");
-                if(splitLine.Length != 2)
+                if (splitLine.Length != 2)
                     continue;
 
                 oldBuildFiles.Add(int.Parse(splitLine[0]));
             }
 
             var newBuildFiles = new List<int>();
-            foreach(var line in File.ReadAllLines(Path.Combine("manifests", newBuild + ".txt")))
+            foreach (var line in File.ReadAllLines(Path.Combine("manifests", newBuild + ".txt")))
             {
                 var splitLine = line.Split(";");
-                if(splitLine.Length != 2)
+                if (splitLine.Length != 2)
                     continue;
 
                 newBuildFiles.Add(int.Parse(splitLine[0]));
@@ -90,7 +266,7 @@ namespace wow.tools.local.Services
 
             if (newFiles.Count > 0)
                 newFilesBetweenVersion[oldBuild + "|" + newBuild] = newFiles;
-            
+
             return newFiles;
         }
 

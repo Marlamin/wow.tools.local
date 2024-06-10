@@ -196,27 +196,7 @@ namespace wow.tools.local.Controllers
                                 {
                                     var soundKits = (uint[])broadcastText["SoundKitID"];
 
-                                    if (!string.IsNullOrEmpty(broadcastText["Text_lang"].ToString()))
-                                    {
-                                        if (soundKits[0] != 0)
-                                        {
-                                            if (!textToSoundKitID.ContainsKey(broadcastText["Text_lang"].ToString()))
-                                                textToSoundKitID.Add(broadcastText["Text_lang"].ToString(), new List<uint>());
-
-                                            textToSoundKitID[broadcastText["Text_lang"].ToString()].Add(soundKits[0]);
-                                        }
-                                    }
-
-                                    if (!string.IsNullOrEmpty(broadcastText["Text1_lang"].ToString()))
-                                    {
-                                        if (soundKits[1] != 0)
-                                        {
-                                            if (!textToSoundKitID.ContainsKey(broadcastText["Text1_lang"].ToString()))
-                                                textToSoundKitID.Add(broadcastText["Text1_lang"].ToString(), new List<uint>());
-
-                                            textToSoundKitID[broadcastText["Text1_lang"].ToString()].Add(soundKits[1]);
-                                        }
-                                    }
+                                    SQLiteDB.InsertOrUpdateBroadcastText(int.Parse(broadcastText["ID"].ToString()), broadcastText["Text_lang"].ToString(), broadcastText["Text1_lang"].ToString(), (int)soundKits[0], (int)soundKits[1], int.Parse(buildName.Split(".")[3]));
                                 }
                             }
                             catch (Exception e)
@@ -225,7 +205,7 @@ namespace wow.tools.local.Controllers
                             }
                         }
 
-                        Namer.NameVO(creatureCacheWDBFilename, textToSoundKitID);
+                        Namer.NameVO(creatureCacheWDBFilename, SQLiteDB.GetTextToSoundKitIDs());
                         break;
                     case "WMO":
                         Namer.NameWMO();
@@ -242,7 +222,6 @@ namespace wow.tools.local.Controllers
                 }
                 Console.WriteLine("Finished naming " + selectedNamer);
             }
-
 
             return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
