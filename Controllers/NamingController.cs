@@ -24,6 +24,7 @@ namespace wow.tools.local.Controllers
 
                 Namer.SetProviders(new DBCProvider(), new DBDProvider());
                 Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
+                Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);
 
                 // We need to read the listfile again here for now because the WTL listfile is unaware of files not in the build.
                 InitListfile();
@@ -89,6 +90,7 @@ namespace wow.tools.local.Controllers
         public void Clear()
         {
             Namer.ClearNewFiles();
+            InitListfile();
         }
 
         [HttpPost]

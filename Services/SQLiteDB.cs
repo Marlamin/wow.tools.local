@@ -172,6 +172,17 @@ namespace wow.tools.local.Services
             return versions;
         }
 
+        public static uint GetFirstVersionNumberByFileDataID(int fileDataID)
+        {
+            var firstVersion = GetFileVersions(fileDataID);
+            if (firstVersion.Count == 0)
+                return 0;
+
+            var firstBuild = firstVersion[0].buildName.Split('.');
+
+            return (uint)((int.Parse(firstBuild[0]) * 10000) + (int.Parse(firstBuild[1]) * 100) + int.Parse(firstBuild[2]));
+        }
+
         public static void ImportBuildIntoFileHistory(string buildName)
         {
             Console.WriteLine("Importing build {0} into file history", buildName);
