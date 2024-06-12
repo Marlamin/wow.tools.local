@@ -1006,6 +1006,14 @@ namespace wow.tools.local.Controllers
             }
         }
 
+        [Route("reloadBuilds")]
+        [HttpGet]
+        public bool ReloadBuilds()
+        {
+            CASC.LoadBuildInfo();
+            return true;
+        }
+
         [Route("relinkFile")]
         [HttpGet]
         public string RelinkFile(uint fileDataID)

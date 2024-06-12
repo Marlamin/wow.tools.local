@@ -77,47 +77,8 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Initializing CASC from local disk with basedir " + basedir + " and program " + program + " and locale " + locale);
                 cascHandler = CASCHandler.OpenLocalStorage(basedir, program);
 
-                // .build.info parsing
-                AvailableBuilds.Clear();
-
-                var folderMap = new Dictionary<string, string>();
-                foreach(var flavorFile in Directory.GetFiles(SettingsManager.wowFolder, ".flavor.info", SearchOption.AllDirectories))
-                {
-                    var flavorLines = File.ReadAllLines(flavorFile);
-                    if(flavorLines.Length < 2)
-                        continue;
-
-                    folderMap.Add(flavorLines[1], Path.GetFileName(Path.GetDirectoryName(flavorFile)));
-                }
-
-                var headerMap = new Dictionary<string, byte>();
-                foreach (var line in File.ReadAllLines(Path.Combine(SettingsManager.wowFolder, ".build.info")))
-                {
-                    var splitLine = line.Split("|");
-                    if (splitLine[0] == "Branch!STRING:0")
-                    {
-                        foreach (var header in splitLine)
-                            headerMap.Add(header.Split("!")[0], (byte)Array.IndexOf(splitLine, header));
-
-                        continue;
-                    }
-
-                    var availableBuild = new AvailableBuild();
-
-                    availableBuild.BuildConfig = splitLine[headerMap["Build Key"]];
-                    availableBuild.CDNConfig = splitLine[headerMap["CDN Key"]];
-                    availableBuild.Version = splitLine[headerMap["Version"]];
-                    availableBuild.Product = splitLine[headerMap["Product"]];
-                    
-                    if(folderMap.TryGetValue(availableBuild.Product, out string folder))
-                        availableBuild.Folder = folder;
-                    else
-                        Console.WriteLine("No flavor found matching " + availableBuild.Product);
-
-                    AvailableBuilds.Add(availableBuild);
-                }
+                LoadBuildInfo();
             }
-
             CurrentProduct = program;
 
             var splitName = cascHandler.Config.BuildName.Replace("WOW-", "").Split("patch");
@@ -323,6 +284,48 @@ namespace wow.tools.local.Services
             return true;
         }
 
+        public static void LoadBuildInfo()
+        {
+            AvailableBuilds.Clear();
+
+            var folderMap = new Dictionary<string, string>();
+            foreach (var flavorFile in Directory.GetFiles(SettingsManager.wowFolder, ".flavor.info", SearchOption.AllDirectories))
+            {
+                var flavorLines = File.ReadAllLines(flavorFile);
+                if (flavorLines.Length < 2)
+                    continue;
+
+                folderMap.Add(flavorLines[1], Path.GetFileName(Path.GetDirectoryName(flavorFile)));
+            }
+
+            var headerMap = new Dictionary<string, byte>();
+            foreach (var line in File.ReadAllLines(Path.Combine(SettingsManager.wowFolder, ".build.info")))
+            {
+                var splitLine = line.Split("|");
+                if (splitLine[0] == "Branch!STRING:0")
+                {
+                    foreach (var header in splitLine)
+                        headerMap.Add(header.Split("!")[0], (byte)Array.IndexOf(splitLine, header));
+
+                    continue;
+                }
+
+                var availableBuild = new AvailableBuild();
+
+                availableBuild.BuildConfig = splitLine[headerMap["Build Key"]];
+                availableBuild.CDNConfig = splitLine[headerMap["CDN Key"]];
+                availableBuild.Version = splitLine[headerMap["Version"]];
+                availableBuild.Product = splitLine[headerMap["Product"]];
+
+                if (folderMap.TryGetValue(availableBuild.Product, out string folder))
+                    availableBuild.Folder = folder;
+                else
+                    Console.WriteLine("No flavor found matching " + availableBuild.Product);
+
+                AvailableBuilds.Add(availableBuild);
+            }
+        }
+     
         public static string[] GetListfileLines(bool forceRedownload = false)
         {
             var listfileMode = "downloaded";

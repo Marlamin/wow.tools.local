@@ -57,7 +57,7 @@
             </div>
         </form>
         <br />
-        <h3>Available builds</h3>
+        <h3>Available builds <a id="reloadBuildsButton" class="btn btn-primary btn-sm" href="#" onClick="reloadBuilds()">Reload</a></h3>
         <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
             <div class="col-sm-12">
                 <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
@@ -203,6 +203,18 @@
             button.classList.remove("btn-success");
             button.classList.add("btn-danger");
             const response = await fetch("/dbc/export/alltodisk");
+            var result = await response.text();
+            if (result == "true") {
+                location.reload();
+            }
+        }
+
+        async function reloadBuilds() {
+            var button = document.getElementById('reloadBuildsButton');
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Reloading, please wait!";
+            button.classList.remove("btn-success");
+            button.classList.add("btn-danger");
+            const response = await fetch("/casc/reloadBuilds");
             var result = await response.text();
             if (result == "true") {
                 location.reload();
