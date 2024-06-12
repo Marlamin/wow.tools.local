@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Services;
 using wow.tools.Services;
+using WoWFormatLib.FileReaders;
 using WoWNamingLib;
 
 namespace wow.tools.local.Controllers
@@ -167,13 +168,76 @@ namespace wow.tools.local.Controllers
                         if (string.IsNullOrEmpty(SettingsManager.wowFolder))
                             break;
 
-                        var creatureCacheWDBFilename = Path.Combine(SettingsManager.wowFolder, "_retail_", "Cache", "WDB", "enUS", "creaturecache.wdb");
+                        foreach (var creatureCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "creaturecache.wdb", SearchOption.AllDirectories))
+                        {
+                            var flavorDir = new DirectoryInfo(creatureCacheFile).Parent.Parent.Parent.Parent.Name;
 
-                        if (!string.IsNullOrEmpty(form["creatureCacheWDBFilename"]))
-                            creatureCacheWDBFilename = form["creatureCacheWDBFilename"];
+                            // Don't bother with Classic
+                            if (flavorDir.Contains("classic"))
+                                continue;
 
-                        if (!System.IO.File.Exists(creatureCacheWDBFilename))
-                            break;
+                            var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
+
+                            if (productVersionByFlavor == null)
+                                continue;
+
+                            Console.WriteLine("Loading " + creatureCacheFile + " for " + productVersionByFlavor);
+
+                            var creatureCache = WDBReader.Read(creatureCacheFile, productVersionByFlavor);
+                            foreach (var entry in creatureCache.entries)
+                            {
+                                SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                            }
+                        }
+
+                        var buildMap = new Dictionary<uint, string>();
+                        if (Directory.Exists(SettingsManager.manifestFolder))
+                        {
+                            foreach (var file in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
+                            {
+                                var fileName = Path.GetFileNameWithoutExtension(file);
+                                var splitFilename = fileName.Split('.');
+                                if (splitFilename.Length != 4)
+                                    continue;
+
+                                buildMap.Add(uint.Parse(splitFilename[3]), fileName);
+                            }
+                        }
+
+                        foreach (var creatureCacheFile in Directory.GetFiles("caches", "creaturecache*", SearchOption.AllDirectories))
+                        {
+                            uint build = 0;
+
+                            using (var ms = new MemoryStream(System.IO.File.ReadAllBytes(creatureCacheFile)))
+                            using (var bin = new BinaryReader(ms))
+                            {
+                                bin.ReadUInt32();
+                                build = bin.ReadUInt32();
+                            }
+
+                            if (buildMap.TryGetValue(build, out var buildName))
+                            {
+                                Console.WriteLine("Loading " + creatureCacheFile + " for " + buildName);
+                                var creatureCache = WDBReader.Read(creatureCacheFile, buildName);
+                                foreach (var entry in creatureCache.entries)
+                                {
+                                    SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("No full build name found for build " + build);
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(form["creatureCacheWDBFilename"]) && System.IO.File.Exists(form["creatureCacheWDBFilename"]))
+                        {
+                            var creatureCache = WDBReader.Read(form["creatureCacheWDBFilename"], CASC.BuildName);
+                            foreach (var entry in creatureCache.entries)
+                            {
+                                SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                            }
+                        }
 
                         var textToSoundKitID = new Dictionary<string, List<uint>>();
 
@@ -205,7 +269,7 @@ namespace wow.tools.local.Controllers
                             }
                         }
 
-                        Namer.NameVO(creatureCacheWDBFilename, SQLiteDB.GetTextToSoundKitIDs());
+                        Namer.NameVO(SQLiteDB.GetCreatureNames(), SQLiteDB.GetTextToSoundKitIDs());
                         break;
                     case "WMO":
                         Namer.NameWMO();
