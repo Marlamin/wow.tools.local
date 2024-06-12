@@ -71,31 +71,16 @@ namespace wow.tools.local.Controllers
 
             if (SettingsManager.wowFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.wowFolder, ".build.info")))
             {
-                var headerMap = new Dictionary<string, byte>();
-                foreach (var line in System.IO.File.ReadAllLines(Path.Combine(SettingsManager.wowFolder, ".build.info")))
+                foreach (var availableBuild in CASC.AvailableBuilds)
                 {
-                    var splitLine = line.Split("|");
-                    if (splitLine[0] == "Branch!STRING:0")
-                    {
-                        foreach (var header in splitLine)
-                            headerMap.Add(header.Split("!")[0], (byte)Array.IndexOf(splitLine, header));
-
-                        continue;
-                    }
-
-                    var buildConfig = splitLine[headerMap["Build Key"]];
-                    var cdnConfig = splitLine[headerMap["CDN Key"]];
-                    var version = splitLine[headerMap["Version"]];
-                    var product = splitLine[headerMap["Product"]];
-
-                    var splitVersion = version.Split(".");
+                    var splitVersion = availableBuild.Version.Split(".");
                     var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
                     var build = splitVersion[3];
 
-                    var isActive = CASC.CurrentProduct == product;
+                    var isActive = CASC.CurrentProduct == availableBuild.Product;
                     var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
                     var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
-                    result.data.Add([patch, build, product, buildConfig, cdnConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
+                    result.data.Add([patch, build, availableBuild.Product, availableBuild.Folder, availableBuild.BuildConfig, availableBuild.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
                 }
 
                 result.data = [.. result.data.OrderBy(x => x[0])];

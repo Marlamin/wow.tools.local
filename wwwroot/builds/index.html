@@ -61,7 +61,7 @@
         <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
             <div class="col-sm-12">
                 <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
-                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
+                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Folder</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -102,11 +102,11 @@
             "lengthMenu": [[25, 100, 500, 1000], [25, 100, 500, 1000]],
             "columnDefs": [
                 {
-                    "targets": [2, 3, 4],
+                    "targets": [2, 3, 4, 5, 6, 7, 8],
                     "orderable": false,
                 },
                 {
-                    "targets": 5,
+                    "targets": 6,
                     "render": function (data, type, full, meta) {
                         let isActive = data == "True";
                         var result = "";
@@ -119,21 +119,20 @@
                     }
                 },
                 {
-                    "targets": 6,
+                    "targets": 7,
                     "render": function (data, type, full, meta) {
                         return "";
-                        //return '<select style="width: 360px" class="diffSelect" id="' + full[2] + '_diffselect"><option>Select a previously opened build to diff to</option></select>&nbsp;<a class="btn btn-primary btn-sm disabled" id="' + full[2] + '_diffbutton" href="#" onClick="diffBuild(this)">Diff</a>';
                     }
                 },
                 {
-                    "targets": 7,
+                    "targets": 8,
                     "render": function (data, type, full, meta) {
-                        let isActive = full[5] == "True";
+                        let isActive = full[6] == "True";
                         if (isActive)
                             currentBuild = full[0] + "." + full[1];
 
-                        let hasManifest = full[6] == "True";
-                         let hasDBCs = full[7] == "True";
+                        let hasManifest = full[7] == "True";
+                         let hasDBCs = full[8] == "True";
                         var result = "";
                         if (hasManifest) {
                             result += '<a class="btn btn-success btn-sm disabled" href="#">Has manifest</a>';
@@ -185,17 +184,6 @@
                 console.error('Error:', error);
             });
         });
-
-        function diffBuild(row) {
-            const columns = row.parentElement.parentElement.children;
-            const fromBuild = columns[0].innerHTML + "." + columns[1].innerHTML;
-            const toBuild = columns[6].children[0].value;
-
-            if (toBuild == "Select a previously opened build to diff to")
-                return;
-
-            window.open("/builds/diff.html?from=" + fromBuild + "&to=" + toBuild, '_blank')
-        }
 
         async function switchToProduct(product) {
             var button = document.querySelector('[data-product="' + product + '"]');

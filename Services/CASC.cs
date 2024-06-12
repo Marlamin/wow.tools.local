@@ -30,6 +30,7 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<string, long> CHashToSize = [];
         public static readonly List<int> PlaceholderFiles = [];
         public static Dictionary<int, List<Version>> VersionHistory = [];
+        public static List<AvailableBuild> AvailableBuilds = [];
 
         public struct Version
         {
@@ -43,6 +44,16 @@ namespace wow.tools.local.Services
             EncryptedUnknownKey,
             EncryptedMixed,
             EncryptedButNot
+        }
+
+        public struct AvailableBuild
+        {
+            public string Branch;
+            public string BuildConfig;
+            public string CDNConfig;
+            public string Version;
+            public string Product;
+            public string Folder;
         }
 
         private static readonly HttpClient WebClient = new();
@@ -65,6 +76,46 @@ namespace wow.tools.local.Services
                 basedir = basedir.Replace("_retail_", "").Replace("_ptr_", "");
                 Console.WriteLine("Initializing CASC from local disk with basedir " + basedir + " and program " + program + " and locale " + locale);
                 cascHandler = CASCHandler.OpenLocalStorage(basedir, program);
+
+                // .build.info parsing
+                AvailableBuilds.Clear();
+
+                var folderMap = new Dictionary<string, string>();
+                foreach(var flavorFile in Directory.GetFiles(SettingsManager.wowFolder, ".flavor.info", SearchOption.AllDirectories))
+                {
+                    var flavorLines = File.ReadAllLines(flavorFile);
+                    if(flavorLines.Length < 2)
+                        continue;
+
+                    folderMap.Add(flavorLines[1], Path.GetFileName(Path.GetDirectoryName(flavorFile)));
+                }
+
+                var headerMap = new Dictionary<string, byte>();
+                foreach (var line in File.ReadAllLines(Path.Combine(SettingsManager.wowFolder, ".build.info")))
+                {
+                    var splitLine = line.Split("|");
+                    if (splitLine[0] == "Branch!STRING:0")
+                    {
+                        foreach (var header in splitLine)
+                            headerMap.Add(header.Split("!")[0], (byte)Array.IndexOf(splitLine, header));
+
+                        continue;
+                    }
+
+                    var availableBuild = new AvailableBuild();
+
+                    availableBuild.BuildConfig = splitLine[headerMap["Build Key"]];
+                    availableBuild.CDNConfig = splitLine[headerMap["CDN Key"]];
+                    availableBuild.Version = splitLine[headerMap["Version"]];
+                    availableBuild.Product = splitLine[headerMap["Product"]];
+                    
+                    if(folderMap.TryGetValue(availableBuild.Product, out string folder))
+                        availableBuild.Folder = folder;
+                    else
+                        Console.WriteLine("No flavor found matching " + availableBuild.Product);
+
+                    AvailableBuilds.Add(availableBuild);
+                }
             }
 
             CurrentProduct = program;
