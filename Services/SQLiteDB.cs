@@ -254,13 +254,32 @@ namespace wow.tools.local.Services
             return textToSoundKitID;
         }
 
-        public static Dictionary<uint, string> GetCreatureNames()
+        public static int GetCreatureCount()
+        {
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT COUNT(*) FROM wow_creatures";
+                return int.Parse(cmd.ExecuteScalar().ToString());
+            }
+        }
+
+        public static Dictionary<uint, string> GetCreatureNames(int start = -1, int count = -1)
         {
             var creatures = new Dictionary<uint, string>();
 
             using (var cmd = dbConn.CreateCommand())
             {
-                cmd.CommandText = "SELECT creatureID, name FROM wow_creatures";
+                if(start != -1 && count != -1)
+                {
+                    cmd.CommandText = "SELECT creatureID, name FROM wow_creatures ORDER BY creatureID ASC LIMIT @start, @count ";
+                    cmd.Parameters.AddWithValue("@start", start);
+                    cmd.Parameters.AddWithValue("@count", count);
+                }
+                else
+                {
+                    cmd.CommandText = "SELECT creatureID, name FROM wow_creatures";
+                }
+
                 var reader = cmd.ExecuteReader();
 
                 while (reader.Read())
