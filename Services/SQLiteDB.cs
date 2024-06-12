@@ -8,6 +8,7 @@ namespace wow.tools.local.Services
         public static SqliteConnection dbConn = new("Data Source=WTL.db");
         public static Dictionary<string, HashSet<int>> newFilesBetweenVersion = new();
         private static Dictionary<int, int> broadcastTextCache = new();
+        private static Dictionary<int, int> creatureCache = new();
 
         static SQLiteDB()
         {
@@ -28,7 +29,7 @@ namespace wow.tools.local.Services
             indexCmd.ExecuteNonQuery();
 
             // wow_creatures 
-            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_creatures (creatureID INTEGER, name TEXT)", dbConn);
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_creatures (creatureID INTEGER, name TEXT, LastUpdatedBuild INTEGER)", dbConn);
             createCmd.ExecuteNonQuery();
 
             indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_creatures_idx ON wow_creatures (creatureID)", dbConn);
@@ -54,16 +55,66 @@ namespace wow.tools.local.Services
 
                 reader.Close();
             }
-        }
 
-        public static void InsertOrUpdateCreature(int creatureID, string name)
-        {
+            // prepare creatureCache
             using (var cmd = dbConn.CreateCommand())
             {
-                cmd.CommandText = "INSERT OR IGNORE INTO wow_creatures (creatureID, name) VALUES (@creatureID, @name)";
-                cmd.Parameters.AddWithValue("@creatureID", creatureID);
-                cmd.Parameters.AddWithValue("@name", name);
-                cmd.ExecuteNonQuery();
+                cmd.CommandText = "SELECT creatureID, LastUpdatedBuild FROM wow_creatures";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    creatureCache[int.Parse(reader["creatureID"].ToString())] = int.Parse(reader["LastUpdatedBuild"].ToString());
+                }
+
+                reader.Close();
+            }
+        }
+
+        public static void InsertOrUpdateCreature(int creatureID, string name, int build)
+        {
+            var insertNew = false;
+            var updateExisting = false;
+
+            if (!creatureCache.TryGetValue(creatureID, out var cachedBuild))
+            {
+                insertNew = true;
+                updateExisting = false;
+            }
+            else if (cachedBuild < build)
+            {
+                updateExisting = true;
+            }
+            else if (cachedBuild > build)
+            {
+                updateExisting = false;
+            }
+
+            if (insertNew)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT INTO wow_creatures (creatureID, name, LastUpdatedBuild) VALUES (@creatureID, @name, @build)";
+                    cmd.Parameters.AddWithValue("@creatureID", creatureID);
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@build", build);
+                    cmd.ExecuteNonQuery();
+
+                    creatureCache[creatureID] = build;
+                }
+            }
+            else if (updateExisting)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "UPDATE wow_creatures SET name = @name, LastUpdatedBuild = @build WHERE creatureID = @creatureID";
+                    cmd.Parameters.AddWithValue("@creatureID", creatureID);
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@build", build);
+                    cmd.ExecuteNonQuery();
+                }
+
+                creatureCache[creatureID] = build;
             }
         }
 
@@ -202,6 +253,27 @@ namespace wow.tools.local.Services
 
             return textToSoundKitID;
         }
+
+        public static Dictionary<uint, string> GetCreatureNames()
+        {
+            var creatures = new Dictionary<uint, string>();
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT creatureID, name FROM wow_creatures";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    creatures[uint.Parse(reader["creatureID"].ToString())] = reader["name"].ToString();
+                }
+
+                reader.Close();
+            }
+
+            return creatures;
+        }
+
         public static HashSet<int> getNewFilesBetweenVersions(string oldBuild, string newBuild)
         {
             // Check if valid builds
