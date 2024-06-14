@@ -8,7 +8,7 @@ namespace wow.tools.local.Services
         public static SqliteConnection dbConn = new("Data Source=WTL.db");
         public static Dictionary<string, HashSet<int>> newFilesBetweenVersion = new();
         private static Dictionary<int, int> broadcastTextCache = new();
-        private static Dictionary<int, int> creatureCache = new();
+        public static Dictionary<int, int> creatureCache = new();
 
         static SQLiteDB()
         {

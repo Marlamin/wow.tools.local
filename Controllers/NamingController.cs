@@ -168,6 +168,8 @@ namespace wow.tools.local.Controllers
                         if (string.IsNullOrEmpty(SettingsManager.wowFolder))
                             break;
 
+                        var currentCreatureNames = SQLiteDB.GetCreatureNames();
+
                         foreach (var creatureCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "creaturecache.wdb", SearchOption.AllDirectories))
                         {
                             var flavorDir = new DirectoryInfo(creatureCacheFile).Parent.Parent.Parent.Parent.Name;
@@ -186,7 +188,18 @@ namespace wow.tools.local.Controllers
                             var creatureCache = WDBReader.Read(creatureCacheFile, productVersionByFlavor);
                             foreach (var entry in creatureCache.entries)
                             {
-                                SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                if (!currentCreatureNames.TryGetValue(entry.Key, out var currentCreatureName))
+                                {
+                                    Console.WriteLine("Discovered new creature: " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                    SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                    currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                }
+                                else if (currentCreatureName != entry.Value["Name[0]"] && creatureCache.clientBuild > SQLiteDB.creatureCache[(int)entry.Key])
+                                {
+                                    Console.WriteLine("Updating creature name: " + currentCreatureName + " => " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                    SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                    currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                }
                             }
                         }
 
@@ -221,7 +234,18 @@ namespace wow.tools.local.Controllers
                                 var creatureCache = WDBReader.Read(creatureCacheFile, buildName);
                                 foreach (var entry in creatureCache.entries)
                                 {
-                                    SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                    if (!currentCreatureNames.TryGetValue(entry.Key, out var currentCreatureName))
+                                    {
+                                        Console.WriteLine("Discovered new creature: " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                        SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                        currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                    }
+                                    else if (currentCreatureName != entry.Value["Name[0]"] && creatureCache.clientBuild > SQLiteDB.creatureCache[(int)entry.Key])
+                                    {
+                                        Console.WriteLine("Updating creature name: " + currentCreatureName + " => " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                        SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                        currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                    }
                                 }
                             }
                             else
@@ -235,7 +259,18 @@ namespace wow.tools.local.Controllers
                             var creatureCache = WDBReader.Read(form["creatureCacheWDBFilename"], CASC.BuildName);
                             foreach (var entry in creatureCache.entries)
                             {
-                                SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                if (!currentCreatureNames.TryGetValue(entry.Key, out var currentCreatureName))
+                                {
+                                    Console.WriteLine("Discovered new creature: " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                    SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                    currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                }
+                                else if (currentCreatureName != entry.Value["Name[0]"] && creatureCache.clientBuild > SQLiteDB.creatureCache[(int)entry.Key])
+                                {
+                                    Console.WriteLine("Updating creature name: " + currentCreatureName + " => " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                    SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                    currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                }
                             }
                         }
 
