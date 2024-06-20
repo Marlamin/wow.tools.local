@@ -428,6 +428,24 @@ namespace wow.tools.local.Services
                 Console.WriteLine(e.Message + "\n" + e.StackTrace);
             }
         }
+        public static void LinkDB2()
+        {
+            // MFD
+            // TFD
+            // CMD
+            // UiMapArtTile
+            // LightData (ColorGrading)
+            // CDI (TextureVariationFileDataID)
+            // TextureBlendSet / FullScreenEffect
+            // ManifestInterfaceData
+            // ItemAppearance (DefaultIconFileDataID)
+            // Map (WDTs & new WDT)
+            // SoundKit (OGGs)
+            // SpellChainEffects
+            // TerrainMaterial
+            // LiquidType
+            // WeatherXParticulate
+        }
 
         public static void Link(bool fullrun = false)
         {
@@ -501,14 +519,17 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Unable to get WDT files, make sure types have been detected at least once.");
                 return;
             }
-
-            using (var cmd = SQLiteDB.dbConn.CreateCommand())
+        
+            foreach (var wdtid in wdtids)
             {
-                foreach (var wdtid in wdtids)
-                {
-                    LinkWDT(wdtid, fullrun);
-                }
+                LinkWDT(wdtid, fullrun);
             }
+            #endregion
+
+            #region DB2
+
+            LinkDB2();
+
             #endregion
         }
     }
