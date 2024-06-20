@@ -91,6 +91,11 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.LookupMap.Keys);
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
+            else if(search == "otherlocaleonly")
+            {
+                var fdids = new HashSet<int>(CASC.OtherLocaleOnlyFiles);
+                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+            }
             else
             {
                 // Simple search
@@ -175,7 +180,7 @@ namespace wow.tools.local.Controllers
                         CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
                         CASC.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
                         CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encryptionStatus) ? encryptionStatus.ToString() : "", // Extra data
-                        "", // Comment
+                        CASC.OtherLocaleOnlyFiles.Contains(listfileResult.Key) ? "true" : "false", // Non-native locale
                         "", // Placeholder filename
                         lookupMatch ? "true" : "false" // Lookup match
                     ]);

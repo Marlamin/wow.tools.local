@@ -31,6 +31,7 @@ namespace wow.tools.local.Services
         public static readonly List<int> PlaceholderFiles = [];
         public static Dictionary<int, List<Version>> VersionHistory = [];
         public static List<AvailableBuild> AvailableBuilds = [];
+        public static List<int> OtherLocaleOnlyFiles = [];
 
         public struct Version
         {
@@ -103,6 +104,11 @@ namespace wow.tools.local.Services
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
 
+                        if (preferredEntry.cKey.ToHexString() == "00000000000000000000000000000000")
+                        {
+                            preferredEntry = entry.Value.First();
+                        }
+
                         manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
                     }
 
@@ -123,6 +129,11 @@ namespace wow.tools.local.Services
                     {
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
+
+                        if (preferredEntry.cKey.ToHexString() == "00000000000000000000000000000000")
+                        {
+                            preferredEntry = entry.Value.First();
+                        }
 
                         manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
                     }
@@ -171,6 +182,15 @@ namespace wow.tools.local.Services
             {
                 foreach (var entry in ewtrh.RootEntries)
                 {
+                    var preferredEntry = entry.Value.FirstOrDefault(subentry =>
+subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
+
+                    if (preferredEntry.cKey.ToHexString() == "00000000000000000000000000000000")
+                    {
+                        preferredEntry = entry.Value.First();
+                        OtherLocaleOnlyFiles.Add(entry.Key);
+                    }
+
                     foreach (var subentry in entry.Value)
                     {
                         if (EncryptedFDIDs.ContainsKey(entry.Key))
@@ -202,6 +222,15 @@ namespace wow.tools.local.Services
                 // Encryption
                 foreach (var entry in ewrh.RootEntries)
                 {
+                    var preferredEntry = entry.Value.FirstOrDefault(subentry =>
+subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
+
+                    if (preferredEntry.cKey.ToHexString() == "00000000000000000000000000000000")
+                    {
+                        preferredEntry = entry.Value.First();
+                        OtherLocaleOnlyFiles.Add(entry.Key);
+                    }
+
                     foreach (var subentry in entry.Value)
                     {
                         if (EncryptedFDIDs.ContainsKey(entry.Key))
@@ -325,7 +354,7 @@ namespace wow.tools.local.Services
                 AvailableBuilds.Add(availableBuild);
             }
         }
-     
+
         public static string[] GetListfileLines(bool forceRedownload = false)
         {
             var listfileMode = "downloaded";
@@ -693,7 +722,7 @@ namespace wow.tools.local.Services
 
                         var ckey = preferredEntry.cKey.ToHexString();
 
-                        if(ckey == "00000000000000000000000000000000")
+                        if (ckey == "00000000000000000000000000000000")
                         {
                             preferredEntry = entry.Value.First();
                             ckey = preferredEntry.cKey.ToHexString();

@@ -420,16 +420,11 @@
                                 test += "</span>";
                             }
 
-                            //if (full[6]) {
-                            //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='";
-
-                            //    full[6].forEach(function (comment) {
-                            //        test += "By <b>" + comment['username'] + "</b> on <b>" + comment['lastedited'] + "</b><br>";
-                            //        test += comment['comment'] + "<br>";
-                            //    });
-
-                            //    test += "'><i class='fa fa-comment'></i></a></span>";
-                            //}
+                            if (full[6] == "true") {
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='";
+                                test += "This file is not available for the preferred locale, listing first available locale instead";
+                                test += "'><i class='fa fa-globe'></i></a></span>";
+                            }
 
                             //if (full[5]) {
                             //    if (full[5]['soundkit']) {
