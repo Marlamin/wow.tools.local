@@ -693,6 +693,12 @@ namespace wow.tools.local.Services
 
                         var ckey = preferredEntry.cKey.ToHexString();
 
+                        if(ckey == "00000000000000000000000000000000")
+                        {
+                            preferredEntry = entry.Value.First();
+                            ckey = preferredEntry.cKey.ToHexString();
+                        }
+
                         FDIDToCHash.Add(entry.Key, ckey);
 
                         if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
@@ -713,6 +719,12 @@ namespace wow.tools.local.Services
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
 
                         var ckey = preferredEntry.cKey.ToHexString();
+
+                        if (ckey == "00000000000000000000000000000000")
+                        {
+                            preferredEntry = entry.Value.First();
+                            ckey = preferredEntry.cKey.ToHexString();
+                        }
 
                         FDIDToCHash.Add(entry.Key, ckey);
 
