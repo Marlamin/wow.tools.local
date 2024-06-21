@@ -6,6 +6,7 @@ using Newtonsoft.Json.Converters;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Web;
 using wow.tools.local.Services;
@@ -1152,9 +1153,9 @@ namespace wow.tools.local.Controllers
         public List<string?> DirectoryAC(string search)
         {
             return CASC.Listfile.Values
-                .Where(x => !string.IsNullOrEmpty(x) && x.ToLower().StartsWith(search.ToLower()))
-                .Select(x => Path.GetDirectoryName(x).Replace('\\', '/'))
-                .DistinctBy(x => x.ToLower()).Take(20).ToList();
+                .Where(x => !string.IsNullOrEmpty(x) && x.ToLower().StartsWith(search.ToLower()) && x.ToLower().EndsWith(".m2"))
+                .Select(x => x.Replace('\\', '/'))
+                .DistinctBy(x => x.ToLower()).OrderByDescending(x => x).Take(20).ToList();
         }
 
         [Route("json")]

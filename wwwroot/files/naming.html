@@ -168,7 +168,13 @@
                             Model preview
                         </div>
                         <div id="nameForm">
-                            <input type="text" class="form-control" id="filename" name="name" placeholder="File name"><br />
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="filename" name="name" placeholder="File name"><br />
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" onclick="setSuffix('.m2')">.m2</button>
+                                    <button class="btn btn-primary" disabled>.wmo</button>
+                                </div>
+                            </div>
                             <input type="submit" id="nameButton" class="btn btn-success form-control" value="Name file">
                         </div>
                     </div>
@@ -188,9 +194,19 @@
                 <textarea id="result" rows="15" cols="160">Nothing here yet.</textarea><br />
                 <button onclick="clearNames()" class="btn btn-danger">Clear new name cache</button>
             </div>
+            <div class="col-md-2">
+                <h4>M2 naming tools</h4>
+                <button class="btn btn-danger" onclick="loadLastName()">Last name</button>
+                <br /><br />
+                <h4>M2 naming prefixes</h4>
+                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/11XP_')">11 Generic</button> <br />
+                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Earthen/11EA_Earthen_')">11 Earthen</button> <br />
+                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Arathor/11AT_Arathor_')">11 Arathi</button> <br />
+                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Nerubian/11NRB_Nerubian_')">11 Nerubian</button> <br />
+            </div>
         </div>
     </div>
-    <div id="overlay">
+    <div id="overlay" style="min-width: 700px;">
     </div>
     <script src="/js/files.js"></script>
     <script type='text/javascript'>
@@ -201,6 +217,27 @@
             table: null,
             currentID: 0
         };
+
+        var lastName = "";
+
+        function setPrefix(name) {
+            document.getElementById("filename").value = name;
+        }
+
+        function setSuffix(suffix) {
+            var filenameInput = document.getElementById("filename");
+            var name = filenameInput.value;
+
+            if (!name.endsWith(suffix)) {
+                filenameInput.value = name + suffix;
+            }
+        }
+
+        function loadLastName() {
+            var filenameInput = document.getElementById("filename");
+            filenameInput.value = lastName;
+        }
+
         namingForm.onsubmit = function(e) {
             e.preventDefault();
 
@@ -240,7 +277,7 @@
 
         (function () {
             var page = 0;
-            var searchString = "type:model,isplaceholder";
+            var searchString = "type:model,isplaceholder,exp10";
             var sortCol = 0;
             var sortDesc = "asc";
 
@@ -400,7 +437,7 @@
             document.getElementById("nameButton").onclick = function () {
                 var filenameInput = document.getElementById("filename");
                 var name = filenameInput.value;
-
+                lastName = name;
                 if (name) {
                     $.ajax({
                         url: "/naming/singleFile?id=" + Elements.currentID + "&name=" + encodeURIComponent(name),
