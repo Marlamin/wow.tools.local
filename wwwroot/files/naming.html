@@ -175,7 +175,7 @@
                                     <button class="btn btn-primary" disabled>.wmo</button>
                                 </div>
                             </div>
-                            <input type="submit" id="nameButton" class="btn btn-success form-control" value="Name file">
+                            <button id="nameButton" class="btn btn-success form-control">Name file</button>
                         </div>
                     </div>
                     <div class="col-md-4" style="max-height: 50vh; overflow-y: scroll">
@@ -231,6 +231,8 @@
             if (!name.endsWith(suffix)) {
                 filenameInput.value = name + suffix;
             }
+
+            document.getElementById("nameButton").disabled = false;
         }
 
         function loadLastName() {
@@ -405,8 +407,30 @@
             document.getElementById("filename").oninput = function () {
                 var filenameInput = document.getElementById("filename");
                 var name = filenameInput.value;
+                document.getElementById("nameButton").disabled = false;
+
+                if (!name.endsWith(".m2") && !name.endsWith(".wmo") && !name.endsWith(".blp")) {
+                    filenameInput.classList.add('is-invalid');
+                    filenameInput.classList.remove('is-valid');
+                    document.getElementById("nameButton").disabled = true;
+                } else {
+                    fetch('/casc/fileCheck?search=' + name, {
+                        method: 'GET'
+                    }).then(function (response) {
+                        return response.text();
+                    }).then(function (data) {
+                        if (data == "true") {
+                            filenameInput.classList.add('is-invalid');
+                            filenameInput.classList.remove('is-valid');
+                        } else {
+                            filenameInput.classList.remove('is-invalid');
+                            filenameInput.classList.add('is-valid');
+                        }
+                    });
+                }
+
                 // send request to casc/fileAutocomplete with fetch
-                fetch('/casc/directoryAC?search=' + name, {
+                fetch('/casc/directoryAC?search=' + name.replace(".m2", ""), {
                     method: 'GET'
                 }).then(function(response) {
                     return response.json();
@@ -417,20 +441,6 @@
                         html += resultAC + "<br>";
                     }
                     document.getElementById("overlay").innerHTML = html;
-                });
-
-                fetch('/casc/fileCheck?search=' + name, {
-                    method: 'GET'
-                }).then(function (response) {
-                    return response.text();
-                }).then(function (data) {
-                    if (data == "true") {
-                        filenameInput.classList.add('is-invalid');
-                        filenameInput.classList.remove('is-valid');
-                    } else {
-                        filenameInput.classList.remove('is-invalid');
-                        filenameInput.classList.add('is-valid');
-                    }
                 });
             }
 
