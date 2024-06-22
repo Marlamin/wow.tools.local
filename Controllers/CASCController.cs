@@ -1153,7 +1153,7 @@ namespace wow.tools.local.Controllers
         public List<string?> DirectoryAC(string search)
         {
             return CASC.Listfile.Values
-                .Where(x => !string.IsNullOrEmpty(x) && x.ToLower().StartsWith(search.ToLower()) && x.ToLower().EndsWith(".m2"))
+                .Where(x => !string.IsNullOrEmpty(x) && x.ToLower().StartsWith(search.ToLower()) && (x.ToLower().EndsWith(".m2") || x.ToLower().EndsWith(".wmo")))
                 .Select(x => x.Replace('\\', '/'))
                 .DistinctBy(x => x.ToLower()).OrderByDescending(x => x).Take(20).ToList();
         }
