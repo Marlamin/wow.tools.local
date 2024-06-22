@@ -320,7 +320,7 @@ namespace wow.tools.local.Services
                 return;
             }
 
-            if (wdtFilename.Contains("_mpv") || wdtFilename.Contains("_lgt") || wdtFilename.Contains("_occ") || wdtFilename.Contains("_fogs"))
+            if (wdtFilename.Contains("_mpv") || wdtFilename.Contains("_lgt") || wdtFilename.Contains("_occ") || wdtFilename.Contains("_fogs") || wdtFilename.Contains("_preload"))
                 return;
 
             Console.WriteLine("[WDT] Loading " + wdtid + " (" + wdtFilename + ")");
