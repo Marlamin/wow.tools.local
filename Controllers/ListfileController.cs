@@ -14,6 +14,8 @@ namespace wow.tools.local.Controllers
 
         public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
         {
+            search = search.Trim();
+
             if (search.StartsWith("type:"))
             {
                 var cleaned = search.Replace("type:", "").ToLowerInvariant();
