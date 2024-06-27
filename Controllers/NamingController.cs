@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 using wow.tools.local.Services;
 using wow.tools.Services;
 using WoWFormatLib.FileReaders;
@@ -105,6 +106,20 @@ namespace wow.tools.local.Controllers
             var namerOrder = new List<string> { "DB2", "Map", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SoundKits", "SpellTex", "TerrainCubeMaps", "VO", "WWF", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x)).ToArray();
 
+            var buildMap = new Dictionary<uint, string>();
+            if (Directory.Exists(SettingsManager.manifestFolder))
+            {
+                foreach (var file in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(file);
+                    var splitFilename = fileName.Split('.');
+                    if (splitFilename.Length != 4)
+                        continue;
+
+                    buildMap.Add(uint.Parse(splitFilename[3]), fileName);
+                }
+            }
+
             foreach (var selectedNamer in checkboxes)
             {
                 Console.WriteLine("Naming " + selectedNamer);
@@ -147,7 +162,71 @@ namespace wow.tools.local.Controllers
                         Namer.NameItemTexture();
                         break;
                     case "M2":
-                        Namer.NameM2s([], true);
+                        var goDIDToFDID = new Dictionary<uint, uint>();
+                        var goDisplayInfoDB = dbcManager.GetOrLoad("GameObjectDisplayInfo", CASC.BuildName, true).Result;
+                        foreach (var goDisplayInfo in goDisplayInfoDB.Values)
+                        {
+                            goDIDToFDID.Add(uint.Parse(goDisplayInfo["ID"].ToString()), uint.Parse(goDisplayInfo["FileDataID"].ToString()));
+                        }
+
+                        var goNames = new Dictionary<uint, string>();
+
+                        foreach (var gobjectCacheFile in Directory.GetFiles("caches", "gameobjectcache*", SearchOption.AllDirectories))
+                        {
+                            uint build = 0;
+
+                            using (var ms = new MemoryStream(System.IO.File.ReadAllBytes(gobjectCacheFile)))
+                            using (var bin = new BinaryReader(ms))
+                            {
+                                bin.ReadUInt32();
+                                build = bin.ReadUInt32();
+                            }
+
+                            if (buildMap.TryGetValue(build, out var buildName))
+                            {
+                                Console.WriteLine("Loading " + gobjectCacheFile + " for " + buildName);
+                                var gobjectCache = WDBReader.Read(gobjectCacheFile, buildName);
+                                foreach (var entry in gobjectCache.entries)
+                                {
+
+                                    if(entry.Value.TryGetValue("GameObjectDisplayID", out var displayID))
+                                    {
+                                        var displayIDButInt = uint.Parse(displayID);
+                                        if(entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
+                                        {
+                                            if(!goNames.ContainsKey(displayIDButInt))
+                                            {
+                                                goNames.Add(displayIDButInt, name);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("No full build name found for build " + build);
+                            }
+                        }
+
+                        var fdidToObjectName = new Dictionary<uint, string>();
+                        foreach(var goName in goNames)
+                        {
+                            if(goDIDToFDID.TryGetValue(goName.Key, out var fdid))
+                            {
+                                var currentName = Path.GetFileNameWithoutExtension(Namer.IDToNameLookup[(int)fdid]);
+                                if(currentName != goName.Value)
+                                {
+                                    Console.WriteLine("FDID " + fdid  + " current name: " + currentName + ", official name '" + goName.Value + "'");
+                                    fdidToObjectName.Add(fdid, goName.Value);
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("GoDisplayID " + goName.Key + " with name '" + goName.Value + "' is not known in GameObjectDisplayInfo.db2, skipping..");
+                            }
+                        }
+
+                        Namer.NameM2s([], true, fdidToObjectName);
                         break;
                     case "Map":
                         Namer.NameMap();
@@ -200,20 +279,6 @@ namespace wow.tools.local.Controllers
                                     SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
                                     currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
                                 }
-                            }
-                        }
-
-                        var buildMap = new Dictionary<uint, string>();
-                        if (Directory.Exists(SettingsManager.manifestFolder))
-                        {
-                            foreach (var file in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
-                            {
-                                var fileName = Path.GetFileNameWithoutExtension(file);
-                                var splitFilename = fileName.Split('.');
-                                if (splitFilename.Length != 4)
-                                    continue;
-
-                                buildMap.Add(uint.Parse(splitFilename[3]), fileName);
                             }
                         }
 
