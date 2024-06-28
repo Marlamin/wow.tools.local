@@ -179,6 +179,10 @@ namespace wow.tools.local.Controllers
                             if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
                                 continue;
 
+                            // Skip if we don't have a build for this flavor
+                            if (!CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).Any())
+                                continue;
+
                             var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
 
                             if (productVersionByFlavor == null)
@@ -285,8 +289,12 @@ namespace wow.tools.local.Controllers
                         {
                             var flavorDir = new DirectoryInfo(creatureCacheFile).Parent.Parent.Parent.Parent.Name;
 
-                            // Don't bother with Classic
-                            if (flavorDir.Contains("classic"))
+                            // Don't bother with Classic or non-Flavor directories
+                            if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
+                                continue;
+
+                            // Skip if we don't have a build for this flavor
+                            if(!CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).Any())
                                 continue;
 
                             var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
