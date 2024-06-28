@@ -171,6 +171,38 @@ namespace wow.tools.local.Controllers
 
                         var goNames = new Dictionary<uint, string>();
 
+                        foreach (var gobjectCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "gameobjectcache.wdb", SearchOption.AllDirectories))
+                        {
+                            var flavorDir = new DirectoryInfo(gobjectCacheFile).Parent.Parent.Parent.Parent.Name;
+
+                            // Don't bother with Classic or non-Flavor directories
+                            if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
+                                continue;
+
+                            var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
+
+                            if (productVersionByFlavor == null)
+                                continue;
+
+                            Console.WriteLine("Loading " + gobjectCacheFile + " for " + productVersionByFlavor);
+
+                            var gobjectCache = WDBReader.Read(gobjectCacheFile, productVersionByFlavor);
+                            foreach (var entry in gobjectCache.entries)
+                            {
+                                if (entry.Value.TryGetValue("GameObjectDisplayID", out var displayID))
+                                {
+                                    var displayIDButInt = uint.Parse(displayID);
+                                    if (entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
+                                    {
+                                        if (!goNames.ContainsKey(displayIDButInt))
+                                        {
+                                            goNames.Add(displayIDButInt, name);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         foreach (var gobjectCacheFile in Directory.GetFiles("caches", "gameobjectcache*", SearchOption.AllDirectories))
                         {
                             uint build = 0;
