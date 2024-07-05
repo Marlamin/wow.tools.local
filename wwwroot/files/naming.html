@@ -469,6 +469,14 @@
                     row.data(data).draw(false);
                 }
             }
+
+            fetch('/naming/getNewFiles', {
+                method: 'GET'
+            }).then(function(response) {
+                return response.text();
+            }).then(function (data) {
+                document.getElementById("result").innerHTML = data;
+            });
         }());
 
     </script>

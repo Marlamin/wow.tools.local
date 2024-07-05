@@ -9,7 +9,7 @@ namespace wow.tools.local.Services
         public static Dictionary<string, HashSet<int>> newFilesBetweenVersion = new();
         private static Dictionary<int, int> broadcastTextCache = new();
         public static Dictionary<int, int> creatureCache = new();
-
+        public static Dictionary<int, string> fdidToCreatureNameCache = new();
         static SQLiteDB()
         {
             dbConn.Open();
@@ -42,6 +42,13 @@ namespace wow.tools.local.Services
             indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_broadcasttext_idx ON wow_broadcasttext (broadcastTextID)", dbConn);
             indexCmd.ExecuteNonQuery();
 
+            // wow_broadcasttext_creature
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_files_creature (fileDataID INTEGER, creature TEXT)", dbConn);
+            createCmd.ExecuteNonQuery();
+
+            indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_files_creature_idx ON wow_files_creature (fileDataID)", dbConn);
+            indexCmd.ExecuteNonQuery();
+
             // prepare broadcastTextCache
             using (var cmd = dbConn.CreateCommand())
             {
@@ -68,6 +75,18 @@ namespace wow.tools.local.Services
                 }
 
                 reader.Close();
+            }
+
+            // prepare fdidToCreatureNameCache
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT fileDataID, creature FROM wow_files_creature";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    fdidToCreatureNameCache[int.Parse(reader["fileDataID"].ToString())] = reader["creature"].ToString();
+                }
             }
         }
 
@@ -232,7 +251,8 @@ namespace wow.tools.local.Services
                     var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString());
                     var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString());
 
-                    if (soundKitID0 != 0 && !string.IsNullOrEmpty(Text_lang)) {
+                    if (soundKitID0 != 0 && !string.IsNullOrEmpty(Text_lang))
+                    {
                         if (!textToSoundKitID.ContainsKey(Text_lang))
                             textToSoundKitID[Text_lang] = new List<uint>();
 
@@ -254,6 +274,77 @@ namespace wow.tools.local.Services
             return textToSoundKitID;
         }
 
+        public static bool SetCreatureNameForFDID(int fileDataID, string creatureName)
+        {
+            if (fdidToCreatureNameCache.TryGetValue(fileDataID, out var cachedCreatureName) && cachedCreatureName == creatureName)
+            {
+                return false;
+            }
+
+            if(creatureName == "" || creatureName == null) // yes this happens
+            {
+                // If creature name is empty -- delete it
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "DELETE FROM wow_files_creature WHERE fileDataID = @fileDataID";
+                    cmd.Parameters.AddWithValue("@fileDataID", fileDataID);
+                    fdidToCreatureNameCache.Remove(fileDataID);
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            else
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT OR REPLACE INTO wow_files_creature (fileDataID, creature) VALUES (@fileDataID, @creature)";
+                    cmd.Parameters.AddWithValue("@fileDataID", fileDataID);
+                    cmd.Parameters.AddWithValue("@creature", creatureName);
+                    fdidToCreatureNameCache[fileDataID] = creatureName;
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            
+        }
+
+        public static Dictionary<uint, List<uint>> GetSoundKitToBCTextIDs()
+        {
+            var SoundKitIDToBCTextID = new Dictionary<uint, List<uint>>();
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT SoundKitID0,SoundKitID1, broadcastTextID FROM wow_broadcasttext WHERE SoundKitID0 != 0 OR SoundKitID1 != 0";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString());
+                    if (soundKitID0 != 0)
+                    {
+                        if (!SoundKitIDToBCTextID.ContainsKey(soundKitID0))
+                            SoundKitIDToBCTextID[soundKitID0] = new List<uint>();
+
+                        if (!SoundKitIDToBCTextID[soundKitID0].Contains(uint.Parse(reader["broadcastTextID"].ToString())))
+                            SoundKitIDToBCTextID[soundKitID0].Add(uint.Parse(reader["broadcastTextID"].ToString()));
+                    }
+
+                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString());
+                    if (soundKitID1 != 0)
+                    {
+                        if (!SoundKitIDToBCTextID.ContainsKey(soundKitID1))
+                            SoundKitIDToBCTextID[soundKitID1] = new List<uint>();
+
+                        if (!SoundKitIDToBCTextID[soundKitID1].Contains(uint.Parse(reader["broadcastTextID"].ToString())))
+                            SoundKitIDToBCTextID[soundKitID1].Add(uint.Parse(reader["broadcastTextID"].ToString()));
+                    }
+                }
+
+                reader.Close();
+            }
+
+
+            return SoundKitIDToBCTextID;
+        }
+
         public static int GetCreatureCount()
         {
             using (var cmd = dbConn.CreateCommand())
@@ -263,13 +354,18 @@ namespace wow.tools.local.Services
             }
         }
 
+        public static Dictionary<uint, string> GetCreatureToFDIDMap()
+        {
+            return fdidToCreatureNameCache.ToDictionary(x => (uint)x.Key, x => x.Value);
+        }
+
         public static Dictionary<uint, string> GetCreatureNames(int start = -1, int count = -1)
         {
             var creatures = new Dictionary<uint, string>();
 
             using (var cmd = dbConn.CreateCommand())
             {
-                if(start != -1 && count != -1)
+                if (start != -1 && count != -1)
                 {
                     cmd.CommandText = "SELECT creatureID, name FROM wow_creatures ORDER BY creatureID ASC LIMIT @start, @count ";
                     cmd.Parameters.AddWithValue("@start", start);
@@ -359,6 +455,38 @@ namespace wow.tools.local.Services
                 newFilesBetweenVersion[oldBuild + "|" + newBuild] = newFiles;
 
             return newFiles;
+        }
+
+        public static string GetBroadcastTextByID(int broadcastTextID)
+        {
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT Text_lang, Text1_Lang FROM wow_broadcasttext WHERE broadcastTextID = @broadcastTextID";
+                cmd.Parameters.AddWithValue("@broadcastTextID", broadcastTextID);
+
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    if (!string.IsNullOrWhiteSpace(reader["Text_lang"].ToString()))
+                        return reader["Text_lang"].ToString();
+                    else if (!string.IsNullOrWhiteSpace(reader["Text1_lang"].ToString()))
+                        return reader["Text1_lang"].ToString();
+                }
+            }
+
+            return "";
+        }
+
+        public static string getCreatureNameByFileDataID(int fileDataID)
+        {
+            if (fdidToCreatureNameCache.TryGetValue(fileDataID, out var cachedCreatureName))
+            {
+                return cachedCreatureName;
+            }
+            else
+            {
+                return "";
+            }
         }
 
         public static List<LinkedFile> GetParentFiles(int fileDataID)

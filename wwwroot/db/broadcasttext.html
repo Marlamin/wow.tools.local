@@ -1,0 +1,281 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>WoW.tools</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- JQuery -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/tooltips.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+    <script type="text/javascript" src="/js/files.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" id="navbar"></nav>
+    <div class='container-fluid'>
+        <h3>NPC VO lines</h3>
+        <p>Note: The data backing this page only update when VO naming is run on the naming page. Restart required after.</p>
+        <table class='table table-striped' id='voLines'>
+            <thead><tr><th style='width: 4%;'>SKIT ID</th><th style='max-width: 48%; width: 48%;'>Files</th><th style='max-width: 48%; width: 48%;'>BroadcastText</th></tr>
+        </table>
+    </div>
+    <script type='text/javascript'>
+        var Elements = {};
+
+        (function () {
+            var searchHash = location.hash.substr(1),
+                searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
+
+            if (searchString != undefined && searchString.length > 0) {
+                searchString = decodeURIComponent(searchString);
+            }
+
+            var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
+            var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
+            if (!sortCol) {
+                sortCol = 0;
+            }
+
+            var sortDesc = searchHash.substr(searchHash.indexOf('desc=')).split('&')[0].split('=')[1];
+            if (!sortDesc) {
+                sortDesc = "asc";
+            }
+
+            Elements.table = $('#voLines').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "search": { "search": searchString },
+                "ajax": "/vo/list",
+                "pageLength": 25,
+                "displayStart": page * 25,
+                "autoWidth": false,
+                "pagingType": "input",
+                "orderMulti": false,
+                "ordering": false,
+                "searching": false,
+                "order": [[sortCol, sortDesc]],
+                "columnDefs": [
+                    {
+                        "targets": 1,
+
+                        "render": function (data, type, full, meta) {
+                            var files = JSON.parse(full[1]);
+                            var test = "<table style='margin-bottom: 0px;' class='table table-sm'><tbody>";
+                            for (const file of files) {
+                                test += "<tr><td style='min-width: 100px; width: 100px'>";
+                                if (file.available) {
+                                    test += "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(\"\"," + file.fileDataID + "\,\"ogg\")'><i class='fa fa-play'></i> " + file.fileDataID + "</a>";
+                                } else {
+                                    test += file.fileDataID;
+                                }
+
+                                test += "</td>";
+
+                                if (file.addedIn == 0) {
+                                    test += "<td style='min-width: 100px; width: 100px'>File not seen</td>";
+                                } else {
+                                    test += "<td style='min-width: 100px; width: 100px'>" + file.addedIn + "</td>";
+                                }
+                                test += "<td style='min-width: 300px; width: 300px' class='editableCreature'>" + file.creatureName + "</td>";
+
+                                test += "<td id='filename-" + file.fileDataID + "'>";
+
+                                if (file.name != "") {
+                                    test += file.name;
+                                } else {
+                                    test += "";
+                                }
+                                test += "</td></tr>";
+                            }
+
+                            test += "</tbody></table>";
+
+                            return test;
+                        }
+                    },
+                    {
+                        "targets": 2,
+
+                        "render": function (data, type, full, meta) {
+                            var bcTexts = JSON.parse(full[2]);
+                            var test = "<table class='table table-sm' style='width: 100%; margin-bottom: 0px;'><tbody>";
+                            for (const bcText of bcTexts) {
+                                test += "<tr><td style='width: 100px'>" + bcText.id + "</td><td>" + bcText.text + "</td></tr>";
+                            }
+
+                            test += "</tbody></table>";
+
+                            return test;
+                        }
+                    }
+                ]
+            });
+
+            $('#voLines').on('draw.dt', function () {
+                var currentSearch = encodeURIComponent($("#voLines_filter label input").val());
+                var currentPage = $('#voLines').DataTable().page() + 1;
+
+                var sort = $('#voLines').DataTable().order();
+                var sortCol = sort[0][0];
+                var sortDir = sort[0][1];
+
+                var url = "search=" + currentSearch + "&page=" + currentPage + "&sort=" + sortCol + "&desc=" + sortDir;
+
+                window.location.hash = url;
+
+                $("[data-toggle=popover]").popover();
+            });
+
+            $('#voLines').on('click', 'tbody tr td.editableCreature', function () {
+                var data = Elements.table.row($(this).parent()).data();
+                var oldVal = this.innerHTML;
+                if (this.innerHTML.startsWith("<input") == false) {
+                    this.innerHTML = "<input type='text' class='nameInput' onkeydown='fnameInputKeyDown(this)'/> <a class='btn btn-sm btn-success' onclick='saveButton(this)'><i class='fa fa-check'></i></a> <a class='btn btn-sm btn-secondary' onClick='cancelButton(this)'><i class='fa fa-times'></i></a>";
+                    $(this).children('input')[0].value = oldVal;
+                    $(this).children('input')[0].dataset['oldval'] = oldVal;
+                }
+            });
+
+            $('body').on('keydown', function (e) {
+                if (e.keyCode == 27) {
+                    for(const field of document.getElementsByClassName('nameInput')) {
+                        resetField(field);
+                    }
+                }
+            });
+        }());
+
+        function fnameInputKeyDown(element) {
+            if (event.keyCode == 13) {
+                saveNameForFDID(event.target);
+            } else if(event.keyCode == 27) {
+                resetField(event.target);
+            }
+        }
+        function saveNameForFDID(element) {
+            var value = element.value;
+            var fdid = element.parentElement.parentElement.getElementsByTagName('td')[0].innerText.trim();
+
+            fetch('/vo/update?fileDataID=' + fdid + '&name=' + value, {
+                method: 'GET'
+            }).then(function (response) {
+                if (response.ok) {
+                    return response.text();
+                }
+            }).then(function (newName) {
+                if (value != "") {
+                    fetch('/naming/singleVO?id=' + fdid + '&name=' + value, {
+                        method: 'GET'
+                    }).then(function (response) {
+                        if (response.ok) {
+                            return response.text();
+                        }
+                    }).then(function (newName) {
+                        document.getElementById("filename-" + fdid).innerHTML = newName;
+
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
+                }
+            }).catch(function (error) {
+                console.log(error);
+            });
+
+            element.parentElement.innerHTML = value;
+        }
+
+        function resetField(element) {
+            element.parentElement.innerHTML = element.dataset['oldval'];
+        }
+
+        function saveButton(element) {
+            var input = element.parentElement.getElementsByTagName('input')[0];
+            saveNameForFDID(input);
+        }
+
+        function cancelButton(element) {
+            var input = element.parentElement.getElementsByTagName('input')[0];
+            resetField(input);
+        }
+
+        function locationHashChanged(event) {
+            var searchHash = location.hash.substr(1),
+                searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
+
+            if (searchString != undefined && searchString.length > 0) {
+                searchString = decodeURIComponent(searchString);
+            }
+
+            if ($("#voLines_filter label input").val() != searchString) {
+                $('#voLines').DataTable().search(searchString).draw(false);
+            }
+            var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
+            if ($('#voLines').DataTable().page() != page) {
+                $('#voLines').DataTable().page(page).draw(false);
+            }
+
+            var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
+            if (!sortCol) {
+                sortCol = 0;
+            }
+
+            var sortDesc = searchHash.substr(searchHash.indexOf('desc=')).split('&')[0].split('=')[1];
+            if (!sortDesc) {
+                sortDesc = "asc";
+            }
+
+            var curSort = $('#voLines').DataTable().order();
+            if (sortCol != curSort[0][0] || sortDesc != curSort[0][1]) {
+                $('#voLines').DataTable().order([sortCol, sortDesc]).draw(false);
+            }
+        }
+
+        window.onhashchange = locationHashChanged;
+    </script>
+    <div class="modal" id="previewModal" tabindex="-1" role="dialog" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">Preview</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="previewModalContent">
+                    <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

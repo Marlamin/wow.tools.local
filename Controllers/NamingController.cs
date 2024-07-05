@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
 using wow.tools.local.Services;
 using wow.tools.Services;
 using WoWFormatLib.FileReaders;
@@ -27,7 +26,7 @@ namespace wow.tools.local.Controllers
                 Namer.SetProviders(new DBCProvider(), new DBDProvider());
                 Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
                 Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);
-
+                Namer.SetSetCreatureNameForFDIDFunction(SQLiteDB.SetCreatureNameForFDID);
                 // We need to read the listfile again here for now because the WTL listfile is unaware of files not in the build.
                 InitListfile();
             }
@@ -88,11 +87,27 @@ namespace wow.tools.local.Controllers
         }
 
         [HttpGet]
+        [Route("singleVO")]
+        public string SingleVO(int id, string name)
+        {
+            var result = Namer.NameSingleVO(id, name);
+            CASC.Listfile[id] = result;
+            return result;
+        }
+
+        [HttpGet]
         [Route("clear")]
         public void Clear()
         {
             Namer.ClearNewFiles();
             InitListfile();
+        }
+
+        [HttpGet]
+        [Route("getNewFiles")]
+        public string GetNewFiles()
+        {
+            return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
 
         [HttpPost]
@@ -225,12 +240,12 @@ namespace wow.tools.local.Controllers
                                 foreach (var entry in gobjectCache.entries)
                                 {
 
-                                    if(entry.Value.TryGetValue("GameObjectDisplayID", out var displayID))
+                                    if (entry.Value.TryGetValue("GameObjectDisplayID", out var displayID))
                                     {
                                         var displayIDButInt = uint.Parse(displayID);
-                                        if(entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
+                                        if (entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
                                         {
-                                            if(!goNames.ContainsKey(displayIDButInt))
+                                            if (!goNames.ContainsKey(displayIDButInt))
                                             {
                                                 goNames.Add(displayIDButInt, name);
                                             }
@@ -245,14 +260,14 @@ namespace wow.tools.local.Controllers
                         }
 
                         var fdidToObjectName = new Dictionary<uint, string>();
-                        foreach(var goName in goNames)
+                        foreach (var goName in goNames)
                         {
-                            if(goDIDToFDID.TryGetValue(goName.Key, out var fdid))
+                            if (goDIDToFDID.TryGetValue(goName.Key, out var fdid))
                             {
                                 var currentName = Path.GetFileNameWithoutExtension(Namer.IDToNameLookup[(int)fdid]);
-                                if(currentName != goName.Value)
+                                if (currentName != goName.Value)
                                 {
-                                    Console.WriteLine("FDID " + fdid  + " current name: " + currentName + ", official name '" + goName.Value + "'");
+                                    Console.WriteLine("FDID " + fdid + " current name: " + currentName + ", official name '" + goName.Value + "'");
                                     fdidToObjectName.Add(fdid, goName.Value);
                                 }
                             }
@@ -294,7 +309,7 @@ namespace wow.tools.local.Controllers
                                 continue;
 
                             // Skip if we don't have a build for this flavor
-                            if(!CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).Any())
+                            if (!CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).Any())
                                 continue;
 
                             var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
@@ -409,7 +424,7 @@ namespace wow.tools.local.Controllers
                             }
                         }
 
-                        Namer.NameVO(SQLiteDB.GetCreatureNames(), SQLiteDB.GetTextToSoundKitIDs());
+                        Namer.NameVO(SQLiteDB.GetCreatureNames(), SQLiteDB.GetTextToSoundKitIDs(), SQLiteDB.GetCreatureToFDIDMap());
                         break;
                     case "WMO":
                         Namer.NameWMO();
