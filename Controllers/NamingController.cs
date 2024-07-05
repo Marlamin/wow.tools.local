@@ -91,7 +91,10 @@ namespace wow.tools.local.Controllers
         public string SingleVO(int id, string name)
         {
             var result = Namer.NameSingleVO(id, name);
-            CASC.Listfile[id] = result;
+
+            if(!string.IsNullOrWhiteSpace(result))
+                CASC.Listfile[id] = result;
+
             return result;
         }
 

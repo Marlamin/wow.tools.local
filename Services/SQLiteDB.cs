@@ -10,6 +10,8 @@ namespace wow.tools.local.Services
         private static Dictionary<int, int> broadcastTextCache = new();
         public static Dictionary<int, int> creatureCache = new();
         public static Dictionary<int, string> fdidToCreatureNameCache = new();
+        public static object SQLiteLock = new();
+
         static SQLiteDB()
         {
             dbConn.Open();
@@ -459,22 +461,48 @@ namespace wow.tools.local.Services
 
         public static string GetBroadcastTextByID(int broadcastTextID)
         {
-            using (var cmd = dbConn.CreateCommand())
+            lock (SQLiteLock)
             {
-                cmd.CommandText = "SELECT Text_lang, Text1_Lang FROM wow_broadcasttext WHERE broadcastTextID = @broadcastTextID";
-                cmd.Parameters.AddWithValue("@broadcastTextID", broadcastTextID);
-
-                var reader = cmd.ExecuteReader();
-                while (reader.Read())
+                using (var cmd = dbConn.CreateCommand())
                 {
-                    if (!string.IsNullOrWhiteSpace(reader["Text_lang"].ToString()))
-                        return reader["Text_lang"].ToString();
-                    else if (!string.IsNullOrWhiteSpace(reader["Text1_lang"].ToString()))
-                        return reader["Text1_lang"].ToString();
-                }
-            }
+                    cmd.CommandText = "SELECT Text_lang, Text1_Lang FROM wow_broadcasttext WHERE broadcastTextID = @broadcastTextID";
+                    cmd.Parameters.AddWithValue("@broadcastTextID", broadcastTextID);
 
-            return "";
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        if (!string.IsNullOrWhiteSpace(reader["Text_lang"].ToString()))
+                            return reader["Text_lang"].ToString();
+                        else if (!string.IsNullOrWhiteSpace(reader["Text1_lang"].ToString()))
+                            return reader["Text1_lang"].ToString();
+                    }
+                }
+
+                return "";
+            }
+        }
+
+        public static List<uint> SearchBroadcastText(string search)
+        {
+            lock (SQLiteLock)
+            {
+                var results = new List<uint>();
+
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT broadcastTextID FROM wow_broadcasttext WHERE Text_lang LIKE @search OR Text1_lang LIKE @search";
+                    cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var broadcastTextID = uint.Parse(reader["broadcastTextID"].ToString());
+                        if (broadcastTextID != 0)
+                            results.Add(broadcastTextID);
+                    }
+                }
+
+                return results;
+            }
         }
 
         public static string getCreatureNameByFileDataID(int fileDataID)

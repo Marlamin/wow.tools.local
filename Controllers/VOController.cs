@@ -8,8 +8,9 @@ namespace wow.tools.local.Controllers
     public class VOController : Controller
     {
         private readonly DBCManager dbcManager;
-        private static readonly List<uint> voSoundKitIDs = new();
+        private static List<uint> voSoundKitIDs = new();
         private static readonly Dictionary<uint, List<uint>> soundKitIDToFDID = new();
+        private static readonly Dictionary<uint, List<uint>> fdidToSoundKitID = new();
 
         private static Dictionary<uint, List<uint>> soundKitToBroadcastTextID = new();
         private static Dictionary<uint, string> creatureNames = new();
@@ -41,6 +42,17 @@ namespace wow.tools.local.Controllers
                         soundKitIDToFDID[soundKitID] = new List<uint>();
 
                     soundKitIDToFDID[soundKitID].Add(fileDataID);
+                }
+
+                foreach (var soundKitID in soundKitIDToFDID.Keys)
+                {
+                    foreach (var fileDataID in soundKitIDToFDID[soundKitID])
+                    {
+                        if (!fdidToSoundKitID.ContainsKey(fileDataID))
+                            fdidToSoundKitID[fileDataID] = new List<uint>();
+
+                        fdidToSoundKitID[fileDataID].Add(soundKitID);
+                    }
                 }
             }
 
@@ -110,16 +122,59 @@ namespace wow.tools.local.Controllers
             var result = new DataTablesResult()
             {
                 draw = draw,
-                data = []
+                data = [],
+                recordsFiltered = voSoundKitIDs.Count,
+                recordsTotal = voSoundKitIDs.Count
             };
 
-            result.recordsTotal = voSoundKitIDs.Count;
-            result.recordsFiltered = result.recordsTotal;
+            var voSoundKitView = new List<uint>(voSoundKitIDs);
 
-            foreach (var soundKitID in voSoundKitIDs.Skip(start).Take(length))
+            var parameters = new Dictionary<string, string>();
+
+            foreach (var get in Request.Query)
+                parameters.Add(get.Key, get.Value);
+
+            if (parameters.TryGetValue("columns[0][search][value]", out var skitFilter) && !string.IsNullOrWhiteSpace(skitFilter))
+            {
+                voSoundKitView = voSoundKitView.Where(x => x.ToString().Contains(skitFilter)).ToList();
+                result.recordsFiltered = voSoundKitView.Count;
+            }
+
+            if (parameters.TryGetValue("columns[1][search][value]", out var fileFilter) && !string.IsNullOrWhiteSpace(fileFilter))
+            {
+                if(uint.TryParse(fileFilter, out var fileDataID))
+                {
+                    voSoundKitView = voSoundKitView.Where(x => soundKitIDToFDID[x].Contains(fileDataID)).ToList();
+                    result.recordsFiltered = voSoundKitView.Count;
+                }
+                else
+                {
+                    fileFilter = fileFilter.ToLowerInvariant();
+                    voSoundKitView = voSoundKitView.Where(x => soundKitIDToFDID[x].Any(y => CASC.Listfile.TryGetValue((int)y, out var filename) && filename.Contains(fileFilter, StringComparison.InvariantCultureIgnoreCase))).ToList();
+                    result.recordsFiltered = voSoundKitView.Count;
+                }
+            }
+
+            if (parameters.TryGetValue("columns[2][search][value]", out var bcTextFilter) && !string.IsNullOrWhiteSpace(bcTextFilter))
+            {
+                if (uint.TryParse(bcTextFilter, out var bcTextID))
+                {
+                    voSoundKitView = voSoundKitView.Where(x => soundKitToBroadcastTextID.TryGetValue(x, out var bcTexts) && bcTexts.Contains(bcTextID)).ToList();
+                    result.recordsFiltered = voSoundKitView.Count;
+                }
+                else
+                {
+                    bcTextFilter = bcTextFilter.ToLowerInvariant();
+                    var broadcastTextIDs = SQLiteDB.SearchBroadcastText(bcTextFilter);
+                    voSoundKitView = voSoundKitView.Where(x => soundKitToBroadcastTextID.TryGetValue(x, out var bcTexts) && bcTexts.Any(y => broadcastTextIDs.Contains(y))).ToList();
+
+                    result.recordsFiltered = voSoundKitView.Count;
+                }
+            }
+
+            foreach (var soundKitID in voSoundKitView.Skip(start).Take(length))
             {
                 var bcTexts = new List<BCText>();
-
                 if (soundKitToBroadcastTextID.TryGetValue(soundKitID, out var bcTextIDs))
                 {
                     foreach (var id in bcTextIDs)

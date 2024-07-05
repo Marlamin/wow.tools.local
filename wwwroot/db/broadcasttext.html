@@ -43,7 +43,7 @@
         <h3>NPC VO lines</h3>
         <p>Note: The data backing this page only update when VO naming is run on the naming page. Restart required after.</p>
         <table class='table table-striped' id='voLines'>
-            <thead><tr><th style='width: 4%;'>SKIT ID</th><th style='max-width: 48%; width: 48%;'>Files</th><th style='max-width: 48%; width: 48%;'>BroadcastText</th></tr>
+            <thead><tr><th style='width: 4%;'>SKIT ID</th><th style='max-width: 48%; width: 48%;'>Files&nbsp;&nbsp;&nbsp;&nbsp;<small><i>Note: only FDIDs and filenames are searchable</i></small></th><th style='max-width: 48%; width: 48%;'>BroadcastText</th></tr>
         </table>
     </div>
     <script type='text/javascript'>
@@ -79,7 +79,7 @@
                 "pagingType": "input",
                 "orderMulti": false,
                 "ordering": false,
-                "searching": false,
+                "searching": true,
                 "order": [[sortCol, sortDesc]],
                 "columnDefs": [
                     {
@@ -138,6 +138,10 @@
                 ]
             });
 
+            $('#voLines').on('init.dt', function () {
+                toggleFilters();
+            });
+
             $('#voLines').on('draw.dt', function () {
                 var currentSearch = encodeURIComponent($("#voLines_filter label input").val());
                 var currentPage = $('#voLines').DataTable().page() + 1;
@@ -172,6 +176,31 @@
             });
         }());
 
+        function toggleFilters() {
+            $("#voLines thead tr").clone(true).appendTo("#voLines thead");
+            $("#voLines thead tr:eq(1) th").each(function (i) {
+                var title = $(this).text();
+
+                $(this).html('<input style="width: 100%" type="text"/>');
+
+                if ($('#voLines').DataTable().column(i).search() != "") {
+                    $('input', this).val($('#voLines').DataTable().column(i).search());
+                }
+
+                $('input', this).on('keyup change', function () {
+                    if ($('#voLines').DataTable().column(i).search() !== this.value) {
+                        $('#voLines').DataTable().column(i).search(this.value).draw();
+                    }
+                });
+
+                $('input', this).on('click', function (e) {
+                    e.stopPropagation();
+                });
+            });
+
+            $('#dbtable').DataTable().draw('page');
+        }
+
         function fnameInputKeyDown(element) {
             if (event.keyCode == 13) {
                 saveNameForFDID(event.target);
@@ -198,8 +227,9 @@
                             return response.text();
                         }
                     }).then(function (newName) {
-                        document.getElementById("filename-" + fdid).innerHTML = newName;
-
+                        if (newName != "") {
+                            document.getElementById("filename-" + fdid).innerHTML = newName;
+                        }
                     }).catch(function (error) {
                         console.log(error);
                     });
