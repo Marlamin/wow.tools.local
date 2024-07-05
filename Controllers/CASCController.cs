@@ -1160,8 +1160,13 @@ namespace wow.tools.local.Controllers
 
         [Route("json")]
         [HttpGet]
-        public string Json(uint fileDataID, string build)
+        public string Json(uint fileDataID, string? build)
         {
+            if(build == null)
+            {
+                build = CASC.BuildName;
+            }
+
             var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt" };
 
             if (!(CASC.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
