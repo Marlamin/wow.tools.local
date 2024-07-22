@@ -63,6 +63,17 @@ namespace wow.tools.local.Controllers
                 creatureNames = SQLiteDB.GetCreatureNames();
         }
 
+        [Route("clearCache")]
+        [HttpGet]
+        public void ClearCache()
+        {
+            voSoundKitIDs.Clear();
+            soundKitIDToFDID.Clear();
+            fdidToSoundKitID.Clear();
+            soundKitToBroadcastTextID.Clear();
+            creatureNames.Clear();
+        }
+
         [Route("startBackfill")]
         [HttpGet]
         public void StartBackfill()
@@ -79,6 +90,9 @@ namespace wow.tools.local.Controllers
             foreach (var creatureVOFile in creatureVOFiles)
             {
                 var extractedName = creatureVOFile.Value.Split("/")[2].Replace("_", " ");
+
+                extractedName = extractedName.Replace("vo 835", "").Replace("vo 83", "");
+                
                 var actualNameIndex = uniqueCreatureNamesLower.IndexOf(extractedName.ToLower());
 
                 if (actualNameIndex != -1)
