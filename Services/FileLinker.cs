@@ -249,7 +249,7 @@ namespace wow.tools.local.Services
                             insertEntry(insertCmd, material.texture3, "wmo texture");
                         }
 
-                        if (material.shader == 23)
+                        if ((uint)material.shader == 23)
                         {
                             if (material.color3 != 0 && !inserted.Contains(material.color3))
                             {
