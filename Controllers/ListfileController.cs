@@ -40,6 +40,9 @@ namespace wow.tools.local.Controllers
                 if (builds.Length != 2)
                     return [];
 
+                if (builds[1] == "current")
+                    builds[1] = CASC.BuildName;
+
                 var newFiles = new HashSet<int>();
                 if (SQLiteDB.newFilesBetweenVersion.ContainsKey(builds[0] + "|" + builds[1]))
                     newFiles = SQLiteDB.newFilesBetweenVersion[builds[0] + "|" + builds[1]];
