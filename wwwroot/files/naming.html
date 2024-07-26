@@ -188,25 +188,47 @@
         </div>
         <br />
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <h4 id="resultTitle">Result</h4>
                 <p><b><a href="#" onClick="resultsAsTxt()">Download</a></b> as a .txt file and <a href="https://github.com/wowdev/wow-listfile/issues/new?assignees=&labels=suggestion&projects=&template=csv-listfile-suggestion.md&title=CSV+listfile+suggestion" target="_BLANK">submit an issue on GitHub</a> (login required) with the .txt file attached to submit these names to the community listfile.</p>
-                <textarea id="result" rows="15" cols="160">Nothing here yet.</textarea><br />
+                <textarea id="result" rows="15" cols="140">Nothing here yet.</textarea><br />
                 <button onclick="clearNames()" class="btn btn-danger">Clear new name cache</button>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <h4>M2 naming tools</h4>
                 <button class="btn btn-danger" onclick="loadLastName()">Last name</button>
                 <br /><br />
                 <h4>M2 naming prefixes</h4>
-                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/11XP_')">11 Generic</button> <br />
-                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Earthen/11EA_Earthen_')">11 Earthen</button> <br />
-                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Arathor/11AT_Arathor_')">11 Arathi</button> <br />
-                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Nerubian/11NB_Nerubian_')">11 Nerubian</button> <br />
-                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Rootlands/11RTL_Rootlands_')">11 Harronir (RTL)</button> <br />
-                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobold/11KO_Kobold_')">11 Kobold</button> <br />
-                <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobyss/11KB_Kobyss_')">11 Kobyss</button> <br />
-            </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/10XP_')">10 Generic</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Highlands/10HGL_Highlands_')">10 Highlands</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Primalist/10PM_Primalist_')">10 Primalist</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dragon/10DG_Dragon_')">10 Dragon</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Grasslands/10GSL_Grasslands_')">10 Grasslands</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dungeon/10DU_Dungeon_')">10 Dungeon</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Tuskarr/10TS_Tuskarr_')">10 Tuskarr</button> <br />
+                   </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Volcanic/10CAN_Volcanic_')">10 Volcanic</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Djaradin/10DJ_Djaradin_')">10 Djaradin</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Reliquary/10RQ_Reliquary_')">10 Reliquary</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/ExplorersLeague/10EL_ExplorersLeague_')">10 Explorers</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Titan/10TI_Titan_')">10 Titan</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/EmeraldDream/10ED_EmeraldDream_')">10 ED</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Centaur/10CT_Centaur_')">10 Centaur</button> <br />
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/11XP_')">11 Generic</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Earthen/11EA_Earthen_')">11 Earthen</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Arathor/11AT_Arathor_')">11 Arathi</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Nerubian/11NB_Nerubian_')">11 Nerubian</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Rootlands/11RTL_Rootlands_')">11 Harronir (RTL)</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobold/11KO_Kobold_')">11 Kobold</button> <br />
+                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobyss/11KB_Kobyss_')">11 Kobyss</button> <br />
+                    </div>
+                </div>
+             </div>
         </div>
     </div>
     <div id="overlay" style="min-width: 700px;">
