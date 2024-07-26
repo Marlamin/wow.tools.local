@@ -249,25 +249,6 @@ namespace wow.tools.local.Controllers
                 Console.WriteLine("Exception during type guessing with ManifestMP3:" + e.Message);
             }
 
-            try
-            {
-                var skStorage = dbcd.Load("SoundKitEntry", CASC.BuildName);
-                foreach (dynamic skEntry in skStorage.Values)
-                {
-                    var fdid = (int)skEntry.FileDataID;
-                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
-                    {
-                        knownUnknowns.TryAdd(fdid, "ogg");
-                        unknownFiles.Remove(fdid);
-                        CASC.SetFileType(fdid, "ogg");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception during type guessing with SoundKitEntry:" + e.Message);
-            }
-
             var typeLock = new object();
 
             Console.WriteLine("Analyzing " + unknownFiles.Count + " unknown files");
@@ -455,6 +436,25 @@ namespace wow.tools.local.Controllers
 
                 numFilesDone++;
             });
+
+            try
+            {
+                var skStorage = dbcd.Load("SoundKitEntry", CASC.BuildName);
+                foreach (dynamic skEntry in skStorage.Values)
+                {
+                    var fdid = (int)skEntry.FileDataID;
+                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                    {
+                        knownUnknowns.TryAdd(fdid, "ogg");
+                        unknownFiles.Remove(fdid);
+                        CASC.SetFileType(fdid, "ogg");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with SoundKitEntry:" + e.Message);
+            }
 
             System.IO.File.WriteAllLines("cachedUnknowns.txt", knownUnknowns.Where(x => x.Value != "unk").Select(x => x.Key + ";" + x.Value));
             Console.WriteLine("Finished unknown file analysis");
