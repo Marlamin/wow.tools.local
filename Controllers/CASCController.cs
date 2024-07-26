@@ -427,7 +427,7 @@ namespace wow.tools.local.Controllers
                                 break;
                         }
 
-                        if (magicString.StartsWith("ID3"))
+                        if (magicString.StartsWith("ID3") || (magic[0] == 0xFF && magic[1] == 0xFB))
                             type = "mp3";
 
                         if (type == "unk")
