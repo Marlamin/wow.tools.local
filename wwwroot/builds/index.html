@@ -140,7 +140,11 @@
                             result += '<a class="btn btn-danger btn-sm disabled" href="#">Manifest missing</a>';
                         }
                         if (hasDBCs) {
-                            result += ' <a class="btn btn-success btn-sm disabled" href="#">Has DBCs</a>';
+                            if (isActive) {
+                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">Force update</a>';
+                            } else {
+                                result += ' <a class="btn btn-success btn-sm disabled" href="#">Has DBCs</a>';
+                            }
                         } else {
                             if (isActive) {
                                 result += ' <a class="btn btn-primary btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">DBCs missing, extract?</a>';
