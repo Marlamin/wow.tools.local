@@ -238,6 +238,7 @@
         const namingForm = document.getElementById("namingForm");
         const submitButton = document.getElementById("submitButton");
         const result = document.getElementById("result");
+        const resultTitle = document.getElementById("resultTitle");
         var Elements = {
             table: null,
             currentID: 0
@@ -280,7 +281,7 @@
             }).then(function(response) {
                 return response.text();
             }).then(function (data) {
-                resultTitle.innerHTML = "Result (" + (data.split('\n').length - 1) + " names)";
+                resultTitle.innerHTML = "Result (" + (data.split('\n').length) + " names)";
                 result.innerHTML = data;
                 submitButton.disabled = false;
                 submitButton.classList.remove("disabled");
