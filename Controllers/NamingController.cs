@@ -77,6 +77,24 @@ namespace wow.tools.local.Controllers
             {
                 Namer.NameM2s([(uint)id], false);
                 Namer.NameCreatureDisplayInfo((uint)id);
+
+                if (
+                    name.StartsWith("models") ||
+                    name.StartsWith("unkmaps") ||
+                    name.Contains("autogen-names") ||
+                    name.Contains(id.ToString()) ||
+                    name.Contains("unk_exp") ||
+                    name.Contains("tileset/unused") ||
+                    string.IsNullOrEmpty(name)
+                )
+                {
+                    if (!CASC.PlaceholderFiles.Contains(id))
+                        CASC.PlaceholderFiles.Add(id);
+                }
+                else
+                {
+                    CASC.PlaceholderFiles.Remove(id);
+                }
             }
             else if (name.ToLower().EndsWith(".wmo"))
             {
@@ -92,7 +110,7 @@ namespace wow.tools.local.Controllers
         {
             var result = Namer.NameSingleVO(id, name);
 
-            if(!string.IsNullOrWhiteSpace(result))
+            if (!string.IsNullOrWhiteSpace(result))
                 CASC.Listfile[id] = result;
 
             return result;
