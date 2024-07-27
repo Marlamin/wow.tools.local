@@ -53,23 +53,23 @@ namespace wow.tools.local.Controllers
 
             var mapDB = await dbcManager.GetOrLoad("Map", CASC.BuildName);
 
-            if (!mapDB.AvailableColumns.Contains("Directory") || !mapDB.AvailableColumns.Contains("MapName_lang") || !mapDB.AvailableColumns.Contains("WdtFileDataID"))
+            if (!mapDB.AvailableColumns.Contains("ID") || !mapDB.AvailableColumns.Contains("Directory") || !mapDB.AvailableColumns.Contains("MapName_lang") || !mapDB.AvailableColumns.Contains("WdtFileDataID"))
                 throw new Exception("Unable to initialize map list, missing one of the required columns.");
 
             foreach (var entry in mapDB.Values)
             {
                 list.Add(new MapInfo()
                 {
-                    ID = entry["ID"].ToString(),
-                    internalName = entry["Directory"].ToString(),
-                    displayName = entry["MapName_lang"].ToString(),
-                    wdtFileDataID = uint.Parse(entry["WdtFileDataID"].ToString())
+                    ID = entry["ID"].ToString()!,
+                    internalName = entry["Directory"].ToString()!,
+                    displayName = entry["MapName_lang"].ToString()!,
+                    wdtFileDataID = uint.Parse(entry["WdtFileDataID"].ToString()!)
                 });
 
-                seenMaps.Add(entry["Directory"].ToString().ToLower());
+                seenMaps.Add(entry["Directory"].ToString()!.ToLower());
             }
 
-            var allMinimaps = CASC.Listfile.Values.Where(x => x.StartsWith("world/minimaps", StringComparison.CurrentCultureIgnoreCase) && !x.StartsWith("world/minimaps/wmo", StringComparison.CurrentCultureIgnoreCase)).Select(x => Path.GetDirectoryName(x).Replace("world\\minimaps\\", "")).Distinct();
+            var allMinimaps = CASC.Listfile.Values.Where(x => x.StartsWith("world/minimaps", StringComparison.CurrentCultureIgnoreCase) && !x.StartsWith("world/minimaps/wmo", StringComparison.CurrentCultureIgnoreCase)).Select(x => Path.GetDirectoryName(x)!.Replace("world\\minimaps\\", "")).Distinct();
             Console.WriteLine();
             foreach (var minimap in allMinimaps)
             {

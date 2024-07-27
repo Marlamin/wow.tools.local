@@ -43,7 +43,7 @@ namespace wow.tools.local.Controllers
                         {
                             using (var cascStream = CASC.GetFileByID(filedataid))
                             {
-                                if(cascStream == null)
+                                if (cascStream == null)
                                 {
                                     errors.Add("Error opening file " + filedataid);
                                     Console.WriteLine("File " + filedataid + " not found in CASC");

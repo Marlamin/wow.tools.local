@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers
@@ -23,7 +22,7 @@ namespace wow.tools.local.Controllers
             };
 
             var results = SQLiteDB.GetCreatureNames(start, length);
-          
+
             if (length == -1)
             {
                 start = 0;

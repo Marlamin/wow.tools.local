@@ -1,7 +1,5 @@
 ﻿using CASCLib;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using wow.tools.local.Services;
 
@@ -51,7 +49,7 @@ namespace wow.tools.local.Controllers
                     KeyMetadata.KeyInfo[key] = copy;
                 }
 
-                if(KeyService.HasKey(key) && !CASC.KnownKeys.Contains(key))
+                if (KeyService.HasKey(key) && !CASC.KnownKeys.Contains(key))
                 {
                     Console.WriteLine("Adding known key from CascLib: " + key);
                     CASC.KnownKeys.Add(key);

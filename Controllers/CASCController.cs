@@ -6,7 +6,6 @@ using Newtonsoft.Json.Converters;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Web;
 using wow.tools.local.Services;
@@ -64,9 +63,9 @@ namespace wow.tools.local.Controllers
         {
             var result = new DataTablesResult();
 
-            if (Request.Method == "POST" && Request.Form.TryGetValue("draw", out var draw))
+            if (Request.Method == "POST" && Request.Form.TryGetValue("draw", out var drawValue) && int.TryParse(drawValue, out var draw))
             {
-                result.draw = int.Parse(draw);
+                result.draw = draw;
                 result.data = [];
             }
 
@@ -867,7 +866,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string GetVersion()
         {
-            return System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+            return System.Reflection.Assembly.GetEntryAssembly()!.GetName().Version!.ToString();
         }
 
         [Route("diffFile")]
@@ -969,11 +968,12 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string DiffText(int fileDataID, string from, string to)
         {
-            var oldFile = CASC.GetFileByID((uint)fileDataID, from);
-            var newFile = CASC.GetFileByID((uint)fileDataID, to);
-
             if (!Directory.Exists("temp/diffs/" + from))
                 Directory.CreateDirectory("temp/diffs/" + from);
+
+            var oldFile = CASC.GetFileByID((uint)fileDataID, from);
+            if (oldFile == null)
+                return "Error loading file " + fileDataID + " from build";
 
             using (var fs = new FileStream("temp/diffs/" + from + "/" + fileDataID, FileMode.Create))
             {
@@ -982,6 +982,10 @@ namespace wow.tools.local.Controllers
 
             if (!Directory.Exists("temp/diffs/" + to))
                 Directory.CreateDirectory("temp/diffs/" + to);
+
+            var newFile = CASC.GetFileByID((uint)fileDataID, to);
+            if (newFile == null)
+                return "Error loading file " + fileDataID + " from build";
 
             using (var fs = new FileStream("temp/diffs/" + to + "/" + fileDataID, FileMode.Create))
             {
@@ -1145,15 +1149,15 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool FileCheck(string search)
         {
-            return CASC.Listfile.Where(x => x.Value.ToLower() == search.ToLower()).Any();
+            return CASC.Listfile.Where(x => x.Value.Equals(search, StringComparison.CurrentCultureIgnoreCase)).Any();
         }
 
         [Route("directoryAC")]
         [HttpGet]
-        public List<string?> DirectoryAC(string search)
+        public List<string> DirectoryAC(string search)
         {
             return CASC.Listfile.Values
-                .Where(x => !string.IsNullOrEmpty(x) && x.ToLower().StartsWith(search.ToLower()) && (x.ToLower().EndsWith(".m2") || x.ToLower().EndsWith(".wmo")))
+                .Where(x => !string.IsNullOrEmpty(x) && x.StartsWith(search, StringComparison.CurrentCultureIgnoreCase) && (x.ToLower().EndsWith(".m2") || x.ToLower().EndsWith(".wmo")))
                 .Select(x => x.Replace('\\', '/'))
                 .DistinctBy(x => x.ToLower()).OrderByDescending(x => x).Take(20).ToList();
         }
@@ -1162,10 +1166,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string Json(uint fileDataID, string? build)
         {
-            if(build == null)
-            {
-                build = CASC.BuildName;
-            }
+            build ??= CASC.BuildName;
 
             var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt" };
 

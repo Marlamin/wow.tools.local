@@ -1,23 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Runtime.Serialization;
-using System.Text.RegularExpressions;
 using wow.tools.local.Services;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
-using WoWFormatLib.Structs.WMO;
 
 namespace wow.tools.local.Controllers
 {
     [Route("model/")]
-    public class ModelController(IDBCManager dbcManager) : Controller
+    public class ModelController() : Controller
     {
-        private readonly DBCManager dbcManager = (DBCManager)dbcManager;
-
         [Route("info")]
         [HttpGet]
         public string Info(int fileDataID)
         {
-            if(!FileProvider.HasProvider(CASC.BuildName))
+            if (!FileProvider.HasProvider(CASC.BuildName))
             {
                 var casc = new CASCFileProvider();
                 casc.InitCasc(CASC.cascHandler);
@@ -79,7 +75,7 @@ namespace wow.tools.local.Controllers
                     returnString += "<td>Flags: " + material.flags + "</td>";
                     returnString += "<td>BlendMode: " + material.blendMode + "</td>";
                     returnString += "<td>GroundType: " + material.groundType + "</td>";
-                    returnString += "<td>Shader: " + GetEnumMemberAttrValue<MOMTShader>(material.shader) + "</td></tr>";
+                    returnString += "<td>Shader: " + GetEnumMemberAttrValue(material.shader) + "</td></tr>";
                     returnString += "<tr><td colspan=5>";
                     returnString += "<table class='table table-striped'>";
                     returnString += "<tr><td>Texture1</td><td>" + material.texture1 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.texture1, out var texture1Filename) ? texture1Filename : "Unknown filename") + "</td></tr>";
@@ -116,7 +112,7 @@ namespace wow.tools.local.Controllers
             return returnString;
         }
 
-        private string GetEnumMemberAttrValue<T>(T enumVal)
+        private static string GetEnumMemberAttrValue<T>(T enumVal)
         {
             var enumType = typeof(T);
             var memInfo = enumType.GetMember(enumVal.ToString());
@@ -129,7 +125,7 @@ namespace wow.tools.local.Controllers
             return null;
         }
 
-        private string ARGBToDiv(uint argb)
+        private static string ARGBToDiv(uint argb)
         {
             var a = (byte)(argb >> 24);
             var r = (byte)(argb >> 16);

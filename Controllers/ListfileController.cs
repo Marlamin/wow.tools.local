@@ -20,7 +20,7 @@ namespace wow.tools.local.Controllers
             {
                 var cleaned = search.Replace("type:", "").ToLowerInvariant();
 
-                if(cleaned == "model")
+                if (cleaned == "model")
                 {
                     var m2AndWMO = new HashSet<int>(CASC.TypeMap["m2"].Concat(CASC.TypeMap["wmo"]));
                     return resultsIn.Where(p => m2AndWMO.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
@@ -30,7 +30,7 @@ namespace wow.tools.local.Controllers
                     if (CASC.TypeMap.TryGetValue(cleaned, out var fdids))
                         return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
                 }
-           
+
 
                 return [];
             }
@@ -96,7 +96,7 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.LookupMap.Keys);
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
-            else if(search == "otherlocaleonly")
+            else if (search == "otherlocaleonly")
             {
                 var fdids = new HashSet<int>(CASC.OtherLocaleOnlyFiles);
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
@@ -135,7 +135,7 @@ namespace wow.tools.local.Controllers
                 }
                 else
                 {
-                    listfileResults = DoSearch(listfileResults, search);
+                    listfileResults = DoSearch(listfileResults, search!);
                 }
 
             }
@@ -347,7 +347,7 @@ namespace wow.tools.local.Controllers
 
                         var path = Path.Combine(SettingsManager.extractionDir, filePath);
                         if (!Directory.Exists(Path.GetDirectoryName(path)))
-                            Directory.CreateDirectory(Path.GetDirectoryName(path));
+                            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
                         using (var fs = new FileStream(path, FileMode.Create))
                             await file.CopyToAsync(fs);

@@ -113,8 +113,7 @@ namespace wow.tools.local.Services
                                         continue;
                                     }
 
-                                    var reversedLookup = lookup.Substring(14, 2) + lookup.Substring(12, 2) + lookup.Substring(10, 2) + lookup.Substring(8, 2) + lookup.Substring(6, 2) + lookup.Substring(4, 2) + lookup.Substring(2, 2) + lookup.Substring(0, 2);
-                                    var parsedLookup = ulong.Parse(reversedLookup, NumberStyles.HexNumber);
+                                    var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
 
                                     if (!KnownKeys.Contains(parsedLookup))
                                         KnownKeys.Add(parsedLookup);
@@ -122,7 +121,7 @@ namespace wow.tools.local.Services
                                     if (KeyService.HasKey(parsedLookup))
                                         continue;
 
-                                    Console.WriteLine("Setting key " + reversedLookup + " from KeyRing " + build.KeyRing);
+                                    Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
                                     KeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
                                 }
                             }

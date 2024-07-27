@@ -74,3 +74,6 @@ tab_width = 4
 indent_size = 4
 end_of_line = crlf
 dotnet_style_object_initializer = true:suggestion
+
+# Default severity for analyzer diagnostics with category 'Style'
+dotnet_analyzer_diagnostic.category-Style.severity = none

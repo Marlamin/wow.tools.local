@@ -234,10 +234,7 @@ namespace wow.tools.local.Controllers
                                     var displayIDButInt = uint.Parse(displayID);
                                     if (entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
                                     {
-                                        if (!goNames.ContainsKey(displayIDButInt))
-                                        {
-                                            goNames.Add(displayIDButInt, name);
-                                        }
+                                        goNames.TryAdd(displayIDButInt, name);
                                     }
                                 }
                             }
@@ -266,10 +263,7 @@ namespace wow.tools.local.Controllers
                                         var displayIDButInt = uint.Parse(displayID);
                                         if (entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
                                         {
-                                            if (!goNames.ContainsKey(displayIDButInt))
-                                            {
-                                                goNames.Add(displayIDButInt, name);
-                                            }
+                                            goNames.TryAdd(displayIDButInt, name);
                                         }
                                     }
                                 }

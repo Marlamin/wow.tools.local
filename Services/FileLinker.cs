@@ -35,7 +35,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    existingParents.Add(int.Parse(reader["parent"].ToString()));
+                    existingParents.Add(int.Parse(reader["parent"].ToString()!));
                 }
 
                 reader.Close();
@@ -49,7 +49,7 @@ namespace wow.tools.local.Services
             }
         }
 
-        private static void insertEntry(SqliteCommand cmd, uint fileDataID, string desc)
+        private static void InsertEntry(SqliteCommand cmd, uint fileDataID, string desc)
         {
             if (fileDataID == 0)
                 return;
@@ -105,7 +105,7 @@ namespace wow.tools.local.Services
                 {
                     foreach (var textureID in reader.model.textureFileDataIDs)
                     {
-                        insertEntry(insertCmd, textureID, "m2 texture");
+                        InsertEntry(insertCmd, textureID, "m2 texture");
                     }
                 }
 
@@ -113,7 +113,7 @@ namespace wow.tools.local.Services
                 {
                     foreach (var animFileID in reader.model.animFileDataIDs)
                     {
-                        insertEntry(insertCmd, animFileID.fileDataID, "m2 anim");
+                        InsertEntry(insertCmd, animFileID.fileDataID, "m2 anim");
                     }
                 }
 
@@ -121,7 +121,7 @@ namespace wow.tools.local.Services
                 {
                     foreach (var skinFileID in reader.model.skinFileDataIDs)
                     {
-                        insertEntry(insertCmd, skinFileID, "m2 skin");
+                        InsertEntry(insertCmd, skinFileID, "m2 skin");
                     }
                 }
 
@@ -129,7 +129,7 @@ namespace wow.tools.local.Services
                 {
                     foreach (var boneFileID in reader.model.boneFileDataIDs)
                     {
-                        insertEntry(insertCmd, boneFileID, "m2 bone");
+                        InsertEntry(insertCmd, boneFileID, "m2 bone");
                     }
                 }
 
@@ -137,7 +137,7 @@ namespace wow.tools.local.Services
                 {
                     foreach (var rpID in reader.model.recursiveParticleModelFileIDs)
                     {
-                        insertEntry(insertCmd, rpID, "m2 recursive particle");
+                        InsertEntry(insertCmd, rpID, "m2 recursive particle");
                     }
                 }
 
@@ -145,12 +145,12 @@ namespace wow.tools.local.Services
                 {
                     foreach (var gpID in reader.model.geometryParticleModelFileIDs)
                     {
-                        insertEntry(insertCmd, gpID, "m2 geometry particle");
+                        InsertEntry(insertCmd, gpID, "m2 geometry particle");
                     }
                 }
 
-                insertEntry(insertCmd, reader.model.skelFileID, "m2 skel");
-                insertEntry(insertCmd, reader.model.physFileID, "m2 phys");
+                InsertEntry(insertCmd, reader.model.skelFileID, "m2 skel");
+                InsertEntry(insertCmd, reader.model.physFileID, "m2 phys");
             }
             catch (Exception e)
             {
@@ -209,7 +209,7 @@ namespace wow.tools.local.Services
                 {
                     foreach (var groupFileDataID in wmo.groupFileDataIDs)
                     {
-                        insertEntry(insertCmd, groupFileDataID, "wmo group");
+                        InsertEntry(insertCmd, groupFileDataID, "wmo group");
                         CASC.SetFileType((int)groupFileDataID, "gwmo");
                     }
                 }
@@ -223,7 +223,7 @@ namespace wow.tools.local.Services
 
                         inserted.Add(doodadID);
 
-                        insertEntry(insertCmd, doodadID, "wmo doodad");
+                        InsertEntry(insertCmd, doodadID, "wmo doodad");
                     }
                 }
 
@@ -234,19 +234,19 @@ namespace wow.tools.local.Services
                         if (material.texture1 != 0 && !inserted.Contains(material.texture1))
                         {
                             inserted.Add(material.texture1);
-                            insertEntry(insertCmd, material.texture1, "wmo texture");
+                            InsertEntry(insertCmd, material.texture1, "wmo texture");
                         }
 
                         if (material.texture2 != 0 && !inserted.Contains(material.texture2))
                         {
                             inserted.Add(material.texture2);
-                            insertEntry(insertCmd, material.texture2, "wmo texture");
+                            InsertEntry(insertCmd, material.texture2, "wmo texture");
                         }
 
                         if (material.texture3 != 0 && !inserted.Contains(material.texture3))
                         {
                             inserted.Add(material.texture3);
-                            insertEntry(insertCmd, material.texture3, "wmo texture");
+                            InsertEntry(insertCmd, material.texture3, "wmo texture");
                         }
 
                         if ((uint)material.shader == 23)
@@ -254,37 +254,37 @@ namespace wow.tools.local.Services
                             if (material.color3 != 0 && !inserted.Contains(material.color3))
                             {
                                 inserted.Add(material.color3);
-                                insertEntry(insertCmd, material.color3, "wmo texture");
+                                InsertEntry(insertCmd, material.color3, "wmo texture");
                             }
 
                             if (material.flags3 != 0 && !inserted.Contains(material.flags3))
                             {
                                 inserted.Add(material.flags3);
-                                insertEntry(insertCmd, material.flags3, "wmo texture");
+                                InsertEntry(insertCmd, material.flags3, "wmo texture");
                             }
 
                             if (material.runtimeData0 != 0 && !inserted.Contains(material.runtimeData0))
                             {
                                 inserted.Add(material.runtimeData0);
-                                insertEntry(insertCmd, material.runtimeData0, "wmo texture");
+                                InsertEntry(insertCmd, material.runtimeData0, "wmo texture");
                             }
 
                             if (material.runtimeData1 != 0 && !inserted.Contains(material.runtimeData1))
                             {
                                 inserted.Add(material.runtimeData1);
-                                insertEntry(insertCmd, material.runtimeData1, "wmo texture");
+                                InsertEntry(insertCmd, material.runtimeData1, "wmo texture");
                             }
 
                             if (material.runtimeData2 != 0 && !inserted.Contains(material.runtimeData2))
                             {
                                 inserted.Add(material.runtimeData2);
-                                insertEntry(insertCmd, material.runtimeData2, "wmo texture");
+                                InsertEntry(insertCmd, material.runtimeData2, "wmo texture");
                             }
 
                             if (material.runtimeData3 != 0 && !inserted.Contains(material.runtimeData3))
                             {
                                 inserted.Add(material.runtimeData3);
-                                insertEntry(insertCmd, material.runtimeData3, "wmo texture");
+                                InsertEntry(insertCmd, material.runtimeData3, "wmo texture");
                             }
                         }
                     }
@@ -337,7 +337,7 @@ namespace wow.tools.local.Services
 
                 if (wdtreader.wdtfile.modf.entries != null && wdtreader.wdtfile.modf.entries.Length > 0 && wdtreader.wdtfile.modf.entries[0].mwidEntry != 0 && !existingParents.Contains(wdtid))
                 {
-                    insertEntry(insertCmd, wdtreader.wdtfile.modf.entries[0].mwidEntry, "wdt wmo");
+                    InsertEntry(insertCmd, wdtreader.wdtfile.modf.entries[0].mwidEntry, "wdt wmo");
                 }
 
                 foreach (var records in wdtreader.wdtfile.tileFiles)
@@ -347,14 +347,14 @@ namespace wow.tools.local.Services
 
                     if (!existingParents.Contains(wdtid))
                     {
-                        insertEntry(insertCmd, records.Value.rootADT, "root adt");
-                        insertEntry(insertCmd, records.Value.tex0ADT, "tex0 adt");
-                        insertEntry(insertCmd, records.Value.lodADT, "lod adt");
-                        insertEntry(insertCmd, records.Value.obj0ADT, "obj0 adt");
-                        insertEntry(insertCmd, records.Value.obj1ADT, "obj1 adt");
-                        insertEntry(insertCmd, records.Value.mapTexture, "map texture");
-                        insertEntry(insertCmd, records.Value.mapTextureN, "mapn texture");
-                        insertEntry(insertCmd, records.Value.minimapTexture, "minimap texture");
+                        InsertEntry(insertCmd, records.Value.rootADT, "root adt");
+                        InsertEntry(insertCmd, records.Value.tex0ADT, "tex0 adt");
+                        InsertEntry(insertCmd, records.Value.lodADT, "lod adt");
+                        InsertEntry(insertCmd, records.Value.obj0ADT, "obj0 adt");
+                        InsertEntry(insertCmd, records.Value.obj1ADT, "obj1 adt");
+                        InsertEntry(insertCmd, records.Value.mapTexture, "map texture");
+                        InsertEntry(insertCmd, records.Value.mapTextureN, "mapn texture");
+                        InsertEntry(insertCmd, records.Value.minimapTexture, "minimap texture");
                     }
 
                     if (records.Value.rootADT == 0)
@@ -391,7 +391,7 @@ namespace wow.tools.local.Services
                                 continue;
 
                             inserted.Add(worldmodel.mwidEntry);
-                            insertEntry(insertCmd, worldmodel.mwidEntry, "adt worldmodel");
+                            InsertEntry(insertCmd, worldmodel.mwidEntry, "adt worldmodel");
                         }
 
                         foreach (var doodad in adtreader.adtfile.objects.models.entries)
@@ -399,7 +399,7 @@ namespace wow.tools.local.Services
                             if (inserted.Contains(doodad.mmidEntry))
                                 continue;
 
-                            insertEntry(insertCmd, doodad.mmidEntry, "adt doodad");
+                            InsertEntry(insertCmd, doodad.mmidEntry, "adt doodad");
                             inserted.Add(doodad.mmidEntry);
                         }
                     }
@@ -409,7 +409,7 @@ namespace wow.tools.local.Services
                         if (texture == 0)
                             continue;
 
-                        insertEntry(insertCmd, texture, "adt diffuse texture");
+                        InsertEntry(insertCmd, texture, "adt diffuse texture");
                     }
 
                     foreach (var texture in adtreader.adtfile.heightTextureFileDataIDs)
@@ -417,7 +417,7 @@ namespace wow.tools.local.Services
                         if (texture == 0)
                             continue;
 
-                        insertEntry(insertCmd, texture, "adt height texture");
+                        InsertEntry(insertCmd, texture, "adt height texture");
                     }
                 }
 

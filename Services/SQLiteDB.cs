@@ -6,10 +6,10 @@ namespace wow.tools.local.Services
     public static class SQLiteDB
     {
         public static SqliteConnection dbConn = new("Data Source=WTL.db");
-        public static Dictionary<string, HashSet<int>> newFilesBetweenVersion = new();
-        private static Dictionary<int, int> broadcastTextCache = new();
-        public static Dictionary<int, int> creatureCache = new();
-        public static Dictionary<int, string> fdidToCreatureNameCache = new();
+        public static readonly Dictionary<string, HashSet<int>> newFilesBetweenVersion = [];
+        private static readonly Dictionary<int, int> broadcastTextCache = [];
+        public static readonly Dictionary<int, int> creatureCache = [];
+        public static readonly Dictionary<int, string> fdidToCreatureNameCache = [];
         public static object SQLiteLock = new();
 
         static SQLiteDB()
@@ -59,7 +59,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    broadcastTextCache[int.Parse(reader["broadcastTextID"].ToString())] = int.Parse(reader["LastUpdatedBuild"].ToString());
+                    broadcastTextCache[int.Parse(reader["broadcastTextID"].ToString()!)] = int.Parse(reader["LastUpdatedBuild"].ToString()!);
                 }
 
                 reader.Close();
@@ -73,7 +73,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    creatureCache[int.Parse(reader["creatureID"].ToString())] = int.Parse(reader["LastUpdatedBuild"].ToString());
+                    creatureCache[int.Parse(reader["creatureID"].ToString()!)] = int.Parse(reader["LastUpdatedBuild"].ToString()!);
                 }
 
                 reader.Close();
@@ -87,7 +87,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    fdidToCreatureNameCache[int.Parse(reader["fileDataID"].ToString())] = reader["creature"].ToString();
+                    fdidToCreatureNameCache[int.Parse(reader["fileDataID"].ToString()!)] = reader["creature"].ToString()!;
                 }
             }
         }
@@ -189,8 +189,8 @@ namespace wow.tools.local.Services
                     {
                         var currentText_lang = reader["Text_lang"].ToString();
                         var currentText1_lang = reader["Text1_lang"].ToString();
-                        var currentSoundKitID0 = int.Parse(reader["SoundKitID0"].ToString());
-                        var currentSoundKitID1 = int.Parse(reader["SoundKitID1"].ToString());
+                        var currentSoundKitID0 = int.Parse(reader["SoundKitID0"].ToString()!);
+                        var currentSoundKitID1 = int.Parse(reader["SoundKitID1"].ToString()!);
 
                         if (currentText_lang != text_lang)
                         {
@@ -250,13 +250,13 @@ namespace wow.tools.local.Services
                 {
                     var Text_lang = reader["Text_lang"].ToString();
                     var Text1_lang = reader["Text1_lang"].ToString();
-                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString());
-                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString());
+                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString()!);
+                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString()!);
 
                     if (soundKitID0 != 0 && !string.IsNullOrEmpty(Text_lang))
                     {
                         if (!textToSoundKitID.ContainsKey(Text_lang))
-                            textToSoundKitID[Text_lang] = new List<uint>();
+                            textToSoundKitID[Text_lang] = [];
 
                         textToSoundKitID[Text_lang].Add(soundKitID0);
                     }
@@ -264,7 +264,7 @@ namespace wow.tools.local.Services
                     if (soundKitID1 != 0 && !string.IsNullOrEmpty(Text1_lang))
                     {
                         if (!textToSoundKitID.ContainsKey(Text1_lang))
-                            textToSoundKitID[Text1_lang] = new List<uint>();
+                            textToSoundKitID[Text1_lang] = [];
 
                         textToSoundKitID[Text1_lang].Add(soundKitID1);
                     }
@@ -283,7 +283,7 @@ namespace wow.tools.local.Services
                 return false;
             }
 
-            if(creatureName == "" || creatureName == null) // yes this happens
+            if (creatureName == "" || creatureName == null) // yes this happens
             {
                 // If creature name is empty -- delete it
                 using (var cmd = dbConn.CreateCommand())
@@ -305,7 +305,7 @@ namespace wow.tools.local.Services
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
-            
+
         }
 
         public static Dictionary<uint, List<uint>> GetSoundKitToBCTextIDs()
@@ -319,24 +319,24 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString());
+                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString()!);
                     if (soundKitID0 != 0)
                     {
                         if (!SoundKitIDToBCTextID.ContainsKey(soundKitID0))
-                            SoundKitIDToBCTextID[soundKitID0] = new List<uint>();
+                            SoundKitIDToBCTextID[soundKitID0] = [];
 
-                        if (!SoundKitIDToBCTextID[soundKitID0].Contains(uint.Parse(reader["broadcastTextID"].ToString())))
-                            SoundKitIDToBCTextID[soundKitID0].Add(uint.Parse(reader["broadcastTextID"].ToString()));
+                        if (!SoundKitIDToBCTextID[soundKitID0].Contains(uint.Parse(reader["broadcastTextID"].ToString()!)))
+                            SoundKitIDToBCTextID[soundKitID0].Add(uint.Parse(reader["broadcastTextID"].ToString()!));
                     }
 
-                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString());
+                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString()!);
                     if (soundKitID1 != 0)
                     {
                         if (!SoundKitIDToBCTextID.ContainsKey(soundKitID1))
-                            SoundKitIDToBCTextID[soundKitID1] = new List<uint>();
+                            SoundKitIDToBCTextID[soundKitID1] = [];
 
-                        if (!SoundKitIDToBCTextID[soundKitID1].Contains(uint.Parse(reader["broadcastTextID"].ToString())))
-                            SoundKitIDToBCTextID[soundKitID1].Add(uint.Parse(reader["broadcastTextID"].ToString()));
+                        if (!SoundKitIDToBCTextID[soundKitID1].Contains(uint.Parse(reader["broadcastTextID"].ToString()!)))
+                            SoundKitIDToBCTextID[soundKitID1].Add(uint.Parse(reader["broadcastTextID"].ToString()!));
                     }
                 }
 
@@ -352,7 +352,7 @@ namespace wow.tools.local.Services
             using (var cmd = dbConn.CreateCommand())
             {
                 cmd.CommandText = "SELECT COUNT(*) FROM wow_creatures";
-                return int.Parse(cmd.ExecuteScalar().ToString());
+                return int.Parse(cmd.ExecuteScalar()!.ToString()!);
             }
         }
 
@@ -382,7 +382,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    creatures[uint.Parse(reader["creatureID"].ToString())] = reader["name"].ToString();
+                    creatures[uint.Parse(reader["creatureID"].ToString()!)] = reader["name"].ToString()!;
                 }
 
                 reader.Close();
@@ -395,7 +395,7 @@ namespace wow.tools.local.Services
         {
             // Check if valid builds
             if (oldBuild.Split('.').Length != 4 || newBuild.Split('.').Length != 4)
-                return new HashSet<int>();
+                return [];
 
             if (newFilesBetweenVersion.ContainsKey(oldBuild + "|" + newBuild))
             {
@@ -472,9 +472,9 @@ namespace wow.tools.local.Services
                     while (reader.Read())
                     {
                         if (!string.IsNullOrWhiteSpace(reader["Text_lang"].ToString()))
-                            return reader["Text_lang"].ToString();
+                            return reader["Text_lang"].ToString()!;
                         else if (!string.IsNullOrWhiteSpace(reader["Text1_lang"].ToString()))
-                            return reader["Text1_lang"].ToString();
+                            return reader["Text1_lang"].ToString()!;
                     }
                 }
 
@@ -495,7 +495,7 @@ namespace wow.tools.local.Services
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        var broadcastTextID = uint.Parse(reader["broadcastTextID"].ToString());
+                        var broadcastTextID = uint.Parse(reader["broadcastTextID"].ToString()!);
                         if (broadcastTextID != 0)
                             results.Add(broadcastTextID);
                     }
@@ -531,8 +531,8 @@ namespace wow.tools.local.Services
                 {
                     files.Add(new LinkedFile()
                     {
-                        fileDataID = uint.Parse(reader["parent"].ToString()),
-                        linkType = reader["type"].ToString()
+                        fileDataID = uint.Parse(reader["parent"].ToString()!),
+                        linkType = reader["type"].ToString()!
                     });
                 }
 
@@ -556,8 +556,8 @@ namespace wow.tools.local.Services
                 {
                     files.Add(new LinkedFile()
                     {
-                        fileDataID = uint.Parse(reader["child"].ToString()),
-                        linkType = reader["type"].ToString()
+                        fileDataID = uint.Parse(reader["child"].ToString()!),
+                        linkType = reader["type"].ToString()!
                     });
                 }
 
@@ -581,8 +581,8 @@ namespace wow.tools.local.Services
                 {
                     versions.Add(new CASC.Version()
                     {
-                        buildName = reader["build"].ToString(),
-                        contentHash = reader["chash"].ToString()
+                        buildName = reader["build"].ToString()!,
+                        contentHash = reader["chash"].ToString()!
                     });
                 }
 

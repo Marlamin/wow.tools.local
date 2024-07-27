@@ -8,13 +8,12 @@ namespace wow.tools.local.Controllers
     public class VOController : Controller
     {
         private readonly DBCManager dbcManager;
-        private static List<uint> voSoundKitIDs = new();
-        private static readonly Dictionary<uint, List<uint>> soundKitIDToFDID = new();
-        private static readonly Dictionary<uint, List<uint>> fdidToSoundKitID = new();
+        private static readonly List<uint> voSoundKitIDs = [];
+        private static readonly Dictionary<uint, List<uint>> soundKitIDToFDID = [];
+        private static readonly Dictionary<uint, List<uint>> fdidToSoundKitID = [];
 
-        private static Dictionary<uint, List<uint>> soundKitToBroadcastTextID = new();
-        private static Dictionary<uint, string> creatureNames = new();
-        private static Dictionary<uint, uint> broadcastTextIDToCreatureID = new();
+        private static Dictionary<uint, List<uint>> soundKitToBroadcastTextID = [];
+        private static Dictionary<uint, string> creatureNames = [];
 
         public VOController(IDBCManager dbcManager)
         {
@@ -23,23 +22,29 @@ namespace wow.tools.local.Controllers
             if (voSoundKitIDs.Count == 0)
             {
                 var SoundKitDB = this.dbcManager.GetOrLoad("SoundKit", CASC.BuildName, true).Result;
+                if (!SoundKitDB.AvailableColumns.Contains("DialogType") || !SoundKitDB.AvailableColumns.Contains("ID"))
+                    throw new Exception("Unable to initialize VO list, missing one of the required columns.");
+
                 foreach (var soundKit in SoundKitDB.Values)
                 {
-                    if (uint.Parse(soundKit["DialogType"].ToString()) == 1)
-                        voSoundKitIDs.Add(uint.Parse(soundKit["ID"].ToString()));
+                    if (uint.Parse(soundKit["DialogType"].ToString()!) == 1)
+                        voSoundKitIDs.Add(uint.Parse(soundKit["ID"].ToString()!));
                 }
             }
 
             if (soundKitIDToFDID.Count == 0)
             {
                 var SoundKitEntryDB = this.dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName, true).Result;
+                if (!SoundKitEntryDB.AvailableColumns.Contains("SoundKitID") || !SoundKitEntryDB.AvailableColumns.Contains("FileDataID"))
+                    throw new Exception("Unable to initialize VO list, missing one of the required columns.");
+
                 foreach (var soundKitEntry in SoundKitEntryDB.Values)
                 {
-                    uint soundKitID = uint.Parse(soundKitEntry["SoundKitID"].ToString());
-                    uint fileDataID = uint.Parse(soundKitEntry["FileDataID"].ToString());
+                    uint soundKitID = uint.Parse(soundKitEntry["SoundKitID"].ToString()!);
+                    uint fileDataID = uint.Parse(soundKitEntry["FileDataID"].ToString()!);
 
                     if (!soundKitIDToFDID.ContainsKey(soundKitID))
-                        soundKitIDToFDID[soundKitID] = new List<uint>();
+                        soundKitIDToFDID[soundKitID] = [];
 
                     soundKitIDToFDID[soundKitID].Add(fileDataID);
                 }
@@ -49,7 +54,7 @@ namespace wow.tools.local.Controllers
                     foreach (var fileDataID in soundKitIDToFDID[soundKitID])
                     {
                         if (!fdidToSoundKitID.ContainsKey(fileDataID))
-                            fdidToSoundKitID[fileDataID] = new List<uint>();
+                            fdidToSoundKitID[fileDataID] = [];
 
                         fdidToSoundKitID[fileDataID].Add(soundKitID);
                     }
@@ -86,13 +91,13 @@ namespace wow.tools.local.Controllers
             var skipCount = 0;
             var noNameCount = 0;
 
-            var creatureVOFiles = CASC.Listfile.Where(f => f.Value.ToLowerInvariant().StartsWith("sound/creature/")).ToDictionary(x => x.Key, x => x.Value);
+            var creatureVOFiles = CASC.Listfile.Where(f => f.Value.StartsWith("sound/creature/", StringComparison.InvariantCultureIgnoreCase)).ToDictionary(x => x.Key, x => x.Value);
             foreach (var creatureVOFile in creatureVOFiles)
             {
                 var extractedName = creatureVOFile.Value.Split("/")[2].Replace("_", " ");
 
                 extractedName = extractedName.Replace("vo 835", "").Replace("vo 83", "");
-                
+
                 var actualNameIndex = uniqueCreatureNamesLower.IndexOf(extractedName.ToLower());
 
                 if (actualNameIndex != -1)
@@ -146,7 +151,7 @@ namespace wow.tools.local.Controllers
             var parameters = new Dictionary<string, string>();
 
             foreach (var get in Request.Query)
-                parameters.Add(get.Key, get.Value);
+                parameters.Add(get.Key, get.Value!);
 
             if (parameters.TryGetValue("columns[0][search][value]", out var skitFilter) && !string.IsNullOrWhiteSpace(skitFilter))
             {
@@ -156,7 +161,7 @@ namespace wow.tools.local.Controllers
 
             if (parameters.TryGetValue("columns[1][search][value]", out var fileFilter) && !string.IsNullOrWhiteSpace(fileFilter))
             {
-                if(uint.TryParse(fileFilter, out var fileDataID))
+                if (uint.TryParse(fileFilter, out var fileDataID))
                 {
                     voSoundKitView = voSoundKitView.Where(x => soundKitIDToFDID[x].Contains(fileDataID)).ToList();
                     result.recordsFiltered = voSoundKitView.Count;
@@ -193,13 +198,14 @@ namespace wow.tools.local.Controllers
                 {
                     foreach (var id in bcTextIDs)
                     {
-                        var bcText = new BCText();
-                        bcText.id = bcTextIDs[0];
-                        bcText.text = SQLiteDB.GetBroadcastTextByID((int)bcTextIDs[0]);
-                        bcTexts.Add(bcText);
+                        bcTexts.Add(new BCText
+                        {
+                            id = bcTextIDs[0],
+                            text = SQLiteDB.GetBroadcastTextByID((int)bcTextIDs[0])
+                        });
                     }
                 }
-                
+
                 var voFiles = new List<VOFile>();
                 foreach (var voFileDataID in soundKitIDToFDID[soundKitID])
                 {
@@ -217,7 +223,7 @@ namespace wow.tools.local.Controllers
                         addedIn = SQLiteDB.GetFirstVersionNumberByFileDataID((int)voFileDataID)
                     });
                 }
-                
+
                 result.data.Add(
                    [
                        soundKitID.ToString(), // ID

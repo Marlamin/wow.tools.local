@@ -5,7 +5,7 @@
         public static string definitionDir;
         public static string listfileURL;
         public static string tactKeyURL;
-        public static string? wowFolder;
+        public static string wowFolder;
         public static string dbcFolder;
         public static string manifestFolder;
         public static string wowProduct;
