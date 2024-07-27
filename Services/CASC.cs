@@ -2,6 +2,7 @@
 using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
 using System.Globalization;
+using WoWFormatLib;
 
 namespace wow.tools.local.Services
 {
@@ -52,9 +53,12 @@ namespace wow.tools.local.Services
             public string Branch;
             public string BuildConfig;
             public string CDNConfig;
+            public string CDNPath;
+            public string KeyRing;
             public string Version;
             public string Product;
             public string Folder;
+            public string Armadillo;
         }
 
         private static readonly HttpClient WebClient = new();
@@ -79,6 +83,56 @@ namespace wow.tools.local.Services
                 cascHandler = CASCHandler.OpenLocalStorage(basedir, program);
 
                 LoadBuildInfo();
+
+                foreach (var build in AvailableBuilds)
+                {
+                    if (!string.IsNullOrEmpty(build.KeyRing))
+                    {
+                        try
+                        {
+                            using (var httpClient = new HttpClient())
+                            {
+                                var keyring = httpClient.GetStreamAsync("http://cdn.blizzard.com/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
+
+                                string keyringContents;
+                                if (!string.IsNullOrEmpty(build.Armadillo))
+                                    keyringContents = new StreamReader(new ArmadilloCrypt(build.Armadillo).DecryptFileToStream(build.KeyRing, keyring)).ReadToEnd();
+                                else
+                                    keyringContents = new StreamReader(keyring).ReadToEnd();
+
+                                foreach (var line in keyringContents.Split("\n"))
+                                {
+                                    var splitLine = line.Split(" = ");
+                                    if (splitLine.Length != 2)
+                                        continue;
+
+                                    var lookup = splitLine[0].Replace("key-", "");
+                                    if(lookup.Length != 16)
+                                    {
+                                        Console.WriteLine("Warning: KeyRing lookup " + lookup + " is not 16 characters long, skipping..");
+                                        continue;
+                                    }
+
+                                    var reversedLookup = lookup.Substring(14, 2) + lookup.Substring(12, 2) + lookup.Substring(10, 2) + lookup.Substring(8, 2) + lookup.Substring(6, 2) + lookup.Substring(4, 2) + lookup.Substring(2, 2) + lookup.Substring(0, 2);
+                                    var parsedLookup = ulong.Parse(reversedLookup, NumberStyles.HexNumber);
+
+                                    if (!KnownKeys.Contains(parsedLookup))
+                                        KnownKeys.Add(parsedLookup);
+
+                                    if (KeyService.HasKey(parsedLookup))
+                                        continue;
+
+                                    Console.WriteLine("Setting key " + reversedLookup + " from KeyRing " + build.KeyRing);
+                                    KeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error loading keyring: " + e.Message);
+                        }
+                    }
+                }
             }
             CurrentProduct = program;
 
@@ -167,7 +221,7 @@ namespace wow.tools.local.Services
             }
             catch (Exception e)
             {   // attempt automatic redownload of the listfile if it wasn't able to be parsed - this will also backup the old listfile to listfile.csv.bak
-                Console.WriteLine("Good heavens! Encountered an error reading listfile. Attempting redownload...");
+                Console.WriteLine("Good heavens! Encountered an error reading listfile (" + e.Message + "). Attempting redownload...");
                 listfileRes = LoadListfile(true);
             }
 
@@ -339,12 +393,16 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     continue;
                 }
 
-                var availableBuild = new AvailableBuild();
-
-                availableBuild.BuildConfig = splitLine[headerMap["Build Key"]];
-                availableBuild.CDNConfig = splitLine[headerMap["CDN Key"]];
-                availableBuild.Version = splitLine[headerMap["Version"]];
-                availableBuild.Product = splitLine[headerMap["Product"]];
+                var availableBuild = new AvailableBuild
+                {
+                    BuildConfig = splitLine[headerMap["Build Key"]],
+                    CDNConfig = splitLine[headerMap["CDN Key"]],
+                    CDNPath = splitLine[headerMap["CDN Path"]],
+                    Version = splitLine[headerMap["Version"]],
+                    KeyRing = splitLine[headerMap["KeyRing"]],
+                    Armadillo = splitLine[headerMap["Armadillo"]],
+                    Product = splitLine[headerMap["Product"]]
+                };
 
                 if (folderMap.TryGetValue(availableBuild.Product, out string folder))
                     availableBuild.Folder = folder;
