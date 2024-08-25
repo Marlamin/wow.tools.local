@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using WoWNamingLib.Utils;
 using static wow.tools.local.Services.Linker;
 
 namespace wow.tools.local.Services
@@ -352,6 +353,30 @@ namespace wow.tools.local.Services
 
         }
 
+        public static Dictionary<uint, (uint, uint)> GetBroadcastTextIDToSoundKitIDs()
+        {
+            var BroadcastTextIDToSoundKitIDs = new Dictionary<uint, (uint, uint)>();
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT SoundKitID0,SoundKitID1, broadcastTextID FROM wow_broadcasttext WHERE SoundKitID0 != 0 OR SoundKitID1 != 0";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    var broadcastTextID = uint.Parse(reader["broadcastTextID"].ToString()!);
+                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString()!);
+                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString()!);
+                    BroadcastTextIDToSoundKitIDs.Add(broadcastTextID, (soundKitID0, soundKitID1));
+                }
+
+                reader.Close();
+            }
+
+
+            return BroadcastTextIDToSoundKitIDs;
+        }
+
         public static Dictionary<uint, List<uint>> GetSoundKitToBCTextIDs()
         {
             var SoundKitIDToBCTextID = new Dictionary<uint, List<uint>>();
@@ -363,14 +388,15 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
+                    var broadcastTextID = uint.Parse(reader["broadcastTextID"].ToString()!);
                     var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString()!);
                     if (soundKitID0 != 0)
                     {
                         if (!SoundKitIDToBCTextID.ContainsKey(soundKitID0))
                             SoundKitIDToBCTextID[soundKitID0] = [];
 
-                        if (!SoundKitIDToBCTextID[soundKitID0].Contains(uint.Parse(reader["broadcastTextID"].ToString()!)))
-                            SoundKitIDToBCTextID[soundKitID0].Add(uint.Parse(reader["broadcastTextID"].ToString()!));
+                        if (!SoundKitIDToBCTextID[soundKitID0].Contains(broadcastTextID))
+                            SoundKitIDToBCTextID[soundKitID0].Add(broadcastTextID);
                     }
 
                     var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString()!);
@@ -379,8 +405,8 @@ namespace wow.tools.local.Services
                         if (!SoundKitIDToBCTextID.ContainsKey(soundKitID1))
                             SoundKitIDToBCTextID[soundKitID1] = [];
 
-                        if (!SoundKitIDToBCTextID[soundKitID1].Contains(uint.Parse(reader["broadcastTextID"].ToString()!)))
-                            SoundKitIDToBCTextID[soundKitID1].Add(uint.Parse(reader["broadcastTextID"].ToString()!));
+                        if (!SoundKitIDToBCTextID[soundKitID1].Contains(broadcastTextID))
+                            SoundKitIDToBCTextID[soundKitID1].Add(broadcastTextID);
                     }
                 }
 

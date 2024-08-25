@@ -65,6 +65,22 @@ namespace wow.tools.local.Controllers
             Namer.SetInitialListfile(ref FullListfile);
         }
 
+
+        [HttpGet]
+        [Route("ssDebug")]
+        public string SSDebug(uint pid)
+        {
+            return Namer.GetSceneScriptDebug(pid);
+        }
+
+        [HttpGet]
+        [Route("ssCompileDebug")]
+        public string SSCompileDebug(uint pid)
+        {
+            var compiledPackage = Namer.GetSceneScriptCompiledDebug(pid);
+            return JsonConvert.SerializeObject(compiledPackage, Formatting.Indented);
+        }
+
         [HttpGet]
         [Route("singleFile")]
         public string SingleFile(int id, string name)
@@ -468,7 +484,7 @@ namespace wow.tools.local.Controllers
                             }
                         }
 
-                        Namer.NameVO(SQLiteDB.GetCreatureNames(), SQLiteDB.GetTextToSoundKitIDs(), SQLiteDB.GetCreatureToFDIDMap());
+                        Namer.NameVO(SQLiteDB.GetCreatureNames(), SQLiteDB.GetTextToSoundKitIDs(), SQLiteDB.GetCreatureToFDIDMap(), SQLiteDB.GetBroadcastTextIDToSoundKitIDs());
                         break;
                     case "WMO":
                         Namer.NameWMO();
