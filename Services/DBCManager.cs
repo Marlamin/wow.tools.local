@@ -1,7 +1,7 @@
 ﻿using CASCLib;
 using DBCD;
 using DBCD.Providers;
-using DBFileReaderLib;
+using DBCD.IO;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Concurrent;
 using wow.tools.Services;
@@ -90,7 +90,7 @@ namespace wow.tools.local.Services
                 // DBCD PR #17 support
                 if (pushIDFilter != null)
                 {
-                    storage = storage.ApplyingHotfixes(hotfixReaders, (row, shouldDelete) =>
+                    storage.ApplyingHotfixes(hotfixReaders, (row, shouldDelete) =>
                     {
                         if (!pushIDFilter.Contains(row.PushId))
                             return RowOp.Ignore;
@@ -100,7 +100,7 @@ namespace wow.tools.local.Services
                 }
                 else
                 {
-                    storage = storage.ApplyingHotfixes(hotfixReaders);
+                    storage.ApplyingHotfixes(hotfixReaders);
                 }
             }
 

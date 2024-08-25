@@ -1,4 +1,4 @@
-﻿using DBFileReaderLib;
+﻿using DBCD.IO;
 using Newtonsoft.Json;
 
 namespace wow.tools.local.Services
