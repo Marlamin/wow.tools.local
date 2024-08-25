@@ -27,6 +27,7 @@ namespace wow.tools.local.Controllers
                 Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
                 Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);
                 Namer.SetSetCreatureNameForFDIDFunction(SQLiteDB.SetCreatureNameForFDID);
+                Namer.SetGetCreatureNameByDisplayIDFunction(SQLiteDB.GetCreatureNameByDisplayID);
                 // We need to read the listfile again here for now because the WTL listfile is unaware of files not in the build.
                 InitListfile();
             }
@@ -313,6 +314,19 @@ namespace wow.tools.local.Controllers
                         if (string.IsNullOrEmpty(SettingsManager.wowFolder))
                             break;
 
+                        try
+                        {
+                            var creatureXDIDB = dbcManager.GetOrLoad("CreatureXDisplayInfo", CASC.BuildName).Result;
+                            foreach (var creatureXDisplayInfo in creatureXDIDB.Values)
+                            {
+                                SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(creatureXDisplayInfo["CreatureDisplayInfoID"].ToString()), int.Parse(creatureXDisplayInfo["CreatureID"].ToString()));
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error loading CreatureXDisplayInfo: " + e.Message);
+                        }
+
                         var currentCreatureNames = SQLiteDB.GetCreatureNames();
 
                         foreach (var creatureCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "creaturecache.wdb", SearchOption.AllDirectories))
@@ -349,6 +363,11 @@ namespace wow.tools.local.Controllers
                                     SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
                                     currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
                                 }
+
+                                for (var i = 0; i < int.Parse(entry.Value["NumCreatureDisplays"]); i++)
+                                {
+                                    SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(entry.Value["CreatureDisplayInfoID[" + i + "]"]), (int)entry.Key);
+                                }
                             }
                         }
 
@@ -381,6 +400,11 @@ namespace wow.tools.local.Controllers
                                         SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
                                         currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
                                     }
+
+                                    for (var i = 0; i < int.Parse(entry.Value["NumCreatureDisplays"]); i++)
+                                    {
+                                        SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(entry.Value["CreatureDisplayInfoID[" + i + "]"]), (int)entry.Key);
+                                    }
                                 }
                             }
                             else
@@ -405,6 +429,11 @@ namespace wow.tools.local.Controllers
                                     Console.WriteLine("Updating creature name: " + currentCreatureName + " => " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
                                     SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
                                     currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                }
+
+                                for (var i = 0; i < int.Parse(entry.Value["NumCreatureDisplays"]); i++)
+                                {
+                                    SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(entry.Value["CreatureDisplayInfoID[" + i + "]"]), (int)entry.Key);
                                 }
                             }
                         }

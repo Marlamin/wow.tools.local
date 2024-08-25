@@ -9,7 +9,8 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<string, HashSet<int>> newFilesBetweenVersion = [];
         private static readonly Dictionary<int, int> broadcastTextCache = [];
         public static readonly Dictionary<int, int> creatureCache = [];
-        public static readonly Dictionary<int, string> fdidToCreatureNameCache = [];
+        public static readonly Dictionary<int, string> VOFDIDToCreatureNameCache = [];
+        public static readonly Dictionary<int, List<int>> displayIDToCreatureIDCache = [];
         public static object SQLiteLock = new();
 
         static SQLiteDB()
@@ -51,6 +52,13 @@ namespace wow.tools.local.Services
             indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_files_creature_idx ON wow_files_creature (fileDataID)", dbConn);
             indexCmd.ExecuteNonQuery();
 
+            // wow_displayids_creature
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_displayids_creature (displayID INTEGER, creatureID INTEGER)", dbConn);
+            createCmd.ExecuteNonQuery();
+
+            indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_displayids_creature_idx ON wow_displayids_creature (displayID, creatureID)", dbConn);
+            indexCmd.ExecuteNonQuery();
+
             // prepare broadcastTextCache
             using (var cmd = dbConn.CreateCommand())
             {
@@ -79,7 +87,7 @@ namespace wow.tools.local.Services
                 reader.Close();
             }
 
-            // prepare fdidToCreatureNameCache
+            // prepare VOFDIDToCreatureNameCache
             using (var cmd = dbConn.CreateCommand())
             {
                 cmd.CommandText = "SELECT fileDataID, creature FROM wow_files_creature";
@@ -87,7 +95,24 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    fdidToCreatureNameCache[int.Parse(reader["fileDataID"].ToString()!)] = reader["creature"].ToString()!;
+                    VOFDIDToCreatureNameCache[int.Parse(reader["fileDataID"].ToString()!)] = reader["creature"].ToString()!;
+                }
+            }
+
+            // prepare displayIDToCreatureIDCache
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT displayID, creatureID FROM wow_displayids_creature";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    if (!displayIDToCreatureIDCache.ContainsKey(int.Parse(reader["displayID"].ToString()!)))
+                    {
+                        displayIDToCreatureIDCache[int.Parse(reader["displayID"].ToString()!)] = [];
+                    }
+
+                    displayIDToCreatureIDCache[int.Parse(reader["displayID"].ToString()!)].Add(int.Parse(reader["creatureID"].ToString()!));
                 }
             }
         }
@@ -136,6 +161,25 @@ namespace wow.tools.local.Services
                 }
 
                 creatureCache[creatureID] = build;
+            }
+        }
+
+        public static void InsertOrUpdateDisplayIDToCreatureID(int displayID, int creatureID)
+        {
+            if (displayIDToCreatureIDCache.TryGetValue(displayID, out var cachedCreatureIDs) && cachedCreatureIDs.Contains(creatureID))
+                return;
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "INSERT INTO wow_displayids_creature (displayID, creatureID) VALUES (@displayID, @creatureID)";
+                cmd.Parameters.AddWithValue("@displayID", displayID);
+                cmd.Parameters.AddWithValue("@creatureID", creatureID);
+                cmd.ExecuteNonQuery();
+
+                if (!displayIDToCreatureIDCache.ContainsKey(displayID))
+                    displayIDToCreatureIDCache[displayID] = [];
+
+                displayIDToCreatureIDCache[displayID].Add(creatureID);
             }
         }
 
@@ -278,7 +322,7 @@ namespace wow.tools.local.Services
 
         public static bool SetCreatureNameForFDID(int fileDataID, string creatureName)
         {
-            if (fdidToCreatureNameCache.TryGetValue(fileDataID, out var cachedCreatureName) && cachedCreatureName == creatureName)
+            if (VOFDIDToCreatureNameCache.TryGetValue(fileDataID, out var cachedCreatureName) && cachedCreatureName == creatureName)
             {
                 return false;
             }
@@ -290,7 +334,7 @@ namespace wow.tools.local.Services
                 {
                     cmd.CommandText = "DELETE FROM wow_files_creature WHERE fileDataID = @fileDataID";
                     cmd.Parameters.AddWithValue("@fileDataID", fileDataID);
-                    fdidToCreatureNameCache.Remove(fileDataID);
+                    VOFDIDToCreatureNameCache.Remove(fileDataID);
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
@@ -301,7 +345,7 @@ namespace wow.tools.local.Services
                     cmd.CommandText = "INSERT OR REPLACE INTO wow_files_creature (fileDataID, creature) VALUES (@fileDataID, @creature)";
                     cmd.Parameters.AddWithValue("@fileDataID", fileDataID);
                     cmd.Parameters.AddWithValue("@creature", creatureName);
-                    fdidToCreatureNameCache[fileDataID] = creatureName;
+                    VOFDIDToCreatureNameCache[fileDataID] = creatureName;
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
@@ -358,7 +402,7 @@ namespace wow.tools.local.Services
 
         public static Dictionary<uint, string> GetCreatureToFDIDMap()
         {
-            return fdidToCreatureNameCache.ToDictionary(x => (uint)x.Key, x => x.Value);
+            return VOFDIDToCreatureNameCache.ToDictionary(x => (uint)x.Key, x => x.Value);
         }
 
         public static Dictionary<uint, string> GetCreatureNames(int start = -1, int count = -1)
@@ -389,6 +433,26 @@ namespace wow.tools.local.Services
             }
 
             return creatures;
+        }
+
+        public static string GetCreatureNameByID(int creatureID)
+        {
+            lock (SQLiteLock)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT name FROM wow_creatures WHERE creatureID = @creatureID";
+                    cmd.Parameters.AddWithValue("@creatureID", creatureID);
+
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        return reader["name"].ToString()!;
+                    }
+                }
+
+                return "";
+            }
         }
 
         public static HashSet<int> getNewFilesBetweenVersions(string oldBuild, string newBuild)
@@ -507,7 +571,7 @@ namespace wow.tools.local.Services
 
         public static string getCreatureNameByFileDataID(int fileDataID)
         {
-            if (fdidToCreatureNameCache.TryGetValue(fileDataID, out var cachedCreatureName))
+            if (VOFDIDToCreatureNameCache.TryGetValue(fileDataID, out var cachedCreatureName))
             {
                 return cachedCreatureName;
             }
@@ -657,6 +721,16 @@ namespace wow.tools.local.Services
         public static void ClearHistory()
         {
             new SqliteCommand("DELETE FROM wow_rootfiles_chashes", dbConn).ExecuteNonQuery();
+        }
+
+        public static string GetCreatureNameByDisplayID(int displayID)
+        {
+            if (displayIDToCreatureIDCache.TryGetValue(displayID, out var creatureIDs))
+            {
+                return GetCreatureNameByID(creatureIDs[0]);
+            }
+
+            return "";
         }
     }
 }
