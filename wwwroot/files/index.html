@@ -426,23 +426,21 @@
                                 test += "'><i class='fa fa-globe'></i></a></span>";
                             }
 
-                            //if (full[5]) {
-                            //    if (full[5]['soundkit']) {
-                            //        if (test == "") {
-                            //            test = full[5]['soundkit'].split("<br>").join("");
-                            //        }
-                            //        test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['soundkit'] + "'><i class='fa fa-music'></i>&nbsp;</a></span>";
-                            //    }
-                            //    if (full[5]['cmd']) {
-                            //        test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['cmd'] + "'><i class='fa fa-bug'></i>&nbsp;</a></span>";
-                            //    }
-                            //    if (full[5]['tfd']) {
-                            //        test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['tfd'] + "'><i class='fa fa-picture-o'></i>&nbsp;</a></span>";
-                            //    }
-                            //    if (full[5]['mfd']) {
-                            //        test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='" + full[5]['mfd'] + "'><i class='fa fa-cube'></i>&nbsp;</a></span>";
-                            //    }
-                            //}
+                            if (full[9]) {
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='Used in SoundKitID(s) " + full[9] + "'><i class='fa fa-music'></i>&nbsp;</a></span>";
+                            }
+
+                            if (full[10]) {
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='Used in ModelFileData Resource ID(s) " + full[10] + "'><i class='fa fa-cube'></i>&nbsp;</a></span>";
+                            }
+
+                            if (full[11]) {
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='Used in TextureFileData Resource ID(s) " + full[11] + "'><i class='fa fa-picture-o'></i>&nbsp;</a></span>";
+                            }
+
+                            if (full[12]) {
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='Used in CreatureModelData ID(s) " + full[12] + "'><i class='fa fa-bug'></i>&nbsp;</a></span>";
+                            }
 
                             return test;
                         }
