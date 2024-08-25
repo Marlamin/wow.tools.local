@@ -588,7 +588,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 Console.WriteLine("Downloading TACT keys");
 
                 List<string> tactKeyLines = [];
-                using (var s = WebClient.GetStreamAsync(SettingsManager.tactKeyURL).Result)
+                using (var s = WebClient.GetStreamAsync(SettingsManager.tactKeyURL + "?=v" + (long)DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds).Result)
                 using (var sr = new StreamReader(s))
                 {
                     while (!sr.EndOfStream)
