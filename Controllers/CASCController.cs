@@ -1227,11 +1227,14 @@ namespace wow.tools.local.Controllers
                     m2Reader.LoadM2(fileDataID);
                     // lets maybe not return all m2 data
                     m2Reader.model.vertices = [];
-                    for (var i = 0; i < m2Reader.model.skins.Length; i++)
+                    if(m2Reader.model.skins != null)
                     {
-                        m2Reader.model.skins[i].indices = [];
-                        m2Reader.model.skins[i].triangles = [];
-                        m2Reader.model.skins[i].properties = [];
+                        for (var i = 0; i < m2Reader.model.skins.Length; i++)
+                        {
+                            m2Reader.model.skins[i].indices = [];
+                            m2Reader.model.skins[i].triangles = [];
+                            m2Reader.model.skins[i].properties = [];
+                        }
                     }
                     return JsonConvert.SerializeObject(m2Reader.model, Formatting.Indented, new StringEnumConverter());
                 default:
