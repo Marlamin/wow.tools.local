@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -101,7 +101,6 @@
                     data: 'type'
                 }
                 ],
-                pagingType: "input",
                 pageLength: 25,
                 autoWidth: false,
                 deferRender: true,
@@ -129,7 +128,7 @@
                 {
                     "targets": 4,
                     "render": function (data, type, full, meta) {
-                        return "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#moreInfoModal' onClick='fillModal(" + full.id + ")'><i class='fa fa-info-circle'></i></a></td>";
+                        return "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#moreInfoModal' onClick='fillModal(" + full.id + ")'><i class='fa fa-info-circle'></i></a></td>";
                     }
                 },
                 {
@@ -153,13 +152,13 @@
                                 //}
                                 
                                 if (previewTypes.includes(full.type)) {
-                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModal(\"\"," + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a>";
+                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a>";
                                 } else {
                                     content = "<i class='fa fa-ban' style='opacity: 0.3'></i>";
                                 }
                                 
                                 if (full.md5 == "de6135861a6cacfe176830f18f597c3e") {
-                                    content += " <span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
+                                    content += " <span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-placement='top' style='color: ;' data-bs-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
                                 }
                                 break;
                             case "modified":
@@ -167,7 +166,7 @@
                                     case "db2":
                                         if (full.filename && full.filename != "Unknown") {
                                             var db2name = full.filename.toLowerCase().replace("dbfilesclient/", "").replace(".db2", "");
-                                            content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDBCDiffModal(\"" + from + "\", \"" + to + "\", \"" + db2name + "\")'>Preview</a>";
+                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDBCDiffModal(\"" + from + "\", \"" + to + "\", \"" + db2name + "\")'>Preview</a>";
 
                                         }
                                         break;
@@ -182,27 +181,27 @@
                                     case "xml":
                                     case "xsd":
                                     case "wtf":
-                                        content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Preview</a>";
+                                        content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Preview</a>";
                                         break;
                                     case "wmo":
                                     case "m2":
-                                        content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                        content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
                                         break;
                                     case "wdt":
                                         if (full.filename.endsWith("_fogs.wdt") || full.filename.endsWith("_occ.wdt") || full.filename.endsWith("_lgt.wdt") || full.filename.endsWith("_mpv.wdt")) {
                                             content = "N/A";
                                         } else {
-                                            content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
                                         }
                                     case "adt":
                                         if (full.filename.endsWith("_tex0.adt") || full.filename.endsWith("_obj0.adt") || full.filename.endsWith("_obj1.adt") || full.filename.endsWith("_lod.adt")) {
                                             content = "N/A";
                                         } else {
-                                            content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
                                         }
                                         break;
                                      //case "ogg":
-                                     //    content = "<a style='cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModalByContenthash(\"<?= $toBuild['hash'] ?>\", \"" + full.id + "\",\"" + full.md5 + "\")'>Preview</a>";
+                                     //    content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModalByContenthash(\"<?= $toBuild['hash'] ?>\", \"" + full.id + "\",\"" + full.md5 + "\")'>Preview</a>";
                                      //    break;
                                     default:
                                         content = "N/A";
@@ -210,7 +209,7 @@
                                 }
 
                                 if (full.md5 == "de6135861a6cacfe176830f18f597c3e" || full.md5 == "ea80e802952501021865cfeed808ac3f") {
-                                    content += " <span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
+                                    content += " <span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-placement='top' style='color: ;' data-bs-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
                                 }
                                 break;
                             case "removed":
@@ -269,7 +268,7 @@
                     });
                 },
                 "drawCallback": function () {
-                    $('[data-toggle="popover"]').popover();
+                    $('[data-bs-toggle="popover"]').popover();
                 }
             });
 
@@ -307,15 +306,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="moreInfoModalLabel">More information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="moreInfoModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -325,15 +321,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="previewModalLabel">Preview</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="previewModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -343,15 +336,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="chashModalLabel">Content hash lookup</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="chashModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

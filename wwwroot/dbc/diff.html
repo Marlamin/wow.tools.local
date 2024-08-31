@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -66,15 +66,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="fkModalLabel">Foreign key lookup</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="fkModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -85,15 +82,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="moreInfoModalLabel">More information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="moreInfoModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -161,7 +155,7 @@
                 });
 
             if (!Settings.embed) {
-                $('#fileFilter').select2();
+                $('#fileFilter').select2({ theme: 'bootstrap-5' });
             }
 
             $('#fileFilter').on('change', function () {
@@ -257,8 +251,9 @@
                                 "ordering": false,
                                 "bFilter": false,
                                 "lengthMenu": [[10, 25, 50, 100, 1000], [10, 25, 50, 100, 1000]],
-                                "pagingType": "input",
-                                "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" + "<'row'<'col-sm-12 dbtableholder'tr>>" + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                                layout: {
+                                    bottomEnd: 'inputPaging'
+                                },
                                 "columnDefs": [{
                                     "targets": "_all",
                                     "render":
@@ -314,13 +309,13 @@
                                                 if (fk != "") {
                                                     if (fk == "FileData::ID") {
                                                         data =
-                                                            "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#moreInfoModal' data-build=" + newBuild + " data-tooltip='file' data-id='" +
+                                                            "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-build=" + newBuild + " data-tooltip='file' data-id='" +
                                                             row.row[field] + "' onclick='fillModal(" + row.row[field] + ")'>" + row.row[field] + "</a>";
                                                     } else {
                                                         data =
                                                             "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
                                                             row.row[field] + "' data-fk='" + fk +
-                                                            "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                                            "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                                             row.row[field] + ", \"" + fk + "\", \"" +
                                                             newBuild + "\")'>" + row.row[field] +
                                                             "</a>";
@@ -352,7 +347,7 @@
                                                                 var newValue =
                                                                     "<a class='diff-added' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
                                                                     diff.currentvalue + "' data-fk='" + fk +
-                                                                    "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                                                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                                                     diff.currentvalue + ", \"" + fk + "\", \"" +
                                                                     newBuild + "\")'>" + diff.currentvalue +
                                                                     "</a>";
@@ -360,7 +355,7 @@
                                                                 var prevValue =
                                                                     "<a class='diff-removed' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
                                                                     diff.previousvalue + "' data-fk='" + fk +
-                                                                    "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                                                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                                                     diff.previousvalue + ", \"" + fk + "\", \"" +
                                                                     newBuild + "\")'>" + diff.previousvalue +
                                                                     "</a>";

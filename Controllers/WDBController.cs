@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Services;
+using WoWFormatLib.FileReaders;
 
 namespace wow.tools.local.Controllers
 {
@@ -39,6 +40,14 @@ namespace wow.tools.local.Controllers
             }
 
             return result;
+        }
+
+        [Route("quests")]
+        [HttpGet]
+        public string QuestDebug()
+        {
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.0.2.56196");
+            return questWDB.ToString();
         }
     }
 }

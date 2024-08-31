@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -46,9 +46,9 @@
             <!--<select id='localeSelection' name='locale' class='form-control form-control-sm buildFilter'>
                 <option value=''>enUS (Default)</option>
             </select>-->
-            <div class='btn-group' style="margin-top: -7px">
-                <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled' data-trigger='hover' data-placement='bottom' data-container='body' data-toggle='popover' data-html='true'><i class='fa fa-download'></i> CSV</a>
-                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            <div class='btn-group'>
+                <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled' data-bs-trigger='hover' data-bs-placement='bottom' data-bs-container='body' data-bs-toggle='popover' data-bs-html='true'><i class='fa fa-download'></i> CSV</a>
+                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
                 <div class="dropdown-menu" style="width: 500px">
@@ -59,14 +59,14 @@
             <label class="btn btn-sm btn-info active">
                 <input type="checkbox" autocomplete="off" id="hotfixToggle"> Use hotfixes?
             </label>
-            <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-toggle='modal' href=''
-               data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
+            <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href=''
+               data-bs-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
             <a id='dbdButton' style='vertical-align: top; display: none;' class='btn btn-secondary btn-sm disabled' href=''
                target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
             <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-secondary btn-sm'
-               data-toggle='modal' href='' data-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
+               data-bs-toggle='modal' href='' data-bs-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
             <a style='vertical-align: top;' id='globalSearchButton' class='btn btn-secondary btn-sm'
-               data-toggle='modal' href='' data-target='#globalSearchModal'><i class='fa fa-search'></i> Global Search</a>
+               data-bs-toggle='modal' href='' data-bs-target='#globalSearchModal'><i class='fa fa-search'></i> Global Search</a>
             <a style='vertical-align: top;' id='compareButton' class='btn btn-secondary btn-sm' href='/dbc/diff.html'><i class='fa fa-columns'></i> Compare</a>
             <div class="btn-group" style="vertical-align: top">
                 <a style='vertical-align: top;' id='updateDefsButton' class='btn btn-danger btn-sm' onclick="updateDefs();" href="#"><i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache</a>
@@ -92,9 +92,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="settingsModalContent">
                     <input type="checkbox" autocomplete="off" id="tooltipToggle" CHECKED> <label for='tooltipToggle'>
@@ -112,9 +109,9 @@
                         button?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" onclick="saveSettings();"
-                            data-dismiss="modal">
+                            data-bs-dismiss="modal">
                         Save
                     </button>
                 </div>
@@ -126,15 +123,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="fkModalLabel">Foreign key lookup</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="fkModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -145,15 +139,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="moreInfoModalLabel">More information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="moreInfoModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -163,15 +154,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="previewModalLabel">Preview</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="previewModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -181,15 +169,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="chashModalLabel">Content hash lookup</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="chashModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -200,13 +185,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="foreignKeySearchLabel">Foreign key search</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="foreignKeySearchContent">
                     <form class='form-inline' id='foreignKeySearchForm' onsubmit="fkDBSearchSubmit()">
-                        <div class="form-row">
+                        <div class="row">
                             <div class="col">
                                 <select class='form-control' onchange="fkDBSearchChange()" id="fkSearchDB">
                                     <option>DB Name</option>
@@ -231,7 +213,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -242,13 +224,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="globalSearchLabel">Global search</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="globalSearchContent">
                     <form class='form-inline' id='globalSearchForm' onsubmit="globalDBSearchSubmit()">
-                        <div class="form-row">
+                        <div class="row">
                             <div class="col">
                                 <input class='form-control' style='height: 26px;' type='text' placeholder='Value'
                                        id='globalSearchValue'>
@@ -263,7 +242,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -674,7 +653,7 @@
                     }
                 });
 
-                $('#fkSearchField').select2();
+                $('#fkSearchField').select2({ theme: 'bootstrap-5' });
             });
         }
 
@@ -773,10 +752,10 @@
 
             if (results.length) {
                 if (tabHolder.children.length == 0) {
-                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link active' data-toggle='tab' href='#tab" +
+                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link active' data-bs-toggle='tab' href='#tab" +
                         splitFK[0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + "</a></li>";
                 } else {
-                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link' data-toggle='tab' href='#tab" + splitFK[
+                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link' data-bs-toggle='tab' href='#tab" + splitFK[
                         0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + "</a></li>";
                 }
 
@@ -805,7 +784,6 @@
                     resultsHTML += "</table><br><a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>View " + splitFK[0] + "::" + splitFK[1] + " results in new tab</a></div>";
                     resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
                     const dt = $("#FKResults" + splitFK[0] + splitFK[1]).DataTable({
-                        "pagingType": "input",
                         "searching": false,
                         "pageLength": 10,
                         "displayStart": 0,
@@ -845,10 +823,10 @@
 
             if (results.length) {
                 if (tabHolder.children.length == 0) {
-                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link active' data-toggle='tab' href='#tab" +
+                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link active' data-bs-toggle='tab' href='#tab" +
                         name + "'>" + name + "</a></li>";
                 } else {
-                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link' data-toggle='tab' href='#tab" + name + "'>" + name + "</a></li>";
+                    tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link' data-bs-toggle='tab' href='#tab" + name + "'>" + name + "</a></li>";
                 }
 
                 let resultsHTML = "";
@@ -869,7 +847,6 @@
                     resultsHTML += "</table><br><a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>View " + name + " results in new tab</a></div>";
                     resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
                     const dt = $("#globalResults" + name).DataTable({
-                        "pagingType": "input",
                         "searching": false,
                         "pageLength": 10,
                         "displayStart": 0,
@@ -1065,15 +1042,14 @@
                         "pageLength": 25,
                         "displayStart": page * 25,
                         "autoWidth": true,
-                        "pagingType": "input",
                         "lengthMenu": [
                             [10, 25, 50, 100, 1000],
                             [10, 25, 50, 100, 1000]
                         ],
-                        "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-                            "<'row'<'col-sm-12 dbtableholder'tr>>" +
-                            "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                         "orderMulti": false,
+                        layout: {
+                            bottomEnd: 'inputPaging'
+                        },
                         "ordering": true,
                         "order": [], // Sets default order to nothing (as returned by backend)
                         "language": {
@@ -1117,12 +1093,12 @@
                                 if (fk != "") {
                                     if (fk == "FileData::ID") {
                                         returnVar =
-                                            "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#moreInfoModal' data-tooltip='file' data-id='" +
+                                            "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" +
                                             full[meta.col] + "' onclick='fillModal(" + full[meta.col] + ")'>" + full[meta.col] + "</a>";
                                         //} else if (fk == "SoundEntries::ID" && parseInt(
                                         //    currentParams["build"][0]) > 6) {
                                         //    returnVar =
-                                        //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                         //        full[meta.col] + ", \"SoundKit::ID\",\"" +
                                         //        currentParams["build"] + "\")'>" + full[meta.col] +
                                         //        "</a>";
@@ -1130,7 +1106,7 @@
                                         //    returnVar =
                                         //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='item' data-id='" +
                                         //        full[meta.col] +
-                                        //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                         //        full[meta.col] + ", \"" + fk + "\", \"" +
                                         //        currentParams["build"] + "\")'>" + full[meta.col] +
                                         //        "</a>";
@@ -1139,7 +1115,7 @@
                                         //    returnVar =
                                         //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='quest' data-id='" +
                                         //        full[meta.col] +
-                                        //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                         //        full[meta.col] + ", \"" + fk + "\", \"" +
                                         //        currentParams["build"] + "\")'>" + full[meta.col] +
                                         //        "</a>";
@@ -1147,7 +1123,7 @@
                                         //    returnVar =
                                         //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='creature' data-id='" +
                                         //        full[meta.col] +
-                                        //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                         //        full[meta.col] + ", \"" + fk + "\", \"" +
                                         //        currentParams["build"] + "\")'>" + full[meta.col] +
                                         //        "</a>";
@@ -1156,7 +1132,7 @@
                                         //    returnVar =
                                         //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
                                         //        full[meta.col] +
-                                        //        "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                        //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                         //        full[meta.col] + ", \"" + fk + "\", \"" +
                                         //        currentParams["build"] + "\")'>" + full[meta.col] +
                                         //        "</a>";
@@ -1164,7 +1140,7 @@
                                         returnVar =
                                             "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-id='" +
                                             full[meta.col] + "' data-fk='" + fk +
-                                            "' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" +
+                                            "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                                             full[meta.col] + ", \"" + fk + "\", \"" +
                                             currentParams["build"] + "\")'>" + full[meta.col] +
                                             "</a>";
@@ -1172,7 +1148,7 @@
                                 } else if (json["headers"][meta.col].startsWith("Flags") ||
                                     flagMap.has(columnWithTable)) {
                                     returnVar =
-                                        "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-content='" +
+                                        "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-content='" +
                                         fancyFlagTable(getFlagDescriptions(currentParams["dbc"],
                                             json["headers"][meta.col], full[meta.col])) +
                                         "'>0x" + dec2hex(full[meta.col]) + "</span>";
@@ -1193,7 +1169,7 @@
                                 if (json["headers"][meta.col] in json["relationsToColumns"] &&
                                     columnWithTable != "spell.ID") {
                                     returnVar =
-                                        " <a data-toggle='modal' href='' style='cursor: help; border-bottom: 1px solid;' data-target='#foreignKeySearchModal' onClick='fkDBSearch(\"" +
+                                        " <a data-bs-toggle='modal' href='' style='cursor: help; border-bottom: 1px solid;' data-bs-target='#foreignKeySearchModal' onClick='fkDBSearch(\"" +
                                         currentParams["dbc"] + "\", \"" + json["headers"][meta
                                             .col
                                         ] + "\", \"" + full[meta.col] + "\")'>" + full[meta
@@ -1255,7 +1231,7 @@
                                         if (colTarget > -1) {
                                             if (full[colTarget] == conditionValue) {
                                                 returnVar =
-                                                    "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-content='" +
+                                                    "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-content='" +
                                                     getFlagDescriptions(currentParams[
                                                         "dbc"], json["headers"][meta
                                                             .col
@@ -1282,7 +1258,7 @@
                                 }
 
                                 if (meta.col == idHeader && (Number(full[meta.col]) in hotfixedIDs)) {
-                                    returnVar += "<a href='/dbc/hotfixes.php?search=pushid:" + hotfixedIDs[Number(full[meta.col])] + "' target='_BLANK'><i style='color: orange' class='fa fa-pencil-square' data-trigger='hover' data-container='body' data-toggle='popover' data-content='This row was added or modified in a hotfix. Click to go to diff.'></i></a>";
+                                    returnVar += "<a href='/dbc/hotfixes.php?search=pushid:" + hotfixedIDs[Number(full[meta.col])] + "' target='_BLANK'><i style='color: orange' class='fa fa-pencil-square' data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='This row was added or modified in a hotfix. Click to go to diff.'></i></a>";
                                 }
 
                                 return returnVar;
@@ -1313,8 +1289,8 @@
                         let currentPage = $('#dbtable').DataTable().page() + 1;
                         let hashPart = "page=" + currentPage;
 
-                        const currentSearch = encodeURIComponent($("#dbtable_filter label input").val());
-                        if (currentSearch != "") {
+                        const currentSearch = encodeURIComponent($("#dt-search-0").val());
+                        if (currentSearch != "" && currentSearch != undefined && currentSearch != "undefined") {
                             hashPart += "&search=" + currentSearch;
                         }
 
@@ -1332,7 +1308,7 @@
 
                         $('.popover').remove();
 
-                        $("[data-toggle=popover]").popover({
+                        $("[data-bs-toggle=popover]").popover({
                             sanitize: false
                         });
                     });
@@ -1346,8 +1322,8 @@
         let currentParams = [];
 
         (async function () {
-            $('#fileFilter').select2();
-            $('#lockedBuild').select2();
+            $('#fileFilter').select2({ theme: 'bootstrap-5' });
+            $('#lockedBuild').select2({ theme: 'bootstrap-5' });
             let vars = {};
             let parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
                 if (value.includes('#')) {
@@ -1437,7 +1413,7 @@
                         fkSearchDB.appendChild(option);
                     });
 
-                    $('#fkSearchDB').select2();
+                    $('#fkSearchDB').select2({ theme: 'bootstrap-5' });
                 }).catch(function (error) {
                     console.log("An error occurred retrieving files: " + error);
                 });
@@ -1447,10 +1423,5 @@
             })
         }());
     </script>
-    <footer>
-        <div class="container text-muted">
-            <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
-        </div>
-    </footer>
 </body>
 </html>

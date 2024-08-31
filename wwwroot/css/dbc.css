@@ -49,13 +49,21 @@
 	cursor: help;
 }
 
+.added td {
+	background: var(--bs-success-border-subtle) !important;
+}
+
 .added, .diff-added {
-	background: var(--diff-added-color) !important;
+	background: var(--bs-success-border-subtle) !important;
 	text-decoration: none;
 }
 
+.removed td {
+	background: var(--bs-danger-border-subtle) !important;
+}
+
 .removed, .diff-removed {
-	background: var(--diff-removed-color) !important;
+	background: var(--bs-danger-border-subtle) !important;
 	text-decoration: line-through;
 }
 
@@ -66,7 +74,7 @@ thead input { width: 100% }
 		width: 100%; /* asthetic reasons */
 	}
 
-	#dbtable_length, #dbtable_filter {
+	#dbtable_length, #dt-search-0 {
 		text-align: left; /* float pagination sizes left */
 	}
 

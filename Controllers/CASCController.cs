@@ -652,7 +652,7 @@ namespace wow.tools.local.Controllers
 
             if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKey))
             {
-                html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-toggle='modal' data-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
+                html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
                 html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out long size) ? size + " bytes" : "N/A") + "</td></tr>";
             }
 
@@ -840,7 +840,7 @@ namespace wow.tools.local.Controllers
                 html += "<table class='table table-striped'><thead><tr><th>Build</th><th>Content hash</th></tr></thead>";
                 foreach (var version in versions)
                 {
-                    html += "<tr><td>" + version.buildName + "</td><td><a href='#' data-toggle='modal' data-target='#chashModal' onClick='fillChashModal(\"" + version.contentHash.ToLower() + "\")'>" + version.contentHash.ToLower() + "</a></td></tr>";
+                    html += "<tr><td>" + version.buildName + "</td><td><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + version.contentHash.ToLower() + "\")'>" + version.contentHash.ToLower() + "</a></td></tr>";
                 }
                 html += "</table>";
             }
@@ -882,12 +882,12 @@ namespace wow.tools.local.Controllers
                 {
                     html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
                     html += "<li class='nav-item'>";
-                    html += "<a class='nav-link active' id='sbs-tab' data-toggle='tab' href='#sbs' role='tab' aria-controls='sbs' aria-selected='true'>Side-by-Side</a>";
+                    html += "<a class='nav-link active' id='sbs-tab' data-bs-toggle='tab' href='#sbs' role='tab' aria-controls='sbs' aria-selected='true'>Side-by-Side</a>";
                     html += "</li>";
                     html += "<li class='nav-item'>";
-                    html += "<a class='nav-link' id='toggle-tab' data-toggle='tab' href='#toggle' role='tab' aria-controls='toggle' aria-selected='false'>Switcher</a>";
+                    html += "<a class='nav-link' id='toggle-tab' data-bs-toggle='tab' href='#toggle' role='tab' aria-controls='toggle' aria-selected='false'>Switcher</a>";
                     html += "</li>";
-                    //html += "<li class='nav-item'><a class='nav-link' id='imagediff-tab' data-toggle='tab' href='#imagediff' role='tab' aria-controls='imagediff' aria-selected='false'>Diff</a>";
+                    //html += "<li class='nav-item'><a class='nav-link' id='imagediff-tab' data-bs-toggle='tab' href='#imagediff' role='tab' aria-controls='imagediff' aria-selected='false'>Diff</a>";
                     //html += "</li>";
                     html += "</ul>";
                     html += "<div class='tab-content'>";

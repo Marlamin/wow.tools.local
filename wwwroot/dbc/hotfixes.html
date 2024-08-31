@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -56,9 +56,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="hotfixModalLabel">Hotfix diff</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body">
                     <p>Keep in mind hotfix diffs might be influenced by hotfixes that have since come out as well as not always being up-to-date (depending on <a href='https://wow.tools/uploader.php' target='_NEW'>user uploads</a>).</p>
@@ -67,7 +64,7 @@
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -77,15 +74,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="fkModalLabel">Foreign key lookup</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="fkModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -133,7 +127,6 @@
             "pageLength": 25,
             "displayStart": page * 25,
             "autoWidth": true,
-            "pagingType": "input",
             "orderMulti": false,
             "ordering": false,
             "searching": false,
@@ -145,9 +138,9 @@
                     "render": function (data, type, full, meta) {
                         if (showHotfixButtons) {
                             if (full[7]) {
-                                return "<a href='/dbc/hotfix_log.php#" + full[0] + "'>" + full[0] + " <i class='fa fa-info-circle'></i></a> <span class='badge bg-warning'><a onclick='loadLogForm(" + full[0] + ")' data-toggle='modal' href='' data-target='#hotfixDialogModal'>Edit</a></span>";
+                                return "<a href='/dbc/hotfix_log.php#" + full[0] + "'>" + full[0] + " <i class='fa fa-info-circle'></i></a> <span class='badge bg-warning'><a onclick='loadLogForm(" + full[0] + ")' data-bs-toggle='modal' href='' data-bs-target='#hotfixDialogModal'>Edit</a></span>";
                             } else {
-                                return full[0] + " <span class='badge bg-success'><a onclick='loadLogForm(" + full[0] + ")' data-toggle='modal' href='' data-target='#hotfixDialogModal'>Add</a></span>";
+                                return full[0] + " <span class='badge bg-success'><a onclick='loadLogForm(" + full[0] + ")' data-bs-toggle='modal' href='' data-bs-target='#hotfixDialogModal'>Add</a></span>";
                             }
                         } else {
                             if (full[7]) {
@@ -164,9 +157,9 @@
                     "render": function (data, type, full, meta) {
                         if (full[1].toLowerCase() == "spellname") {
                             var build = full[3];
-                            return "<a href='#' data-tooltip='spell' data-build='" + full[3] + "' data-id='" + full[2] + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" + full[2] + ", \"" + full[1].toLowerCase() + "::ID" + "\", \"" + full[3] + "\")'>" + full[2] + "</a>";
+                            return "<a href='#' data-tooltip='spell' data-build='" + full[3] + "' data-id='" + full[2] + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" + full[2] + ", \"" + full[1].toLowerCase() + "::ID" + "\", \"" + full[3] + "\")'>" + full[2] + "</a>";
                         } else {
-                            return "<a href='#' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" + full[2] + ", \"" + full[1].toLowerCase() + "::ID" + "\", \"" + full[3] + "\")'>" + full[2] + "</a>";
+                            return "<a href='#' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" + full[2] + ", \"" + full[1].toLowerCase() + "::ID" + "\", \"" + full[3] + "\")'>" + full[2] + "</a>";
                         }
                     }
                 },
@@ -198,7 +191,6 @@
         });
 
         $("#hotfixTable").on('draw.dt', function () {
-            //var currentSearch = encodeURIComponent($("#hotfixTable_filter label input").val());
             var currentPage = $('#hotfixTable').DataTable().page() + 1;
 
             var url = "page=" + currentPage;
@@ -257,19 +249,19 @@
                 returnedValue = displayValue;
             } else {
                 if (fk.toLowerCase() == "filedata::id") {
-                    returnedValue = "<a data-toggle='modal' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#moreInfoModal' onclick='fillModal(" + val + ")'>" + val + "</a>";
+                    returnedValue = "<a data-bs-toggle='modal' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' onclick='fillModal(" + val + ")'>" + val + "</a>";
                 } else if (fk.toLowerCase() == "soundentries::id" && parseInt(build[0]) > 6) {
-                    returnedValue = "<a data-toggle='modal' data-target='#fkModal' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"SoundKit::ID\", \"" + build + "\")'>" + val + "</a>";
+                    returnedValue = "<a data-bs-toggle='modal' data-bs-target='#fkModal' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"SoundKit::ID\", \"" + build + "\")'>" + val + "</a>";
                 } else if (fk.toLowerCase() == "item::id" && val > 0) {
-                    returnedValue = "<a data-toggle='modal' data-target='#fkModal' data-build='" + build + "' data-tooltip='item' data-id='" + val + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
+                    returnedValue = "<a data-bs-toggle='modal' data-bs-target='#fkModal' data-build='" + build + "' data-tooltip='item' data-id='" + val + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
                 } else if (fk.toLowerCase() == "spell::id" || fk == "spellname::id" && val > 0) {
-                    returnedValue = "<a data-toggle='modal' data-target='#fkModal' data-build='" + build + "' data-tooltip='spell' data-id='" + val + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
+                    returnedValue = "<a data-bs-toggle='modal' data-bs-target='#fkModal' data-build='" + build + "' data-tooltip='spell' data-id='" + val + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
                 } else if (fk.toLowerCase() == "creature::id" && val > 0) {
-                    returnedValue = "<a data-toggle='modal' data-target='#fkModal' data-build='" + build + "' data-tooltip='creature' data-id='" + val + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
+                    returnedValue = "<a data-bs-toggle='modal' data-bs-target='#fkModal' data-build='" + build + "' data-tooltip='creature' data-id='" + val + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
                 } else if (fk.toLowerCase() == "questv2::id" && val > 0) {
-                    returnedValue = "<a data-toggle='modal' data-target='#fkModal' data-build='" + build + "' data-tooltip='quest' data-id='" + val + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
+                    returnedValue = "<a data-bs-toggle='modal' data-bs-target='#fkModal' data-build='" + build + "' data-tooltip='quest' data-id='" + val + "' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
                 } else {
-                    returnedValue = "<a data-toggle='modal' data-target='#fkModal' data-build='" + build + "' data-tooltip='fk' data-id='" + val + "' data-fk='" + fk + "'  style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
+                    returnedValue = "<a data-bs-toggle='modal' data-bs-target='#fkModal' data-build='" + build + "' data-tooltip='fk' data-id='" + val + "' data-fk='" + fk + "'  style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"" + fk + "\", \"" + build + "\")'>" + val + "</a>";
                 }
             }
 
@@ -464,7 +456,7 @@
                     changes += "</table>";
 
                     if (changes == "<table class='diffTable'></table>") {
-                        changes = "No changes found (<a href='#' data-toggle='modal' data-target='#fkModal' onclick='openFKModal(" + recordID + ", \"" + dbc.toLowerCase() + "::ID" + "\", \"" + build + "\")'>view record</a>)";
+                        changes = "No changes found (<a href='#' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" + recordID + ", \"" + dbc.toLowerCase() + "::ID" + "\", \"" + build + "\")'>view record</a>)";
                     }
 
                     //if (dbc == "CreatureDifficulty" || dbc == "Creature") {
@@ -515,15 +507,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="moreInfoModalLabel">More information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="moreInfoModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -535,15 +524,10 @@
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
-    <footer>
-        <div class="container text-muted">
-            <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
-        </div>
-    </footer>
 </body>
 </html>

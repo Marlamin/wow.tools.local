@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -41,7 +41,7 @@
     <div class="container-fluid">
         <h3>Diff builds</h3>
         <form method="GET" action="/builds/diff.html">
-            <div class="form-row" style="width: 40vw">
+            <div class="row" style="width: 40vw">
                 <div class="col">
                     <label for="idFormFrom">From</label>
                     <select class="form-control" name="from" id="diffFormFrom"></select>
@@ -90,7 +90,6 @@
         let diffInit = false;
 
         var table = $('#buildtable').DataTable({
-            "pagingType": "input",
             "pageLength": 25,
             "searching": false,
             "serverSide": true,

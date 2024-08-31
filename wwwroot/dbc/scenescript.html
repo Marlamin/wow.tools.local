@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -246,10 +246,11 @@
                             "pageLength": 20,
                             "displayStart": page * 20,
                             "autoWidth": true,
-                            "pagingType": "input",
                             "lengthMenu": [[10, 20, 50, 100, 1000], [10, 20, 50, 100, 1000]],
-                            "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" + "<'row'<'col-sm-12 dbtableholder'tr>>" + "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                             "orderMulti": false,
+                            layout: {
+                                bottomEnd: 'inputPaging'
+                            },
                             "ordering": true,
                             "order": [], // Sets default order to nothing (as returned by backend)
                             "language": { "search": "Search: _INPUT_ " },
@@ -282,7 +283,7 @@
                         //     let currentPage = $('#dbtable').DataTable().page() + 1;
                         //     let hashPart = "page=" + currentPage;
 
-                        //     const currentSearch = encodeURIComponent($("#dbtable_filter label input").val());
+                        //     const currentSearch = encodeURIComponent($("#dt-search-0").val());
                         //     if(currentSearch != ""){
                         //         hashPart += "&search=" + currentSearch;
                         //     }
@@ -301,7 +302,7 @@
 
                         //     $('.popover').remove();
 
-                        //     $("[data-toggle=popover]").popover({sanitize: false});
+                        //     $("[data-bs-toggle=popover]").popover({sanitize: false});
                         // });
 
                     },
@@ -350,10 +351,5 @@
             }());
         </script>
     </div>
-    <footer>
-        <div class="container text-muted">
-            <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
-        </div>
-    </footer>
 </body>
 </html>

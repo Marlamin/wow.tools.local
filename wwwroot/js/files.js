@@ -37,9 +37,6 @@ function togglePreviewPane(){
         document.getElementById("files_wrapper").style.width = "100%";
 
         document.getElementById("files_wrapper").style.float = "none";
-
-        // Show footer
-        $("footer").show();
     } else {
         // Clear window to stop currently playing sound/models
         document.getElementById("files_preview").innerHTML = "";
@@ -58,9 +55,6 @@ function togglePreviewPane(){
         }
 
         document.getElementById("files_wrapper").style.float = "left";
-
-        // Hide footer
-        $("footer").hide();
     }
 }
 
@@ -231,9 +225,9 @@ function fillPreviewModal(buildconfig, filedataid, type) {
         html += "<audio autoplay=\"\" controls=\"\"><source src=\"" + url + "\" type=\"" + mimeType + "\"></audio>";
     } else if (type == "m2" || type == "wmo") {
         html += "<ul class=\"nav nav-tabs\" role=\"tablist\">";
-        html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"modelviewer-tab\" data-toggle=\"tab\" href=\"#modelviewer\" role=\"tab\" aria-controls=\"modelviewer\" aria-selected=\"true\">Modelviewer</a></li>";
-        html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"modelinfo-tab\" data-toggle=\"tab\" href=\"#modelinfo\" role=\"tab\" aria-controls=\"modelinfo\" aria-selected=\"false\">Model info</a></li>";
-        html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"json-tab\" data-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
+        html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"modelviewer-tab\" data-bs-toggle=\"tab\" href=\"#modelviewer\" role=\"tab\" aria-controls=\"modelviewer\" aria-selected=\"true\">Modelviewer</a></li>";
+        html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"modelinfo-tab\" data-bs-toggle=\"tab\" href=\"#modelinfo\" role=\"tab\" aria-controls=\"modelinfo\" aria-selected=\"false\">Model info</a></li>";
+        html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
         html += "</ul>";
         html += "<div class=\"tab-content\">";
         html += "<div class=\"tab-pane fade show active\" id=\"modelviewer\" role=\"tabpanel\" aria-labelledby=\"modelviewer-tab\">";
@@ -318,7 +312,7 @@ $("html").on('hidden.bs.modal', '#chashModal', function(e) {
 })
 
 $(function () {
-    $('[data-toggle="popover"]').popover();
+    $('[data-bs-toggle="popover"]').popover();
 
     let vars = {};
     window.location.hash.replace(/([^=&]+)=([^&]*)/gi, function(m, key, value) {

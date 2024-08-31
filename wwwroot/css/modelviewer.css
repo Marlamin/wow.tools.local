@@ -3,7 +3,6 @@ html, body{
     width:  100%;
     height: 100%;
     margin: 0px;
-    background-color: black;
     overflow: hidden;
     padding: 0px;
 }
@@ -15,6 +14,7 @@ html, body{
 .tab-pane{
     height: 100%;
 }
+
 /* Canvas */
 #wowcanvas {
     width: 100%;
@@ -78,11 +78,11 @@ html, body{
 
 .hamburger:hover,
 .hamburger:focus {
-    background-color: var(--background-color);
+    background-color: var(--bs-body-bg);
 }
 
 .sidebar {
-    top: 57px;
+    top: 56px;
     left: 0;
     width: 500px;
     height: 100%;
@@ -106,7 +106,7 @@ html, body{
 }
 
 .overlay{
-    background-color: var(--background-color);
+    background-color: var(--bs-body-bg);
     position: absolute;
     z-index: 1;
     overflow: auto;
@@ -144,8 +144,8 @@ html, body{
 }
 
 .controls select{
-    background-color: var(--background-color);
-    color: var(--text-color);
+    background-color: var(--bs-body-bg);
+    color: var(--bs-emphasis-color-rgb);
 }
 
 /* Files table */
@@ -155,7 +155,7 @@ html, body{
 }*/
 
 #mvfiles_processing{
-    background-color: var(--background-color);
+    background-color: var(--bs-body-bg);
     border: 1px solid var(--border-color);
     border-radius: 10px;
 }
@@ -217,7 +217,6 @@ label{
 }
 
 #mvfiles{
-    position: absolute;
     top: 30px;
     left: 0px;
     margin: auto;
@@ -243,14 +242,12 @@ label{
 }
 
 .btn-mv{
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    background-color: var(--background-color);
+    color: var(--bs-emphasis-color-rgb);
+    background-color: var(--bs-body-bg);
 }
 .overlay input{
-    background-color: var(--background-color);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--bs-body-bg);
+    color: var(--bs-emphasis-color-rgb);
 }
 
 .historybutton:hover>.dropdown-menu {
@@ -263,7 +260,7 @@ label{
     margin-right: 5px;
     background-color: transparent;
     border: 0px;
-    color: var(--text-color);
+    color: var(--bs-emphasis-color-rgb);
 }
 
 .btn-secondary.disabled, .btn-secondary:disabled{

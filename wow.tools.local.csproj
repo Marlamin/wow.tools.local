@@ -68,6 +68,7 @@
     <Content Remove="versionHistory.json" />
     <Content Remove="wwwroot\db\broadcasttext.html" />
     <Content Remove="wwwroot\db\creatures.html" />
+    <Content Remove="wwwroot\db\quests.html" />
     <Content Remove="wwwroot\files\naming.html" />
     <Content Remove="wwwroot\header.html" />
   </ItemGroup>

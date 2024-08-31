@@ -1108,13 +1108,17 @@ function exportScene(){
                 } );
             }
         },
-        "pageLength": 20,
+        "pageLength": 30,
         "autoWidth": false,
-        "pagingType": "input",
         "orderMulti": false,
         "ordering": true,
         "order": [[0, 'asc']],
-        "dom": 'prt',
+        layout: {
+            topStart: null,
+            topEnd: null,
+            bottomStart: null,
+            bottomEnd: 'inputPaging'
+        },
         "searching": true,
         "columnDefs":
         [

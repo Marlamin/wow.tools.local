@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -76,7 +76,6 @@
                 "pageLength": 25,
                 "displayStart": page * 25,
                 "autoWidth": false,
-                "pagingType": "input",
                 "orderMulti": false,
                 "ordering": false,
                 "searching": true,
@@ -143,7 +142,7 @@
             });
 
             $('#voLines').on('draw.dt', function () {
-                var currentSearch = encodeURIComponent($("#voLines_filter label input").val());
+                var currentSearch = encodeURIComponent($("#dt-search-0").val());
                 var currentPage = $('#voLines').DataTable().page() + 1;
 
                 var sort = $('#voLines').DataTable().order();
@@ -154,7 +153,6 @@
 
                 window.location.hash = url;
 
-                $("[data-toggle=popover]").popover();
             });
 
             $('#voLines').on('click', 'tbody tr td.editableCreature', function () {
@@ -294,15 +292,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="previewModalLabel">Preview</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="previewModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

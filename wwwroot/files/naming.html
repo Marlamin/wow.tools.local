@@ -1,6 +1,6 @@
 ﻿
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -59,13 +59,13 @@
     <div class="container-fluid" id='naming_container'>
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item">
-                <a class="nav-link" id="namers-tab" data-toggle="tab" href="#namers" role="tab" aria-controls="namers" aria-selected="false">Automatic namers</a>
+                <a class="nav-link" id="namers-tab" data-bs-toggle="tab" href="#namers" role="tab" aria-controls="namers" aria-selected="false">Automatic namers</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="lookup-tab" data-toggle="tab" href="#lookup" role="tab" aria-controls="lookup" aria-selected="false">Filename checks</a>
+                <a class="nav-link" id="lookup-tab" data-bs-toggle="tab" href="#lookup" role="tab" aria-controls="lookup" aria-selected="false">Filename checks</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" id="manual-tab" data-toggle="tab" href="#manual" role="tab" aria-controls="m2" aria-selected="true">Manual models</a>
+                <a class="nav-link active" id="manual-tab" data-bs-toggle="tab" href="#manual" role="tab" aria-controls="m2" aria-selected="true">Manual models</a>
             </li>
         </ul>
         <div class="tab-content">
@@ -325,7 +325,6 @@
                 },
                 "displayStart": page * 15,
                 "autoWidth": false,
-                "pagingType": "input",
                 "lengthMenu": [
                     [15, 25, 50, 100, 1000, -1],
                     [15, 25, 50, 100, 1000, "All"]
@@ -355,15 +354,15 @@
                             }
 
                             if (full[2]) {
-                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;'";
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' style='color: ;'";
 
                                 if (full[8] == "true") {
-                                    test += "data-content='Lookup " + full[2] + " matches filename'><i class='text-success fa fa-check'></i>&nbsp;</a>";
+                                    test += "data-bs-content='Lookup " + full[2] + " matches filename'><i class='text-success fa fa-check'></i>&nbsp;</a>";
                                 } else {
                                     if (full[1]) {
-                                        test += "data-content='Lookup " + full[2] + " does not match filename'><i class='text-danger fa fa-close'></i>&nbsp;</a>";
+                                        test += "data-bs-content='Lookup " + full[2] + " does not match filename'><i class='text-danger fa fa-close'></i>&nbsp;</a>";
                                     } else {
-                                        test += "data-content='Lookup " + full[2] + " does not match unknown filename'><i class='text-warning fa fa-question'></i>&nbsp;</a>";
+                                        test += "data-bs-content='Lookup " + full[2] + " does not match unknown filename'><i class='text-warning fa fa-question'></i>&nbsp;</a>";
                                     }
                                 }
 
@@ -377,7 +376,7 @@
             });
 
             $("#files").on('draw.dt', function () {
-                var currentSearch = encodeURIComponent($("#files_filter label input").val());
+                var currentSearch = encodeURIComponent($("#dt-search-0").val());
                 var currentPage = $('#files').DataTable().page() + 1;
 
                 var sort = $('#files').DataTable().order();
@@ -395,7 +394,7 @@
 
                 $('.popover').remove();
 
-                $("[data-toggle=popover]").popover();
+                $("[data-bs-toggle=popover]").popover();
             });
 
             $("#files").on('click', 'tbody tr td', function () {
@@ -503,11 +502,6 @@
         }());
 
     </script>
-    <footer>
-        <div class="container text-muted">
-            <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
-        </div>
-    </footer>
     <link href="/css/files.css" rel="stylesheet">
 </body>
 </html>

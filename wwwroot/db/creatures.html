@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -76,7 +76,6 @@
                 "pageLength": 25,
                 "displayStart": page * 25,
                 "autoWidth": false,
-                "pagingType": "input",
                 "orderMulti": false,
                 "ordering": false,
                 "searching": false,
@@ -84,7 +83,7 @@
             });
 
             $('#creatures').on('draw.dt', function () {
-                var currentSearch = encodeURIComponent($("#creatures_filter label input").val());
+                var currentSearch = encodeURIComponent($("#dt-search-0").val());
                 var currentPage = $('#creatures').DataTable().page() + 1;
 
                 var sort = $('#creatures').DataTable().order();
@@ -95,7 +94,7 @@
 
                 window.location.hash = url;
 
-                $("[data-toggle=popover]").popover();
+                $("[data-bs-toggle=popover]").popover();
             });
 
             //$('#creatures').on('click', 'tbody tr td', function () {

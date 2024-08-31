@@ -1,6 +1,6 @@
 ﻿
 <!DOCTYPE html>
-<html>
+<html data-bs-theme="dark">
 <head>
     <title>WoW.tools</title>
     <meta property='og:type' content='website'>
@@ -42,17 +42,17 @@
     <nav class="navbar navbar-expand-lg" id="navbar"></nav>
     <div class="container-fluid" id='files_container'>
         <div id='files_buttons' class='notree'>
-            <!--<a href='#' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a> -->
+            <!--<a href='#' class='btn btn-primary btn-sm' data-bs-toggle='modal' data-bs-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a> -->
             <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
             <div class="btn-group" role="group">
                 <a id='updateListfileButton' class='btn btn-primary btn-sm' onclick="updateListfile();" href="#"><i class='fa fa-refresh'></i> Update listfile</a>
-                <a id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#" data-trigger='hover' data-container='body' data-toggle='popover' data-content='Export listfile to exported-listfile.csv'><i class='fa fa-save'></i></a>
+                <a id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Export listfile to exported-listfile.csv'><i class='fa fa-save'></i></a>
             </div>
             <div class="btn-group" role="group">
                 <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
             </div>
             <div class="btn-group" role="group">
-                <a id='extractSearchButton' class='btn btn-warning btn-sm' onclick="extractSearch();" data-trigger='hover' data-container='body' data-toggle='popover' data-content='Extract all files from this search result to the configured extraction directory'><i class='fa fa-download'></i> Extract all</a>
+                <a id='extractSearchButton' class='btn btn-warning btn-sm' onclick="extractSearch();" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Extract all files from this search result to the configured extraction directory'><i class='fa fa-download'></i> Extract all</a>
                 </div>
             <div class="btn-group" role="group">
                 <a id='multipleFileDLButton' class='btn btn-warning btn-sm' style='display: none'>Download selected files (1)</a>
@@ -65,10 +65,10 @@
         </div>
         <div id='files_tree' style='display: none'><div id='tree'></div></div>
         <!--<div id='files_treetoggle' class='collapsed' onClick='toggleTree()'>&gt;</div>-->
-        <table id='files' class="table table-striped table-bordered table-condensed" cellspacing="0" style='margin: auto; ' width="100%">
+        <table id='files' class="table table-striped table-condensed" cellspacing="0" style='margin: auto; ' width="100%">
             <thead>
                 <tr>
-                    <th style='width: 50px;'>FD ID</th>
+                    <th style='width: 50px;'>FDID</th>
                     <th>Filename</th>
                     <th style='width: 100px;'>Lookup</th>
                     <th style='width: 200px;'>Versions</th>
@@ -87,7 +87,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <form id='settingsForm'>
@@ -98,8 +97,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="saveSettings();" data-dismiss="modal">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSettings();" data-bs-dismiss="modal">Save</button>
                 </div>
             </div>
         </div>
@@ -109,9 +108,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="helpModalLabel">Help</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="helpModalContent">
                     <!--<kbd>%</kbd> for wildcard<br>
@@ -131,7 +127,7 @@
                     <p>It is also possible to combine some of these options (but not others, it will complain) by separating them by a <kbd>,</kbd>. <br>Examples: <kbd>unnamed,type:wmo</kbd> <kbd>creature,type:m2</kbd></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -141,15 +137,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="previewModalLabel">Preview</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="previewModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -159,15 +152,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="moreInfoModalLabel">More information</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="moreInfoModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i> This may take a while to load the first time, please wait...
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -177,15 +167,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="chashModalLabel">Content hash lookup</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
                 </div>
                 <div class="modal-body" id="chashModalContent">
                     <i class="fa fa-refresh fa-spin" style="font-size:24px"></i> This may take a while to load the first time, please wait...
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -223,7 +210,7 @@
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
             button.classList.add("disabled");
 
-            var searchString = document.getElementById("files_filter").getElementsByTagName("input")[0].value;
+            var searchString = document.getElementById("dt-search-0").value;
             await fetch("/listfile/extractFiles?search=" + encodeURIComponent(searchString)).then(function (response) {
                 return response.text();
             }).then(function (data) {
@@ -370,16 +357,18 @@
                 },
                 "pageLength": 25,
                 "language": {
-                    "search": "Search: _INPUT_ <a style='margin-top: -5px;' class='btn btn-outline-primary btn-sm' data-toggle='modal' data-target='#helpModal'><i class='fa fa-question'></i></a> <a role='button' style='margin-top: -5px;' id='togglePreviewWindow' onClick='togglePreviewPane()' class='btn btn-danger btn-sm' style='color: white' data-trigger='hover' data-container='body' data-toggle='popover' data-content='Click this to toggle between showing previews on the right of the table, or in a separate popup.'><i class='fa fa-columns'></i></a> <a id='copyToClipBoardButton' class='btn btn-success btn-sm' onclick='copyResultsToClipboard();' data-trigger='hover' data-container='body' data-html='false' data-placement='left' data-toggle='popover' data-content='Copy table to clipboard' style='margin-top: -5px;'><i class='fa fa-copy'></i></a>",
+                    "search": "Search: _INPUT_ <a style='margin-top: -5px;' class='btn btn-outline-primary btn-sm' data-bs-toggle='modal' data-bs-target='#helpModal'><i class='fa fa-question'></i></a> <a role='button' style='margin-top: -5px;' id='togglePreviewWindow' onClick='togglePreviewPane()' class='btn btn-danger btn-sm' style='color: white' data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Click this to toggle between showing previews on the right of the table, or in a separate popup.'><i class='fa fa-columns'></i></a> <a id='copyToClipBoardButton' class='btn btn-success btn-sm' onclick='copyResultsToClipboard();' data-bs-trigger='hover' data-bs-container='body' data-bs-html='false' data-bs-placement='left' data-bs-toggle='popover' data-bs-content='Copy table to clipboard' style='margin-top: -5px;'><i class='fa fa-copy'></i></a>",
                     "info": "Showing _START_ to _END_ of _TOTAL_ files",
                 },
                 "displayStart": page * 25,
                 "autoWidth": false,
-                "pagingType": "input",
                 "lengthMenu": [
                     [10, 25, 50, 100, 1000, -1],
                     [10, 25, 50, 100, 1000, "All"]
                 ],
+                layout: {
+                    bottomEnd: 'inputPaging'
+                },
                 "orderMulti": false,
                 "order": [[sortCol, sortDesc]],
                 "columnDefs": [
@@ -405,15 +394,15 @@
                             }
 
                             if (full[2]) {
-                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;'";
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' style='color: ;'";
 
                                 if (full[8] == "true") {
-                                    test += "data-content='Lookup " + full[2] + " matches filename'><i class='text-success fa fa-check'></i>&nbsp;</a>";
+                                    test += "data-bs-content='Lookup " + full[2] + " matches filename'><i class='text-success fa fa-check'></i>&nbsp;</a>";
                                 } else {
                                     if (full[1]) {
-                                        test += "data-content='Lookup " + full[2] + " does not match filename'><i class='text-danger fa fa-close'></i>&nbsp;</a>";
+                                        test += "data-bs-content='Lookup " + full[2] + " does not match filename'><i class='text-danger fa fa-close'></i>&nbsp;</a>";
                                     } else {
-                                        test += "data-content='Lookup " + full[2] + " does not match unknown filename'><i class='text-warning fa fa-question'></i>&nbsp;</a>";
+                                        test += "data-bs-content='Lookup " + full[2] + " does not match unknown filename'><i class='text-warning fa fa-question'></i>&nbsp;</a>";
                                     }
                                 }
 
@@ -421,25 +410,25 @@
                             }
 
                             if (full[6] == "true") {
-                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='";
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' style='color: ;' data-bs-content='";
                                 test += "This file is not available for the preferred locale, listing first available locale instead";
                                 test += "'><i class='fa fa-globe'></i></a></span>";
                             }
 
                             if (full[9]) {
-                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='Used in SoundKitID(s) " + full[9] + "'><i class='fa fa-music'></i>&nbsp;</a></span>";
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' style='color: ;' data-bs-content='Used in SoundKitID(s) " + full[9] + "'><i class='fa fa-music'></i>&nbsp;</a></span>";
                             }
 
                             if (full[10]) {
-                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='Used in ModelFileData Resource ID(s) " + full[10] + "'><i class='fa fa-cube'></i>&nbsp;</a></span>";
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' style='color: ;' data-bs-content='Used in ModelFileData Resource ID(s) " + full[10] + "'><i class='fa fa-cube'></i>&nbsp;</a></span>";
                             }
 
                             if (full[11]) {
-                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='Used in TextureFileData Resource ID(s) " + full[11] + "'><i class='fa fa-picture-o'></i>&nbsp;</a></span>";
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' style='color: ;' data-bs-content='Used in TextureFileData Resource ID(s) " + full[11] + "'><i class='fa fa-picture-o'></i>&nbsp;</a></span>";
                             }
 
                             if (full[12]) {
-                                test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' style='color: ;' data-content='Used in CreatureModelData ID(s) " + full[12] + "'><i class='fa fa-bug'></i>&nbsp;</a></span>";
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' style='color: ;' data-bs-content='Used in CreatureModelData ID(s) " + full[12] + "'><i class='fa fa-bug'></i>&nbsp;</a></span>";
                             }
 
                             return test;
@@ -471,7 +460,7 @@
                             }
 
                             //if (full[3].length > 1) {
-                            //    test += "<a data-toggle='collapse' href='#versions" + full[0] + "'>> Show " + full[3].length + " versions</a><div class='collapse' id='versions" + full[0] + "'>";
+                            //    test += "<a data-bs-toggle='collapse' href='#versions" + full[0] + "'>> Show " + full[3].length + " versions</a><div class='collapse' id='versions" + full[0] + "'>";
                             //    full[3].forEach(function (entry) {
                             //        if (full[1]) {
                             //            var filename = full[1].replace(/^.*[\\\/]/, '');
@@ -491,7 +480,7 @@
                             //        test += "</a>";
 
                             //        if (entry.firstseen && entry.description == "WOW-18125patch6.0.1_Beta" && entry.firstseen != "WOW-18125patch6.0.1_Beta") {
-                            //            test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>(WIP, more builds coming)</b> First seen in " + entry.firstseen + "'><i class='fa fa-archive'></i></a></span>";
+                            //            test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-placement='top' style='color: ;' data-bs-content='<b>(WIP, more builds coming)</b> First seen in " + entry.firstseen + "'><i class='fa fa-archive'></i></a></span>";
                             //        }
 
                             //        test += "<br>";
@@ -514,11 +503,11 @@
                             }
 
                             //if (full[3][0].contenthash == "de6135861a6cacfe176830f18f597c3e" || full[3][0].contenthash == "ea80e802952501021865cfeed808ac3f") {
-                            //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
+                            //    test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-placement='top' style='color: ;' data-bs-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
                             //}
 
                             //if (full[3][0].firstseen && full[3][0].firstseen != "WOW-18125patch6.0.1_Beta") {
-                            //    test += "<span style='float: right'><a tabindex='0' role='button' data-trigger='hover' data-container='body' data-html='true' data-toggle='popover' data-placement='top' style='color: ;' data-content='<b>(WIP, more builds coming)</b> First seen in " + full[3][0].firstseen + "'><i class='fa fa-archive'></i></a></span>";
+                            //    test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-placement='top' style='color: ;' data-bs-content='<b>(WIP, more builds coming)</b> First seen in " + full[3][0].firstseen + "'><i class='fa fa-archive'></i></a></span>";
                             //}
                             //} else {
                             //    test += "No versions available";
@@ -537,7 +526,7 @@
                         "orderable": false,
                         "visible": true,
                         "render": function (data, type, full, meta) {
-                            return "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#moreInfoModal' onClick='fillModal(" + full[0] + ")'><i class='fa fa-info-circle'></i></a></td>";
+                            return "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#moreInfoModal' onClick='fillModal(" + full[0] + ")'><i class='fa fa-info-circle'></i></a></td>";
                         }
                     },
                     {
@@ -567,7 +556,7 @@
                                     }
                                 } else {
                                     if (previewTypes.includes(full[4]) && full[3] != "false") {
-                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-toggle='modal' data-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
                                     } else {
                                         var test = "<i class='fa fa-ban' style='opacity: 0.3'></i></td>";
                                     }
@@ -580,7 +569,7 @@
             });
 
             $("#files").on('draw.dt', function () {
-                var currentSearch = encodeURIComponent($("#files_filter label input").val());
+                var currentSearch = encodeURIComponent($("#dt-search-0").val());
                 var currentPage = $('#files').DataTable().page() + 1;
 
                 var sort = $('#files').DataTable().order();
@@ -598,7 +587,7 @@
 
                 $('.popover').remove();
 
-                $("[data-toggle=popover]").popover();
+                $("[data-bs-toggle=popover]").popover();
             });
 
         }());
@@ -620,7 +609,7 @@
                 searchString = decodeURIComponent(searchString);
             }
 
-            if (searchString != undefined && $("#files_filter label input").val() != searchString) {
+            if (searchString != undefined && $("#dt-search-0").val() != searchString) {
                 console.log("Setting search to " + searchString);
                 //$("#files_filter label input").val(searchString); // This causes issues where search field is overwritten while typing
                 $('#files').DataTable().search(searchString).draw(false);
@@ -653,11 +642,6 @@
         var rootFiltering = false;
         updateBuildFilterButton();
     </script>
-    <footer>
-        <div class="container text-muted">
-            <p style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment whom this site is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
-        </div>
-    </footer>
     <link href="/css/files.css" rel="stylesheet">
 </body>
 </html>

@@ -1,33 +1,44 @@
-var theme = localStorage.getItem('theme');
-if (!theme){
-    localStorage.setItem('theme', 'dark');
-    theme = 'dark';
-    updateCSSVars(theme);
-} else {
-    if (theme == 'light'){
-        updateCSSVars('light');
-    } else {
-        updateCSSVars('dark');
+/*!
+ * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
+ * Copyright 2011-2024 The Bootstrap Authors
+ * Licensed under the Creative Commons Attribution 3.0 Unported License.
+ */
+const getStoredTheme = () => localStorage.getItem('theme')
+const setStoredTheme = theme => localStorage.setItem('theme', theme)
+
+const getPreferredTheme = () => {
+    const storedTheme = getStoredTheme()
+    if (storedTheme) {
+        return storedTheme
     }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-function updateCSSVars(theme){
-    if (theme == 'dark'){
-        document.documentElement.style.setProperty('--background-color', '#343a40');
-        document.documentElement.style.setProperty('--text-color', '#fff');
-        document.documentElement.style.setProperty('--hover-color', '#fff');
-        document.documentElement.style.setProperty('--diff-added-color', '#368a23');
-        document.documentElement.style.setProperty('--diff-removed-color', '#9b0d0d');
-        document.documentElement.style.setProperty('--table-header-color', '#272727');
-    } else if (theme == 'light'){
-        document.documentElement.style.setProperty('--background-color', '#f8f9fa');
-        document.documentElement.style.setProperty('--text-color', '#000000');
-        document.documentElement.style.setProperty('--hover-color', '#7e7e7e');
-        document.documentElement.style.setProperty('--diff-added-color', '#e6ffe6');
-        document.documentElement.style.setProperty('--diff-removed-color', '#ffe6e6');
-        document.documentElement.style.setProperty('--table-header-color', '#dee2e6');
+const setTheme = theme => {
+    if (theme === 'auto') {
+        document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+    } else {
+        document.documentElement.setAttribute('data-bs-theme', theme)
     }
+
+    document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+        const forTheme = toggle.getAttribute('data-bs-theme-value')
+        if (forTheme == theme) {
+            toggle.classList.add("active")
+        } else {
+            toggle.classList.remove("active")
+        }
+    }
+    );
 }
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    const storedTheme = getStoredTheme()
+    if (storedTheme !== 'light' && storedTheme !== 'dark') {
+        setTheme(getPreferredTheme())
+    }
+})
 
 /* multiple modal scroll fix */
 $(function() {
@@ -40,8 +51,15 @@ $(function() {
     $("#navbar").load("/header.html", function () {
         updateTitle();
         checkForUpdates();
+        setTheme(getPreferredTheme())
     });
+
 });
+
+function themeClick(theme) {
+    setStoredTheme(theme)
+    setTheme(theme)
+}
 
 async function updateTitle() {
     if (Math.floor(Math.random() * 21) == 20) {

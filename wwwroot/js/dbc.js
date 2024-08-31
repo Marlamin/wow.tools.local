@@ -99,7 +99,7 @@ function openFKModal(value, location, build){
                     fkTableHTML += "<tr><td style='width: 300px;'>" + key + "</td>";
 
                     if (headerjson.fks[key] == "FileData::ID"){
-                        fkTableHTML += "<td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-toggle='modal' data-target='#moreInfoModal' onclick='fillModal(" + val + ")'>" + val + "</a>";
+                        fkTableHTML += "<td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' onclick='fillModal(" + val + ")'>" + val + "</a>";
                     } else if (headerjson.fks[key] == "SoundEntries::ID" && parseInt(build[0]) > 6){
                         fkTableHTML += "<td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' onclick='openFKModal(" + val + ", \"SoundKit::ID\", \"" + build + "\")'>" + val + "</a>";
                     } else if (headerjson.fks[key] == "Item::ID" && val > 0){

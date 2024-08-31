@@ -3,18 +3,12 @@
     text-overflow: ellipsis;
 }
 
-#files_buttons{
-    position: absolute;
-    top: 73px;
-    z-index: 2;
-}
-
 #files_buttons.notree{
-    left: 205px;
+    left: 225px;
 }
 
 #files_buttons.tree{
-	left: 420px;
+	left: 440px;
 }
 
 #files_preview{
@@ -77,67 +71,4 @@
 
 .treeEntry.selected{
 	background-color: #8bc34aa1 !important;
-}
-    
-/* Mobile Devices */
-@media screen and (max-width: 767px) {
-	#files_length{
-		text-align: left; /* float pagination sizes left */
-	}
-
-	#files_buttons {
-		position: relative; /* auto align allowing button stacking */
-		display: inline-grid; /* child stacking */
-		margin-bottom: .5em;
-		top: 0;
-		left: 0;
-		width: 100%;
-	}
-
-	#files_buttons > .btn {
-		margin-bottom: .25em;
-		width: 100%;
-		margin-right: 5px;
-	}
-
-	#files_buttons .btn{
-		line-height: 1;
-		left: 0px;
-		font-size: 0.8rem;
-	}
-
-	#files_buttons.notree{
-		left: 0px;
-	}
-
-	#files_treetoggle{
-		display: none;
-	}
-
-	#files_buttons.tree{
-		left: 0px;
-	}
-
-	.dropdown-toggle-split{
-		max-width: 50px;
-	}
-
-	#files tr td:nth-child(2) {
-		max-width: 200px;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	#files tr td:nth-child(2):hover {
-		max-width: 200px;
-		white-space: nowrap;
-		overflow-x: scroll;
-		text-overflow: initial;
-	}
-
-	#files tr th:nth-child(3), #files tr td:nth-child(3), #files tr th:nth-child(4), #files tr td:nth-child(4) {
-		display: none;
-    }
-
 }
