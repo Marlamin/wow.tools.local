@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using wow.tools.local.Services;
 using wow.tools.Services;
 using WoWFormatLib.FileReaders;
