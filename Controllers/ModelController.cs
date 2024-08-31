@@ -38,8 +38,13 @@ namespace wow.tools.local.Controllers
                     returnString += "<tr>";
                     returnString += "<td><b>Group</b></td>";
                     returnString += "<td>Flags: " + group.flags + "</td>";
-                    returnString += "<td>Flags2: " + wmo.groupInfo2[i].flags2 + "</td>";
-                    returnString += "<td>'lodIndex' " + wmo.groupInfo2[i].lodIndex + "</td>";
+
+                    if(wmo.groupInfo2 != null)
+                    {
+                        returnString += "<td>Flags2: " + wmo.groupInfo2[i].flags2 + "</td>";
+                        returnString += "<td>'lodIndex' " + wmo.groupInfo2[i].lodIndex + "</td>";
+                    }
+
                     returnString += "</tr>";
                 }
 
