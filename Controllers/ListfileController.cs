@@ -208,19 +208,23 @@ namespace wow.tools.local.Controllers
                 {
                     var creatureModelDataDB = dbcManager.GetOrLoad("CreatureModelData", CASC.BuildName).Result;
                     if (!creatureModelDataDB.AvailableColumns.Contains("FileDataID") || !creatureModelDataDB.AvailableColumns.Contains("ID"))
-                        throw new Exception("Missing required columns in CreatureModelData");
-
-                    if (creatureModelDataDB != null)
                     {
-                        CMDMap = new Dictionary<int, List<uint>>();
-                        foreach (var row in creatureModelDataDB.Values)
+                        Console.WriteLine("Missing required columns in CreatureModelData");
+                    }
+                    else
+                    {
+                        if (creatureModelDataDB != null)
                         {
-                            var cmdID = row.Field<int>("ID");
-                            var fileDataID = row.Field<int>("FileDataID");
-                            if (CMDMap.TryGetValue(fileDataID, out List<uint>? creatureModelDataIDs))
-                                creatureModelDataIDs.Add((uint)cmdID);
-                            else
-                                CMDMap[fileDataID] = new List<uint> { (uint)cmdID };
+                            CMDMap = new Dictionary<int, List<uint>>();
+                            foreach (var row in creatureModelDataDB.Values)
+                            {
+                                var cmdID = row.Field<int>("ID");
+                                var fileDataID = row.Field<int>("FileDataID");
+                                if (CMDMap.TryGetValue(fileDataID, out List<uint>? creatureModelDataIDs))
+                                    creatureModelDataIDs.Add((uint)cmdID);
+                                else
+                                    CMDMap[fileDataID] = new List<uint> { (uint)cmdID };
+                            }
                         }
                     }
                 }
@@ -304,10 +308,10 @@ namespace wow.tools.local.Controllers
                         CASC.OtherLocaleOnlyFiles.Contains(listfileResult.Key) ? "true" : "false", // Non-native locale
                         "", // Placeholder filename
                         lookupMatch ? "true" : "false", // Lookup match
-                        SoundKitMap!.TryGetValue(listfileResult.Key, out var soundKits) ? string.Join(", ", soundKits) : "", // SoundKits
-                        MFDMap!.TryGetValue(listfileResult.Key, out var modelResourceIDs) ? string.Join(", ", modelResourceIDs) : "", // ModelFileData
-                        TFDMap!.TryGetValue(listfileResult.Key, out var materialResourceIDs) ? string.Join(", ", materialResourceIDs) : "", // TextureFileData
-                        CMDMap!.TryGetValue(listfileResult.Key, out var creatureModelDataIDs) ? string.Join(", ", creatureModelDataIDs) : "" // CreatureModelData
+                        SoundKitMap != null ? SoundKitMap.TryGetValue(listfileResult.Key, out var soundKits) ? string.Join(", ", soundKits) : "" : "", // SoundKits
+                        MFDMap != null ? MFDMap.TryGetValue(listfileResult.Key, out var modelResourceIDs) ? string.Join(", ", modelResourceIDs) : "" : "", // ModelFileData
+                        TFDMap != null ? TFDMap.TryGetValue(listfileResult.Key, out var materialResourceIDs) ? string.Join(", ", materialResourceIDs) : "" : "", // TextureFileData
+                        CMDMap != null ? CMDMap.TryGetValue(listfileResult.Key, out var creatureModelDataIDs) ? string.Join(", ", creatureModelDataIDs) : "" : "" // CreatureModelData
                     ]);
             }
 
