@@ -1101,7 +1101,10 @@ function exportScene(){
             "url": "/listfile/datatables",
             "data": function ( d ) {
                 return $.extend( {}, d, {
-                    "src": "mv"
+                    "src": "mv",
+                    //"showADT": $("#showADT").is(":checked"),
+                    "showWMO": $("#showWMO").is(":checked"),
+                    "showM2": $("#showM2").is(":checked")
                 } );
             }
         },
