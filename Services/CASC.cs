@@ -498,6 +498,9 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
         {
             var listfileLines = GetListfileLines(forceRedownload);
 
+            if (File.Exists("custom-listfile.csv"))
+                listfileLines = listfileLines.Concat(File.ReadAllLines("custom-listfile.csv")).ToArray();
+
             foreach (var line in listfileLines)
             {
                 if (string.IsNullOrEmpty(line))
@@ -520,7 +523,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
                 if (ext != "wmo")
                 {
-                    Types.Add(fdid, ext);
+                    Types.TryAdd(fdid, ext);
                     TypeMap[ext].Add(fdid);
                 }
 
