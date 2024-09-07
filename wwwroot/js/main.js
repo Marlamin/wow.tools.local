@@ -54,6 +54,21 @@ $(function() {
         setTheme(getPreferredTheme())
     });
 
+    $(document).on('init.dt', function (e, settings) {
+        const pageInput = document.querySelector(".dt-paging-input input");
+        if (pageInput) {
+            pageInput.addEventListener("keydown", (event) => {
+                let intValue = parseInt(pageInput.value);
+                if (event.key == "ArrowRight") {
+                    pageInput.value = intValue + 1;
+                } else if (event.key == "ArrowLeft" && intValue > 1) {
+                    pageInput.value = intValue - 1;
+                }
+
+                pageInput.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        }
+    });
 });
 
 function themeClick(theme) {
