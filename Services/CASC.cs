@@ -715,7 +715,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
         public static Stream GetDB2ByName(string filename)
         {
-            if (DB2Map.TryGetValue(filename.ToLower(), out int fileDataID))
+            if (DB2Map.TryGetValue(filename.ToLower(), out int fileDataID) && cascHandler.FileExists(fileDataID))
             {
                 return cascHandler.OpenFile(fileDataID);
             }
