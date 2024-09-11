@@ -352,13 +352,13 @@
 /* Inner diff */
 
 .d2h-del {
-    background-color: var(--diff-removed-color) !important;
-    border-color: var(--diff-removed-color) !important;
+    background-color: var(--bs-danger-border-subtle) !important;
+    border-color: var(--bs-danger-border-subtle) !important;
 }
 
 .d2h-ins {
-    background-color: var(--diff-added-color) !important;
-    border-color: var(--diff-added-color) !important;
+    background-color: var(--bs-success-border-subtle) !important;
+    border-color: var(--bs-success-border-subtle) !important;
 }
 
 .d2h-code-line ins, .d2h-code-side-line ins {
