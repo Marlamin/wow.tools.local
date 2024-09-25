@@ -442,7 +442,7 @@
             KeyInfo.Add(0x3D7F53C63B044491, (7682, "WOW-50442patch10.1.7_PTR", "Night Elf Heritage"));
             KeyInfo.Add(0xBF92448FA7DCCF65, (7683, "WOW-52554patch10.2.5_PTR", "Unknown questline"));
             KeyInfo.Add(0xA938133C7B074BC8, (7684, "WOW-52554patch10.2.5_PTR", "Unknown questline"));
-            KeyInfo.Add(0xA5FB6F2D1502B54F, (7685, "WOW-5XXXXpatch1.15.X_PTR", "Unknown (Classic Era"));
+            KeyInfo.Add(0xA5FB6F2D1502B54F, (7685, "WOW-5XXXXpatch1.15.X_PTR", "Unknown (Classic Era)"));
             KeyInfo.Add(0x7F070B1D792933D7, (7686, "WOW-50442patch10.1.7_PTR", "15 file(s) as of 10.1.7.50442"));
             KeyInfo.Add(0xCFFE42581EF7E189, (7688, "WOW-50438patch10.1.5_XPTR", "Solemn Watchmans Garb DB2 entries"));
             KeyInfo.Add(0x972EFE7B2D050C9C, (7689, "WOW-50438patch10.1.5_XPTR", "Fanciful Corsage DB2 entries"));
