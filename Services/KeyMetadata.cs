@@ -588,7 +588,7 @@
             KeyInfo.Add(0xBB68871D27AA8835, (7860, "WOW-56646patch11.0.5_XPTR", "Unknown 3 items/spell/14 quests"));
             KeyInfo.Add(0x2510D96C5BEC7C97, (7861, "WOW-56646patch11.0.5_XPTR", "Unknown spell/quest"));
             KeyInfo.Add(0xAFF59057A40F207C, (7862, "WOW-56646patch11.0.5_XPTR", "Unknown item/quest"));
-            KeyInfo.Add(0x7D072A3876C93017, (7863, "WOW-56646patch11.0.5_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0x7D072A3876C93017, (7863, "WOW-56646patch11.0.5_XPTR", "Ghastly Charger store assets"));
             KeyInfo.Add(0x77140C910A87FC87, (7866, "WOW-5XXXXpatch4.4.X_Classic", "Unknown pet (Cata Classic)"));
             KeyInfo.Add(0xE168510CBE69A8F5, (7868, "WOW-56646patch11.0.5_XPTR", "Unknown (Trading Post?) item set"));
             KeyInfo.Add(0xA12DB2F41620D8CF, (7869, "WOW-56646patch11.0.5_XPTR", "Unknown 7 items/quest"));
