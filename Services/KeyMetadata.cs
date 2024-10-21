@@ -600,7 +600,7 @@
             KeyInfo.Add(0x9E868894A3B77D26, (7877, "WOW-56646patch11.0.5_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x0465EFCE1EBB0765, (7878, "WOW-56646patch11.0.5_XPTR", "Unknown store assets"));
             KeyInfo.Add(0xDBA48194881A227B, (7880, "WOW-56646patch11.0.5_XPTR", ""));
-
+            KeyInfo.Add(0x1C95D8623041EF30, (7909, "WOW-57XXXpatch11.0.5_XXX", "Unknown store assets"));
         }
 
         public static void ReloadKeys()
