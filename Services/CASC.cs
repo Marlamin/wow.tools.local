@@ -157,10 +157,8 @@ namespace wow.tools.local.Services
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
 
-                        if (preferredEntry.cKey.ToHexString() == "00000000000000000000000000000000")
-                        {
+                        if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
                             preferredEntry = entry.Value.First();
-                        }
 
                         manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
                     }
@@ -183,10 +181,8 @@ namespace wow.tools.local.Services
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
                        subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
 
-                        if (preferredEntry.cKey.ToHexString() == "00000000000000000000000000000000")
-                        {
+                        if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
                             preferredEntry = entry.Value.First();
-                        }
 
                         manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
                     }
@@ -238,7 +234,7 @@ namespace wow.tools.local.Services
                     var preferredEntry = entry.Value.FirstOrDefault(subentry =>
 subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
 
-                    if (preferredEntry.cKey.ToHexString() == "00000000000000000000000000000000")
+                    if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
                     {
                         preferredEntry = entry.Value.First();
                         OtherLocaleOnlyFiles.Add(entry.Key);
@@ -278,7 +274,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     var preferredEntry = entry.Value.FirstOrDefault(subentry =>
 subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
 
-                    if (preferredEntry.cKey.ToHexString() == "00000000000000000000000000000000")
+                    if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
                     {
                         preferredEntry = entry.Value.First();
                         OtherLocaleOnlyFiles.Add(entry.Key);
