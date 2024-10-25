@@ -573,11 +573,11 @@
             KeyInfo.Add(0x34A206E7C8472EB7, (7841, "WOW-5XXXXpatch4.4.X_Classic", "6 month sub store assets & key (Cata Classic)"));
             KeyInfo.Add(0x731F181F74F30F76, (7842, "WOW-5XXXXpatch4.4.X_Classic", "12 month sub store assets & key (Cata Classic)"));
             KeyInfo.Add(0xC9E3DF8A9BFCC9DC, (7845, "WOW-5XXXXpatch11.0.X_Beta", "TWW Recap cinematic"));
-            KeyInfo.Add(0x1E63C1B745A3A8D2, (7846, "WOW-56646patch11.0.5_XPTR", "Unknown mount"));
-            KeyInfo.Add(0x26C603F611AC329B, (7849, "WOW-5XXXXpatch11.0.X_Beta", "Grizzly Hills Packmaster store assets"));
+            KeyInfo.Add(0x1E63C1B745A3A8D2, (7846, "WOW-56646patch11.0.5_XPTR", "Trader's Gilded Brutosaur mount"));
+            KeyInfo.Add(0x26C603F611AC329B, (7849, "WOW-5XXXXpatch11.0.X_Beta", "Grizzly Hills Packmaster mount"));
             KeyInfo.Add(0x8499F102D2657F85, (7850, "WOW-56646patch11.0.5_XPTR", "Unknown 2 quests, 8 items"));
             KeyInfo.Add(0x482D9FFF2F6617AF, (7851, "WOW-5XXXXpatch11.0.X_Beta", "China return store assets"));
-            KeyInfo.Add(0x23664012A7F9892A, (7852, "WOW-56646patch11.0.5_XPTR", "Unknown pet"));
+            KeyInfo.Add(0x23664012A7F9892A, (7852, "WOW-56646patch11.0.5_XPTR", "Reven/Ibelin pack (pet + back transmog)"));
             KeyInfo.Add(0xBEDD8CF39C737CF7, (7853, "WOW-5XXXXpatch11.0.X_Beta", "Essence Pack store assets"));
             KeyInfo.Add(0xCAD38F3A46391F71, (7854, "WOW-56646patch11.0.5_XPTR", "Unknown 2 quests, 1 item"));
             KeyInfo.Add(0x576FFD59DF02378C, (7855, "WOW-56646patch11.0.5_XPTR", ""));
@@ -592,15 +592,18 @@
             KeyInfo.Add(0x77140C910A87FC87, (7866, "WOW-5XXXXpatch4.4.X_Classic", "Unknown pet (Cata Classic)"));
             KeyInfo.Add(0xE168510CBE69A8F5, (7868, "WOW-56646patch11.0.5_XPTR", "Unknown (Trading Post?) item set"));
             KeyInfo.Add(0xA12DB2F41620D8CF, (7869, "WOW-56646patch11.0.5_XPTR", "Unknown 7 items/quest"));
-            KeyInfo.Add(0x489B3CB76CD030B8, (7870, "WOW-56646patch11.0.5_XPTR", "Unknown mount/4 items"));
-            KeyInfo.Add(0xB29B815A3AFAA60C, (7871, "WOW-5XXXXpatch4.4.X_Classic", "Unknown mount (Cata Classic)"));
+            KeyInfo.Add(0x489B3CB76CD030B8, (7870, "WOW-56646patch11.0.5_XPTR", "30th Anniversary Mount Bundle"));
+            KeyInfo.Add(0xB29B815A3AFAA60C, (7871, "WOW-5XXXXpatch4.4.X_Classic", "30th Anniversary Mount Bundle (Cata Classic)"));
             KeyInfo.Add(0x1E51CA6A669DC2F1, (7872, "WOW-5XXXXpatch4.4.X_Classic", "Unknown pet (Cata Classic)"));
             KeyInfo.Add(0xBA2FA79D08092C3F, (7873, "WOW-5XXXXpatch4.4.X_Classic", "Unknown mount (Cata Classic)"));
             KeyInfo.Add(0xDE1A44498693B8FA, (7876, "WOW-56646patch11.0.5_XPTR", ""));
-            KeyInfo.Add(0x9E868894A3B77D26, (7877, "WOW-56646patch11.0.5_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0x9E868894A3B77D26, (7877, "WOW-56646patch11.0.5_XPTR", "2024 12 month sub offer assets"));
             KeyInfo.Add(0x0465EFCE1EBB0765, (7878, "WOW-56646patch11.0.5_XPTR", "Unknown store assets"));
             KeyInfo.Add(0xDBA48194881A227B, (7880, "WOW-56646patch11.0.5_XPTR", ""));
-            KeyInfo.Add(0x1C95D8623041EF30, (7909, "WOW-57XXXpatch11.0.5_XXX", "Unknown store assets"));
+            KeyInfo.Add(0x54D90855E99CA6FA, (7882, "WOW-5XXXXpatch4.4.0_Classic", "2024 12 month sub offer assets (Classic)"));
+            KeyInfo.Add(0x905FD359D27A46FB, (7883, "WOW-5XXXXpatch4.4.0_Classic", "Reven/Ibelin pack store assets (Classic)"));
+            KeyInfo.Add(0x1C95D8623041EF30, (7907, "WOW-57XXXpatch11.0.5_XXX", "Grizzly Hills Packmaster store assets"));
+            KeyInfo.Add(0x6955C096B4171FDF, (7909, "WOW-5XXXXpatch4.4.0_Classic", "Reven pet (Classic)"));
         }
 
         public static void ReloadKeys()
