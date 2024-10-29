@@ -264,7 +264,7 @@
             KeyInfo.Add(0x80FF7EDA8451FFFE, (446, "WOW-45232patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x2F454B153E142B76, (469, "WOW-47118patch10.0.5_PTR", "Ysergle The Dreamurk Pet"));
             KeyInfo.Add(0xB5F633819B0DE383, (470, "WOW-47118patch10.0.5_PTR", "Unknown creature"));
-            KeyInfo.Add(0x1FFB6C550D055F12, (471, "WOW-49516patch10.1.5_VANPTR", "Unknown pet (updated for 11.0.5)"));
+            KeyInfo.Add(0x1FFB6C550D055F12, (471, "WOW-49516patch10.1.5_VANPTR", "Ice Murloc pet (reused key 11.0.5)"));
             KeyInfo.Add(0x8C5276FE6714BE1C, (472, "WOW-49516patch10.1.5_VANPTR", "Unknown model"));
             KeyInfo.Add(0x258D1178AB798566, (473, "WOW-45335patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
             KeyInfo.Add(0x1E6AC96860BD524B, (474, "WOW-45335patch10.0.0_Beta", "0 file(s) as of 10.1.0.48480"));
@@ -542,7 +542,7 @@
             KeyInfo.Add(0x1B84AE8C716E4629, (7802, "WOW-5XXXXpatch1.15.X_PTR", "Unknown store assets (Classic Era)"));
             KeyInfo.Add(0x1CC72F44619B795F, (7804, "WOW-5XXXXpatch11.0.X_Beta", "Harmonious Salutations Bear mount"));
             KeyInfo.Add(0x1AD4A9461D5B709D, (7806, "WOW-5XXXXpatch11.0.X_Beta", "Unknown mount"));
-            KeyInfo.Add(0xE393A61EDC4BE147, (7807, "WOW-56646patch11.0.5_XPTR", "Unknown 3 quests, 2 items"));
+            KeyInfo.Add(0xE393A61EDC4BE147, (7807, "WOW-56646patch11.0.5_XPTR", "Secrets of Azeroth - Clam digging (29/10)"));
             KeyInfo.Add(0xDA82B0E3DCDF4493, (7808, "WOW-56646patch11.0.5_XPTR", "Unknown 1 quest, 2 items"));
             KeyInfo.Add(0x95581C6059A33B62, (7809, "WOW-56646patch11.0.5_XPTR", "Unknown 1 quest, 2 items"));
             KeyInfo.Add(0xA8061E87C7CCD1C6, (7810, "WOW-56646patch11.0.5_XPTR", "Unknown 1 quest, 2 items"));
@@ -551,7 +551,7 @@
             KeyInfo.Add(0x0B51842412134FB9, (7813, "WOW-56646patch11.0.5_XPTR", "Unknown 1 quest, 3 items"));
             KeyInfo.Add(0xFCD43FD5FFA12566, (7814, "WOW-56646patch11.0.5_XPTR", "Unknown 1 quest, 2 items"));
             KeyInfo.Add(0x9334D898461F00D2, (7815, "WOW-56646patch11.0.5_XPTR", "Unknown 1 quest, 2 items"));
-            KeyInfo.Add(0xB5B6F34184809375, (7816, "WOW-56646patch11.0.5_XPTR", "Unknown 7 quests, 11 items"));
+            KeyInfo.Add(0xB5B6F34184809375, (7816, "WOW-56646patch11.0.5_XPTR", "Secrets of Azeroth - Enzo questline (29/10)"));
             KeyInfo.Add(0xABD1F75CA7A901AE, (7817, "WOW-56646patch11.0.5_XPTR", "Unknown 14 quests, 14 items"));
             KeyInfo.Add(0x06BB0D71A84B7520, (7818, "WOW-56646patch11.0.5_XPTR", "Unknown 1 quest, 32 items"));
             KeyInfo.Add(0xE13B029FAB234E9F, (7819, "WOW-56646patch11.0.5_XPTR", "Unknown 2 quests, 1 item"));
@@ -575,7 +575,7 @@
             KeyInfo.Add(0xC9E3DF8A9BFCC9DC, (7845, "WOW-5XXXXpatch11.0.X_Beta", "TWW Recap cinematic"));
             KeyInfo.Add(0x1E63C1B745A3A8D2, (7846, "WOW-56646patch11.0.5_XPTR", "Trader's Gilded Brutosaur mount"));
             KeyInfo.Add(0x26C603F611AC329B, (7849, "WOW-5XXXXpatch11.0.X_Beta", "Grizzly Hills Packmaster mount"));
-            KeyInfo.Add(0x8499F102D2657F85, (7850, "WOW-56646patch11.0.5_XPTR", "Unknown 2 quests, 8 items"));
+            KeyInfo.Add(0x8499F102D2657F85, (7850, "WOW-56646patch11.0.5_XPTR", "Secrets of Azeroth - Board quest (29/10)"));
             KeyInfo.Add(0x482D9FFF2F6617AF, (7851, "WOW-5XXXXpatch11.0.X_Beta", "China return store assets"));
             KeyInfo.Add(0x23664012A7F9892A, (7852, "WOW-56646patch11.0.5_XPTR", "Reven/Ibelin pack (pet + back transmog)"));
             KeyInfo.Add(0xBEDD8CF39C737CF7, (7853, "WOW-5XXXXpatch11.0.X_Beta", "Essence Pack store assets"));
@@ -602,7 +602,7 @@
             KeyInfo.Add(0xDBA48194881A227B, (7880, "WOW-56646patch11.0.5_XPTR", ""));
             KeyInfo.Add(0x54D90855E99CA6FA, (7882, "WOW-5XXXXpatch4.4.0_Classic", "2024 12 month sub offer assets (Classic)"));
             KeyInfo.Add(0x905FD359D27A46FB, (7883, "WOW-5XXXXpatch4.4.0_Classic", "Reven/Ibelin pack store assets (Classic)"));
-            KeyInfo.Add(0x1C95D8623041EF30, (7907, "WOW-57XXXpatch11.0.5_XXX", "Grizzly Hills Packmaster store assets"));
+            KeyInfo.Add(0x1C95D8623041EF30, (7907, "WOW-57XXXpatch11.0.5_XXX", "Trader's Gilded Brutosaur store assets"));
             KeyInfo.Add(0x6955C096B4171FDF, (7909, "WOW-5XXXXpatch4.4.0_Classic", "Reven pet (Classic)"));
         }
 
