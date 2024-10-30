@@ -418,20 +418,42 @@ namespace wow.tools.local.Controllers
             if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && Directory.Exists(SettingsManager.dbcFolder))
             {
                 var dbcFolder = new DirectoryInfo(SettingsManager.dbcFolder);
-                var dbcFiles = dbcFolder.GetFiles("*" + databaseName + ".db*", SearchOption.AllDirectories);
-                foreach (var dbcFile in dbcFiles)
+                foreach(var subfolder in dbcFolder.EnumerateDirectories())
                 {
-                    var splitFolders = dbcFile.DirectoryName.Split(Path.DirectorySeparatorChar);
-                    foreach (var splitFolder in splitFolders)
+                    var buildTest = Path.GetFileName(subfolder.Name).Split(".");
+                    if (buildTest.Length == 4 && buildTest.All(s => s.All(char.IsDigit)))
                     {
-                        var buildTest = splitFolder.Split(".");
-                        if (buildTest.Length == 4 && buildTest.All(s => s.All(char.IsDigit)))
+                        if (!versionList.Contains(new Version(subfolder.Name)) && (System.IO.File.Exists(Path.Combine(subfolder.FullName, "dbfilesclient", databaseName + ".db2")) || System.IO.File.Exists(Path.Combine(subfolder.FullName, "dbfilesclient", databaseName + ".dbc"))))
                         {
-                            if (!versionList.Contains(new Version(splitFolder)))
-                            {
-                                versionList.Add(new Version(splitFolder));
-                                continue;
-                            }
+                            versionList.Add(new Version(subfolder.Name));
+                            continue;
+                        }
+                    }
+                }
+            }
+            return versionList.OrderDescending().Select(v => v.ToString()).ToList();
+        }
+
+        [HttpGet("db2/builds")]
+        public List<string> Builds()
+        {
+            var versionList = new List<Version>
+            {
+                new(CASC.BuildName)
+            };
+
+            if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && Directory.Exists(SettingsManager.dbcFolder))
+            {
+                var dbcFolder = new DirectoryInfo(SettingsManager.dbcFolder);
+                foreach (var subfolder in dbcFolder.EnumerateDirectories())
+                {
+                    var buildTest = Path.GetFileName(subfolder.Name).Split(".");
+                    if (buildTest.Length == 4 && buildTest.All(s => s.All(char.IsDigit)))
+                    {
+                        if (!versionList.Contains(new Version(subfolder.Name)))
+                        {
+                            versionList.Add(new Version(subfolder.Name));
+                            continue;
                         }
                     }
                 }
