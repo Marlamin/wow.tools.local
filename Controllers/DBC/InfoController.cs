@@ -85,7 +85,7 @@ namespace wow.tools.local.Controllers
 
                     db2Info.Add(db2); // name
 
-                    if (magic == "WDC2" || magic == "WDC3" || magic == "WDC4" || magic == "WDC5")
+                    if (magic == "1SLC" || magic == "WDC2" || magic == "WDC3" || magic == "WDC4" || magic == "WDC5")
                     {
                         if (magic == "WDC5")
                         {
