@@ -86,7 +86,6 @@ namespace wow.tools.local.Controllers
                     foreach (var hotfix in cache.hotfixes)
                     {
                         if (hotfix.dataSize == 0) continue;
-
                         if (hotfix.tableHash == 0x021826BB)
                         {
                             using (var ms = new MemoryStream(hotfix.data))
@@ -94,24 +93,15 @@ namespace wow.tools.local.Controllers
                             {
                                 bin.ReadCString(); // Text_lang
                                 bin.ReadCString(); // Text1_lang
-                                bin.ReadUInt32();  // ID
-                                bin.ReadUInt32();  // LanguageID
-                                bin.ReadUInt32();  // ConditionID
-                                bin.ReadUInt16();  // EmotesID
-                                bin.ReadByte();    // Flags
-                                bin.ReadUInt32();  // ChatBubbleDurationMs
-                                bin.ReadUInt32();  // VoiceOverPriorityID
-                                bin.ReadUInt32();  // SoundKitID[0]
-                                bin.ReadUInt32();  // SoundKitID[1]
-                                bin.ReadUInt16();  // EmoteID[0]
-                                bin.ReadUInt16();  // EmoteID[1]
-                                bin.ReadUInt16();  // EmoteID[2]
-                                bin.ReadUInt16();  // EmoteDelay[0]
-                                bin.ReadUInt16();  // EmoteDelay[1]
-                                bin.ReadUInt16();  // EmoteDelay[2]
+
+                                var remaining = bin.BaseStream.Length - bin.BaseStream.Position;
+                                if(remaining == 44 || remaining == 45)
+                                    continue;
+
+                                bin.BaseStream.Position = bin.BaseStream.Length - 28;
+
                                 if (bin.BaseStream.Position != bin.BaseStream.Length)
                                 {
-
                                     var extraTableHash = bin.ReadUInt32();
                                     if (extraTableHash == 0xDF2F53CF)
                                     {
@@ -152,21 +142,13 @@ namespace wow.tools.local.Controllers
                             {
                                 bin.ReadCString(); // Text_lang
                                 bin.ReadCString(); // Text1_lang
-                                bin.ReadUInt32();  // ID
-                                bin.ReadUInt32();  // LanguageID
-                                bin.ReadUInt32();  // ConditionID
-                                bin.ReadUInt16();  // EmotesID
-                                bin.ReadByte();    // Flags
-                                bin.ReadUInt32();  // ChatBubbleDurationMs
-                                bin.ReadUInt32();  // VoiceOverPriorityID
-                                bin.ReadUInt32();  // SoundKitID[0]
-                                bin.ReadUInt32();  // SoundKitID[1]
-                                bin.ReadUInt16();  // EmoteID[0]
-                                bin.ReadUInt16();  // EmoteID[1]
-                                bin.ReadUInt16();  // EmoteID[2]
-                                bin.ReadUInt16();  // EmoteDelay[0]
-                                bin.ReadUInt16();  // EmoteDelay[1]
-                                bin.ReadUInt16();  // EmoteDelay[2]
+
+                                var remaining = bin.BaseStream.Length - bin.BaseStream.Position;
+                                if (remaining == 44 || remaining == 45)
+                                    continue;
+
+                                bin.BaseStream.Position = bin.BaseStream.Length - 28;
+
                                 if (bin.BaseStream.Position != bin.BaseStream.Length)
                                 {
 
