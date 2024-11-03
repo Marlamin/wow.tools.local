@@ -234,7 +234,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
         html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
         if (type == "m2") {
             html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
-        }else if(type == "wmo"){
+        } else if (type == "wmo") {
             html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
         }
         html += "</div>";
@@ -253,11 +253,16 @@ function fillPreviewModal(buildconfig, filedataid, type) {
         fetch("/model/info?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
             document.getElementById('modelinfoHolder').innerHTML = text;
         });
-    } else if (type == "xml" || type == "lua" || type == "txt" || type == "srt" || type == "toc") {
+    } else if (type == "lua" || type == "txt" || type == "srt" || type == "toc") {
         fetch(url).then((response) => response.text()).then((text) => {
             document.getElementById('codeHolder').innerHTML = text;
-            });
+        });
         html += "<pre style='max-height: 80vh'><code id='codeHolder'></code></pre>";
+    } else if (type == "xml") {
+                fetch(url).then((response) => response.text()).then((text) => {
+            document.getElementById('codeHolder').innerHTML = text;
+        });
+        html += "<pre style='max-height: 80vh'><script type='text/plain' style='display: block' id='codeHolder'></script></pre>";
     }
 
     if ($("#files_preview").is(":visible")){
