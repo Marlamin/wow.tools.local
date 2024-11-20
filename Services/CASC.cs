@@ -92,7 +92,7 @@ namespace wow.tools.local.Services
                         {
                             using (var httpClient = new HttpClient())
                             {
-                                var keyring = httpClient.GetStreamAsync("http://cdn.blizzard.com/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
+                                var keyring = httpClient.GetStreamAsync("https://blzddist1-a.akamaihd.net/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
 
                                 string keyringContents;
                                 if (!string.IsNullOrEmpty(build.Armadillo))
