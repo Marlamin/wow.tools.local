@@ -245,7 +245,7 @@
                         element = $(element);
                         var column = table.column(index);
                         if (element.hasClass("filterable")) {
-                            var select = $('<select style="height: 20px; width: calc(100% - 25px);" class="form-control form-control-sm"><option value=""></option></select>')
+                            var select = $('<select style="height: 20px; width: calc(100% - 5px); display: inline-block;" class="form-control form-control-sm"><option value=""></option></select>')
                                 .appendTo(element)
                                 .on('change', function () {
                                     var val = "^" + $(this).val() + "$"
@@ -264,7 +264,7 @@
                                 select.append('<option value="' + d + '">' + d + '</option>')
                             });
                         } else if (element.hasClass("searchable")) {
-                            $(this).html('<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 25px);" placeholder="Search" />');
+                            $(this).html('<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 5px); display: inline-block;" placeholder="Search" />');
                             $("input", this).on('keyup change', debounce(function () {
                                 table.column(index).search(this.value).draw();
                             }, 50));
@@ -288,7 +288,7 @@
         <h3>Showing differences between <span id="fromBuildName"></span> and <span id="toBuildName"></span><span id='summary'></span></h3>
         <table id='buildtable' class='table table-sm table-hover maintable'>
             <thead>
-                <tr class="filters">
+                <tr class="filters"  data-dt-order="disable">
                     <th class="filterable"></th>
                     <th class="searchable"></th>
                     <th class="searchable"></th>
@@ -296,7 +296,7 @@
                 </tr>
                 <tr>
                     <th style='width: 80px'>Action</th>
-                    <th style='width: 170px;'>FileData ID</th>
+                    <th style='width: 120px;'>FileData ID</th>
                     <th>Filename</th>
                     <th style='width: 50px'>Type</th>
                     <th style='width: 25px'>&nbsp;</th>
