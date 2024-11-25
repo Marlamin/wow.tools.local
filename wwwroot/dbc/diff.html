@@ -177,13 +177,8 @@
 
                         data.forEach((version) => {
                             var option = document.createElement("option");
-                            option.value = version;
-                            if (version == Settings.localBuildName) {
-                                option.text = version;
-                            } else {
-                                option.text = version + " (disk)";
-                            }
-
+                            option.value = version.item1;
+                            option.text = version.item1 + " (" + version.item2 + ")";
                             if (option.value.toLowerCase() == oldBuild) {
                                 option.selected = true;
                             }
@@ -191,13 +186,8 @@
                             oldbuild.appendChild(option);
 
                             var option = document.createElement("option");
-                            option.value = version;
-                            if (version == Settings.localBuildName) {
-                                option.text = version;
-                            } else {
-                                option.text = version + " (disk)";
-                            }
-
+                            option.value = version.item1;
+                            option.text = version.item1 + " (" + version.item2 + ")";
                             if (option.value.toLowerCase() == newBuild) {
                                 option.selected = true;
                             }

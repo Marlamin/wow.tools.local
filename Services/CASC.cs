@@ -781,7 +781,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
                         var ckey = preferredEntry.cKey.ToHexString();
 
-                        if (ckey == "00000000000000000000000000000000")
+                        if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
                         {
                             preferredEntry = entry.Value.First();
                             ckey = preferredEntry.cKey.ToHexString();
@@ -808,7 +808,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
                         var ckey = preferredEntry.cKey.ToHexString();
 
-                        if (ckey == "00000000000000000000000000000000")
+                        if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
                         {
                             preferredEntry = entry.Value.First();
                             ckey = preferredEntry.cKey.ToHexString();
