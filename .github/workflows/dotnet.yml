@@ -42,17 +42,17 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet publish -c Release -r ${{ matrix.target }} --self-contained -f net8.0
+      run: dotnet publish -c Release -r ${{ matrix.target }} --self-contained -f net9.0
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Archive Release
       uses: thedoctor0/zip-release@main
       with:
-        directory: ${{ github.workspace }}/bin/Release/net8.0/${{ matrix.target }}/publish
+        directory: ${{ github.workspace }}/bin/Release/net9.0/${{ matrix.target }}/publish
         type: 'zip'
         filename: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
     - name: Release
