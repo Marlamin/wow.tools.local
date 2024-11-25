@@ -1,16 +1,20 @@
 ﻿using CASCLib;
+using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
 using System.Globalization;
 using wow.tools.local.Services;
+using wow.tools.Services;
 
 namespace wow.tools.local.Controllers
 {
     [Route("listfile/")]
     [ApiController]
-    public class ListfileController(IDBCManager dbcManager) : Controller
+    public class ListfileController(IDBCManager dbcManager, IDBDProvider dbdProvider) : Controller
     {
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
+        private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
+
         private readonly Jenkins96 hasher = new();
         private static Dictionary<int, List<uint>> SoundKitMap;
         private static Dictionary<int, List<uint>> MFDMap;
@@ -149,7 +153,7 @@ namespace wow.tools.local.Controllers
                         Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
                     }
                 }
-                
+
             }
 
             if (MFDMap == null)
@@ -349,7 +353,7 @@ namespace wow.tools.local.Controllers
             };
 
             var showM2 = true;
-            if(Request.Query.TryGetValue("showM2", out var showM2String))
+            if (Request.Query.TryGetValue("showM2", out var showM2String))
                 showM2 = bool.Parse(showM2String);
 
             var showWMO = true;
@@ -420,36 +424,50 @@ namespace wow.tools.local.Controllers
 
         [Route("db2s")]
         [HttpGet]
-        public List<string> DB2s()
+        public string[] DB2s()
         {
             return dbcManager.GetDBCNames();
         }
 
         [HttpGet("db2/{databaseName}/versions")]
-        public List<string> BuildsForDatabase(string databaseName, bool uniqueOnly = false)
+        public List<(Version, string)> BuildsForDatabase(string databaseName, bool uniqueOnly = false)
         {
-            var versionList = new List<Version>
-            {
-                new(CASC.BuildName)
-            };
+            var versionList = new SortedDictionary<Version, string>();
+
+            if (CASC.DB2Exists("DBFilesClient/" + databaseName + ".db2"))
+                versionList.Add(new Version(CASC.BuildName), "CASC");
 
             if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && Directory.Exists(SettingsManager.dbcFolder))
             {
                 var dbcFolder = new DirectoryInfo(SettingsManager.dbcFolder);
-                foreach(var subfolder in dbcFolder.EnumerateDirectories())
+                foreach (var build in dbdProvider.GetVersionsInDBD(databaseName))
                 {
-                    var buildTest = Path.GetFileName(subfolder.Name).Split(".");
-                    if (buildTest.Length == 4 && buildTest.All(s => s.All(char.IsDigit)))
+                    var buildAsVersion = new Version(build);
+
+                    if (!versionList.ContainsKey(buildAsVersion))
                     {
-                        if (!versionList.Contains(new Version(subfolder.Name)) && (System.IO.File.Exists(Path.Combine(subfolder.FullName, "dbfilesclient", databaseName + ".db2")) || System.IO.File.Exists(Path.Combine(subfolder.FullName, "dbfilesclient", databaseName + ".dbc"))))
+                        if(System.IO.File.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", databaseName + ".db2")) || System.IO.File.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", databaseName + ".dbc")))
                         {
-                            versionList.Add(new Version(subfolder.Name));
+                            versionList.Add(buildAsVersion, "disk");
+                            continue;
+                        }
+                        else if(
+                            (buildAsVersion.Major > 6) || 
+                            (buildAsVersion.Major == 1 && buildAsVersion.Minor >= 13) || 
+                            (buildAsVersion.Major == 2 && buildAsVersion.Minor >= 5) || 
+                            (buildAsVersion.Major == 3 && buildAsVersion.Minor >= 4) ||
+                            (buildAsVersion.Major == 4 && buildAsVersion.Minor >= 4) ||
+                            (buildAsVersion.Major == 5 && buildAsVersion.Minor >= 5)
+                            ) 
+                        {
+                            versionList.Add(buildAsVersion, "online");
                             continue;
                         }
                     }
                 }
             }
-            return versionList.OrderDescending().Select(v => v.ToString()).ToList();
+
+            return versionList.Select(kvp => (kvp.Key, kvp.Value)).OrderByDescending(x => x.Key).ToList();
         }
 
         [HttpGet("db2/builds")]
@@ -550,7 +568,7 @@ namespace wow.tools.local.Controllers
                 // If our listfile setting points to a parts dir, merge in the existing meta lookup file
                 if (!SettingsManager.listfileURL.StartsWith("http") && Directory.Exists(SettingsManager.listfileURL))
                 {
-                    var metaFile = Path.Combine(SettingsManager.listfileURL, "..", "meta","lookup.csv");
+                    var metaFile = Path.Combine(SettingsManager.listfileURL, "..", "meta", "lookup.csv");
 
                     if (System.IO.File.Exists(metaFile))
                     {
@@ -564,7 +582,7 @@ namespace wow.tools.local.Controllers
                             var lookup = ulong.Parse(split[1], NumberStyles.HexNumber);
                             if (sortedMap.TryGetValue(fdid, out var currentLookup))
                             {
-                                if(currentLookup != lookup)
+                                if (currentLookup != lookup)
                                     Console.WriteLine("LOOKUP MISMATCH FOR FDID " + fdid + ": Exists as " + currentLookup.ToString("X16").ToLower() + " but tried to set to " + split[1]);
                             }
                             else

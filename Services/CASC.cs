@@ -544,6 +544,9 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
             Console.WriteLine("Finished loading listfile: " + Listfile.Count + " named files for this build");
 
+            // Load DBD manifest for additional DB2s
+            DBDManifest.Load();
+
             return true;
         }
 

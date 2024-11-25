@@ -567,17 +567,30 @@
             if (currentParams["dbc"] == "")
                 return;
 
+            var currentDBC = currentParams["dbc"];
+
             console.log("Refreshing versions");
             var versionAPIURL = "/listfile/db2/" + currentParams["dbc"] + "/versions";
             if (Settings.changedVersionsOnly)
                 versionAPIURL += "?uniqueOnly=true";
 
+
+            document.getElementById("buildFilter").disabled = true;
+            document.getElementById("buildFilter").classList.add('disabled');
+
             fetch(versionAPIURL)
                 .then(function (versionResponse) {
                     return versionResponse.json();
                 }).then(function (data) {
+                    if (currentDBC != currentParams["dbc"]) {
+                        console.log("DBC has changed from " + currentDBC + " to " + currentParams["dbc"] + " since versions were requested, discarding..");
+                        return;
+                    }
+
                     var buildFilter = document.getElementById('buildFilter');
                     buildFilter.innerHTML = "";
+
+                    var validBuilds = [];
 
                     var preselected = false;
                     if (Settings.lockedBuild != null && Settings.lockedBuild != "none" && (!data.includes(Settings
@@ -594,39 +607,39 @@
 
                     data.forEach((version) => {
                         var option = document.createElement("option");
-                        option.value = version;
-                        if (version == Settings.localBuildName) {
-                            option.text = version;
-                        } else {
-                            option.text = version + " (disk)";
-                        }
-                        if (!preselected && (option.value == currentParams["build"] || option.value == Settings
-                            .lockedBuild)) {
+                        option.value = version.item1;
+                        option.text = version.item1 + " (" + version.item2 + ")";
+                        validBuilds.push(version.item1);
+
+                        if (!preselected && (option.value == currentParams["build"])) {
                             option.selected = true;
                         }
 
                         buildFilter.appendChild(option);
                     });
 
-                    if (currentParams["build"] == "" || !data.includes(currentParams["build"])) {
+                    if (currentParams["build"] == "" || !validBuilds.includes(currentParams["build"])) {
                         // No build was selected, load table with the latest build
+                        console.log("No or invalid build selected, loading table with latest build");
                         if (Settings.lockedBuild !== null) {
                             currentParams["build"] = Settings.lockedBuild;
                         } else {
-                            currentParams["build"] = data[0];
+                            currentParams["build"] = data[0].item1;
                         }
+
                         loadTable();
                     }
 
-                    if (Settings.lockedBuild != null && Settings.lockedBuild != "none") {
-                        buildFilter.disabled = true;
-                        buildFilter.classList.add("disabled");
-                        buildFilter.title = "Build locked in settings";
-                    } else {
+                    //if (Settings.lockedBuild != null && Settings.lockedBuild != "none") {
+                    //    buildFilter.disabled = true;
+                    //    buildFilter.classList.add("disabled");
+                    //    buildFilter.title = "Build locked in settings";
+                    //} else {
                         buildFilter.disabled = false;
                         buildFilter.classList.remove("disabled");
                         buildFilter.title = "";
-                    }
+                    //}
+
                 }).catch(function (error) {
                     console.log("An error occurred retrieving versions: " + error);
                 });
@@ -933,7 +946,7 @@
                                 "\n\nPlease open an issue on the WoWDBDefs repository with the DBC name and selected version on GitHub to request a definition for this build.\n\nhttps://github.com/wowdev/WoWDBDefs";
                         }
                         $("#loadingMessage").html(
-                            "<div class='alert '><b>Whoops, something exploded while loading this DBC</b><br>It is possible this is due to maintenance or an issue with reading the DBC file itself. Please try again later or report the below error (together with the table name and version) in Discord if it persists. Thanks!</p><p style='margin: 5px;'><kbd>" +
+                            "<div class='alert '><b>Whoops, something exploded while loading this DBC</b><br>If you feel this is not intended, please report the below error (together with the table name and version).</p><p style='margin: 5px;'><kbd>" +
                             json['error'] + "</kbd></p></div>");
                         return;
                     }

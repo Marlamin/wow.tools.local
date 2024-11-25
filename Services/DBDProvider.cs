@@ -106,10 +106,31 @@ namespace wow.tools.Services
             return relations;
         }
 
+        public string[] GetVersionsInDBD(string tableName)
+        {
+            if (!definitionLookup.TryGetValue(tableName, out var tableDefinition))
+                throw new Exception("No DBD found for table name " + tableName);
+
+            var buildList = new List<string>();
+
+            foreach(var definition in tableDefinition.Definition.versionDefinitions)
+            {
+                foreach(var build in definition.builds)
+                    buildList.Add(build.ToString());
+
+                foreach(var buildRange in definition.buildRanges)
+                {
+                    buildList.Add(buildRange.minBuild.ToString());
+                    buildList.Add(buildRange.maxBuild.ToString());
+                }
+            }
+
+            return buildList.ToArray();
+        }
 
         public string[] GetNames()
         {
-            return [.. definitionLookup.Keys];
+            return [.. definitionLookup.Keys.Order()];
         }
     }
 }

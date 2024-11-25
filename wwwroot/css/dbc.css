@@ -17,7 +17,8 @@
 
 .buildFilter{
 	float: left;
-	width: 130px;
+	width: 160px;
+	height: 39px;
 	display: inline-block;
 	margin-left: 5px;
 	margin-bottom: 5px;
