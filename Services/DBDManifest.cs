@@ -7,7 +7,7 @@ namespace wow.tools.local.Services
     {
         public static void Load()
         {
-            var manifestLocation = Path.Combine(SettingsManager.definitionDir, "..", "manifest.json");
+            var manifestLocation = Path.GetFullPath(Path.Combine(SettingsManager.definitionDir, "..", "manifest.json"));
             if(!File.Exists(manifestLocation))
             {
                 Console.WriteLine("No manifest found at " + manifestLocation + ", skipping DBD manifest initialization.");
