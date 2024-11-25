@@ -437,8 +437,11 @@ namespace wow.tools.local.Controllers
             if (CASC.DB2Exists("DBFilesClient/" + databaseName + ".db2"))
                 versionList.Add(new Version(CASC.BuildName), "CASC");
 
-            if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && Directory.Exists(SettingsManager.dbcFolder))
+            if (!string.IsNullOrEmpty(SettingsManager.dbcFolder))
             {
+                if(!Directory.Exists(SettingsManager.dbcFolder))
+                    Directory.CreateDirectory(SettingsManager.dbcFolder);
+
                 var dbcFolder = new DirectoryInfo(SettingsManager.dbcFolder);
                 foreach (var build in dbdProvider.GetVersionsInDBD(databaseName))
                 {
