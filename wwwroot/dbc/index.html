@@ -574,7 +574,6 @@
             if (Settings.changedVersionsOnly)
                 versionAPIURL += "?uniqueOnly=true";
 
-
             document.getElementById("buildFilter").disabled = true;
             document.getElementById("buildFilter").classList.add('disabled');
 
@@ -1353,8 +1352,15 @@
                 currentParams["dbc"] = vars["dbc"].replace(".db2", "").toLowerCase().split('#')[0];
             }
 
-            const response = await fetch("/casc/buildname");
-            currentParams["build"] = await response.text();
+            if (!currentParams.includes("build") || currentParams["build"] == "") {
+                if ("build" in vars) {
+                    currentParams["build"] = vars["build"];
+                } else {
+                    const response = await fetch("/casc/buildname");
+                    const build = await response.text();
+                    currentParams["build"] = build;
+                }
+            }
 
             currentParams["hotfixes"] = false;
             if (vars["hotfixes"] == "true") {
