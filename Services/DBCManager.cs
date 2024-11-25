@@ -8,9 +8,10 @@ using wow.tools.Services;
 
 namespace wow.tools.local.Services
 {
-    public class DBCManager(IDBDProvider dbdProvider) : IDBCManager
+    public class DBCManager(IDBDProvider dbdProvider, IDBCProvider dbcProvider) : IDBCManager
     {
         private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
+        private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
 
         private MemoryCache Cache = new(new MemoryCacheOptions() { SizeLimit = 250 });
         private readonly ConcurrentDictionary<(string, string, bool), SemaphoreSlim> Locks = [];
@@ -59,7 +60,6 @@ namespace wow.tools.local.Services
 
         private IDBCDStorage LoadDBC(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int> pushIDFilter = null)
         {
-            var dbcProvider = new DBCProvider();
             if (locale != LocaleFlags.All_WoW)
             {
                 dbcProvider.localeFlags = locale;
@@ -122,7 +122,22 @@ namespace wow.tools.local.Services
 
         public string[] GetDBCNames(string? build = null)
         {
-            return dbdProvider.GetNames();
+            var dbcNames = dbdProvider.GetNames();
+
+            if (build != null)
+            {
+                var filteredNames = new List<string>();
+                foreach (var name in dbcNames)
+                {
+                    if (dbcProvider.DB2IsCached(name, build))
+                        filteredNames.Add(name);
+                }
+                return filteredNames.ToArray();
+            }
+            else
+            {
+                return dbcNames;
+            }
         }
 
         public async Task<List<DBCDRow>> FindRecords(string name, string build, string col, int val, bool single = false)

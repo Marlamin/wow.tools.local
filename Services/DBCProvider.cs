@@ -8,6 +8,45 @@ namespace wow.tools.local.Services
         public LocaleFlags localeFlags = LocaleFlags.All_WoW;
         private static HttpClient webClient = new();
 
+        public bool DB2IsCached(string tableName, string build)
+        {
+            if (tableName.Contains("."))
+                throw new Exception("Invalid DBC name!");
+
+            if (string.IsNullOrEmpty(build))
+                throw new Exception("No build given!");
+
+            tableName = tableName.ToLower();
+
+            var fullFileName = "dbfilesclient/" + tableName + ".db2";
+
+            if (build == CASC.BuildName && CASC.DB2Exists(fullFileName))
+            {
+                return true;
+            }
+
+            // Try from disk
+            if (string.IsNullOrEmpty(SettingsManager.dbcFolder))
+            {
+                Console.WriteLine("DBC folder not set up, can't load DB2 " + tableName + " for build " + build + " from disk");
+                throw new FileNotFoundException($"Unable to find {tableName}");
+            }
+
+            string fileName = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", $"{tableName}.db2");
+
+            // if the db2 variant doesn't exist try dbc
+            if (File.Exists(fileName))
+                return true;
+
+            fileName = Path.ChangeExtension(fileName, ".dbc");
+
+            // if the dbc variant doesn't exist throw
+            if (File.Exists(fileName))
+                return true;
+
+            return false;
+        }
+
         public Stream StreamForTableName(string tableName, string build)
         {
             if (tableName.Contains("."))
@@ -20,7 +59,7 @@ namespace wow.tools.local.Services
 
             var fullFileName = "dbfilesclient/" + tableName + ".db2";
 
-            if (build == CASC.BuildName)
+            if (build == CASC.BuildName && CASC.DB2Exists(fullFileName))
             {
                 // Load from CASC
                 try
