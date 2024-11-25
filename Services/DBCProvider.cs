@@ -58,32 +58,30 @@ namespace wow.tools.local.Services
 
                 if (db2Req.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    using(var db2Stream = new MemoryStream())
+                    var db2Stream = new MemoryStream();
+                    db2Req.Content.CopyToAsync(db2Stream).Wait();
+
+                    if (db2Stream.Length > 40)
                     {
-                        db2Req.Content.CopyToAsync(db2Stream).Wait();
+                        db2Stream.Position = 0;
 
-                        if (db2Stream.Length > 40)
+                        if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && !File.Exists(Path.Combine(SettingsManager.dbcFolder, "dbfilesclient", $"{tableName}.db2")))
                         {
-                            db2Stream.Position = 0;
+                            Console.WriteLine("Caching " + tableName + " for build " + build + " to disk..");
+                            if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient")))
+                                Directory.CreateDirectory(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient"));
 
-                            if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && !File.Exists(Path.Combine(SettingsManager.dbcFolder, "dbfilesclient", $"{tableName}.db2")))
+                            var db2File = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", $"{tableName}.db2");
+
+                            using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
                             {
-                                Console.WriteLine("Caching " + tableName + " for build " + build + " to disk..");
-                                if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient")))
-                                    Directory.CreateDirectory(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient"));
-
-                                var db2File = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", $"{tableName}.db2");
-
-                                using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
-                                {
-                                    db2Stream.CopyTo(fileStream);
-                                }
-
-                                db2Stream.Position = 0;
+                                db2Stream.CopyTo(fileStream);
                             }
 
-                            return db2Stream;
+                            db2Stream.Position = 0;
                         }
+
+                        return db2Stream;
                     }
                 }
             }
@@ -94,32 +92,30 @@ namespace wow.tools.local.Services
 
                 if (dbcReq.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    using (var dbcStream = new MemoryStream())
+                    var dbcStream = new MemoryStream();
+                    dbcReq.Content.CopyToAsync(dbcStream).Wait();
+
+                    if (dbcStream.Length > 40)
                     {
-                        dbcReq.Content.CopyToAsync(dbcStream).Wait();
+                        dbcStream.Position = 0;
 
-                        if (dbcStream.Length > 40)
+                        if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && !File.Exists(Path.Combine(SettingsManager.dbcFolder, "dbfilesclient", $"{tableName}.dbc")))
                         {
-                            dbcStream.Position = 0;
+                            Console.WriteLine("Caching " + tableName + " for build " + build + " to disk..");
+                            if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient")))
+                                Directory.CreateDirectory(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient"));
 
-                            if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && !File.Exists(Path.Combine(SettingsManager.dbcFolder, "dbfilesclient", $"{tableName}.dbc")))
+                            var db2File = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", $"{tableName}.dbc");
+
+                            using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
                             {
-                                Console.WriteLine("Caching " + tableName + " for build " + build + " to disk..");
-                                if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient")))
-                                    Directory.CreateDirectory(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient"));
-
-                                var db2File = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", $"{tableName}.dbc");
-
-                                using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
-                                {
-                                    dbcStream.CopyTo(fileStream);
-                                }
-
-                                dbcStream.Position = 0;
+                                dbcStream.CopyTo(fileStream);
                             }
 
-                            return dbcStream;
+                            dbcStream.Position = 0;
                         }
+
+                        return dbcStream;
                     }
                 }
             }
