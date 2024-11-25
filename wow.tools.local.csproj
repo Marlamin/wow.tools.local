@@ -55,6 +55,7 @@
 
   <ItemGroup>
     <Content Include="WoWDBDefs\definitions\**" LinkBase="definitions\" CopyToOutputDirectory="Always" />
+    <Content Include="WoWDBDefs\manifest.json" LinkBase="" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
