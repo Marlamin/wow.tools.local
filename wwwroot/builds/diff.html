@@ -104,8 +104,6 @@
                 pageLength: 25,
                 autoWidth: false,
                 layout: {
-                    topStart: null,
-                    topEnd: null,
                     bottomEnd: 'inputPaging'
                 },
                 deferRender: true,
@@ -286,7 +284,7 @@
     </script>
     <div class='container-fluid' id='diffContainer'>
         <h3>Showing differences between <span id="fromBuildName"></span> and <span id="toBuildName"></span><span id='summary'></span></h3>
-        <table id='buildtable' class='table table-sm table-hover maintable'>
+        <table id='buildtable' class='table table-striped table-sm table-hover maintable'>
             <thead>
                 <tr class="filters"  data-dt-order="disable">
                     <th class="filterable"></th>
@@ -296,7 +294,7 @@
                 </tr>
                 <tr>
                     <th style='width: 80px'>Action</th>
-                    <th style='width: 120px;'>FileData ID</th>
+                    <th style='width: 80px;'>FDID</th>
                     <th>Filename</th>
                     <th style='width: 50px'>Type</th>
                     <th style='width: 25px'>&nbsp;</th>
