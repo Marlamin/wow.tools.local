@@ -6,6 +6,7 @@ using Newtonsoft.Json.Converters;
 using SereniaBLPLib;
 using SixLabors.ImageSharp;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
 using wow.tools.local.Services;
@@ -462,7 +463,7 @@ namespace wow.tools.local.Controllers
 
         [Route("diff")]
         [HttpGet]
-        public ActionResult DiffManifests(string from, string to)
+        public async Task<ActionResult> DiffManifests(string from, string to)
         {
             if (BuildDiffCache.Get(from, to, out ApiDiff diff))
             {
@@ -495,8 +496,8 @@ namespace wow.tools.local.Controllers
                 };
             }
 
-            var rootFromEntries = System.IO.File.ReadAllLines(Path.Combine(SettingsManager.manifestFolder, from + ".txt")).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
-            var rootToEntries = System.IO.File.ReadAllLines(Path.Combine(SettingsManager.manifestFolder, to + ".txt")).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            var rootFromEntries = (await System.IO.File.ReadAllLinesAsync(Path.Combine(SettingsManager.manifestFolder, from + ".txt"))).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            var rootToEntries = (await System.IO.File.ReadAllLinesAsync(Path.Combine(SettingsManager.manifestFolder, to + ".txt"))).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
 
             var fromEntries = rootFromEntries.Keys.ToHashSet();
             var toEntries = rootToEntries.Keys.ToHashSet();
@@ -527,27 +528,25 @@ namespace wow.tools.local.Controllers
                         {
                             var fromDB2 = dbcProvider.StreamForTableName(basename, from);
                             var fromDB2Header = new byte[4];
-                            fromDB2.Read(fromDB2Header, 0, 4);
+                            await fromDB2.ReadExactlyAsync(fromDB2Header);
 
                             var toDB2 = dbcProvider.StreamForTableName(basename, to);
                             var toDB2Header = new byte[4];
-                            toDB2.Read(toDB2Header, 0, 4);
+                            await toDB2.ReadExactlyAsync(toDB2Header);
 
-                            if (BitConverter.ToInt32(toDB2Header, 0) == 0x35434457 && BitConverter.ToInt32(fromDB2Header, 0) == 0x35434457)
+                            if (MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457 && MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457)
                             {
                                 fromDB2.Position = 136;
                                 toDB2.Position = 136;
 
                                 var remainingFromBytes = new byte[fromDB2.Length - 136];
-                                fromDB2.Read(remainingFromBytes, 0, remainingFromBytes.Length);
-
+                                await fromDB2.ReadExactlyAsync(remainingFromBytes);
+                                
                                 var remainingToBytes = new byte[toDB2.Length - 136];
-                                toDB2.Read(remainingToBytes, 0, remainingToBytes.Length);
+                                await toDB2.ReadExactlyAsync(remainingToBytes);
 
                                 if (!remainingFromBytes.SequenceEqual(remainingToBytes))
-                                {
                                     modifiedFiles.Add(new KeyValuePair<int, string>(entry, rootToEntries[entry]));
-                                }
 
                                 continue;
                             }
