@@ -394,10 +394,12 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     CDNConfig = splitLine[headerMap["CDN Key"]],
                     CDNPath = splitLine[headerMap["CDN Path"]],
                     Version = splitLine[headerMap["Version"]],
-                    KeyRing = splitLine[headerMap["KeyRing"]],
                     Armadillo = splitLine[headerMap["Armadillo"]],
                     Product = splitLine[headerMap["Product"]]
                 };
+
+                if (headerMap.TryGetValue("KeyRing", out byte keyRing))
+                    availableBuild.KeyRing = splitLine[keyRing];
 
                 if (folderMap.TryGetValue(availableBuild.Product, out string folder))
                     availableBuild.Folder = folder;
