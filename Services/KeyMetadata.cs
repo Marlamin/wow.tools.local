@@ -615,7 +615,7 @@
             KeyInfo.Add(0x1C95D8623041EF30, (7907, "WOW-57XXXpatch11.0.5_XXX", "Trader's Gilded Brutosaur store assets"));
             KeyInfo.Add(0x5103A2F9B71721B7, (7908, "WOW-57361patch11.0.7_PTR", "Unknown model"));
             KeyInfo.Add(0x6955C096B4171FDF, (7909, "WOW-5XXXXpatch4.4.0_Classic", "Reven pet (Classic)"));
-            KeyInfo.Add(0xC640BCE69D059839, (7910, "WOW-57361patch11.0.7_PTR", "Unknown model"));
+            KeyInfo.Add(0xC640BCE69D059839, (7910, "WOW-57361patch11.0.7_PTR", "Sha Serpent mount"));
             KeyInfo.Add(0x486DABB73B80644C, (7911, "WOW-57361patch11.0.7_PTR", "Unknown mount"));
             KeyInfo.Add(0x8FC3C61F7DA43D43, (7912, "WOW-57361patch11.0.7_PTR", "Unknown pet"));
         }
