@@ -33,6 +33,7 @@ namespace wow.tools.local.Services
         public static Dictionary<int, List<Version>> VersionHistory = [];
         public static List<AvailableBuild> AvailableBuilds = [];
         public static List<int> OtherLocaleOnlyFiles = [];
+        public static List<InstallEntry> InstallEntries = [];
 
         public struct Version
         {
@@ -69,6 +70,7 @@ namespace wow.tools.local.Services
             CASCConfig.ValidateData = false;
             CASCConfig.ThrowOnFileNotFound = false;
             CASCConfig.UseWowTVFS = false;
+            CASCConfig.LoadFlags = LoadFlags.Install;
             locale = SettingsManager.locale;
 
             if (basedir == null)
@@ -107,7 +109,7 @@ namespace wow.tools.local.Services
                                         continue;
 
                                     var lookup = splitLine[0].Replace("key-", "");
-                                    if(lookup.Length != 16)
+                                    if (lookup.Length != 16)
                                     {
                                         Console.WriteLine("Warning: KeyRing lookup " + lookup + " is not 16 characters long, skipping..");
                                         continue;
@@ -143,6 +145,8 @@ namespace wow.tools.local.Services
 
             if (!Directory.Exists(manifestFolder))
                 Directory.CreateDirectory(manifestFolder);
+
+            InstallEntries = cascHandler.Install.GetEntries().ToList();
 
             AvailableFDIDs.Clear();
 

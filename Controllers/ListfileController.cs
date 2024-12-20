@@ -399,6 +399,39 @@ namespace wow.tools.local.Controllers
             return result;
         }
 
+        [Route("installFiles")]
+        [HttpGet]
+        public DataTablesResult InstallTable(int draw, int start, int length)
+        {
+            var result = new DataTablesResult()
+            {
+                draw = draw,
+                recordsTotal = CASC.InstallEntries.Count,
+                recordsFiltered = CASC.InstallEntries.Count,
+                data = []
+            };
+
+            var installResults = CASC.InstallEntries;
+
+            if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
+            {
+                installResults = installResults.Where(x => x.Name.Contains(search)).ToList();
+            }
+            
+            foreach (var installResult in installResults.Skip(start).Take(length))
+            {
+                result.data.Add(
+                    [
+                        installResult.Name,
+                        installResult.Size.ToString(),
+                        string.Join(", ", installResult.Tags),
+                        installResult.MD5.ToHexString()
+                    ]);
+            }
+
+            return result;
+        }
+
         [Route("info")]
         [HttpGet]
         public string Info(int filename, string filedataid)

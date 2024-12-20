@@ -70,6 +70,7 @@
     <Content Remove="wwwroot\db\broadcasttext.html" />
     <Content Remove="wwwroot\db\creatures.html" />
     <Content Remove="wwwroot\db\quests.html" />
+    <Content Remove="wwwroot\files\install.html" />
     <Content Remove="wwwroot\files\naming.html" />
     <Content Remove="wwwroot\header.html" />
   </ItemGroup>
@@ -91,6 +92,7 @@
     <None Remove="listfile.txt" />
     <None Remove="spellOutput.txt" />
     <None Remove="TactKey.csv" />
+    <None Remove="verified-listfile.csv" />
     <None Remove="WoW.txt" />
     <None Remove="WTL.db" />
     <None Remove="WTL.db-journal" />

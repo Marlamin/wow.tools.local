@@ -51,6 +51,63 @@ namespace wow.tools.local.Controllers
             };
         }
 
+        [Route("chash")]
+        [HttpGet]
+        public ActionResult CHash(string contenthash, string filename = "", string build = "")
+        {
+            if (build == "")
+                build = CASC.BuildName;
+
+            if (string.IsNullOrEmpty(filename))
+                filename = contenthash + ".unk";
+
+            try
+            {
+                using (var ms = new MemoryStream())
+                {
+                    if (CASC.cascHandler.Encoding.GetEntry(contenthash.FromHexString().ToMD5(), out var eKey))
+                    {
+                        return new FileStreamResult(CASC.cascHandler.OpenFile(eKey.Keys[0]), "application/octet-stream")
+                        {
+                            FileDownloadName = filename
+                        };
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error extracting file by chash: " + e.Message);
+            }
+
+            return NotFound();
+        }
+
+        [Route("dumpInstall")]
+        [HttpGet]
+        public bool DumpInstall()
+        {
+            foreach (var entry in CASC.InstallEntries)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    if (CASC.cascHandler.Encoding.GetEntry(entry.MD5, out var eKey))
+                    {
+                        var outputDir = Path.Combine(SettingsManager.extractionDir, CASC.BuildName, System.IO.Path.GetDirectoryName(entry.Name));
+                        if (!Directory.Exists(outputDir))
+                            Directory.CreateDirectory(outputDir);
+
+                        var fileStream = CASC.cascHandler.OpenFile(eKey.Keys[0]);
+                        fileStream.CopyTo(ms);
+                        ms.Position = 0;
+
+                        System.IO.File.WriteAllBytes(Path.Combine(outputDir, Path.GetFileName(entry.Name)), ms.ToArray());
+                    }
+                }
+            }
+
+            return true;
+        }
+
         [Route("buildname")]
         [HttpGet]
         public string BuildName()
@@ -541,7 +598,7 @@ namespace wow.tools.local.Controllers
 
                                 var remainingFromBytes = new byte[fromDB2.Length - 136];
                                 await fromDB2.ReadExactlyAsync(remainingFromBytes);
-                                
+
                                 var remainingToBytes = new byte[toDB2.Length - 136];
                                 await toDB2.ReadExactlyAsync(remainingToBytes);
 
@@ -1226,7 +1283,7 @@ namespace wow.tools.local.Controllers
                     m2Reader.LoadM2(fileDataID);
                     // lets maybe not return all m2 data
                     m2Reader.model.vertices = [];
-                    if(m2Reader.model.skins != null)
+                    if (m2Reader.model.skins != null)
                     {
                         for (var i = 0; i < m2Reader.model.skins.Length; i++)
                         {

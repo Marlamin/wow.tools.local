@@ -1,0 +1,130 @@
+﻿
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>WoW.tools</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- JQuery -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+    <script type="text/javascript" src="/js/bufo.js"></script>
+    <script type="text/javascript" src="/js/js-blp.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" id="navbar"></nav>
+    <div class="container-fluid" id='files_container'>
+        <div id='files_buttons' class='notree'>
+            <div class="container-fluid">
+                <div class="btn-group" role="group">
+                    <a id='extractSearchButton' class='btn btn-warning btn-sm' onclick="extractSearch();" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Extract all files from this search result to the configured extraction directory'><i class='fa fa-download'></i> Extract all</a>
+                </div>
+            </div>
+        </div>
+        <table id='files' class="table table-striped table-hover table-condensed" cellspacing="0" style='margin: auto; ' width="100%">
+            <thead>
+                <tr>
+                    <th style='width: 700px;'>Filename</th>
+                    <th style='width: 100px;'>Size</th>
+                    <th>Tags</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div><link href="/css/files.css" rel="stylesheet">
+    <script type="text/javascript">
+        async function extractSearch() {
+            var button = document.getElementById("extractSearchButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
+            button.classList.add("disabled");
+
+            var searchString = document.getElementById("dt-search-0").value;
+            await fetch("/casc/dumpInstall").then(function (response) {
+                return response.text();
+            }).then(function (data) {
+                button.classList.remove("disabled");
+                button.innerHTML = "<i class='fa fa-download'></i> Extract all";
+            });
+        }
+
+        (function () {
+            var table = $('#files').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    url: '/listfile/installfiles',
+                    type: 'GET',
+                    beforeSend: function () {
+                        if (table && table.hasOwnProperty('settings')) {
+                            //table.settings()[0].jqXHR.abort();
+                        }
+                    }
+                },
+                "pageLength": 25,
+                "language": {
+                    "search": "Search: _INPUT_ <a style='margin-top: -5px;' class='btn btn-outline-primary btn-sm' data-bs-toggle='modal' data-bs-target='#helpModal'><i class='fa fa-question'></i></a> <a role='button' style='margin-top: -5px;' id='togglePreviewWindow' onClick='togglePreviewPane()' class='btn btn-danger btn-sm' style='color: white' data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Click this to toggle between showing previews on the right of the table, or in a separate popup.'><i class='fa fa-columns'></i></a> <a id='copyToClipBoardButton' class='btn btn-success btn-sm' onclick='copyResultsToClipboard();' data-bs-trigger='hover' data-bs-container='body' data-bs-html='false' data-bs-placement='left' data-bs-toggle='popover' data-bs-content='Copy table to clipboard' style='margin-top: -5px;'><i class='fa fa-copy'></i></a>",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ files",
+                },
+                "autoWidth": false,
+                "lengthMenu": [
+                    [10, 25, 50, 100, 1000, -1],
+                    [10, 25, 50, 100, 1000, "All"]
+                ],
+                layout: {
+                    bottomEnd: 'inputPaging'
+                },
+                "ordering": false,
+                "orderMulti": false,
+                "columnDefs": [
+                    {
+                        "targets": 2,
+                        "orderable": false,
+                        "visible": true,
+                        "render": function (data, type, full, meta) {
+                            return "<span style='font-family: monospace; font-size: 12px; text-overflow: ellipsis;'>" + full[2] + "</span>";
+                        }
+                    },
+                    {
+                        "targets": 3,
+                        "orderable": false,
+                        "visible": true,
+                        "render": function (data, type, full, meta) {
+                            return "<a href='/casc/chash?contenthash=" + full[3] + "&filename=" + full[0].split('\\').reverse()[0] + "'>Download</a>";
+                        }
+                    },
+                ]
+            });
+        }());
+    </script>
+</body>
+</html>
+
