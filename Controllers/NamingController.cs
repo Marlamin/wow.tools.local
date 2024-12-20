@@ -227,34 +227,37 @@ namespace wow.tools.local.Controllers
 
                         var goNames = new Dictionary<uint, string>();
 
-                        foreach (var gobjectCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "gameobjectcache.wdb", SearchOption.AllDirectories))
+                        if (!string.IsNullOrWhiteSpace(SettingsManager.wowFolder))
                         {
-                            var flavorDir = new DirectoryInfo(gobjectCacheFile).Parent.Parent.Parent.Parent.Name;
-
-                            // Don't bother with Classic or non-Flavor directories
-                            if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
-                                continue;
-
-                            // Skip if we don't have a build for this flavor
-                            if (!CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).Any())
-                                continue;
-
-                            var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
-
-                            if (productVersionByFlavor == null)
-                                continue;
-
-                            Console.WriteLine("Loading " + gobjectCacheFile + " for " + productVersionByFlavor);
-
-                            var gobjectCache = WDBReader.Read(gobjectCacheFile, productVersionByFlavor);
-                            foreach (var entry in gobjectCache.entries)
+                            foreach (var gobjectCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "gameobjectcache.wdb", SearchOption.AllDirectories))
                             {
-                                if (entry.Value.TryGetValue("GameObjectDisplayID", out var displayID))
+                                var flavorDir = new DirectoryInfo(gobjectCacheFile).Parent.Parent.Parent.Parent.Name;
+
+                                // Don't bother with Classic or non-Flavor directories
+                                if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
+                                    continue;
+
+                                // Skip if we don't have a build for this flavor
+                                if (!CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).Any())
+                                    continue;
+
+                                var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
+
+                                if (productVersionByFlavor == null)
+                                    continue;
+
+                                Console.WriteLine("Loading " + gobjectCacheFile + " for " + productVersionByFlavor);
+
+                                var gobjectCache = WDBReader.Read(gobjectCacheFile, productVersionByFlavor);
+                                foreach (var entry in gobjectCache.entries)
                                 {
-                                    var displayIDButInt = uint.Parse(displayID);
-                                    if (entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
+                                    if (entry.Value.TryGetValue("GameObjectDisplayID", out var displayID))
                                     {
-                                        goNames.TryAdd(displayIDButInt, name);
+                                        var displayIDButInt = uint.Parse(displayID);
+                                        if (entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
+                                        {
+                                            goNames.TryAdd(displayIDButInt, name);
+                                        }
                                     }
                                 }
                             }
@@ -348,44 +351,47 @@ namespace wow.tools.local.Controllers
 
                         var currentCreatureNames = SQLiteDB.GetCreatureNames();
 
-                        foreach (var creatureCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "creaturecache.wdb", SearchOption.AllDirectories))
+                        if (!string.IsNullOrEmpty(SettingsManager.wowFolder))
                         {
-                            var flavorDir = new DirectoryInfo(creatureCacheFile).Parent.Parent.Parent.Parent.Name;
-
-                            // Don't bother with Classic or non-Flavor directories
-                            if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
-                                continue;
-
-                            // Skip if we don't have a build for this flavor
-                            if (!CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).Any())
-                                continue;
-
-                            var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
-
-                            if (productVersionByFlavor == null)
-                                continue;
-
-                            Console.WriteLine("Loading " + creatureCacheFile + " for " + productVersionByFlavor);
-
-                            var creatureCache = WDBReader.Read(creatureCacheFile, productVersionByFlavor);
-                            foreach (var entry in creatureCache.entries)
+                            foreach (var creatureCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "creaturecache.wdb", SearchOption.AllDirectories))
                             {
-                                if (!currentCreatureNames.TryGetValue(entry.Key, out var currentCreatureName))
-                                {
-                                    Console.WriteLine("Discovered new creature: " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
-                                    SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
-                                    currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
-                                }
-                                else if (currentCreatureName != entry.Value["Name[0]"] && creatureCache.clientBuild > SQLiteDB.creatureCache[(int)entry.Key])
-                                {
-                                    Console.WriteLine("Updating creature name: " + currentCreatureName + " => " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
-                                    SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
-                                    currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
-                                }
+                                var flavorDir = new DirectoryInfo(creatureCacheFile).Parent.Parent.Parent.Parent.Name;
 
-                                for (var i = 0; i < int.Parse(entry.Value["NumCreatureDisplays"]); i++)
+                                // Don't bother with Classic or non-Flavor directories
+                                if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
+                                    continue;
+
+                                // Skip if we don't have a build for this flavor
+                                if (!CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).Any())
+                                    continue;
+
+                                var productVersionByFlavor = CASC.AvailableBuilds.Where(x => x.Folder == flavorDir).First().Version;
+
+                                if (productVersionByFlavor == null)
+                                    continue;
+
+                                Console.WriteLine("Loading " + creatureCacheFile + " for " + productVersionByFlavor);
+
+                                var creatureCache = WDBReader.Read(creatureCacheFile, productVersionByFlavor);
+                                foreach (var entry in creatureCache.entries)
                                 {
-                                    SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(entry.Value["CreatureDisplayInfoID[" + i + "]"]), (int)entry.Key);
+                                    if (!currentCreatureNames.TryGetValue(entry.Key, out var currentCreatureName))
+                                    {
+                                        Console.WriteLine("Discovered new creature: " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                        SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                        currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                    }
+                                    else if (currentCreatureName != entry.Value["Name[0]"] && creatureCache.clientBuild > SQLiteDB.creatureCache[(int)entry.Key])
+                                    {
+                                        Console.WriteLine("Updating creature name: " + currentCreatureName + " => " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                        SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                        currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                    }
+
+                                    for (var i = 0; i < int.Parse(entry.Value["NumCreatureDisplays"]); i++)
+                                    {
+                                        SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(entry.Value["CreatureDisplayInfoID[" + i + "]"]), (int)entry.Key);
+                                    }
                                 }
                             }
                         }
