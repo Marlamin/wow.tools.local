@@ -3,6 +3,7 @@ using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Reflection.Metadata.Ecma335;
 using wow.tools.local.Services;
 using wow.tools.Services;
 
@@ -599,6 +600,72 @@ namespace wow.tools.local.Controllers
                 foreach (var kvp in sortedMap.ToImmutableSortedDictionary())
                 {
                     sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
+                }
+            }
+            return true;
+        }
+
+        [Route("dumpUnkLookups")]
+        [HttpGet]
+        public async Task<bool> DumpUnkLookups(string type = "")
+        {
+            var lookupPath = Path.Combine(SettingsManager.extractionDir, "unk_listfile.txt");
+            var hasher = new Jenkins96();
+            using (var sw = new StreamWriter(lookupPath))
+            {
+                var sortedMap = CASC.LookupMap.ToDictionary();
+
+                // If our listfile setting points to a parts dir, merge in the existing meta lookup file
+                if (!SettingsManager.listfileURL.StartsWith("http") && Directory.Exists(SettingsManager.listfileURL))
+                {
+                    var metaFile = Path.Combine(SettingsManager.listfileURL, "..", "meta", "lookup.csv");
+
+                    if (System.IO.File.Exists(metaFile))
+                    {
+                        foreach (var line in System.IO.File.ReadAllLines(metaFile))
+                        {
+                            if (string.IsNullOrEmpty(line))
+                                continue;
+
+                            var split = line.Split(";");
+                            var fdid = int.Parse(split[0]);
+                            var lookup = ulong.Parse(split[1], NumberStyles.HexNumber);
+                            if (sortedMap.TryGetValue(fdid, out var currentLookup))
+                            {
+                                if (currentLookup != lookup)
+                                    Console.WriteLine("LOOKUP MISMATCH FOR FDID " + fdid + ": Exists as " + currentLookup.ToString("X16").ToLower() + " but tried to set to " + split[1]);
+                            }
+                            else
+                            {
+                                sortedMap.Add(fdid, lookup);
+                            }
+                        }
+                    }
+                }
+
+                foreach (var kvp in sortedMap.ToImmutableSortedDictionary())
+                {
+                    if(!string.IsNullOrEmpty(type))
+                    {
+                        if (!CASC.TypeMap.ContainsKey(type))
+                            throw new Exception("Unknown type");
+
+                        if (!CASC.TypeMap[type].Contains(kvp.Key))
+                            continue;
+                    }
+
+                    if(CASC.Listfile.TryGetValue(kvp.Key, out var filename))
+                    {
+                        if(hasher.ComputeHash(filename) != kvp.Value)
+                        {
+                            Console.WriteLine("Including currently incorrect filename for filedata ID " + kvp.Key + " (" + filename +")");
+                            sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
+                        }
+                    }
+                    else if(CASC.AvailableFDIDs.Contains(kvp.Key))
+                    {
+                        sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
+                    }
                 }
             }
             return true;
