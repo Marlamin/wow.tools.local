@@ -71,6 +71,9 @@ namespace wow.tools.local.Services
             CASCConfig.ThrowOnFileNotFound = false;
             CASCConfig.UseWowTVFS = false;
             CASCConfig.LoadFlags = LoadFlags.Install;
+            CASCConfig.BuildConfigOverride = "fakebuildconfig";
+            CASCConfig.CDNConfigOverride = "fakecdnconfig";
+
             locale = SettingsManager.locale;
 
             if (basedir == null)
