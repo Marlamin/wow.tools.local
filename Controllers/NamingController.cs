@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DBCD.Providers;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -13,7 +14,7 @@ namespace wow.tools.local.Controllers
     {
         private readonly DBCManager dbcManager;
 
-        public NamingController(IDBCManager dbcManager)
+        public NamingController(IDBCManager dbcManager, IDBDProvider dbdProvider, IDBCProvider dbcProvider)
         {
             this.dbcManager = (DBCManager)dbcManager;
 
@@ -24,7 +25,7 @@ namespace wow.tools.local.Controllers
                 Namer.build = CASC.BuildName;
                 Namer.cacheDir = "caches";
 
-                Namer.SetProviders(new DBCProvider(), new DBDProvider());
+                Namer.SetProviders(dbcProvider, dbdProvider);
                 Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
                 Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);
                 Namer.SetSetCreatureNameForFDIDFunction(SQLiteDB.SetCreatureNameForFDID);
