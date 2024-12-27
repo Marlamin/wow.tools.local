@@ -16,7 +16,17 @@ namespace wow.tools.local.Controllers.DBC
         {
             Console.WriteLine("Finding results in " + name + " (" + build + ", hotfixes: " + useHotfixes + ") for value " + value);
 
-            var storage = await dbcManager.GetOrLoad(name, build, useHotfixes);
+            IDBCDStorage storage;
+
+            try
+            {
+                storage = await dbcManager.GetOrLoad(name, build, useHotfixes);
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine("Error loading DBC: " + e.Message);
+                return new List<Dictionary<string, string>>();
+            }
 
             var result = new List<Dictionary<string, string>>();
 
