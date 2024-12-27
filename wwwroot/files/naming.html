@@ -38,6 +38,9 @@
     <script type="text/javascript" src="/js/bufo.js"></script>
     <script type="text/javascript" src="/js/js-blp.js"></script>
     <style type="text/css">
+        html{
+            zoom: 80%;
+        }
         .table{
             font-size: 13px;
         }
@@ -51,6 +54,32 @@
             background-color: rgba(0, 0, 0, 0.63);
             z-index: 3;
             pointer-events: none;
+        }
+
+        #resultHolder {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: auto;
+            min-width: 130px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.80);
+            z-index: 3;
+        }
+
+        #collapseResults{
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        #resultTitle{
+            margin-right: 20px;
+        }
+
+        .collapsed {
+            display: none;
         }
     </style>
 </head>
@@ -149,7 +178,7 @@
             </div>
             <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div id="modelList">
                             <table id='files' class="table table-striped table-bordered table-condensed" cellspacing="0" style='margin: auto; ' width="100%">
                                 <thead>
@@ -173,63 +202,64 @@
                                 <div class="input-group-append">
                                     <button class="btn btn-primary" onclick="setSuffix('.m2')">.m2</button>
                                     <button class="btn btn-primary" disabled>.wmo</button>
+                                    <button class="btn btn-danger" onclick="loadLastName()">Last</button>
                                 </div>
                             </div>
-                            <button id="nameButton" class="btn btn-success form-control">Name file</button>
+                            <button id="nameButton" class="btn btn-success form-control" style="margin-top:4px;">Name file</button>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4>M2 naming prefixes</h4>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/10XP_')">10 Generic</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Highlands/10HGL_Highlands_')">10 Highlands</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Primalist/10PM_Primalist_')">10 Primalist</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dragon/10DG_Dragon_')">10 Dragon</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Grasslands/10GSL_Grasslands_')">10 Grasslands</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dungeon/10DU_Dungeon_')">10 Dungeon</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Tuskarr/10TS_Tuskarr_')">10 Tuskarr</button> <br />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Volcanic/10CAN_Volcanic_')">10 Volcanic</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Djaradin/10DJ_Djaradin_')">10 Djaradin</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Reliquary/10RQ_Reliquary_')">10 Reliquary</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/ExplorersLeague/10EL_ExplorersLeague_')">10 Explorers</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Titan/10TI_Titan_')">10 Titan</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/EmeraldDream/10ED_EmeraldDream_')">10 ED</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Centaur/10CT_Centaur_')">10 Centaur</button> <br />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/11XP_')">11 Generic</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Earthen/11EA_Earthen_')">11 Earthen</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Arathor/11AT_Arathor_')">11 Arathi</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Nerubian/11NB_Nerubian_')">11 Nerubian</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Rootlands/11RTL_Rootlands_')">11 Harronir (RTL)</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobold/11KO_Kobold_')">11 Kobold</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobyss/11KB_Kobyss_')">11 Kobyss</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Goblin/11GL_Goblin_')">11 Goblin</button> <br />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-4" style="max-height: 50vh; overflow-y: scroll">
+                    <div class="col-md-5" style="max-height: 100vh; overflow-y: scroll">
                         <div id="modelInfo">
                             Info
                         </div>
                     </div>
                 </div>
+ 
             </div>
         </div>
-        <br />
-        <div class="row">
-            <div class="col-md-5">
-                <h4 id="resultTitle">Result</h4>
-                <p><b><a href="#" onClick="resultsAsTxt()">Download</a></b> as a .txt file and <a href="https://github.com/wowdev/wow-listfile/issues/new?assignees=&labels=suggestion&projects=&template=csv-listfile-suggestion.md&title=CSV+listfile+suggestion" target="_BLANK">submit an issue on GitHub</a> (login required) with the .txt file attached to submit these names to the community listfile.</p>
-                <textarea id="result" rows="15" cols="140">Nothing here yet.</textarea><br />
-                <button onclick="clearNames()" class="btn btn-danger">Clear new name cache</button>
-            </div>
-            <div class="col-md-3">
-                <h4>M2 naming tools</h4>
-                <button class="btn btn-danger" onclick="loadLastName()">Last name</button>
-                <br /><br />
-                <h4>M2 naming prefixes</h4>
-                <div class="row">
-                    <div class="col-md-4">
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/10XP_')">10 Generic</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Highlands/10HGL_Highlands_')">10 Highlands</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Primalist/10PM_Primalist_')">10 Primalist</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dragon/10DG_Dragon_')">10 Dragon</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Grasslands/10GSL_Grasslands_')">10 Grasslands</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dungeon/10DU_Dungeon_')">10 Dungeon</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Tuskarr/10TS_Tuskarr_')">10 Tuskarr</button> <br />
-                   </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Volcanic/10CAN_Volcanic_')">10 Volcanic</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Djaradin/10DJ_Djaradin_')">10 Djaradin</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Reliquary/10RQ_Reliquary_')">10 Reliquary</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/ExplorersLeague/10EL_ExplorersLeague_')">10 Explorers</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Titan/10TI_Titan_')">10 Titan</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/EmeraldDream/10ED_EmeraldDream_')">10 ED</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Centaur/10CT_Centaur_')">10 Centaur</button> <br />
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/11XP_')">11 Generic</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Earthen/11EA_Earthen_')">11 Earthen</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Arathor/11AT_Arathor_')">11 Arathi</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Nerubian/11NB_Nerubian_')">11 Nerubian</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Rootlands/11RTL_Rootlands_')">11 Harronir (RTL)</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobold/11KO_Kobold_')">11 Kobold</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobyss/11KB_Kobyss_')">11 Kobyss</button> <br />
-                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Goblin/11GL_Goblin_')">11 Goblin</button> <br />
-                    </div>
-                </div>
-             </div>
+    </div>
+    <div id="resultHolder">
+        <h4 id="resultTitle">Result</h4>
+        <a onClick="toggleResults()" id="collapseResults"><i id="collapseResultsIcon" class="fa fa-expand"></i></a>
+        <div id="collapsableResult" class="collapsed">
+            <p><b><a href="#" onClick="resultsAsTxt()">Download</a></b> as a .txt file and <a href="https://github.com/wowdev/wow-listfile/issues/new?assignees=&labels=suggestion&projects=&template=csv-listfile-suggestion.md&title=CSV+listfile+suggestion" target="_BLANK">submit an issue on GitHub</a> (login required) with the .txt file attached to submit these names to the community listfile.</p>
+            <textarea id="result" rows="15" cols="140">Nothing here yet.</textarea><br />
+            <button onclick="clearNames()" class="btn btn-danger">Clear new name cache</button>
         </div>
     </div>
     <div id="overlay" style="min-width: 700px;">
@@ -240,12 +270,28 @@
         const submitButton = document.getElementById("submitButton");
         const result = document.getElementById("result");
         const resultTitle = document.getElementById("resultTitle");
+        const collapsableResult = document.getElementById("collapsableResult");
+
         var Elements = {
             table: null,
             currentID: 0
         };
 
         var lastName = "";
+
+        function toggleResults() {
+            if (collapsableResult.classList.contains("collapsed")) {
+                collapsableResult.classList.remove("collapsed");
+                collapseResultsIcon.classList.remove("fa-expand");
+                collapseResultsIcon.classList.add("fa-window-minimize");
+            }
+            else {
+                collapsableResult.classList.add("collapsed");
+                collapseResultsIcon.classList.add("fa-expand");
+                collapseResultsIcon.classList.remove("fa-window-minimize");
+
+            }
+        }
 
         function setPrefix(name) {
             document.getElementById("filename").value = name;
@@ -267,7 +313,7 @@
             filenameInput.value = lastName;
         }
 
-        namingForm.onsubmit = function(e) {
+        namingForm.onsubmit = function (e) {
             e.preventDefault();
 
             submitButton.disabled = true;
@@ -279,7 +325,7 @@
             fetch('/naming/start', {
                 method: 'POST',
                 body: data,
-            }).then(function(response) {
+            }).then(function (response) {
                 return response.text();
             }).then(function (data) {
                 resultTitle.innerHTML = "Result (" + (data.split('\n').length) + " names)";
@@ -306,7 +352,7 @@
 
         (function () {
             var page = 0;
-            var searchString = "type:model,isplaceholder,added:10.2.7.54295|current";
+            var searchString = "type:m2,isplaceholder,added:10.2.7.54295|current";
             var sortCol = 0;
             var sortDesc = "asc";
 
@@ -318,13 +364,13 @@
                     url: '/listfile/files',
                     type: 'GET'
                 },
-                "pageLength": 15,
+                "pageLength": 30,
                 "language": {
                     "search": "Search: _INPUT_",
                     "info": "_START_ to _END_ of _TOTAL_ files",
                     "infoFiltered": ""
                 },
-                "displayStart": page * 15,
+                "displayStart": page * 30,
                 "autoWidth": false,
                 "lengthMenu": [
                     [15, 25, 50, 100, 1000, -1],
@@ -377,6 +423,12 @@
             });
 
             $("#files").on('draw.dt', function () {
+                if (Elements.currentID == 0) {
+                    const data = Elements.table.row(0).data();
+                    Elements.currentID = data[0];
+                    loadFile(data[0], data[1]);
+                }
+
                 var currentSearch = encodeURIComponent($("#dt-search-0").val());
                 var currentPage = $('#files').DataTable().page() + 1;
 
@@ -409,6 +461,7 @@
             });
 
             function loadFile(id, name) {
+                modelInfo.innerHTML = "Loading, please wait..";
                 $.ajax({
                     url: "/casc/moreInfo?filedataid=" + id,
                     type: 'GET',
@@ -423,7 +476,7 @@
 
                         if (name.endsWith(".m2")) {
                             modelPreview.innerHTML = "<iframe src='/mv/?filedataid=" + id + "&embed=true' style='width: 100%; height: 500px; border: none;'></iframe>";
-                        } else if(name.endsWith(".wmo")) {
+                        } else if (name.endsWith(".wmo")) {
                             modelPreview.innerHTML = "<iframe src='/mv/?filedataid=" + id + "&type=wmo&embed=true' style='width: 100%; height: 500px; border: none;'></iframe>";
                         }
                     }
@@ -458,7 +511,7 @@
                 // send request to casc/fileAutocomplete with fetch
                 fetch('/casc/directoryAC?search=' + name.replace(".m2", ""), {
                     method: 'GET'
-                }).then(function(response) {
+                }).then(function (response) {
                     return response.json();
                 }).then(function (results) {
                     var html = "";
@@ -480,6 +533,7 @@
                         type: 'GET',
                         success: function (data) {
                             var result = document.getElementById("result");
+                            resultTitle.innerHTML = "Result (" + (data.split('\n').length) + " names)";
                             result.innerHTML = data;
                         }
                     });
@@ -495,10 +549,15 @@
 
             fetch('/naming/getNewFiles', {
                 method: 'GET'
-            }).then(function(response) {
+            }).then(function (response) {
                 return response.text();
             }).then(function (data) {
                 document.getElementById("result").innerHTML = data;
+                if (data.length < 3)
+                    resultTitle.innerHTML = "Results";
+                else
+                    resultTitle.innerHTML = "Result (" + (data.split('\n').length) + " names)";
+                    
             });
         }());
 
