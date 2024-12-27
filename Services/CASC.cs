@@ -338,6 +338,9 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 {
                     foreach (var knownUnknown in knownUnknowns)
                     {
+                        if (CASC.Types.TryGetValue(knownUnknown.Key, out var currentType) && currentType != "unk")
+                            continue;
+
                         SetFileType(knownUnknown.Key, knownUnknown.Value);
                     }
                 }
