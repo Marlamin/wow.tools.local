@@ -294,7 +294,8 @@ function fillDBCDiffModal(from, to, dbc) {
 }
 
 function fillChashModal(contenthash){
-    $( "#chashModalContent" ).load( "/casc/samehashes?chash=" + contenthash);
+    $("#chashModalContent").load("/casc/samehashes?chash=" + contenthash);
+    document.getElementById('chashModalLabel').innerText = "Content hash lookup for hash " + contenthash;
 }
 
 function fillSkitModal(skitid){
