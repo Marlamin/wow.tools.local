@@ -14,6 +14,8 @@ using wow.tools.Services;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 using WoWFormatLib.Structs.WDT;
+using WoWNamingLib;
+using WoWNamingLib.Namers;
 
 namespace wow.tools.local.Controllers
 {
@@ -865,6 +867,27 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
+                if(type == "m2" && Namer.isInitialized)
+                {
+                    if(Model.spellNames.Count == 0)
+                        Model.LoadSpellMap();
+
+                    if (Model.spellNamesClean.TryGetValue((uint)filedataid, out var spellNameClean))
+                    {
+                        html += "<tr><td><b>Generated name (spell)</b></td><td>" + spellNameClean + "</td></tr>";
+                    }
+
+                    if (Model.spellNames.TryGetValue((uint)filedataid, out var spellEntries))
+                    {
+                        html += "<tr><td colspan='2'><b>Spells using this model</b></td></tr>";
+                        html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
+                        foreach (var spellEntry in spellEntries)
+                        {
+                            html += "<tr><td style='width: 80px;'>" + spellEntry.SpellID + "</td><td style='width: 100px; font-size: 12px;'><a target='_BLANK' href='https://wowdb.com/spells/" + spellEntry.SpellID + "'>WoWDB</a> - <a target='_BLANK' href='https://wowhead.com/spell=" + spellEntry.SpellID + "'>WH</a></td><td>" + spellEntry.SpellName + "</td></tr>";
+                        }
+                        html += "</table></td></tr>";
+                    }
+                }
 
                 var linkedChildFiles = SQLiteDB.GetFilesByParent(filedataid);
 
