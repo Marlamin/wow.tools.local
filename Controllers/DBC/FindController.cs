@@ -106,6 +106,10 @@ namespace wow.tools.local.Controllers.DBC
         [HttpGet("{name}")]
         public async Task<List<Dictionary<string, string>>> Get(string name, string build, string col, int val, bool useHotfixes = false, bool calcOffset = true)
         {
+            name = name.ToLower();
+            if (string.IsNullOrEmpty(build) || build == "?" || build == "null")
+                build = CASC.BuildName;
+
             Console.WriteLine("Finding results for " + name + "::" + col + " (" + build + ", hotfixes: " + useHotfixes + ") value " + val);
 
             IDBCDStorage storage;
