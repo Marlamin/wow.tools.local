@@ -68,7 +68,7 @@
 	text-decoration: line-through;
 }
 
-thead input { width: 100% }
+thead input { width: calc(100% + 20px) }
 /* Mobile Devices */
 @media screen and (max-width: 767px) {
 	#fileFilter, #buildFilter, #dbcform {
