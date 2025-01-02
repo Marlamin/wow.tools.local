@@ -17,6 +17,7 @@
     <Compile Remove="dbcs\**" />
     <Compile Remove="DBDiffer\**" />
     <Compile Remove="SereniaBLPLib\**" />
+    <Compile Remove="TACTSharp\**" />
     <Compile Remove="temp\**" />
     <Compile Remove="WoWDBDefs\**" />
     <Compile Remove="WoWFormatLib\**" />
@@ -27,6 +28,7 @@
     <Content Remove="dbcs\**" />
     <Content Remove="DBDiffer\**" />
     <Content Remove="SereniaBLPLib\**" />
+    <Content Remove="TACTSharp\**" />
     <Content Remove="temp\**" />
     <Content Remove="WoWDBDefs\**" />
     <Content Remove="WoWFormatLib\**" />
@@ -37,6 +39,7 @@
     <EmbeddedResource Remove="dbcs\**" />
     <EmbeddedResource Remove="DBDiffer\**" />
     <EmbeddedResource Remove="SereniaBLPLib\**" />
+    <EmbeddedResource Remove="TACTSharp\**" />
     <EmbeddedResource Remove="temp\**" />
     <EmbeddedResource Remove="WoWDBDefs\**" />
     <EmbeddedResource Remove="WoWFormatLib\**" />
@@ -47,6 +50,7 @@
     <None Remove="dbcs\**" />
     <None Remove="DBDiffer\**" />
     <None Remove="SereniaBLPLib\**" />
+    <None Remove="TACTSharp\**" />
     <None Remove="temp\**" />
     <None Remove="WoWDBDefs\**" />
     <None Remove="WoWFormatLib\**" />
@@ -109,6 +113,7 @@
     <ProjectReference Include="DBCD\DBCD\DBCD.csproj" />
     <ProjectReference Include="DBDiffer\DBDiffer\DBDiffer.csproj" />
     <ProjectReference Include="SereniaBLPLib\SereniaBLPLib\SereniaBLPLib.csproj" />
+    <ProjectReference Include="TACTSharp\TACTSharp\TACTSharp.csproj" />
     <ProjectReference Include="WoWFormatLib\WoWFormatLib\WoWFormatLib.csproj" />
     <ProjectReference Include="WoWNamingLib\WoWNamingLib\WoWNamingLib.csproj" />
   </ItemGroup>

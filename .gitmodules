@@ -19,3 +19,6 @@
 [submodule "WoWNamingLib"]
 	path = WoWNamingLib
 	url = https://github.com/Marlamin/WoWNamingLib
+[submodule "TACTSharp"]
+	path = TACTSharp
+	url = https://github.com/Marlamin/TACTSharp

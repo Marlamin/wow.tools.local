@@ -15,7 +15,18 @@ namespace wow.tools.local
                 // this will override the config.json values if the relevant command line flags are present
                 SettingsManager.ParseCommandLineArguments(args);
 
-                CASC.InitCasc(SettingsManager.wowFolder, SettingsManager.wowProduct);
+#if DEBUG
+                //if(SettingsManager.wowFolder == null)
+                //{
+                //    CASC.InitTACT(SettingsManager.wowProduct);
+                //}
+                //else
+                //{
+#endif
+                    CASC.InitCasc(SettingsManager.wowFolder, SettingsManager.wowProduct);
+#if DEBUG
+                //}
+#endif
             }
             catch (Exception e)
             {

@@ -38,7 +38,7 @@ namespace wow.tools.local.Controllers
                     KeyMetadata.KeyInfo.Add(
                         key,
                         ((int)tklRow.ID,
-                        CASC.cascHandler.Config.BuildName,
+                        CASC.FullBuildName,
                         CASC.EncryptedFDIDs.Where(x => x.Value.Contains(key)).Select(x => x.Key).ToList().Count.ToString() + " file(s) as of " + CASC.BuildName)
                     );
                 }
@@ -49,7 +49,7 @@ namespace wow.tools.local.Controllers
                     KeyMetadata.KeyInfo[key] = copy;
                 }
 
-                if (KeyService.HasKey(key) && !CASC.KnownKeys.Contains(key))
+                if (WTLKeyService.HasKey(key) && !CASC.KnownKeys.Contains(key))
                 {
                     Console.WriteLine("Adding known key from CascLib: " + key);
                     CASC.KnownKeys.Add(key);
@@ -68,11 +68,11 @@ namespace wow.tools.local.Controllers
                     if (!CASC.KnownKeys.Contains(keyInfo.Key))
                         CASC.KnownKeys.Add(keyInfo.Key);
 
-                    if (KeyService.HasKey(keyInfo.Key))
+                    if (WTLKeyService.HasKey(keyInfo.Key))
                         continue;
 
                     Console.WriteLine("Setting key " + (int)tkRow.ID + " from TactKey.db2");
-                    KeyService.SetKey(keyInfo.Key, tkRow.Key);
+                    WTLKeyService.SetKey(keyInfo.Key, tkRow.Key);
                     newKeysFound = true;
                 }
             }
@@ -111,10 +111,10 @@ namespace wow.tools.local.Controllers
                                         if (!CASC.KnownKeys.Contains(tactKeyLookup))
                                             CASC.KnownKeys.Add(tactKeyLookup);
 
-                                        if (KeyService.HasKey(tactKeyLookup))
+                                        if (WTLKeyService.HasKey(tactKeyLookup))
                                             continue;
 
-                                        KeyService.SetKey(tactKeyLookup, tactKeyBytes);
+                                        WTLKeyService.SetKey(tactKeyLookup, tactKeyBytes);
                                         newKeysFound = true;
                                         Console.WriteLine("Found TACT Key " + string.Format("{0:X}", tactKeyLookup).PadLeft(16, '0') + " " + Convert.ToHexString(tactKeyBytes));
                                     }
@@ -161,10 +161,10 @@ namespace wow.tools.local.Controllers
                                         if (!CASC.KnownKeys.Contains(tactKeyLookup))
                                             CASC.KnownKeys.Add(tactKeyLookup);
 
-                                        if (KeyService.HasKey(tactKeyLookup))
+                                        if (WTLKeyService.HasKey(tactKeyLookup))
                                             continue;
 
-                                        KeyService.SetKey(tactKeyLookup, tactKeyBytes);
+                                        WTLKeyService.SetKey(tactKeyLookup, tactKeyBytes);
                                         newKeysFound = true;
                                         Console.WriteLine("Found TACT Key " + string.Format("{0:X}", tactKeyLookup).PadLeft(16, '0') + " " + Convert.ToHexString(tactKeyBytes));
                                     }
@@ -184,7 +184,7 @@ namespace wow.tools.local.Controllers
                    {
                        ID = keyInfo.Value.ID,
                        Lookup = string.Format("{0:X}", keyInfo.Key).PadLeft(16, '0'),
-                       Key = KeyService.HasKey(keyInfo.Key) ? Convert.ToHexString(KeyService.GetKey(keyInfo.Key)) : "",
+                       Key = WTLKeyService.HasKey(keyInfo.Key) ? Convert.ToHexString(WTLKeyService.GetKey(keyInfo.Key)) : "",
                        FirstSeen = keyInfo.Value.FirstSeen,
                        Description = keyInfo.Value.Description
                    });

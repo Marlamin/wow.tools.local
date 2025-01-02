@@ -21,7 +21,7 @@ namespace wow.tools.local.Controllers
         private static Dictionary<int, List<uint>> MFDMap;
         private static Dictionary<int, List<uint>> TFDMap;
         private static Dictionary<int, List<uint>> CMDMap;
-        private readonly Lock dbcLock = new Lock();
+        private static readonly Lock dbcLock = new Lock();
 
         public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
         {
@@ -562,7 +562,7 @@ namespace wow.tools.local.Controllers
             {
                 try
                 {
-                    using (var file = CASC.cascHandler.OpenFile(result.Key))
+                    using (var file = CASC.GetFileByID((uint)result.Key))
                     {
                         if (file == null)
                             continue;

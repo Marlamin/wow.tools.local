@@ -65,11 +65,11 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                using (var ms = new MemoryStream())
+                if (CASC.TryGetEKeysByCKey(contenthash.FromHexString().ToMD5(), out var eKey))
                 {
-                    if (CASC.cascHandler.Encoding.GetEntry(contenthash.FromHexString().ToMD5(), out var eKey))
+                    using (var ms = new MemoryStream())
                     {
-                        return new FileStreamResult(CASC.cascHandler.OpenFile(eKey.Keys[0]), "application/octet-stream")
+                        return new FileStreamResult(CASC.GetFileByEKey(eKey.Keys[0], eKey.Size)!, "application/octet-stream")
                         {
                             FileDownloadName = filename
                         };
@@ -90,15 +90,14 @@ namespace wow.tools.local.Controllers
         {
             foreach (var entry in CASC.InstallEntries)
             {
-                using (var ms = new MemoryStream())
+                if (CASC.TryGetEKeysByCKey(entry.MD5, out var eKey))
                 {
-                    if (CASC.cascHandler.Encoding.GetEntry(entry.MD5, out var eKey))
+                    using (var ms = new MemoryStream())
                     {
                         var outputDir = Path.Combine(SettingsManager.extractionDir, CASC.BuildName, System.IO.Path.GetDirectoryName(entry.Name));
-                        if (!Directory.Exists(outputDir))
-                            Directory.CreateDirectory(outputDir);
+                        Directory.CreateDirectory(outputDir);
 
-                        var fileStream = CASC.cascHandler.OpenFile(eKey.Keys[0]);
+                        var fileStream = CASC.GetFileByEKey(eKey.Keys[0], eKey.Size);
                         fileStream.CopyTo(ms);
                         ms.Position = 0;
 
@@ -771,12 +770,12 @@ namespace wow.tools.local.Controllers
 
                 foreach (var key in usedKeyInfo.OrderBy(x => x.ID))
                 {
-                    html += "<tr><td>" + (KeyService.HasKey(key.lookup) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "'>" + key.lookup.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + key.ID + "</td><td>" + key.FirstSeen + "</td><td>" + key.Description + "</td></tr>";
+                    html += "<tr><td>" + (WTLKeyService.HasKey(key.lookup) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "'>" + key.lookup.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + key.ID + "</td><td>" + key.FirstSeen + "</td><td>" + key.Description + "</td></tr>";
 
                     if (db2EncryptionMetaData.TryGetValue(key.lookup, out var encryptedIDs))
                     {
                         html += "<tr><td colspan='4'>&nbsp;</td><td style='padding-left: 20px;'><b>" + encryptedIDs.Length;
-                        if (KeyService.HasKey(key.lookup))
+                        if (WTLKeyService.HasKey(key.lookup))
                         {
                             html += " <a href='/dbc/?dbc=" + Path.GetFileNameWithoutExtension(CASC.Listfile[filedataid]).ToLower() + "&build=" + CASC.BuildName + "#page=1&search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "' target='_BLANK' class='text-success'>available</a>";
                         }
@@ -867,9 +866,9 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
-                if(type == "m2" && Namer.isInitialized)
+                if (type == "m2" && Namer.isInitialized)
                 {
-                    if(Model.spellNames.Count == 0)
+                    if (Model.spellNames.Count == 0)
                         Model.LoadSpellMap();
 
                     if (Model.spellNamesClean.TryGetValue((uint)filedataid, out var spellNameClean))
