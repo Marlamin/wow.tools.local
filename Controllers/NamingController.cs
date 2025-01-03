@@ -159,6 +159,7 @@ namespace wow.tools.local.Controllers
             var form = Request.Form;
 
             var checkboxes = form["namers"];
+            var overrideVO = form.ContainsKey("overrideVO") && form["overrideVO"] == "on";
 
             var namerOrder = new List<string> { "DB2", "Map", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SoundKits", "SpellTex", "TerrainCubeMaps", "VO", "WWF", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x)).ToArray();
@@ -494,7 +495,7 @@ namespace wow.tools.local.Controllers
                             }
                         }
 
-                        Namer.NameVO(SQLiteDB.GetCreatureNames(), SQLiteDB.GetTextToSoundKitIDs(), SQLiteDB.GetCreatureToFDIDMap(), SQLiteDB.GetBroadcastTextIDToSoundKitIDs());
+                        Namer.NameVO(SQLiteDB.GetCreatureNames(), SQLiteDB.GetTextToSoundKitIDs(), SQLiteDB.GetCreatureToFDIDMap(), SQLiteDB.GetBroadcastTextIDToSoundKitIDs(), overrideVO);
                         break;
                     case "WMO":
                         Namer.NameWMO();

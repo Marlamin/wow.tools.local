@@ -387,12 +387,14 @@ namespace wow.tools.local.Services
             {
                 Console.WriteLine("Initializing CASC from web for program " + program + " and locale " + locale);
                 cascHandler = CASCHandler.OpenOnlineStorage(program, SettingsManager.region);
+                IsCASCLibInit = true;
             }
             else
             {
                 basedir = basedir.Replace("_retail_", "").Replace("_ptr_", "");
                 Console.WriteLine("Initializing CASC from local disk with basedir " + basedir + " and program " + program + " and locale " + locale);
                 cascHandler = CASCHandler.OpenLocalStorage(basedir, program);
+                IsCASCLibInit = true;
 
                 LoadBuildInfo();
 
@@ -654,8 +656,6 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     }
                 }
             }
-
-            IsCASCLibInit = true;
 
             try
             {
