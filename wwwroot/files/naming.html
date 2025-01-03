@@ -562,6 +562,18 @@
                     resultTitle.innerHTML = "Result (" + (data.split('\n').length) + " names)";
                     
             });
+
+            var tabEl = document.querySelectorAll('a[data-bs-toggle="tab"]');
+            for (let i = 0; i < tabEl.length; i++) {
+                tabEl[i].addEventListener('shown.bs.tab', function (event) {
+                    if (event.target.text == "Manual models") {
+                        document.getElementById("overlay").style.display = 'block';
+                    } else {
+                        document.getElementById("overlay").style.display = 'none';
+                    }
+                })
+            }
+          
         }());
 
     </script>
