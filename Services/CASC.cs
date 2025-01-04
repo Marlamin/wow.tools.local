@@ -1,5 +1,4 @@
 ﻿using CASCLib;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -71,121 +70,77 @@ namespace wow.tools.local.Services
 
         private static readonly HttpClient WebClient = new();
 
-        // TACTSharp stuff
-        private static EncodingInstance encodingInstance;
-        private static RootInstance rootInstance;
-        private static IndexInstance groupIndex;
-        private static Config cdnConfig;
+        private static BuildInstance buildInstance;
 
-        public static async void InitTACT(string program)
+        public static async void InitTACT(string wowFolder, string product)
         {
-            #region Configs
-            Config? buildConfig = null;
+            if (!string.IsNullOrEmpty(product))
+                Settings.Product = product;
 
-            Console.WriteLine("Using product " + program);
-            var versions = await CDN.GetProductVersions(program);
-            foreach (var line in versions.Split('\n'))
+            if (File.Exists("fakebuildconfig"))
+                Settings.BuildConfig = "fakebuildconfig";
+
+            string buildConfig;
+            string cdnConfig;
+            if (wowFolder != null)
             {
-                // TODO: Configurable?
-                if (!line.StartsWith("us|"))
-                    continue;
+                Settings.BaseDir = wowFolder;
 
-                var splitLine = line.Split('|');
-                if (splitLine.Length < 2)
-                    continue;
+                // Load from build.info
+                var buildInfoPath = Path.Combine(wowFolder, ".build.info");
+                if (!File.Exists(buildInfoPath))
+                    throw new Exception("No build.info found in base directory");
 
-                Console.WriteLine("Using buildconfig " + splitLine[1] + " and cdnconfig " + splitLine[2]);
+                var buildInfo = new BuildInfo(buildInfoPath);
 
-                if (File.Exists("fakebuildconfig"))
-                    buildConfig = new Config("fakebuildconfig", true);
-                else
-                    buildConfig = new Config(splitLine[1], false);
+                if (!buildInfo.Entries.Any(x => x.Product == product))
+                    throw new Exception("No build found for product " + product);
 
-                cdnConfig = new Config(splitLine[2], false);
+                var build = buildInfo.Entries.First(x => x.Product == product);
+
+                if (Settings.BuildConfig == null)
+                    Settings.BuildConfig = build.BuildConfig;
+
+                if (Settings.CDNConfig == null)
+                    Settings.CDNConfig = build.CDNConfig;
+            }
+            else
+            {
+                var versions = await CDN.GetProductVersions(product);
+                foreach (var line in versions.Split('\n'))
+                {
+                    if (!line.StartsWith(Settings.Region + "|"))
+                        continue;
+
+                    var splitLine = line.Split('|');
+
+                    if (Settings.BuildConfig == null)
+                        Settings.BuildConfig = splitLine[1];
+
+                    if (Settings.CDNConfig == null)
+                        Settings.CDNConfig = splitLine[2];
+                }
             }
 
-            if (buildConfig == null || cdnConfig == null)
+            #region Configs
+            buildInstance = new BuildInstance(Settings.BuildConfig, Settings.CDNConfig);
+            await buildInstance.Load();
+
+            if (buildInstance.BuildConfig == null || buildInstance.CDNConfig == null)
                 throw new Exception("Failed to load configs");
 
-            if (!buildConfig.Values.TryGetValue("encoding", out var encodingKey))
+            if (!buildInstance.BuildConfig.Values.TryGetValue("encoding", out var encodingKey))
                 throw new Exception("No encoding key found in build config");
 
-            if (!cdnConfig.Values.TryGetValue("archive-group", out var groupArchiveIndex))
+            if (!buildInstance.CDNConfig.Values.TryGetValue("archive-group", out var groupArchiveIndex))
                 throw new Exception("No archive group found in cdn config");
             #endregion
 
             var totalTimer = new Stopwatch();
             totalTimer.Start();
 
-            #region Encoding
-            var eTimer = new Stopwatch();
-            eTimer.Start();
-            var encodingPath = await CDN.GetDecodedFilePath("wow", "data", encodingKey[1], ulong.Parse(buildConfig.Values["encoding-size"][1]), ulong.Parse(buildConfig.Values["encoding-size"][0]));
-            eTimer.Stop();
-            Console.WriteLine("Retrieved encoding in " + eTimer.Elapsed.TotalMilliseconds + "ms");
-
-            eTimer.Restart();
-            encodingInstance = new EncodingInstance(encodingPath);
-            eTimer.Stop();
-            Console.WriteLine("Loaded encoding in " + eTimer.Elapsed.TotalMilliseconds + "ms");
-            #endregion
-
-            #region Root
-            if (!buildConfig.Values.TryGetValue("root", out var rootKey))
-                throw new Exception("No root key found in build config");
-
-            var root = Convert.FromHexString(rootKey[0]);
-            eTimer.Restart();
-            if (!encodingInstance.TryGetEKeys(root, out var rootEKeys) || rootEKeys == null)
-                throw new Exception("Root key not found in encoding");
-            eTimer.Stop();
-
-            var rootEKey = Convert.ToHexStringLower(rootEKeys.Value.eKeys[0]);
-
-            eTimer.Restart();
-            var rootPath = await CDN.GetDecodedFilePath("wow", "data", rootEKey, 0, rootEKeys.Value.decodedFileSize);
-            eTimer.Stop();
-            Console.WriteLine("Retrieved root in " + eTimer.Elapsed.TotalMilliseconds + "ms");
-
-            eTimer.Restart();
-            rootInstance = new RootInstance(rootPath);
-            eTimer.Stop();
-            Console.WriteLine("Loaded root in " + eTimer.Elapsed.TotalMilliseconds + "ms");
-            #endregion
-
-            #region GroupIndex
-            var groupIndexPath = Path.Combine("cache", "wow", "data", groupArchiveIndex[0] + ".index");
-            if (!File.Exists(groupIndexPath))
-                GroupIndex.Generate(groupArchiveIndex[0], cdnConfig.Values["archives"]);
-
-            var gaSW = new Stopwatch();
-            gaSW.Start();
-            groupIndex = new IndexInstance(groupIndexPath);
-            gaSW.Stop();
-            Console.WriteLine("Loaded group index in " + gaSW.Elapsed.TotalMilliseconds + "ms");
-            #endregion
-
-            #region Install
-            if (!buildConfig.Values.TryGetValue("install", out var installKey))
-                throw new Exception("No root key found in build config");
-
-            if (!encodingInstance.TryGetEKeys(Convert.FromHexString(installKey[0]), out var installEKeys) || installEKeys == null)
-                throw new Exception("Install key not found in encoding");
-            var installEKey = Convert.ToHexStringLower(installEKeys.Value.eKeys[0]);
-
-            eTimer.Restart();
-            var installPath = await CDN.GetDecodedFilePath("wow", "data", installEKey, 0, installEKeys.Value.decodedFileSize);
-            eTimer.Stop();
-            Console.WriteLine("Retrieved install in " + eTimer.Elapsed.TotalMilliseconds + "ms");
-
-            eTimer.Restart();
-            var installInstance = new InstallInstance(installPath);
-            eTimer.Stop();
-            Console.WriteLine("Loaded install in " + eTimer.Elapsed.TotalMilliseconds + "ms");
-            #endregion
-
-            CurrentProduct = program;
-            FullBuildName = buildConfig.Values["build-name"][0];
+            CurrentProduct = product;
+            FullBuildName = buildInstance.BuildConfig.Values["build-name"][0];
             var splitName = FullBuildName.Replace("WOW-", "").Split("patch");
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
 
@@ -199,7 +154,7 @@ namespace wow.tools.local.Services
             var hasher = new Jenkins96();
 
             var installTags = new Dictionary<string, InstallTag>();
-            foreach (var installTag in installInstance.Tags)
+            foreach (var installTag in buildInstance.Install.Tags)
             {
                 var cascInstallTag = new InstallTag()
                 {
@@ -211,7 +166,7 @@ namespace wow.tools.local.Services
                 installTags.Add(installTag.name, cascInstallTag);
             }
 
-            foreach (var installEntry in installInstance.Entries)
+            foreach (var installEntry in buildInstance.Install.Entries)
             {
                 var cascInstallEntry = new InstallEntry()
                 {
@@ -231,15 +186,69 @@ namespace wow.tools.local.Services
             }
             #endregion
 
+            if (Settings.BaseDir != null)
+            {
+                LoadBuildInfo();
+
+                foreach (var build in AvailableBuilds)
+                {
+                    if (!string.IsNullOrEmpty(build.KeyRing))
+                    {
+                        try
+                        {
+                            using (var httpClient = new HttpClient())
+                            {
+                                var keyring = httpClient.GetStreamAsync("https://blzddist1-a.akamaihd.net/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
+
+                                string keyringContents;
+                                if (!string.IsNullOrEmpty(build.Armadillo))
+                                    keyringContents = new StreamReader(new ArmadilloCrypt(build.Armadillo).DecryptFileToStream(build.KeyRing, keyring)).ReadToEnd();
+                                else
+                                    keyringContents = new StreamReader(keyring).ReadToEnd();
+
+                                foreach (var line in keyringContents.Split("\n"))
+                                {
+                                    var splitLine = line.Split(" = ");
+                                    if (splitLine.Length != 2)
+                                        continue;
+
+                                    var lookup = splitLine[0].Replace("key-", "");
+                                    if (lookup.Length != 16)
+                                    {
+                                        Console.WriteLine("Warning: KeyRing lookup " + lookup + " is not 16 characters long, skipping..");
+                                        continue;
+                                    }
+
+                                    var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
+
+                                    if (!KnownKeys.Contains(parsedLookup))
+                                        KnownKeys.Add(parsedLookup);
+
+                                    if (WTLKeyService.HasKey(parsedLookup))
+                                        continue;
+
+                                    Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
+                                    WTLKeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error loading keyring: " + e.Message);
+                        }
+                    }
+                }
+            }
+
             AvailableFDIDs.Clear();
-            AvailableFDIDs.AddRange(rootInstance.GetAvailableFDIDs().Select(x => (int)x));
+            AvailableFDIDs.AddRange(buildInstance.Root.GetAvailableFDIDs().Select(x => (int)x));
 
             if (!File.Exists(Path.Combine(manifestFolder, BuildName + ".txt")))
             {
                 var manifestLines = new List<string>();
-                foreach (var fdid in rootInstance.GetAvailableFDIDs())
+                foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
                 {
-                    var preferredEntry = rootInstance.GetEntryByFDID(fdid);
+                    var preferredEntry = buildInstance.Root.GetEntryByFDID(fdid);
                     manifestLines.Add(fdid + ";" + preferredEntry.Value.md5.ToHexString());
                 }
 
@@ -285,9 +294,9 @@ namespace wow.tools.local.Services
 
             Console.WriteLine("Analyzing files");
             var eKeyEncryptedRegex = new Regex(@"(?<=e:\{)([0-9a-fA-F]{16})(?=,)", RegexOptions.Compiled);
-            foreach (var fdid in rootInstance.GetAvailableFDIDs())
+            foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
             {
-                var entry = rootInstance.GetEntryByFDID(fdid);
+                var entry = buildInstance.Root.GetEntryByFDID(fdid);
                 if (entry == null)
                     continue;
 
@@ -297,9 +306,9 @@ namespace wow.tools.local.Services
                 if ((entry.Value.contentFlags & RootInstance.ContentFlags.LowViolence) != 0)
                     EncryptedFDIDs.Add((int)fdid, []);
 
-                if (encodingInstance.TryGetEKeys(entry.Value.md5, out var eKey))
+                if (buildInstance.Encoding.TryGetEKeys(entry.Value.md5, out var eKey))
                 {
-                    var eSpec = encodingInstance.GetESpec(eKey.Value.eKeys[0]);
+                    var eSpec = buildInstance.Encoding.GetESpec(eKey.Value.eKeys[0]);
                     var matches = eKeyEncryptedRegex.Matches(eSpec.Value.eSpec);
                     var usedKeys = new List<ulong>();
 
@@ -309,7 +318,7 @@ namespace wow.tools.local.Services
                         usedKeys.AddRange(keys);
                     }
 
-                    if (usedKeys != null)
+                    if (usedKeys.Count > 0)
                     {
                         if (EncryptedFDIDs.TryGetValue((int)fdid, out List<ulong>? encryptedIDs))
                         {
@@ -324,9 +333,9 @@ namespace wow.tools.local.Services
             }
 
             // Lookups
-            foreach (var entry in rootInstance.GetAvailableLookups())
+            foreach (var entry in buildInstance.Root.GetAvailableLookups())
             {
-                var fileEntry = rootInstance.GetEntryByLookup(entry);
+                var fileEntry = buildInstance.Root.GetEntryByLookup(entry);
                 if (!LookupMap.ContainsKey((int)fileEntry.Value.fileDataID))
                 {
                     LookupMap.Add((int)fileEntry.Value.fileDataID, entry);
@@ -987,12 +996,12 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             else if (IsTACTSharpInit)
             {
                 var eKey = Convert.FromHexString(EKey.ToHexString());
-                var (offset, size, archiveIndex) = groupIndex.GetIndexInfo(eKey);
+                var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
                 byte[] fileBytes;
                 if (offset == -1)
                     fileBytes = CDN.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true).Result;
                 else
-                    fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", cdnConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true).Result;
+                    fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true).Result;
 
                 return new MemoryStream(fileBytes);
             }
@@ -1008,7 +1017,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             {
                 var ckey = Convert.FromHexString(CKey.ToHexString());
 
-                if (encodingInstance.TryGetEKeys(ckey, out var TEKeys))
+                if (buildInstance.Encoding.TryGetEKeys(ckey, out var TEKeys))
                 {
                     var md5HashEkeys = new List<MD5Hash>();
                     foreach (var ekey in TEKeys.Value.eKeys)
@@ -1064,22 +1073,22 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 }
                 else if (IsTACTSharpInit)
                 {
-                    var fileEntry = rootInstance.GetEntryByFDID(filedataid);
+                    var fileEntry = buildInstance.Root.GetEntryByFDID(filedataid);
                     if (fileEntry == null)
                         return null;
                     var targetCKey = fileEntry.Value.md5;
 
-                    if (!encodingInstance.TryGetEKeys(targetCKey, out var fileEKeys) || fileEKeys == null)
+                    if (!buildInstance.Encoding.TryGetEKeys(targetCKey, out var fileEKeys) || fileEKeys == null)
                         throw new Exception("EKey not found in encoding");
 
                     var eKey = fileEKeys.Value.eKeys[0];
 
-                    var (offset, size, archiveIndex) = groupIndex.GetIndexInfo(eKey);
+                    var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
                     byte[] fileBytes;
                     if (offset == -1)
                         fileBytes = CDN.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, fileEKeys.Value.decodedFileSize, true).Result;
                     else
-                        fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", cdnConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.Value.decodedFileSize, true).Result;
+                        fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.Value.decodedFileSize, true).Result;
 
                     return new MemoryStream(fileBytes);
                 }
@@ -1143,7 +1152,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             if (IsCASCLibInit)
                 return cascHandler.FileExists((int)filedataid);
             else if (IsTACTSharpInit)
-                return rootInstance.FileExists(filedataid);
+                return buildInstance.Root.FileExists(filedataid);
             else
                 return false;
         }
@@ -1244,9 +1253,9 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 }
                 else if (IsTACTSharpInit)
                 {
-                    foreach (var fdid in rootInstance.GetAvailableFDIDs())
+                    foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
                     {
-                        var entry = rootInstance.GetEntryByFDID(fdid);
+                        var entry = buildInstance.Root.GetEntryByFDID(fdid);
                         if (entry == null)
                             continue;
 
@@ -1266,7 +1275,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
                     foreach (var chash in CHashToFDID.Keys)
                     {
-                        if (encodingInstance.TryGetEKeys(Convert.FromHexString(chash), out var eKey))
+                        if (buildInstance.Encoding.TryGetEKeys(Convert.FromHexString(chash), out var eKey))
                         {
                             CHashToSize.Add(chash, (long)eKey.Value.decodedFileSize);
                         }
