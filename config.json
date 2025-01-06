@@ -11,6 +11,7 @@
     "locale": "enUS",
     "showAllFiles": false,
     "extractionDir": "extract",
-    "preferHighResTextures": false
+    "preferHighResTextures": false,
+    "useTACTSharp": false
   }
 }

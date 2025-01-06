@@ -14,6 +14,7 @@
         public static bool showAllFiles = false;
         public static string extractionDir;
         public static bool preferHighResTextures = false;
+        public static bool useTACTSharp = false;
 
         // supported command line flags and switches
         // flag syntax: -flag value || -flag=value or --switch
@@ -21,14 +22,15 @@
         private const string _wowProductFlag = "-product";
         private const string _dbdFolderFlag = "-dbdFolder";
         private const string _dbcFolderFlag = "-dbcFolder";
-		private const string _manifestFolderFlag = "-manifestFolder";
-		private const string _listfileURLFlag = "-listfileURL";
+        private const string _manifestFolderFlag = "-manifestFolder";
+        private const string _listfileURLFlag = "-listfileURL";
         private const string _tactKeyURLFlag = "-tactKeyURL";
         private const string _regionFlag = "-region";
         private const string _localeFlag = "-locale";
         private const string _showAllFilesFlag = "-showAllFiles";
         private const string _extractionDirFlag = "-extractionDir";
         private const string _preferHighResTexturesFlag = "-preferHighResTextures";
+        private const string _useTACTSharpFlag = "-useTACTSharp";
 
         // calling the double-hyphen args 'switch' instead of 'flag' because they don't have values
         private const string _debugSwitch = "--debug";
@@ -39,14 +41,14 @@
         // TODO:
         // make it easier to associate flags with values and add new flags
         // flags are currently case-sensitive, probably not best practice. easy to fix, i'm just being lazy
-       
+
         static SettingsManager()
         {
             try
             {
                 LoadSettings();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("An error happened during config.json reading, make sure it is valid. Application will be unable to load correctly.");
@@ -66,7 +68,7 @@
             {
                 config = new ConfigurationBuilder().SetBasePath(cwd).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
             }
-            catch(Exception)
+            catch (Exception)
             { // if we can't find config.json in the cwd, try the app's directory instead. This is to support launching from the command line, which might not be started in the app's directory
               // this could cause soft errors in case of misconfiguration, but too bad
                 config = new ConfigurationBuilder().SetBasePath(appDir).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
@@ -97,8 +99,8 @@
 
             if (config.GetSection("config")["manifestFolder"] != null)
             {
-				manifestFolder = config.GetSection("config")["manifestFolder"];
-			}
+                manifestFolder = config.GetSection("config")["manifestFolder"];
+            }
             else
             {
                 manifestFolder = "manifests";
@@ -107,9 +109,10 @@
             dbcFolder = config.GetSection("config")["dbcFolder"];
             wowFolder = config.GetSection("config")["wowFolder"];
             wowProduct = config.GetSection("config")["wowProduct"];
-            showAllFiles = bool.Parse(config.GetSection("config")["showAllFiles"]);
+            showAllFiles = config.GetSection("config").GetValue<bool>("showAllFiles");
             extractionDir = config.GetSection("config")["extractionDir"];
-            preferHighResTextures = bool.Parse(config.GetSection("config")["preferHighResTextures"]);
+            preferHighResTextures = config.GetSection("config").GetValue<bool>("preferHighResTextures");
+            useTACTSharp = config.GetSection("config").GetValue<bool>("useTACTSharp");
         }
 
         private static void SetLocale(string locValue)
@@ -175,7 +178,7 @@
         {
             if (!string.IsNullOrEmpty(value))
             {
-                switch(flag)
+                switch (flag)
                 {
                     case (_wowFolderFlag):
                         wowFolder = value;
@@ -189,10 +192,10 @@
                     case (_dbcFolderFlag):
                         dbcFolder = value;
                         break;
-					case (_manifestFolderFlag):
-						manifestFolder = value;
-						break;
-					case (_listfileURLFlag):
+                    case (_manifestFolderFlag):
+                        manifestFolder = value;
+                        break;
+                    case (_listfileURLFlag):
                         listfileURL = value;
                         break;
                     case (_tactKeyURLFlag):
@@ -212,6 +215,9 @@
                         break;
                     case (_preferHighResTexturesFlag):
                         preferHighResTextures = bool.Parse(value);
+                        break;
+                    case (_useTACTSharpFlag):
+                        useTACTSharp = bool.Parse(value);
                         break;
                 }
             }
@@ -278,7 +284,7 @@
             ProcessFlags(args);
 
             // since this runs after LoadSettings() AND the command line arguments are parsed, I'm comfortable throwing this folder check here.
-            ValidateWowFolder(); 
+            ValidateWowFolder();
         }
 
         private static void ValidateWowFolder()
@@ -299,8 +305,8 @@
                     {
                         throw new FileNotFoundException("Unable to find .build.info in WoW directory. Make sure you selected the root WoW directory and not a subfolder.");
                     }
-                 }
-             }
+                }
+            }
         }
     }
 }
