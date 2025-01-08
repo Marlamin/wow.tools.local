@@ -1,4 +1,6 @@
-﻿namespace wow.tools.local
+﻿using TACTSharp;
+
+namespace wow.tools.local
 {
     public static class SettingsManager
     {
@@ -10,7 +12,8 @@
         public static string manifestFolder;
         public static string wowProduct;
         public static string region;
-        public static CASCLib.LocaleFlags locale;
+        public static CASCLib.LocaleFlags cascLocale;
+        public static RootInstance.LocaleFlags tactLocale;
         public static bool showAllFiles = false;
         public static string extractionDir;
         public static bool preferHighResTextures = false;
@@ -94,7 +97,8 @@
             }
             else
             {
-                locale = CASCLib.LocaleFlags.enUS;
+                cascLocale = CASCLib.LocaleFlags.enUS;
+                tactLocale = RootInstance.LocaleFlags.enUS;
             }
 
             if (config.GetSection("config")["manifestFolder"] != null)
@@ -119,59 +123,48 @@
         {
             if (locValue == null)
             {
-                locale = CASCLib.LocaleFlags.enUS;
+                cascLocale = CASCLib.LocaleFlags.enUS;
+                tactLocale = RootInstance.LocaleFlags.enUS;
                 return;
             }
 
-            switch (locValue)
+            cascLocale = locValue switch
             {
-                case "deDE":
-                    locale = CASCLib.LocaleFlags.deDE;
-                    break;
-                case "enUS":
-                    locale = CASCLib.LocaleFlags.enUS;
-                    break;
-                case "enGB":
-                    locale = CASCLib.LocaleFlags.enGB;
-                    break;
-                case "ruRU":
-                    locale = CASCLib.LocaleFlags.ruRU;
-                    break;
-                case "zhCN":
-                    locale = CASCLib.LocaleFlags.zhCN;
-                    break;
-                case "zhTW":
-                    locale = CASCLib.LocaleFlags.zhTW;
-                    break;
-                case "enTW":
-                    locale = CASCLib.LocaleFlags.enTW;
-                    break;
-                case "esES":
-                    locale = CASCLib.LocaleFlags.esES;
-                    break;
-                case "esMX":
-                    locale = CASCLib.LocaleFlags.esMX;
-                    break;
-                case "frFR":
-                    locale = CASCLib.LocaleFlags.frFR;
-                    break;
-                case "itIT":
-                    locale = CASCLib.LocaleFlags.itIT;
-                    break;
-                case "koKR":
-                    locale = CASCLib.LocaleFlags.koKR;
-                    break;
-                case "ptBR":
-                    locale = CASCLib.LocaleFlags.ptBR;
-                    break;
-                case "ptPT":
-                    locale = CASCLib.LocaleFlags.ptPT;
-                    break;
-                default:
-                    Console.WriteLine("Locale " + locValue + " not found, defaulting to enUS");
-                    locale = CASCLib.LocaleFlags.enUS;
-                    break;
-            }
+                "deDE" => CASCLib.LocaleFlags.deDE,
+                "enUS" => CASCLib.LocaleFlags.enUS,
+                "enGB" => CASCLib.LocaleFlags.enGB,
+                "ruRU" => CASCLib.LocaleFlags.ruRU,
+                "zhCN" => CASCLib.LocaleFlags.zhCN,
+                "zhTW" => CASCLib.LocaleFlags.zhTW,
+                "enTW" => CASCLib.LocaleFlags.enTW,
+                "esES" => CASCLib.LocaleFlags.esES,
+                "esMX" => CASCLib.LocaleFlags.esMX,
+                "frFR" => CASCLib.LocaleFlags.frFR,
+                "itIT" => CASCLib.LocaleFlags.itIT,
+                "koKR" => CASCLib.LocaleFlags.koKR,
+                "ptBR" => CASCLib.LocaleFlags.ptBR,
+                "ptPT" => CASCLib.LocaleFlags.ptPT,
+                _ => throw new Exception("Invalid locale. Available locales: deDE, enUS, enGB, ruRU, zhCN, zhTW, enTW, esES, esMX, frFR, itIT, koKR, ptBR, ptPT"),
+            };
+
+            tactLocale = locValue switch
+            {
+                "deDE" => RootInstance.LocaleFlags.deDE,
+                "enUS" => RootInstance.LocaleFlags.enUS,
+                "enGB" => RootInstance.LocaleFlags.enGB,
+                "ruRU" => RootInstance.LocaleFlags.ruRU,
+                "zhCN" => RootInstance.LocaleFlags.zhCN,
+                "zhTW" => RootInstance.LocaleFlags.zhTW,
+                "enTW" => RootInstance.LocaleFlags.enTW,
+                "esES" => RootInstance.LocaleFlags.esES,
+                "esMX" => RootInstance.LocaleFlags.esMX,
+                "frFR" => RootInstance.LocaleFlags.frFR,
+                "itIT" => RootInstance.LocaleFlags.itIT,
+                "koKR" => RootInstance.LocaleFlags.koKR,
+                "ptBR" => RootInstance.LocaleFlags.ptBR,
+                "ptPT" => RootInstance.LocaleFlags.ptPT,
+                _ => throw new Exception("Invalid locale. Available locales: deDE, enUS, enGB, ruRU, zhCN, zhTW, enTW, esES, esMX, frFR, itIT, koKR, ptBR, ptPT"),
+            };
         }
 
         private static void HandleFlag(string flag, string? value)

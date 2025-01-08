@@ -26,7 +26,11 @@ namespace wow.tools.local.Controllers
                 Namer.cacheDir = "caches";
 
                 Namer.SetProviders(dbcProvider, dbdProvider);
-                Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
+                if(CASC.IsCASCLibInit)
+                    Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
+                else if (CASC.IsTACTSharpInit)
+                    Namer.SetTACT(ref CASC.buildInstance, ref CASC.AvailableFDIDs);
+
                 Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);
                 Namer.SetSetCreatureNameForFDIDFunction(SQLiteDB.SetCreatureNameForFDID);
                 Namer.SetGetCreatureNameByDisplayIDFunction(SQLiteDB.GetCreatureNameByDisplayID);

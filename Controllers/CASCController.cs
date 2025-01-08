@@ -1257,9 +1257,18 @@ namespace wow.tools.local.Controllers
             {
                 if (build == CASC.BuildName)
                 {
-                    var casc = new CASCFileProvider();
-                    casc.InitCasc(CASC.cascHandler);
-                    FileProvider.SetProvider(casc, CASC.BuildName);
+                    if (CASC.IsCASCLibInit)
+                    {
+                        var casc = new CASCFileProvider();
+                        casc.InitCasc(CASC.cascHandler);
+                        FileProvider.SetProvider(casc, CASC.BuildName);
+                    }
+                    else if (CASC.IsTACTSharpInit)
+                    {
+                        var tact = new TACTSharpFileProvider();
+                        tact.InitTACT(CASC.buildInstance);
+                        FileProvider.SetProvider(tact, CASC.BuildName);
+                    }
                 }
                 else
                 {

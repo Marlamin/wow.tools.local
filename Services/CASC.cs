@@ -70,7 +70,7 @@ namespace wow.tools.local.Services
 
         private static readonly HttpClient WebClient = new();
 
-        private static BuildInstance buildInstance;
+        public static BuildInstance buildInstance;
 
         public static async void InitTACT(string wowFolder, string product)
         {
@@ -79,6 +79,15 @@ namespace wow.tools.local.Services
 
             if (File.Exists("fakebuildconfig"))
                 Settings.BuildConfig = "fakebuildconfig";
+
+            Settings.Locale = SettingsManager.tactLocale;
+            Settings.Region = SettingsManager.region;
+
+            if (SettingsManager.showAllFiles)
+                Console.WriteLine("!!!! Warning: Show all files setting is not supported when using TACTSharp.");
+
+            if (SettingsManager.preferHighResTextures)
+                Console.WriteLine("!!!! Warning: High res textures setting is not supported when using TACTSharp.");
 
             string buildConfig;
             string cdnConfig;
@@ -390,7 +399,7 @@ namespace wow.tools.local.Services
             CASCConfig.BuildConfigOverride = "fakebuildconfig";
             CASCConfig.CDNConfigOverride = "fakecdnconfig";
 
-            locale = SettingsManager.locale;
+            locale = SettingsManager.cascLocale;
 
             if (basedir == null)
             {
