@@ -141,8 +141,6 @@ namespace wow.tools.local.Services
             if (!buildInstance.BuildConfig.Values.TryGetValue("encoding", out var encodingKey))
                 throw new Exception("No encoding key found in build config");
 
-            if (!buildInstance.CDNConfig.Values.TryGetValue("archive-group", out var groupArchiveIndex))
-                throw new Exception("No archive group found in cdn config");
             #endregion
 
             var totalTimer = new Stopwatch();
@@ -252,6 +250,7 @@ namespace wow.tools.local.Services
             AvailableFDIDs.Clear();
             AvailableFDIDs.AddRange(buildInstance.Root.GetAvailableFDIDs().Select(x => (int)x));
 
+            Directory.CreateDirectory(manifestFolder);
             if (!File.Exists(Path.Combine(manifestFolder, BuildName + ".txt")))
             {
                 var manifestLines = new List<string>();
