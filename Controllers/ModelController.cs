@@ -33,7 +33,9 @@ namespace wow.tools.local.Controllers
 
             var returnString = "";
 
-            var type = CASC.Types[fileDataID];
+            if (!CASC.Types.TryGetValue(fileDataID, out var type))
+                type = "unk";
+
             if (type == "wmo")
             {
                 var wmoReader = new WMOReader();
