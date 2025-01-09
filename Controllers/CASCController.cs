@@ -548,7 +548,7 @@ namespace wow.tools.local.Controllers
                         filename = file,
                         id = entry.Key.ToString(),
                         md5 = entry.Value.ToLower(),
-                        type = CASC.Types.TryGetValue(entry.Key, out string? type) ? type : "unk",
+                        type = CASC.Types.TryGetValue(entry.Key, out string? type) ? type : (!string.IsNullOrEmpty(filename) ? Path.GetExtension(file).Replace(".", "").ToLower() : "unk"),
                         encryptedStatus = CASC.EncryptionStatuses.TryGetValue(entry.Key, out CASC.EncryptionStatus encStatus) ? encStatus.ToString() : ""
                     };
                 };
