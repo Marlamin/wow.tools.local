@@ -154,7 +154,10 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool SwitchProduct(string product)
         {
-            CASC.InitCasc(SettingsManager.wowFolder, product);
+            if (SettingsManager.useTACTSharp)
+                CASC.InitTACT(SettingsManager.wowFolder, product);
+            else
+                CASC.InitCasc(SettingsManager.wowFolder, product);
             return true;
         }
 
