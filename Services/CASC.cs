@@ -89,6 +89,13 @@ namespace wow.tools.local.Services
             if (SettingsManager.preferHighResTextures)
                 Console.WriteLine("!!!! Warning: High res textures setting is not supported when using TACTSharp.");
 
+            if(SettingsManager.wowProduct != product)
+            {
+                Console.WriteLine("Switching builds, resetting configs..");
+                Settings.BuildConfig = null;
+                Settings.CDNConfig = null;
+            }
+
             string buildConfig;
             string cdnConfig;
             if (wowFolder != null)
@@ -257,7 +264,7 @@ namespace wow.tools.local.Services
                 foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
                 {
                     var preferredEntry = buildInstance.Root.GetEntryByFDID(fdid);
-                    manifestLines.Add(fdid + ";" + preferredEntry.Value.md5.ToHexString());
+                    manifestLines.Add(fdid + ";" + Convert.ToHexString(preferredEntry.Value.md5.AsSpan()));
                 }
 
                 manifestLines.Sort();
@@ -314,7 +321,7 @@ namespace wow.tools.local.Services
                 if ((entry.Value.contentFlags & RootInstance.ContentFlags.LowViolence) != 0)
                     EncryptedFDIDs.Add((int)fdid, []);
 
-                if (buildInstance.Encoding.TryGetEKeys(entry.Value.md5, out var eKey))
+                if (buildInstance.Encoding.TryGetEKeys(entry.Value.md5.AsSpan(), out var eKey))
                 {
                     var eSpec = buildInstance.Encoding.GetESpec(eKey.Value.eKeys[0]);
                     var matches = eKeyEncryptedRegex.Matches(eSpec.Value.eSpec);
@@ -1267,7 +1274,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                         if (entry == null)
                             continue;
 
-                        var ckey = Convert.ToHexString(entry.Value.md5);
+                        var ckey = Convert.ToHexString(entry.Value.md5.AsSpan());
 
                         FDIDToCHash.Add((int)entry.Value.fileDataID, ckey);
 
