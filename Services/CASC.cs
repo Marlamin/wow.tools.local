@@ -702,7 +702,17 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
         public static bool ExportTACTKeys()
         {
             KnownKeys.Sort();
-            File.WriteAllLines("WoW.txt", KnownKeys.Select(x => x.ToString("X16") + " " + Convert.ToHexString(WTLKeyService.GetKey(x))).ToArray());
+
+            var tactKeyLines = new List<string>();
+            foreach (var key in KnownKeys)
+            {
+                if (!WTLKeyService.HasKey(key))
+                    continue;
+
+                tactKeyLines.Add(key.ToString("X16") + " " + Convert.ToHexString(WTLKeyService.GetKey(key)));
+            }
+
+            File.WriteAllLines("WoW.txt", tactKeyLines.ToArray());
             return true;
         }
 

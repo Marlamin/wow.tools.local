@@ -25,7 +25,7 @@
                 return CASCLib.KeyService.GetKey(keyName);
             else if (CASC.IsTACTSharpInit)
             {
-                if (TryGetKey(keyName, out var key))
+                if (TACTSharp.KeyService.TryGetKey(keyName, out var key))
                     return key;
 
                 return null;
