@@ -836,11 +836,14 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             {
                 Console.WriteLine("Loading listfile from parts");
 
-                foreach (var file in Directory.GetFiles(SettingsManager.listfileURL, "*.csv"))
+                var files = Directory.GetFiles(SettingsManager.listfileURL, "*.csv");
+                var listfileLock = new Lock();
+                Parallel.ForEach(files, file =>
                 {
                     Console.WriteLine("Loading listfile parts from " + Path.GetFileNameWithoutExtension(file));
-                    listfileLines.AddRange(File.ReadAllLines(file));
-                }
+                    lock (listfileLock)
+                        listfileLines.AddRange(File.ReadAllLines(file));
+                });
             }
 
             return [.. listfileLines];
