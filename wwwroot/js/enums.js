@@ -2446,30 +2446,32 @@ const challengeModeItemBonusOverrideType = {
 }
 
 const textureType = {
-    0: 'InFile',
+    0: 'None/InFile',
     1: 'Skin',
     2: 'Object Skin',
-    3: 'Weapon Blade',
+    3: 'Weapon Blade',      // (OBSOLETE) Weapon Blade, now re-used as ObjectSkin2
     4: 'Weapon Handle',
-    5: '(OBSOLETE) Environment',
-    6: 'Hair',
-    7: '(OBSOLETE) Facial Hair',
+    5: 'Environment',       // (OBSOLETE) Environment, now re-used as MonsterSkin4
+    6: 'Character Hair',
+    7: 'Character Facial Hair',
     8: 'Skin Extra',
     9: 'UI Skin',
-    10: 'Tauren Mane',
+    10: 'Character Misc',
     11: 'Monster Skin 1',
     12: 'Monster Skin 2',
     13: 'Monster Skin 3',
     14: 'Item Icon',
-    15: 'Guild BG Color',
+    15: 'Guild Background Color',
     16: 'Guild Emblem Color',
     17: 'Guild Border Color',
     18: 'Guild Emblem',
-    19: 'Eyes',
-    20: 'Accessory',
-    21: 'Secondary Skin',
-    22: 'Secondary Hair',
+    19: 'Character Eyes',
+    20: 'Character Jewelry',
+    21: 'Character Secondary Skin',
+    22: 'Character Secondary Hair',
+    23: 'Character Secondary Armor',
 }
+
 
 const chrModelMaterialSkinType = {
     0: 'Primary Skin',
@@ -5875,6 +5877,26 @@ const profession = {
     14: 'Archaeology',
 }
 
+const itemDisplayType =
+{
+    0: "Head",
+    1: "Shoulder",
+    2: "BodyOrShirt",
+    3: "ChestOrRobe",
+    4: "Waist",
+    5: "Legs",
+    6: "Feet",
+    7: "Wrist",
+    8: "Hand",
+    9: "Cloak",
+    10: "Tabard",
+    11: "MeleeWeapon",
+    12: "RangedWeapon",
+    13: "Shield",
+    14: "Ammo",
+    15: "Holdable"
+};
+
 // Regular enums
 let enumMap = new Map();
 enumMap.set("animationdata.ID", animationNames);
@@ -5946,9 +5968,11 @@ enumMap.set("globalcurve.Type", globalCurveType);
 enumMap.set("globaltable_playercondition.What", globalTable_PlayerConditionWhat);
 enumMap.set("item.ClassID", itemClassEnum);
 enumMap.set("item.InventoryType", inventoryTypeEnum);
+enumMap.set("itemappearance.DisplayType", itemDisplayType);
 enumMap.set("itembonus.Type", itemBonusTypes);
 enumMap.set("itembonustreenode.ItemContext", itemContext);
 enumMap.set("itemdisplayinfomaterialres.ComponentSection", componentSection);
+enumMap.set("itemdisplayinfomodelmatres.TextureType", textureType);
 enumMap.set("itemeffect.TriggerType", itemEffectTriggerType);
 enumMap.set("itemmodifiedappearance.TransmogSourceTypeEnum", transmogSourceTypeEnum);
 enumMap.set("itemsparse.InventoryType", inventoryTypeEnum);
