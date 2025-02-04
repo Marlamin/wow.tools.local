@@ -165,7 +165,7 @@ namespace wow.tools.local.Services
             IsTACTSharpInit = true;
 
             #region Install entry conversion between TACTSharp and CASCLib
-            var hasher = new Jenkins96();
+            var hasher = new CASCLib.Jenkins96();
 
             var installTags = new Dictionary<string, InstallTag>();
             foreach (var installTag in buildInstance.Install.Tags)
@@ -321,10 +321,10 @@ namespace wow.tools.local.Services
                 if ((entry.Value.contentFlags & RootInstance.ContentFlags.LowViolence) != 0)
                     EncryptedFDIDs.Add((int)fdid, []);
 
-                if (buildInstance.Encoding.TryGetEKeys(entry.Value.md5.AsSpan(), out var eKey))
+                if (buildInstance.Encoding.TryGetEKeys(entry.Value.md5.AsSpan(), out var eKeys))
                 {
-                    var eSpec = buildInstance.Encoding.GetESpec(eKey.Value.eKeys[0]);
-                    var matches = eKeyEncryptedRegex.Matches(eSpec.Value.eSpec);
+                    var eSpec = buildInstance.Encoding.GetESpec(eKeys.Value[0]);
+                    var matches = eKeyEncryptedRegex.Matches(eSpec.eSpec);
                     var usedKeys = new List<ulong>();
 
                     if (matches.Count != 0)
@@ -1027,9 +1027,9 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
                 byte[] fileBytes;
                 if (offset == -1)
-                    fileBytes = CDN.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true).Result;
+                    fileBytes = CDN.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true);
                 else
-                    fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true).Result;
+                    fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
 
                 return new MemoryStream(fileBytes);
             }
@@ -1048,15 +1048,16 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 if (buildInstance.Encoding.TryGetEKeys(ckey, out var TEKeys))
                 {
                     var md5HashEkeys = new List<MD5Hash>();
-                    foreach (var ekey in TEKeys.Value.eKeys)
+                    for(var i = 0; i < TEKeys.Value.Length; i++)
                     {
-                        md5HashEkeys.Add(ekey.ToMD5());
+                        var ekey = TEKeys.Value[i];
+                        md5HashEkeys.Add(ekey.ToArray().ToMD5());
                     }
 
                     EKeys = new EncodingEntry
                     {
                         Keys = md5HashEkeys,
-                        Size = (long)TEKeys.Value.decodedFileSize
+                        Size = (long)TEKeys.Value.DecodedFileSize
                     };
 
                     return true;
@@ -1109,14 +1110,14 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     if (!buildInstance.Encoding.TryGetEKeys(targetCKey, out var fileEKeys) || fileEKeys == null)
                         throw new Exception("EKey not found in encoding");
 
-                    var eKey = fileEKeys.Value.eKeys[0];
+                    var eKey = fileEKeys.Value[0];
 
                     var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
                     byte[] fileBytes;
                     if (offset == -1)
-                        fileBytes = CDN.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, fileEKeys.Value.decodedFileSize, true).Result;
+                        fileBytes = CDN.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, fileEKeys.Value.DecodedFileSize, true);
                     else
-                        fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.Value.decodedFileSize, true).Result;
+                        fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.Value.DecodedFileSize, true);
 
                     return new MemoryStream(fileBytes);
                 }
@@ -1305,7 +1306,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     {
                         if (buildInstance.Encoding.TryGetEKeys(Convert.FromHexString(chash), out var eKey))
                         {
-                            CHashToSize.Add(chash, (long)eKey.Value.decodedFileSize);
+                            CHashToSize.Add(chash, (long)eKey.Value.DecodedFileSize);
                         }
                     }
                 }
