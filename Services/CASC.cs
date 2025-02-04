@@ -18,6 +18,7 @@ namespace wow.tools.local.Services
         public static string BuildName;
         public static string FullBuildName;
         public static string CurrentProduct;
+        public static bool IsOnline;
 
         public static readonly Dictionary<int, string> Listfile = [];
         public static readonly Dictionary<string, int> DB2Map = [];
@@ -40,6 +41,7 @@ namespace wow.tools.local.Services
         public static List<AvailableBuild> AvailableBuilds = [];
         public static List<int> OtherLocaleOnlyFiles = [];
         public static List<InstallEntry> InstallEntries = [];
+
 
         public struct Version
         {
@@ -74,6 +76,8 @@ namespace wow.tools.local.Services
 
         public static async void InitTACT(string wowFolder, string product)
         {
+            IsTACTSharpInit = false;
+
             if (!string.IsNullOrEmpty(product))
                 Settings.Product = product;
 
@@ -122,6 +126,7 @@ namespace wow.tools.local.Services
             }
             else
             {
+                IsOnline = true;
                 var versions = await CDN.GetProductVersions(product);
                 foreach (var line in versions.Split('\n'))
                 {
@@ -363,7 +368,6 @@ namespace wow.tools.local.Services
             RefreshEncryptionStatus();
             Console.WriteLine("Done analyzing encrypted files");
 
-
             if (File.Exists("cachedUnknowns.txt"))
             {
                 Console.WriteLine("Loading cached types from disk");
@@ -380,8 +384,6 @@ namespace wow.tools.local.Services
                 }
             }
 
-            IsTACTSharpInit = true;
-
             try
             {
                 HotfixManager.LoadCaches();
@@ -391,11 +393,15 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Error loading hotfixes: " + e.Message);
             }
 
+            IsTACTSharpInit = true;
+
             Console.WriteLine("Finished loading " + BuildName);
         }
 
         public static void InitCasc(string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
         {
+            IsCASCLibInit = false;
+
             WebClient.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
 
             CASCConfig.ValidateData = false;
@@ -412,6 +418,7 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Initializing CASC from web for program " + program + " and locale " + locale);
                 cascHandler = CASCHandler.OpenOnlineStorage(program, SettingsManager.region);
                 IsCASCLibInit = true;
+                IsOnline = true;
             }
             else
             {

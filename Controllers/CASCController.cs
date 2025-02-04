@@ -25,6 +25,7 @@ namespace wow.tools.local.Controllers
     {
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
+        private static readonly Dictionary<string, string> RibbitCache = new();
 
         [Route("fdid")]
         [HttpGet]
@@ -118,7 +119,7 @@ namespace wow.tools.local.Controllers
 
         [Route("builds")]
         [HttpPost]
-        public DataTablesResult Builds()
+        public DataTablesResult Builds(bool remote = false)
         {
             var result = new DataTablesResult();
 
@@ -128,7 +129,7 @@ namespace wow.tools.local.Controllers
                 result.data = [];
             }
 
-            if (SettingsManager.wowFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.wowFolder, ".build.info")))
+            if (!remote && SettingsManager.wowFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.wowFolder, ".build.info")))
             {
                 foreach (var availableBuild in CASC.AvailableBuilds)
                 {
@@ -147,18 +148,69 @@ namespace wow.tools.local.Controllers
                 result.recordsFiltered = result.data.Count;
             }
 
+            if (remote)
+            {
+                var ribbitClient = new Ribbit.Protocol.Client("us.version.battle.net", 1119);
+                RibbitCache["v1/summary"] = ribbitClient.Request("v1/summary").ToString();
+
+                var builds = new Ribbit.Parsing.BPSV(RibbitCache["v1/summary"]);
+                foreach (var product in builds.data)
+                {
+                    // Skip products with no versions
+                    if (product[2] != "" || !product[0].StartsWith("wow"))
+                        continue;
+
+                    var endPoint = "v1/products/" + product[0] + "/versions";
+                    if (!RibbitCache.TryGetValue(endPoint, out var cachedResult))
+                    {
+                        cachedResult = ribbitClient.Request(endPoint).ToString();
+                        RibbitCache[endPoint] = cachedResult;
+                    }
+
+                    foreach (var line in cachedResult.Split("\n"))
+                    {
+                        var splitLine = line.Split('|');
+
+                        if (splitLine[0] != "us")
+                            continue;
+
+                        var splitVersion = splitLine[5].Split(".");
+                        var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
+                        var build = splitVersion[3];
+
+                        var isActive = CASC.CurrentProduct == product[0] && CASC.IsOnline;
+                        var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
+                        var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
+
+                        result.data.Add([patch, build, product[0], splitLine[1], splitLine[2], isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
+                    }
+
+                    // sort by build
+                    result.data = result.data.OrderByDescending(x => x[1]).ToList();
+                }
+            }
+
             return result;
         }
 
         [Route("switchProduct")]
         [HttpGet]
-        public bool SwitchProduct(string product)
+        public bool SwitchProduct(string product, bool isOnline = false)
         {
             if (SettingsManager.useTACTSharp)
-                CASC.InitTACT(SettingsManager.wowFolder, product);
+                CASC.InitTACT(isOnline ? "" : SettingsManager.wowFolder, product);
             else
-                CASC.InitCasc(SettingsManager.wowFolder, product);
-            return true;
+                CASC.InitCasc(isOnline ? "" : SettingsManager.wowFolder, product);
+
+            // Don't respond until things are done loading
+            while (true)
+            {
+                if (SettingsManager.useTACTSharp && CASC.IsTACTSharpInit)
+                    return true;
+
+                if (!SettingsManager.useTACTSharp && CASC.IsCASCLibInit)
+                    return true;
+            }
         }
 
         [Route("updateListfile")]
