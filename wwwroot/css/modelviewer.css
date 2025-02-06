@@ -69,7 +69,7 @@ html, body{
     width: 30px;
     height: 30px;
     border: 0;
-    background-color: rgba(255,255,255,.5);
+    background-color: rgba(183, 183, 183, 0.5);
     transition: background-color 0.1s ease;
     border-radius: 10%;
     outline: none;
