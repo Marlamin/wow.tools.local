@@ -47,7 +47,8 @@ var Current =
     embedded: false,
     displayID: 0,
     availableGeosets: [],
-    enabledGeosets: []
+    enabledGeosets: [],
+    geosetsDone: false
 }
 
 var DownloadQueue = [];
@@ -368,11 +369,13 @@ window.createscene = async function () {
                 geosetSelect.id = "geosetSelection-" + geosetGroup;
                 geosetSelect.classList.add("geosetSelection");
                 geosetSelect.dataset.geosetGroup = geosetGroup;
-                geosetSelect.onchange = function(){ Current.enabledGeosets[Number(this.dataset.geosetGroup)] = Number(this.value); updateEnabledGeosets(); };
-                // let opt = document.createElement('option');
-                // opt.value = 0;
-                // opt.innerHTML = 0;
-                // geosetSelect.appendChild(opt);
+                geosetSelect.onchange = function () { Current.enabledGeosets[Number(this.dataset.geosetGroup)] = Number(this.value); updateEnabledGeosets(); };
+
+                let opt = document.createElement('option');
+                opt.value = -1;
+                opt.innerHTML = "-1 (all)";
+                geosetSelect.appendChild(opt);
+
                 geosetHolder.appendChild(geosetSelect);
             }
 
@@ -383,6 +386,8 @@ window.createscene = async function () {
             select.appendChild(opt);
             
         }
+
+        Current.geosetsDone = true;
     };
 
     var renderfunc = function(now){
@@ -570,6 +575,7 @@ function loadModel(type, filedataid){
                     Module._setScene(1, ptrName, -1);
                     $("#js-controls").hide();
                 } else if (Current.type == "m2") {
+                    Current.geosetsDone = false;
                     Module._setScene(0, ptrName, -1);
                     $("#js-controls").show();
                     if (!Settings.newDisplayInfo){
@@ -949,28 +955,49 @@ async function setModelDisplay(displayID, type){
         // Geosets
         Current.enabledGeosets = [];
 
-        // Set all the geoset selectors back to zero:
-        const geosetSelectors = document.getElementsByClassName("geosetSelection");
-        for(var i = 0; i < geosetSelectors.length; i++) {
-            geosetSelectors[i].value = 0;
-        }
-        
         if (cmdRow.values.CreatureGeosetDataID != "0"){
             const geosetResponse = await fetch("/dbc/find/CreatureDisplayInfoGeosetData/?build=" + Current.buildName + "&col=CreatureDisplayInfoID&val=" + cdiRow.values['ID']);
             const geosetResults = await geosetResponse.json();
             const geosetsToEnable = [];
             
-            console.log(geosetResults);
+            console.log("CreatureDisplayInfoGeosetData results", geosetResults);
 
-            for (const geosetRow of geosetResults){
+            for (const geosetRow of geosetResults) {
+                console.log("Setting " + (Number(geosetRow.GeosetIndex) + 1) + " to " + geosetRow.GeosetValue);
                 geosetsToEnable[Number(geosetRow.GeosetIndex) + 1] = Number(geosetRow.GeosetValue);
-                if (document.getElementById("geosetSelection-" + (Number(geosetRow.GeosetIndex) + 1))) { document.getElementById("geosetSelection-" + (Number(geosetRow.GeosetIndex) + 1)).value = geosetRow.GeosetValue; }
             }
 
-            for (const geoset of Current.availableGeosets){
+            // Wait for meshIdArrayCallback to set Current.availableGeosets
+            if (Current.geosetsDone == false) {
+                while (!Current.geosetsDone) {
+                    console.log("Available geosets not loaded yet, waiting 10ms..");
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
+            }
+
+            console.log("Geosets to enable: ", geosetsToEnable);
+
+            // Make list of geoset groups first so we don't run through each geoset option for each dropdown.
+            const availableGeosetGroups = [];
+            for (const geoset of Current.availableGeosets) {
                 const geosetGroup = Math.floor(Number(geoset / 100));
-                if (!(geosetGroup in geosetsToEnable)){
+
+                if (!(geosetGroup in availableGeosetGroups)) {
+                    availableGeosetGroups.push(geosetGroup);
+                }
+            }
+
+            console.log("Available geoset groups: ", availableGeosetGroups);
+
+            // Run through each group and make sure options are synced up with reality.
+            for (const geosetGroup of availableGeosetGroups){
+                var option = document.getElementById("geosetSelection-" + geosetGroup);
+
+                if (!(geosetGroup in geosetsToEnable)) {
                     geosetsToEnable[geosetGroup] = 0;
+                    option.value = 0;
+                } else {
+                    option.value = geosetsToEnable[geosetGroup];
                 }
             }
 
