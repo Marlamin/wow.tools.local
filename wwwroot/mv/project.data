@@ -1608,28 +1608,28 @@ struct PSFog
     vec4 sunPercentage;
 };
 
-uniform mat4 _133_uPlacementMat;
-uniform mat4 _133_uBoneMatrixes[220];
-uniform ivec4 _230_vertexShader_IsAffectedByLight;
-uniform vec4 _230_color_Transparency;
-uniform mat4 _230_uTextMat[2];
-uniform mat4 _240_scene_uLookAtMat;
-uniform mat4 _240_scene_uPMatrix;
-uniform vec4 _240_scene_uViewUp;
-uniform vec4 _240_scene_uInteriorSunDir;
-uniform vec4 _240_scene_extLight_uExteriorAmbientColor;
-uniform vec4 _240_scene_extLight_uExteriorHorizontAmbientColor;
-uniform vec4 _240_scene_extLight_uExteriorGroundAmbientColor;
-uniform vec4 _240_scene_extLight_uExteriorDirectColor;
-uniform vec4 _240_scene_extLight_uExteriorDirectColorDir;
-uniform vec4 _240_scene_extLight_adtSpecMult;
-uniform vec4 _240_fogData_densityParams;
-uniform vec4 _240_fogData_heightPlane;
-uniform vec4 _240_fogData_color_and_heightRate;
-uniform vec4 _240_fogData_heightDensity_and_endColor;
-uniform vec4 _240_fogData_sunAngle_and_sunColor;
-uniform vec4 _240_fogData_heightColor_and_endFogDistance;
-uniform vec4 _240_fogData_sunPercentage;
+uniform mat4 _100_uPlacementMat;
+uniform mat4 _100_uBoneMatrixes[220];
+uniform ivec4 _200_vertexShader_IsAffectedByLight;
+uniform vec4 _200_color_Transparency;
+uniform mat4 _200_uTextMat[2];
+uniform mat4 _210_scene_uLookAtMat;
+uniform mat4 _210_scene_uPMatrix;
+uniform vec4 _210_scene_uViewUp;
+uniform vec4 _210_scene_uInteriorSunDir;
+uniform vec4 _210_scene_extLight_uExteriorAmbientColor;
+uniform vec4 _210_scene_extLight_uExteriorHorizontAmbientColor;
+uniform vec4 _210_scene_extLight_uExteriorGroundAmbientColor;
+uniform vec4 _210_scene_extLight_uExteriorDirectColor;
+uniform vec4 _210_scene_extLight_uExteriorDirectColorDir;
+uniform vec4 _210_scene_extLight_adtSpecMult;
+uniform vec4 _210_fogData_densityParams;
+uniform vec4 _210_fogData_heightPlane;
+uniform vec4 _210_fogData_color_and_heightRate;
+uniform vec4 _210_fogData_heightDensity_and_endColor;
+uniform vec4 _210_fogData_sunAngle_and_sunColor;
+uniform vec4 _210_fogData_heightColor_and_endFogDistance;
+uniform vec4 _210_fogData_sunPercentage;
 attribute vec3 aPosition;
 attribute vec4 boneWeights;
 attribute vec4 bones;
@@ -1642,11 +1642,6 @@ attribute vec2 aTexCoord;
 attribute vec2 aTexCoord2;
 varying vec3 vNormal;
 varying vec3 vPosition;
-
-mat3 blizzTranspose(mat4 value)
-{
-    return mat3(vec3(value[0].xyz), vec3(value[1].xyz), vec3(value[2].xyz));
-}
 
 vec2 posToTexCoord(vec3 cameraPoint, vec3 normal)
 {
@@ -1667,149 +1662,146 @@ void main()
     vec4 modelPoint = vec4(0.0);
     vec4 aPositionVec4 = vec4(aPosition, 1.0);
     mat4 boneTransformMat = mat4(vec4(0.0), vec4(0.0), vec4(0.0), vec4(0.0));
-    mat4 _143 = _133_uBoneMatrixes[bones.x] * boneWeights.x;
-    boneTransformMat = mat4(boneTransformMat[0] + _143[0], boneTransformMat[1] + _143[1], boneTransformMat[2] + _143[2], boneTransformMat[3] + _143[3]);
-    mat4 _164 = _133_uBoneMatrixes[bones.y] * boneWeights.y;
-    boneTransformMat = mat4(boneTransformMat[0] + _164[0], boneTransformMat[1] + _164[1], boneTransformMat[2] + _164[2], boneTransformMat[3] + _164[3]);
-    mat4 _185 = _133_uBoneMatrixes[bones.z] * boneWeights.z;
-    boneTransformMat = mat4(boneTransformMat[0] + _185[0], boneTransformMat[1] + _185[1], boneTransformMat[2] + _185[2], boneTransformMat[3] + _185[3]);
-    mat4 _207 = _133_uBoneMatrixes[bones.w] * boneWeights.w;
-    boneTransformMat = mat4(boneTransformMat[0] + _207[0], boneTransformMat[1] + _207[1], boneTransformMat[2] + _207[2], boneTransformMat[3] + _207[3]);
-    mat4 placementMat = _133_uPlacementMat;
-    vec4 lDiffuseColor = _230_color_Transparency;
-    mat4 cameraMatrix = (_240_scene_uLookAtMat * placementMat) * boneTransformMat;
-    vec4 cameraPoint = cameraMatrix * aPositionVec4;
-    mat4 param = _240_scene_uLookAtMat;
-    mat4 param_1 = placementMat;
-    mat4 param_2 = boneTransformMat;
-    mat3 viewModelMatTransposed = (blizzTranspose(param) * blizzTranspose(param_1)) * blizzTranspose(param_2);
-    vec3 normal = normalize(viewModelMatTransposed * aNormal);
+    mat4 _112 = _100_uBoneMatrixes[bones.x] * boneWeights.x;
+    boneTransformMat = mat4(boneTransformMat[0] + _112[0], boneTransformMat[1] + _112[1], boneTransformMat[2] + _112[2], boneTransformMat[3] + _112[3]);
+    mat4 _133 = _100_uBoneMatrixes[bones.y] * boneWeights.y;
+    boneTransformMat = mat4(boneTransformMat[0] + _133[0], boneTransformMat[1] + _133[1], boneTransformMat[2] + _133[2], boneTransformMat[3] + _133[3]);
+    mat4 _154 = _100_uBoneMatrixes[bones.z] * boneWeights.z;
+    boneTransformMat = mat4(boneTransformMat[0] + _154[0], boneTransformMat[1] + _154[1], boneTransformMat[2] + _154[2], boneTransformMat[3] + _154[3]);
+    mat4 _176 = _100_uBoneMatrixes[bones.w] * boneWeights.w;
+    boneTransformMat = mat4(boneTransformMat[0] + _176[0], boneTransformMat[1] + _176[1], boneTransformMat[2] + _176[2], boneTransformMat[3] + _176[3]);
+    mat4 placementMat = _100_uPlacementMat;
+    vec4 lDiffuseColor = _200_color_Transparency;
+    mat4 viewModelMat = (_210_scene_uLookAtMat * placementMat) * boneTransformMat;
+    vec4 cameraPoint = viewModelMat * aPositionVec4;
+    mat4 viewModelMatForNormal = transpose(inverse(viewModelMat));
+    vec3 normal = normalize(viewModelMatForNormal * vec4(aNormal, 0.0)).xyz;
     vec4 combinedColor = clamp(lDiffuseColor, vec4(0.0), vec4(1.0));
     vec4 combinedColorHalved = combinedColor * 0.5;
-    vec3 param_3 = cameraPoint.xyz;
-    vec3 param_4 = normal;
-    vec2 envCoord = posToTexCoord(param_3, param_4);
-    vec3 param_5 = cameraPoint.xyz;
-    vec3 param_6 = normal;
-    float edgeScanVal = edgeScan(param_5, param_6);
+    vec3 param = cameraPoint.xyz;
+    vec3 param_1 = normal;
+    vec2 envCoord = posToTexCoord(param, param_1);
+    vec3 param_2 = cameraPoint.xyz;
+    vec3 param_3 = normal;
+    float edgeScanVal = edgeScan(param_2, param_3);
     vTexCoord2 = vec2(0.0);
     vTexCoord3 = vec2(0.0);
-    int uVertexShader = _230_vertexShader_IsAffectedByLight.x;
-    bool _305 = uVertexShader == 0;
+    int uVertexShader = _200_vertexShader_IsAffectedByLight.x;
+    bool _270 = uVertexShader == 0;
     #if (VERTEXSHADER == 0)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _332 = uVertexShader == 1;
+    bool _298 = uVertexShader == 1;
     #if (VERTEXSHADER == 1)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
     vTexCoord = envCoord;
     #endif
-    bool _347 = uVertexShader == 2;
+    bool _313 = uVertexShader == 2;
     #if (VERTEXSHADER == 2)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     #endif
-    bool _379 = uVertexShader == 3;
+    bool _345 = uVertexShader == 3;
     #if (VERTEXSHADER == 3)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     vTexCoord2 = envCoord;
     #endif
-    bool _403 = uVertexShader == 4;
+    bool _369 = uVertexShader == 4;
     #if (VERTEXSHADER == 4)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
     vTexCoord = envCoord;
-    vTexCoord2 = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _427 = uVertexShader == 5;
+    bool _393 = uVertexShader == 5;
     #if (VERTEXSHADER == 5)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
     vTexCoord = envCoord;
     vTexCoord2 = envCoord;
     #endif
-    bool _444 = uVertexShader == 6;
+    bool _410 = uVertexShader == 6;
     #if (VERTEXSHADER == 6)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     vTexCoord2 = envCoord;
-    vTexCoord3 = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord3 = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _476 = uVertexShader == 7;
+    bool _442 = uVertexShader == 7;
     #if (VERTEXSHADER == 7)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _507 = uVertexShader == 8;
+    bool _473 = uVertexShader == 8;
     #if (VERTEXSHADER == 8)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord3 = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord3 = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _546 = uVertexShader == 9;
+    bool _512 = uVertexShader == 9;
     #if (VERTEXSHADER == 9)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w * edgeScanVal);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _571 = uVertexShader == 10;
+    bool _537 = uVertexShader == 10;
     #if (VERTEXSHADER == 10)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     #endif
-    bool _594 = uVertexShader == 11;
+    bool _560 = uVertexShader == 11;
     #if (VERTEXSHADER == 11)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     vTexCoord2 = envCoord;
-    vTexCoord3 = (_230_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord3 = (_200_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     #endif
-    bool _626 = uVertexShader == 12;
+    bool _592 = uVertexShader == 12;
     #if (VERTEXSHADER == 12)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w * edgeScanVal);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     #endif
-    bool _659 = uVertexShader == 13;
+    bool _625 = uVertexShader == 13;
     #if (VERTEXSHADER == 13)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w * edgeScanVal);
     vTexCoord = envCoord;
     #endif
-    bool _677 = uVertexShader == 14;
+    bool _643 = uVertexShader == 14;
     #if (VERTEXSHADER == 14)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
-    vTexCoord3 = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord3 = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _716 = uVertexShader == 15;
+    bool _682 = uVertexShader == 15;
     #if (VERTEXSHADER == 15)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     vTexCoord3 = vTexCoord3;
     #endif
-    bool _748 = uVertexShader == 16;
+    bool _714 = uVertexShader == 16;
     #if (VERTEXSHADER == 16)
     vec4 in_col0 = vec4(1.0);
     vDiffuseColor = vec4((in_col0.xyz * 0.5).x, (in_col0.xyz * 0.5).y, (in_col0.xyz * 0.5).z, in_col0.w);
-    vTexCoord = (_230_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     vTexCoord2 = vec2(0.0);
     vTexCoord3 = vTexCoord3;
     #endif
-    bool _780 = uVertexShader == 17;
+    bool _746 = uVertexShader == 17;
     #if (VERTEXSHADER == 17)
     vDiffuseColor = vec4(combinedColor.xyz * 0.5, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _803 = uVertexShader == 18;
+    bool _769 = uVertexShader == 18;
     #if (VERTEXSHADER == 18)
     vDiffuseColor = vec4(combinedColor.xyz * 0.5, combinedColor.w);
-    vTexCoord = (_230_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200_uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    gl_Position = _240_scene_uPMatrix * cameraPoint;
+    gl_Position = _210_scene_uPMatrix * cameraPoint;
     vNormal = normal;
     vPosition = cameraPoint.xyz;
 }
@@ -2285,7 +2277,7 @@ vec4 makeFog(PSFog fogData, vec4 final, vec3 vertexInViewSpace, vec3 sunDirInVie
 
 void main()
 {
-    vec3 finalColor = _253_color.xyz + texture2D(uTexture, vTextCoords).xyz;
+    vec3 matDiffuse = _253_color.xyz + texture2D(uTexture, vTextCoords).xyz;
     vec3 sunDir = _277_scene_extLight_uExteriorDirectColorDir.xyz;
     PSFog arg;
     arg.densityParams = _277_fogData_densityParams;
@@ -2295,11 +2287,11 @@ void main()
     arg.sunAngle_and_sunColor = _277_fogData_sunAngle_and_sunColor;
     arg.heightColor_and_endFogDistance = _277_fogData_heightColor_and_endFogDistance;
     arg.sunPercentage = _277_fogData_sunPercentage;
-    vec4 param = vec4(finalColor, 1.0);
+    vec4 param = vec4(matDiffuse, 1.0);
     vec3 param_1 = vPosition;
     vec3 param_2 = sunDir;
     int param_3 = 2;
-    finalColor = makeFog(arg, param, param_1, param_2, param_3).xyz;
+    vec3 finalColor = makeFog(arg, param, param_1, param_2, param_3).xyz;
     gl_FragData[0] = vec4(finalColor, 0.699999988079071044921875);
 }
 
@@ -3062,7 +3054,7 @@ void main()
     #endif
     bool _800 = uPixelShader == 7;
     #if (FRAGMENTSHADER == 7)
-    vec4 colorMix = mix(tex2, tex, vec4(vColor2.w));
+    vec4 colorMix = mix(tex, tex2, vec4(vColor2.w));
     matDiffuse = colorMix.xyz;
     emissive = ((colorMix.xyz * colorMix.w) * tex3.xyz) * distFade;
     finalOpacity = tex.w;
@@ -3267,25 +3259,25 @@ struct PSFog
     vec4 sunPercentage;
 };
 
-uniform mat4 _93_uPlacementMat;
-uniform mat4 _111_scene_uLookAtMat;
-uniform mat4 _111_scene_uPMatrix;
-uniform vec4 _111_scene_uViewUp;
-uniform vec4 _111_scene_uInteriorSunDir;
-uniform vec4 _111_scene_extLight_uExteriorAmbientColor;
-uniform vec4 _111_scene_extLight_uExteriorHorizontAmbientColor;
-uniform vec4 _111_scene_extLight_uExteriorGroundAmbientColor;
-uniform vec4 _111_scene_extLight_uExteriorDirectColor;
-uniform vec4 _111_scene_extLight_uExteriorDirectColorDir;
-uniform vec4 _111_scene_extLight_adtSpecMult;
-uniform vec4 _111_fogData_densityParams;
-uniform vec4 _111_fogData_heightPlane;
-uniform vec4 _111_fogData_color_and_heightRate;
-uniform vec4 _111_fogData_heightDensity_and_endColor;
-uniform vec4 _111_fogData_sunAngle_and_sunColor;
-uniform vec4 _111_fogData_heightColor_and_endFogDistance;
-uniform vec4 _111_fogData_sunPercentage;
-uniform ivec4 _178_VertexShader_UseLitColor;
+uniform mat4 _58_uPlacementMat;
+uniform mat4 _78_scene_uLookAtMat;
+uniform mat4 _78_scene_uPMatrix;
+uniform vec4 _78_scene_uViewUp;
+uniform vec4 _78_scene_uInteriorSunDir;
+uniform vec4 _78_scene_extLight_uExteriorAmbientColor;
+uniform vec4 _78_scene_extLight_uExteriorHorizontAmbientColor;
+uniform vec4 _78_scene_extLight_uExteriorGroundAmbientColor;
+uniform vec4 _78_scene_extLight_uExteriorDirectColor;
+uniform vec4 _78_scene_extLight_uExteriorDirectColorDir;
+uniform vec4 _78_scene_extLight_adtSpecMult;
+uniform vec4 _78_fogData_densityParams;
+uniform vec4 _78_fogData_heightPlane;
+uniform vec4 _78_fogData_color_and_heightRate;
+uniform vec4 _78_fogData_heightDensity_and_endColor;
+uniform vec4 _78_fogData_sunAngle_and_sunColor;
+uniform vec4 _78_fogData_heightColor_and_endFogDistance;
+uniform vec4 _78_fogData_sunPercentage;
+uniform ivec4 _146_VertexShader_UseLitColor;
 attribute vec3 aPosition;
 varying vec4 vPosition;
 varying vec3 vNormal;
@@ -3305,11 +3297,6 @@ attribute vec2 aTexCoord2;
 varying vec2 vTexCoord3;
 attribute vec2 aTexCoord3;
 
-mat3 blizzTranspose(mat4 value)
-{
-    return mat3(vec3(value[0].xyz), vec3(value[1].xyz), vec3(value[2].xyz));
-}
-
 vec2 posToTexCoord(vec3 cameraPoint, vec3 normal)
 {
     vec3 normPos_495 = normalize(cameraPoint);
@@ -3320,20 +3307,18 @@ vec2 posToTexCoord(vec3 cameraPoint, vec3 normal)
 
 void main()
 {
-    vec4 worldPoint = _93_uPlacementMat * vec4(aPosition, 1.0);
-    vec4 cameraPoint = _111_scene_uLookAtMat * worldPoint;
-    mat4 viewModelMat = _111_scene_uLookAtMat * _93_uPlacementMat;
-    mat4 param = _111_scene_uLookAtMat;
-    mat4 param_1 = _93_uPlacementMat;
-    mat3 viewModelMatTransposed = blizzTranspose(param) * blizzTranspose(param_1);
-    gl_Position = _111_scene_uPMatrix * cameraPoint;
+    vec4 worldPoint = _58_uPlacementMat * vec4(aPosition, 1.0);
+    vec4 cameraPoint = _78_scene_uLookAtMat * worldPoint;
+    mat4 viewModelMat = _78_scene_uLookAtMat * _58_uPlacementMat;
+    mat4 viewModelMatForNormal = transpose(inverse(viewModelMat));
+    gl_Position = _78_scene_uPMatrix * cameraPoint;
     vPosition = vec4(cameraPoint.xyz, 0.0);
-    vNormal = normalize(viewModelMatTransposed * aNormal);
+    vNormal = normalize(viewModelMatForNormal * vec4(aNormal, 0.0)).xyz;
     vColor = aColor.zyxw;
     vColor2 = aColor2;
     vColorSecond = aColorSecond;
     vTexCoord4 = aTexCoord4;
-    int uVertexShader = _178_VertexShader_UseLitColor.x;
+    int uVertexShader = _146_VertexShader_UseLitColor.x;
     #if (VERTEXSHADER == (-1))
     vTexCoord = aTexCoord;
     vTexCoord2 = aTexCoord2;
@@ -3351,9 +3336,9 @@ void main()
     #endif
     #if (VERTEXSHADER == 2)
     vTexCoord = aTexCoord;
-    vec3 param_2 = vPosition.xyz;
-    vec3 param_3 = vNormal;
-    vTexCoord2 = posToTexCoord(param_2, param_3);
+    vec3 param = vPosition.xyz;
+    vec3 param_1 = vNormal;
+    vTexCoord2 = posToTexCoord(param, param_1);
     vTexCoord3 = aTexCoord3;
     #endif
     #if (VERTEXSHADER == 3)
@@ -5065,20 +5050,20 @@ layout(std140) uniform modelWideBlockVS
 {
     mat4 uPlacementMat;
     mat4 uBoneMatrixes[220];
-} _133;
+} _100;
 
 layout(std140) uniform meshWideBlockVS
 {
     ivec4 vertexShader_IsAffectedByLight;
     vec4 color_Transparency;
     mat4 uTextMat[2];
-} _230;
+} _200;
 
 layout(std140) uniform sceneWideBlockVSPS
 {
     SceneWideParams scene;
     PSFog fogData;
-} _240;
+} _210;
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 3) in vec4 boneWeights;
@@ -5092,11 +5077,6 @@ layout(location = 4) in vec2 aTexCoord;
 layout(location = 5) in vec2 aTexCoord2;
 out vec3 vNormal;
 out vec3 vPosition;
-
-mat3 blizzTranspose(mat4 value)
-{
-    return mat3(vec3(value[0].xyz), vec3(value[1].xyz), vec3(value[2].xyz));
-}
 
 vec2 posToTexCoord(vec3 cameraPoint, vec3 normal)
 {
@@ -5117,149 +5097,146 @@ void main()
     vec4 modelPoint = vec4(0.0);
     vec4 aPositionVec4 = vec4(aPosition, 1.0);
     mat4 boneTransformMat = mat4(vec4(0.0), vec4(0.0), vec4(0.0), vec4(0.0));
-    mat4 _143 = _133.uBoneMatrixes[bones.x] * boneWeights.x;
-    boneTransformMat = mat4(boneTransformMat[0] + _143[0], boneTransformMat[1] + _143[1], boneTransformMat[2] + _143[2], boneTransformMat[3] + _143[3]);
-    mat4 _164 = _133.uBoneMatrixes[bones.y] * boneWeights.y;
-    boneTransformMat = mat4(boneTransformMat[0] + _164[0], boneTransformMat[1] + _164[1], boneTransformMat[2] + _164[2], boneTransformMat[3] + _164[3]);
-    mat4 _185 = _133.uBoneMatrixes[bones.z] * boneWeights.z;
-    boneTransformMat = mat4(boneTransformMat[0] + _185[0], boneTransformMat[1] + _185[1], boneTransformMat[2] + _185[2], boneTransformMat[3] + _185[3]);
-    mat4 _207 = _133.uBoneMatrixes[bones.w] * boneWeights.w;
-    boneTransformMat = mat4(boneTransformMat[0] + _207[0], boneTransformMat[1] + _207[1], boneTransformMat[2] + _207[2], boneTransformMat[3] + _207[3]);
-    mat4 placementMat = _133.uPlacementMat;
-    vec4 lDiffuseColor = _230.color_Transparency;
-    mat4 cameraMatrix = (_240.scene.uLookAtMat * placementMat) * boneTransformMat;
-    vec4 cameraPoint = cameraMatrix * aPositionVec4;
-    mat4 param = _240.scene.uLookAtMat;
-    mat4 param_1 = placementMat;
-    mat4 param_2 = boneTransformMat;
-    mat3 viewModelMatTransposed = (blizzTranspose(param) * blizzTranspose(param_1)) * blizzTranspose(param_2);
-    vec3 normal = normalize(viewModelMatTransposed * aNormal);
+    mat4 _112 = _100.uBoneMatrixes[bones.x] * boneWeights.x;
+    boneTransformMat = mat4(boneTransformMat[0] + _112[0], boneTransformMat[1] + _112[1], boneTransformMat[2] + _112[2], boneTransformMat[3] + _112[3]);
+    mat4 _133 = _100.uBoneMatrixes[bones.y] * boneWeights.y;
+    boneTransformMat = mat4(boneTransformMat[0] + _133[0], boneTransformMat[1] + _133[1], boneTransformMat[2] + _133[2], boneTransformMat[3] + _133[3]);
+    mat4 _154 = _100.uBoneMatrixes[bones.z] * boneWeights.z;
+    boneTransformMat = mat4(boneTransformMat[0] + _154[0], boneTransformMat[1] + _154[1], boneTransformMat[2] + _154[2], boneTransformMat[3] + _154[3]);
+    mat4 _176 = _100.uBoneMatrixes[bones.w] * boneWeights.w;
+    boneTransformMat = mat4(boneTransformMat[0] + _176[0], boneTransformMat[1] + _176[1], boneTransformMat[2] + _176[2], boneTransformMat[3] + _176[3]);
+    mat4 placementMat = _100.uPlacementMat;
+    vec4 lDiffuseColor = _200.color_Transparency;
+    mat4 viewModelMat = (_210.scene.uLookAtMat * placementMat) * boneTransformMat;
+    vec4 cameraPoint = viewModelMat * aPositionVec4;
+    mat4 viewModelMatForNormal = transpose(inverse(viewModelMat));
+    vec3 normal = normalize(viewModelMatForNormal * vec4(aNormal, 0.0)).xyz;
     vec4 combinedColor = clamp(lDiffuseColor, vec4(0.0), vec4(1.0));
     vec4 combinedColorHalved = combinedColor * 0.5;
-    vec3 param_3 = cameraPoint.xyz;
-    vec3 param_4 = normal;
-    vec2 envCoord = posToTexCoord(param_3, param_4);
-    vec3 param_5 = cameraPoint.xyz;
-    vec3 param_6 = normal;
-    float edgeScanVal = edgeScan(param_5, param_6);
+    vec3 param = cameraPoint.xyz;
+    vec3 param_1 = normal;
+    vec2 envCoord = posToTexCoord(param, param_1);
+    vec3 param_2 = cameraPoint.xyz;
+    vec3 param_3 = normal;
+    float edgeScanVal = edgeScan(param_2, param_3);
     vTexCoord2 = vec2(0.0);
     vTexCoord3 = vec2(0.0);
-    int uVertexShader = _230.vertexShader_IsAffectedByLight.x;
-    bool _305 = uVertexShader == 0;
+    int uVertexShader = _200.vertexShader_IsAffectedByLight.x;
+    bool _270 = uVertexShader == 0;
     #if (VERTEXSHADER == 0)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _332 = uVertexShader == 1;
+    bool _298 = uVertexShader == 1;
     #if (VERTEXSHADER == 1)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
     vTexCoord = envCoord;
     #endif
-    bool _347 = uVertexShader == 2;
+    bool _313 = uVertexShader == 2;
     #if (VERTEXSHADER == 2)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     #endif
-    bool _379 = uVertexShader == 3;
+    bool _345 = uVertexShader == 3;
     #if (VERTEXSHADER == 3)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     vTexCoord2 = envCoord;
     #endif
-    bool _403 = uVertexShader == 4;
+    bool _369 = uVertexShader == 4;
     #if (VERTEXSHADER == 4)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
     vTexCoord = envCoord;
-    vTexCoord2 = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _427 = uVertexShader == 5;
+    bool _393 = uVertexShader == 5;
     #if (VERTEXSHADER == 5)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
     vTexCoord = envCoord;
     vTexCoord2 = envCoord;
     #endif
-    bool _444 = uVertexShader == 6;
+    bool _410 = uVertexShader == 6;
     #if (VERTEXSHADER == 6)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     vTexCoord2 = envCoord;
-    vTexCoord3 = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord3 = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _476 = uVertexShader == 7;
+    bool _442 = uVertexShader == 7;
     #if (VERTEXSHADER == 7)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _507 = uVertexShader == 8;
+    bool _473 = uVertexShader == 8;
     #if (VERTEXSHADER == 8)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord3 = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord3 = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _546 = uVertexShader == 9;
+    bool _512 = uVertexShader == 9;
     #if (VERTEXSHADER == 9)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w * edgeScanVal);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _571 = uVertexShader == 10;
+    bool _537 = uVertexShader == 10;
     #if (VERTEXSHADER == 10)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     #endif
-    bool _594 = uVertexShader == 11;
+    bool _560 = uVertexShader == 11;
     #if (VERTEXSHADER == 11)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     vTexCoord2 = envCoord;
-    vTexCoord3 = (_230.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord3 = (_200.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     #endif
-    bool _626 = uVertexShader == 12;
+    bool _592 = uVertexShader == 12;
     #if (VERTEXSHADER == 12)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w * edgeScanVal);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     #endif
-    bool _659 = uVertexShader == 13;
+    bool _625 = uVertexShader == 13;
     #if (VERTEXSHADER == 13)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w * edgeScanVal);
     vTexCoord = envCoord;
     #endif
-    bool _677 = uVertexShader == 14;
+    bool _643 = uVertexShader == 14;
     #if (VERTEXSHADER == 14)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
-    vTexCoord3 = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord3 = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _716 = uVertexShader == 15;
+    bool _682 = uVertexShader == 15;
     #if (VERTEXSHADER == 15)
     vDiffuseColor = vec4(combinedColorHalved.x, combinedColorHalved.y, combinedColorHalved.z, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
-    vTexCoord2 = (_230.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord2 = (_200.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     vTexCoord3 = vTexCoord3;
     #endif
-    bool _748 = uVertexShader == 16;
+    bool _714 = uVertexShader == 16;
     #if (VERTEXSHADER == 16)
     vec4 in_col0 = vec4(1.0);
     vDiffuseColor = vec4((in_col0.xyz * 0.5).x, (in_col0.xyz * 0.5).y, (in_col0.xyz * 0.5).z, in_col0.w);
-    vTexCoord = (_230.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[1] * vec4(aTexCoord2, 0.0, 1.0)).xy;
     vTexCoord2 = vec2(0.0);
     vTexCoord3 = vTexCoord3;
     #endif
-    bool _780 = uVertexShader == 17;
+    bool _746 = uVertexShader == 17;
     #if (VERTEXSHADER == 17)
     vDiffuseColor = vec4(combinedColor.xyz * 0.5, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    bool _803 = uVertexShader == 18;
+    bool _769 = uVertexShader == 18;
     #if (VERTEXSHADER == 18)
     vDiffuseColor = vec4(combinedColor.xyz * 0.5, combinedColor.w);
-    vTexCoord = (_230.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
+    vTexCoord = (_200.uTextMat[0] * vec4(aTexCoord, 0.0, 1.0)).xy;
     #endif
-    gl_Position = _240.scene.uPMatrix * cameraPoint;
+    gl_Position = _210.scene.uPMatrix * cameraPoint;
     vNormal = normal;
     vPosition = cameraPoint.xyz;
 }
@@ -5715,7 +5692,7 @@ highp vec4 makeFog(PSFog fogData, highp vec4 final, highp vec3 vertexInViewSpace
 
 void main()
 {
-    highp vec3 finalColor = _253.color.xyz + texture(uTexture, vTextCoords).xyz;
+    highp vec3 matDiffuse = _253.color.xyz + texture(uTexture, vTextCoords).xyz;
     highp vec3 sunDir = _277.scene.extLight.uExteriorDirectColorDir.xyz;
     PSFog arg;
     arg.densityParams = _277.fogData.densityParams;
@@ -5725,11 +5702,11 @@ void main()
     arg.sunAngle_and_sunColor = _277.fogData.sunAngle_and_sunColor;
     arg.heightColor_and_endFogDistance = _277.fogData.heightColor_and_endFogDistance;
     arg.sunPercentage = _277.fogData.sunPercentage;
-    highp vec4 param = vec4(finalColor, 1.0);
+    highp vec4 param = vec4(matDiffuse, 1.0);
     highp vec3 param_1 = vPosition;
     highp vec3 param_2 = sunDir;
     int param_3 = 2;
-    finalColor = makeFog(arg, param, param_1, param_2, param_3).xyz;
+    highp vec3 finalColor = makeFog(arg, param, param_1, param_2, param_3).xyz;
     outputColor = vec4(finalColor, 0.699999988079071044921875);
 }
 
@@ -6486,7 +6463,7 @@ void main()
     #endif
     bool _800 = uPixelShader == 7;
     #if (FRAGMENTSHADER == 7)
-    highp vec4 colorMix = mix(tex2, tex, vec4(vColor2.w));
+    highp vec4 colorMix = mix(tex, tex2, vec4(vColor2.w));
     matDiffuse = colorMix.xyz;
     emissive = ((colorMix.xyz * colorMix.w) * tex3.xyz) * distFade;
     finalOpacity = tex.w;
@@ -6694,18 +6671,18 @@ struct PSFog
 layout(std140) uniform modelWideBlockVS
 {
     mat4 uPlacementMat;
-} _93;
+} _58;
 
 layout(std140) uniform sceneWideBlockVSPS
 {
     SceneWideParams scene;
     PSFog fogData;
-} _111;
+} _78;
 
 layout(std140) uniform meshWideBlockVS
 {
     ivec4 VertexShader_UseLitColor;
-} _178;
+} _146;
 
 layout(location = 0) in vec3 aPosition;
 out vec4 vPosition;
@@ -6726,11 +6703,6 @@ layout(location = 3) in vec2 aTexCoord2;
 out vec2 vTexCoord3;
 layout(location = 4) in vec2 aTexCoord3;
 
-mat3 blizzTranspose(mat4 value)
-{
-    return mat3(vec3(value[0].xyz), vec3(value[1].xyz), vec3(value[2].xyz));
-}
-
 vec2 posToTexCoord(vec3 cameraPoint, vec3 normal)
 {
     vec3 normPos_495 = normalize(cameraPoint);
@@ -6741,20 +6713,18 @@ vec2 posToTexCoord(vec3 cameraPoint, vec3 normal)
 
 void main()
 {
-    vec4 worldPoint = _93.uPlacementMat * vec4(aPosition, 1.0);
-    vec4 cameraPoint = _111.scene.uLookAtMat * worldPoint;
-    mat4 viewModelMat = _111.scene.uLookAtMat * _93.uPlacementMat;
-    mat4 param = _111.scene.uLookAtMat;
-    mat4 param_1 = _93.uPlacementMat;
-    mat3 viewModelMatTransposed = blizzTranspose(param) * blizzTranspose(param_1);
-    gl_Position = _111.scene.uPMatrix * cameraPoint;
+    vec4 worldPoint = _58.uPlacementMat * vec4(aPosition, 1.0);
+    vec4 cameraPoint = _78.scene.uLookAtMat * worldPoint;
+    mat4 viewModelMat = _78.scene.uLookAtMat * _58.uPlacementMat;
+    mat4 viewModelMatForNormal = transpose(inverse(viewModelMat));
+    gl_Position = _78.scene.uPMatrix * cameraPoint;
     vPosition = vec4(cameraPoint.xyz, 0.0);
-    vNormal = normalize(viewModelMatTransposed * aNormal);
+    vNormal = normalize(viewModelMatForNormal * vec4(aNormal, 0.0)).xyz;
     vColor = aColor.zyxw;
     vColor2 = aColor2;
     vColorSecond = aColorSecond;
     vTexCoord4 = aTexCoord4;
-    int uVertexShader = _178.VertexShader_UseLitColor.x;
+    int uVertexShader = _146.VertexShader_UseLitColor.x;
     #if (VERTEXSHADER == (-1))
     vTexCoord = aTexCoord;
     vTexCoord2 = aTexCoord2;
@@ -6772,9 +6742,9 @@ void main()
     #endif
     #if (VERTEXSHADER == 2)
     vTexCoord = aTexCoord;
-    vec3 param_2 = vPosition.xyz;
-    vec3 param_3 = vNormal;
-    vTexCoord2 = posToTexCoord(param_2, param_3);
+    vec3 param = vPosition.xyz;
+    vec3 param_1 = vNormal;
+    vTexCoord2 = posToTexCoord(param, param_1);
     vTexCoord3 = aTexCoord3;
     #endif
     #if (VERTEXSHADER == 3)

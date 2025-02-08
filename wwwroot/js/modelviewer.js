@@ -1022,8 +1022,8 @@ function updateEnabledGeosets(){
     var nDataBytes = Current.enabledGeosets.length;
     var dataPtr = Module._malloc(nDataBytes);
 
-    var dataHeap = new Uint8Array(Module.HEAPU8.buffer, dataPtr, nDataBytes);
-    dataHeap.set(new Uint8Array(Current.enabledGeosets));
+    var dataHeap = new Int8Array(Module.HEAP8.buffer, dataPtr, nDataBytes);
+    dataHeap.set(new Int8Array(Current.enabledGeosets));
 
     Module._setMeshIdArray(dataHeap.byteOffset, Current.enabledGeosets.length);
 }
