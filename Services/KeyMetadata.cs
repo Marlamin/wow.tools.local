@@ -542,7 +542,7 @@
             KeyInfo.Add(0xAF5EE0ED92C3C2D0, (7801, "WOW-5XXXXpatch11.0.X_Beta", "Unknown store assets"));
             KeyInfo.Add(0x1B84AE8C716E4629, (7802, "WOW-5XXXXpatch1.15.X_PTR", "Unknown store assets (Classic Era)"));
             KeyInfo.Add(0x1CC72F44619B795F, (7804, "WOW-5XXXXpatch11.0.X_Beta", "Harmonious Salutations Bear mount"));
-            KeyInfo.Add(0x1AD4A9461D5B709D, (7806, "WOW-5XXXXpatch11.0.X_Beta", "Unknown mount"));
+            KeyInfo.Add(0x1AD4A9461D5B709D, (7806, "WOW-5XXXXpatch11.0.X_Beta", "Golden Ashes of Al'ar mount"));
             KeyInfo.Add(0xE393A61EDC4BE147, (7807, "WOW-56646patch11.0.5_XPTR", "Anniversary - Crate - Soggy/Hazy"));
             KeyInfo.Add(0xDA82B0E3DCDF4493, (7808, "WOW-56646patch11.0.5_XPTR", "Anniversary - Crate - Dirt-Caked"));
             KeyInfo.Add(0x95581C6059A33B62, (7809, "WOW-56646patch11.0.5_XPTR", "Anniversary - Crate - Waterlogged"));
@@ -591,8 +591,8 @@
             KeyInfo.Add(0x2510D96C5BEC7C97, (7861, "WOW-56646patch11.0.5_XPTR", "Anniversary - Ratts\' Revenge Step 5"));
             KeyInfo.Add(0xAFF59057A40F207C, (7862, "WOW-56646patch11.0.5_XPTR", "Anniversary - Ratts\' Revenge Incognitro Mount"));
             KeyInfo.Add(0x7D072A3876C93017, (7863, "WOW-56646patch11.0.5_XPTR", "Ghastly Charger store assets"));
-            KeyInfo.Add(0xFABAEEB7325FC3D9, (7864, "WOW-57361patch11.0.7_PTR", "Unknown VO/Creature"));
-            KeyInfo.Add(0x58B84D6420F7FDFB, (7865, "WOW-57361patch11.0.7_PTR", "Unknown cinematic"));
+            KeyInfo.Add(0xFABAEEB7325FC3D9, (7864, "WOW-57361patch11.0.7_PTR", "Haranir IGC"));
+            KeyInfo.Add(0x58B84D6420F7FDFB, (7865, "WOW-57361patch11.0.7_PTR", "Orweyna vision cinematic"));
             KeyInfo.Add(0x77140C910A87FC87, (7866, "WOW-5XXXXpatch4.4.X_Classic", "Unknown pet (Cata Classic)"));
             KeyInfo.Add(0xE168510CBE69A8F5, (7868, "WOW-56646patch11.0.5_XPTR", "Unknown (Trading Post?) item set"));
             KeyInfo.Add(0xA12DB2F41620D8CF, (7869, "WOW-56646patch11.0.5_XPTR", "Anniversary - Local Story - The Case of Missing Mementos"));
@@ -601,7 +601,7 @@
             KeyInfo.Add(0x1E51CA6A669DC2F1, (7872, "WOW-5XXXXpatch4.4.X_Classic", "Unknown pet (Cata Classic)"));
             KeyInfo.Add(0xBA2FA79D08092C3F, (7873, "WOW-5XXXXpatch4.4.X_Classic", "Unknown mount (Cata Classic)"));
             KeyInfo.Add(0x259564E57EA66E31, (7874, "WOW-57361patch11.0.7_PTR", "Unknown pet"));
-            KeyInfo.Add(0xE29FD93B2E58A689, (7875, "WOW-57361patch11.0.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0xE29FD93B2E58A689, (7875, "WOW-57361patch11.0.7_PTR", "ShaTigerMount (old)"));
             KeyInfo.Add(0xDE1A44498693B8FA, (7876, "WOW-56646patch11.0.5_XPTR", ""));
             KeyInfo.Add(0x9E868894A3B77D26, (7877, "WOW-56646patch11.0.5_XPTR", "2024 12 month sub offer assets"));
             KeyInfo.Add(0x0465EFCE1EBB0765, (7878, "WOW-56646patch11.0.5_XPTR", "Unknown store assets"));
@@ -609,15 +609,28 @@
             KeyInfo.Add(0x54D90855E99CA6FA, (7882, "WOW-5XXXXpatch4.4.0_Classic", "2024 12 month sub offer assets (Classic)"));
             KeyInfo.Add(0x905FD359D27A46FB, (7883, "WOW-5XXXXpatch4.4.0_Classic", "Reven/Ibelin pack store assets (Classic)"));
             KeyInfo.Add(0xDD30062B27E95216, (7885, "WOW-57361patch11.0.7_PTR", ""));
-            KeyInfo.Add(0x7F74EF370C94547F, (7886, "WOW-57361patch11.0.7_PTR", ""));
+            KeyInfo.Add(0x7F74EF370C94547F, (7886, "WOW-57361patch11.0.7_PTR", "Sha Pet (Retail/Classic)"));
             KeyInfo.Add(0x4DD53A14524598DF, (7889, "WOW-57361patch11.0.7_PTR", "Unknown model"));
             KeyInfo.Add(0x8069D26EBC0A44B2, (7897, "WOW-57361patch11.0.7_PTR", "Unknown cutscene"));
+            KeyInfo.Add(0x35F943B1A3026944, (7898, "WOW-59XXXpatch11.1.0_XPTR", "Unknown cinematic"));
+            KeyInfo.Add(0xAF7B06FE61947CB8, (7899, "WOW-59XXXpatch11.1.0_XPTR", "Unknown cinematic"));
+            KeyInfo.Add(0x09635EB2DF7B4BD3, (7900, "WOW-59XXXpatch11.1.0_XPTR", "Unknown cutscene"));
+            KeyInfo.Add(0xB4BF8843FDD1AF60, (7901, "WOW-59XXXpatch11.1.0_XPTR", "Unknown cutscene"));
+            KeyInfo.Add(0xB3D51A6AF1F8A9F9, (7902, "WOW-59XXXpatch11.1.0_XPTR", "Unknown cutscene"));
+            KeyInfo.Add(0x97C2F2AFBA239469, (7903, "WOW-59XXXpatch11.1.0_XPTR", "Unknown cutscene"));
+            KeyInfo.Add(0x3253FD3094873ECD, (7904, "WOW-59XXXpatch11.1.0_XPTR", "Unknown cutscene"));
             KeyInfo.Add(0x1C95D8623041EF30, (7907, "WOW-57XXXpatch11.0.5_XXX", "Trader's Gilded Brutosaur store assets"));
-            KeyInfo.Add(0x5103A2F9B71721B7, (7908, "WOW-57361patch11.0.7_PTR", "Unknown model"));
+            KeyInfo.Add(0x5103A2F9B71721B7, (7908, "WOW-57361patch11.0.7_PTR", "Sha-Warped Riding Tiger mount"));
             KeyInfo.Add(0x6955C096B4171FDF, (7909, "WOW-5XXXXpatch4.4.0_Classic", "Reven pet (Classic)"));
             KeyInfo.Add(0xC640BCE69D059839, (7910, "WOW-57361patch11.0.7_PTR", "Sha Serpent mount"));
             KeyInfo.Add(0x486DABB73B80644C, (7911, "WOW-57361patch11.0.7_PTR", "Unknown mount"));
-            KeyInfo.Add(0x8FC3C61F7DA43D43, (7912, "WOW-57361patch11.0.7_PTR", "Unknown pet"));
+            KeyInfo.Add(0x8FC3C61F7DA43D43, (7912, "WOW-57361patch11.0.7_PTR", "Red Panda pet"));
+            KeyInfo.Add(0xE6A9B14829ACAFDC, (7919, "WOW-59XXXpatch11.1.0_XPTR", "Blazing Royal Fire Hawk mount"));
+            KeyInfo.Add(0x9AF82E9600D84D2F, (7925, "WOW-59XXXpatch11.1.0_XPTR", "Unknown campaign"));
+            KeyInfo.Add(0x192CB3A2CEA7F367, (7926, "WOW-59XXXpatch11.1.0_XPTR", ""));
+            KeyInfo.Add(0x73D42621FA126703, (7970, "WOW-59XXXpatch11.1.0_XPTR", "MoP Classic Preorder store assets"));
+            KeyInfo.Add(0x9471F0C5736A239A, (7973, "WOW-59XXXpatch11.1.0_XPTR", "Unknown store assets"));
+            KeyInfo.Add(0x02E70FF0431BCA2B, (7975, "WOW-59XXXpatch11.1.0_XPTR", "MoP Classic Preorder store data"));
         }
 
         public static void ReloadKeys()
