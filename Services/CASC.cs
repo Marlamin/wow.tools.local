@@ -1125,12 +1125,17 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 }
                 else if (IsTACTSharpInit)
                 {
-                    var fileEntries = buildInstance.Root.GetEntriesByFDID(filedataid);
-                    if (fileEntries.Count == 0)
+                    var rootEntries = buildInstance.Root.GetEntriesByFDID(filedataid);
+                    if (rootEntries.Count == 0)
                         return null;
-                    var targetCKey = fileEntries[0].md5;
 
-                    var fileEKeys = buildInstance.Encoding.FindContentKey(targetCKey);
+                    var preferredEntry = rootEntries.FirstOrDefault(subentry =>
+subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW) || subentry.localeFlags.HasFlag(buildInstance.Settings.Locale)));
+
+                    if (preferredEntry.fileDataID == 0)
+                        preferredEntry = rootEntries.First();
+
+                    var fileEKeys = buildInstance.Encoding.FindContentKey(preferredEntry.md5);
                     if (fileEKeys == false)
                         throw new Exception("EKey not found in encoding");
 
@@ -1308,21 +1313,27 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 {
                     foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
                     {
-                        var entries = buildInstance.Root.GetEntriesByFDID(fdid);
-                        if (entries.Count == 0)
+                        var rootEntries = buildInstance.Root.GetEntriesByFDID(fdid);
+                        if (rootEntries.Count == 0)
                             continue;
 
-                        var ckey = Convert.ToHexString(entries[0].md5.AsSpan());
+                        var preferredEntry = rootEntries.FirstOrDefault(subentry =>
+subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW) || subentry.localeFlags.HasFlag(buildInstance.Settings.Locale)));
 
-                        FDIDToCHash.Add((int)entries[0].fileDataID, ckey);
+                        if (preferredEntry.fileDataID == 0)
+                            preferredEntry = rootEntries.First();
+
+                        var ckey = Convert.ToHexString(preferredEntry.md5.AsSpan());
+
+                        FDIDToCHash.Add((int)preferredEntry.fileDataID, ckey);
 
                         if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
                         {
-                            value.Add((int)entries[0].fileDataID);
+                            value.Add((int)preferredEntry.fileDataID);
                         }
                         else
                         {
-                            CHashToFDID.Add(ckey, [(int)entries[0].fileDataID]);
+                            CHashToFDID.Add(ckey, [(int)preferredEntry.fileDataID]);
                         }
                     }
 
