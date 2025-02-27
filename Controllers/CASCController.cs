@@ -138,6 +138,11 @@ namespace wow.tools.local.Controllers
                     var build = splitVersion[3];
 
                     var isActive = CASC.CurrentProduct == availableBuild.Product;
+
+                    // It's possible that we're not actually on the same build as the product is on when loading custom configs with TACTSharp. Double check.
+                    if (isActive && CASC.IsTACTSharpInit)
+                        isActive = availableBuild.BuildConfig == CASC.buildInstance.Settings.BuildConfig && availableBuild.CDNConfig == CASC.buildInstance.Settings.CDNConfig;
+
                     var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
                     var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
                     result.data.Add([patch, build, availableBuild.Product, availableBuild.Folder, availableBuild.BuildConfig, availableBuild.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
@@ -179,6 +184,10 @@ namespace wow.tools.local.Controllers
                         var build = splitVersion[3];
 
                         var isActive = CASC.CurrentProduct == product[0] && CASC.IsOnline;
+                        // It's possible that we're not actually on the same build as the product is on when loading custom configs with TACTSharp. Double check.
+                        if (isActive && CASC.IsTACTSharpInit)
+                            isActive = splitLine[1] == CASC.buildInstance.Settings.BuildConfig && splitLine[2] == CASC.buildInstance.Settings.CDNConfig;
+
                         var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
                         var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
 
@@ -209,6 +218,23 @@ namespace wow.tools.local.Controllers
                     return true;
 
                 if (!SettingsManager.useTACTSharp && CASC.IsCASCLibInit)
+                    return true;
+            }
+        }
+
+        [Route("switchConfigs")]
+        [HttpGet]
+        public bool SwitchConfigs(string buildconfig, string cdnconfig)
+        {
+            if (!SettingsManager.useTACTSharp)
+                return false;
+
+            CASC.InitTACT(null, "wow", buildconfig, cdnconfig);
+
+            // Don't respond until things are done loading
+            while (true)
+            {
+                if (CASC.IsTACTSharpInit)
                     return true;
             }
         }

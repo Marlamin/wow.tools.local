@@ -72,7 +72,7 @@ namespace wow.tools.local.Services
 
         public static BuildInstance buildInstance;
 
-        public static async void InitTACT(string wowFolder, string product)
+        public static async void InitTACT(string wowFolder, string product, string overrideBC = "", string overrideCDNC = "")
         {
             IsTACTSharpInit = false;
 
@@ -87,13 +87,10 @@ namespace wow.tools.local.Services
             buildInstance.Settings.Locale = SettingsManager.tactLocale;
             buildInstance.Settings.Region = SettingsManager.region;
 
-            if (SettingsManager.showAllFiles)
-                Console.WriteLine("!!!! Warning: Show all files setting is not supported when using TACTSharp.");
-
             if (SettingsManager.preferHighResTextures)
                 Console.WriteLine("!!!! Warning: High res textures setting is not supported when using TACTSharp.");
 
-            if(SettingsManager.wowProduct != product)
+            if(SettingsManager.wowProduct != product || (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC)))
             {
                 Console.WriteLine("Switching builds, resetting configs..");
                 buildInstance.Settings.BuildConfig = null;
@@ -129,19 +126,27 @@ namespace wow.tools.local.Services
             else
             {
                 IsOnline = true;
-                var versions = await buildInstance.cdn.GetProductVersions(product);
-                foreach (var line in versions.Split('\n'))
+                if(!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC))
                 {
-                    if (!line.StartsWith(buildInstance.Settings.Region + "|"))
-                        continue;
+                    buildInstance.Settings.BuildConfig = overrideBC;
+                    buildInstance.Settings.CDNConfig = overrideCDNC;
+                }
+                else
+                {
+                    var versions = await buildInstance.cdn.GetProductVersions(product);
+                    foreach (var line in versions.Split('\n'))
+                    {
+                        if (!line.StartsWith(buildInstance.Settings.Region + "|"))
+                            continue;
 
-                    var splitLine = line.Split('|');
+                        var splitLine = line.Split('|');
 
-                    if (buildInstance.Settings.BuildConfig == null)
-                        buildInstance.Settings.BuildConfig = splitLine[1];
+                        if (buildInstance.Settings.BuildConfig == null)
+                            buildInstance.Settings.BuildConfig = splitLine[1];
 
-                    if (buildInstance.Settings.CDNConfig == null)
-                        buildInstance.Settings.CDNConfig = splitLine[2];
+                        if (buildInstance.Settings.CDNConfig == null)
+                            buildInstance.Settings.CDNConfig = splitLine[2];
+                    }
                 }
             }
 

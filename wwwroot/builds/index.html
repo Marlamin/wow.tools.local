@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html data-bs-theme="dark">
 <head>
@@ -74,6 +73,19 @@
                     <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
                     <tbody></tbody>
                 </table>
+            </div>
+        </div>
+        <h3>Load specific configs</h3>
+        <div class="alert alert-warning">Note: Only supported when loading with TACTSharp. Only use if you know what you're doing. Inputting invalid config hashes will crash WTL.</div>
+        <div class="row" style="width: 40vw">
+            <div class="col">
+                <input class="form-control" placeholder="Build config hash" type="text" id="buildConfig"/>
+            </div>
+            <div class="col">
+                <input class="form-control" placeholder="CDN config hash" type="text" id="cdnConfig" />
+            </div>
+            <div class="col">
+                <input id="customBuildButton" class="form-control btn btn-primary" value="Load" onClick="loadConfigs()"/>
             </div>
         </div>
         <br />
@@ -278,6 +290,28 @@
             button.classList.remove("btn-success");
             button.classList.add("btn-danger");
             const response = await fetch("/casc/switchProduct?product=" + product + "&remote=" + remote);
+            var result = await response.text();
+            if (result == "true") {
+                location.reload();
+            }
+        }
+
+        async function loadConfigs() {
+            var buildconfig = document.getElementById("buildConfig").value;
+            var cdnconfig = document.getElementById("cdnConfig").value;
+
+            if (buildconfig.length != 32 || cdnconfig.length != 32) {
+                alert("wrong config formatting, has to be 32 chars");
+                return;
+            }
+
+            var button = document.getElementById("customBuildButton");
+
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Switching, please wait!";
+            button.classList.remove("btn-success");
+            button.classList.add("btn-danger");
+
+            const response = await fetch("/casc/switchConfigs?buildconfig=" + buildconfig + "&cdnconfig=" + cdnconfig);
             var result = await response.text();
             if (result == "true") {
                 location.reload();
