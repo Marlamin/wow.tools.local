@@ -41,8 +41,6 @@ namespace wow.tools.local.Services
         public static List<AvailableBuild> AvailableBuilds = [];
         public static List<int> OtherLocaleOnlyFiles = [];
         public static List<InstallEntry> InstallEntries = [];
-
-
         public struct Version
         {
             public string buildName;
@@ -78,14 +76,16 @@ namespace wow.tools.local.Services
         {
             IsTACTSharpInit = false;
 
+            buildInstance = new BuildInstance();
+
             if (!string.IsNullOrEmpty(product))
-                Settings.Product = product;
+                buildInstance.Settings.Product = product;
 
             if (File.Exists("fakebuildconfig"))
-                Settings.BuildConfig = "fakebuildconfig";
+                buildInstance.Settings.BuildConfig = "fakebuildconfig";
 
-            Settings.Locale = SettingsManager.tactLocale;
-            Settings.Region = SettingsManager.region;
+            buildInstance.Settings.Locale = SettingsManager.tactLocale;
+            buildInstance.Settings.Region = SettingsManager.region;
 
             if (SettingsManager.showAllFiles)
                 Console.WriteLine("!!!! Warning: Show all files setting is not supported when using TACTSharp.");
@@ -96,56 +96,58 @@ namespace wow.tools.local.Services
             if(SettingsManager.wowProduct != product)
             {
                 Console.WriteLine("Switching builds, resetting configs..");
-                Settings.BuildConfig = null;
-                Settings.CDNConfig = null;
+                buildInstance.Settings.BuildConfig = null;
+                buildInstance.Settings.CDNConfig = null;
             }
+
+            buildInstance.Settings.RootMode = RootInstance.LoadMode.Full;
 
             string buildConfig;
             string cdnConfig;
             if (wowFolder != null)
             {
-                Settings.BaseDir = wowFolder;
+                buildInstance.Settings.BaseDir = wowFolder;
 
                 // Load from build.info
                 var buildInfoPath = Path.Combine(wowFolder, ".build.info");
                 if (!File.Exists(buildInfoPath))
                     throw new Exception("No build.info found in base directory");
 
-                var buildInfo = new BuildInfo(buildInfoPath);
+                var buildInfo = new BuildInfo(buildInfoPath, buildInstance.Settings, buildInstance.cdn);
 
                 if (!buildInfo.Entries.Any(x => x.Product == product))
                     throw new Exception("No build found for product " + product);
 
                 var build = buildInfo.Entries.First(x => x.Product == product);
 
-                if (Settings.BuildConfig == null)
-                    Settings.BuildConfig = build.BuildConfig;
+                if (buildInstance.Settings.BuildConfig == null)
+                    buildInstance.Settings.BuildConfig = build.BuildConfig;
 
-                if (Settings.CDNConfig == null)
-                    Settings.CDNConfig = build.CDNConfig;
+                if (buildInstance.Settings.CDNConfig == null)
+                    buildInstance.Settings.CDNConfig = build.CDNConfig;
             }
             else
             {
                 IsOnline = true;
-                var versions = await CDN.GetProductVersions(product);
+                var versions = await buildInstance.cdn.GetProductVersions(product);
                 foreach (var line in versions.Split('\n'))
                 {
-                    if (!line.StartsWith(Settings.Region + "|"))
+                    if (!line.StartsWith(buildInstance.Settings.Region + "|"))
                         continue;
 
                     var splitLine = line.Split('|');
 
-                    if (Settings.BuildConfig == null)
-                        Settings.BuildConfig = splitLine[1];
+                    if (buildInstance.Settings.BuildConfig == null)
+                        buildInstance.Settings.BuildConfig = splitLine[1];
 
-                    if (Settings.CDNConfig == null)
-                        Settings.CDNConfig = splitLine[2];
+                    if (buildInstance.Settings.CDNConfig == null)
+                        buildInstance.Settings.CDNConfig = splitLine[2];
                 }
             }
 
             #region Configs
-            buildInstance = new BuildInstance(Settings.BuildConfig, Settings.CDNConfig);
-            await buildInstance.Load();
+            buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
+            buildInstance.Load();
 
             if (buildInstance.BuildConfig == null || buildInstance.CDNConfig == null)
                 throw new Exception("Failed to load configs");
@@ -205,7 +207,7 @@ namespace wow.tools.local.Services
             }
             #endregion
 
-            if (Settings.BaseDir != null)
+            if (buildInstance.Settings.BaseDir != null)
             {
                 LoadBuildInfo();
 
@@ -268,8 +270,17 @@ namespace wow.tools.local.Services
                 var manifestLines = new List<string>();
                 foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
                 {
-                    var preferredEntry = buildInstance.Root.GetEntryByFDID(fdid);
-                    manifestLines.Add(fdid + ";" + Convert.ToHexString(preferredEntry.Value.md5.AsSpan()));
+                    var rootEntries = buildInstance.Root.GetEntriesByFDID(fdid);
+                    if (rootEntries.Count == 0)
+                        continue;
+
+                    var preferredEntry = rootEntries.FirstOrDefault(subentry =>
+subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.enUS)));
+
+                    if (preferredEntry.fileDataID == 0)
+                        preferredEntry = rootEntries.First();
+
+                    manifestLines.Add(fdid + ";" + Convert.ToHexString(preferredEntry.md5.AsSpan()));
                 }
 
                 manifestLines.Sort();
@@ -316,19 +327,20 @@ namespace wow.tools.local.Services
             var eKeyEncryptedRegex = new Regex(@"(?<=e:\{)([0-9a-fA-F]{16})(?=,)", RegexOptions.Compiled);
             foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
             {
-                var entry = buildInstance.Root.GetEntryByFDID(fdid);
-                if (entry == null)
+                var entries = buildInstance.Root.GetEntriesByFDID(fdid);
+                if (entries.Count == 0)
                     continue;
 
                 if (EncryptedFDIDs.ContainsKey((int)fdid))
                     continue;
 
-                if ((entry.Value.contentFlags & RootInstance.ContentFlags.LowViolence) != 0)
+                if ((entries[0].contentFlags & RootInstance.ContentFlags.Encrypted) != 0)
                     EncryptedFDIDs.Add((int)fdid, []);
 
-                if (buildInstance.Encoding.TryGetEKeys(entry.Value.md5.AsSpan(), out var eKeys))
+                var eKeys = buildInstance.Encoding.FindContentKey(entries[0].md5.AsSpan());
+                if (eKeys == false)
                 {
-                    var eSpec = buildInstance.Encoding.GetESpec(eKeys.Value[0]);
+                    var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
                     var matches = eKeyEncryptedRegex.Matches(eSpec.eSpec);
                     var usedKeys = new List<ulong>();
 
@@ -355,10 +367,13 @@ namespace wow.tools.local.Services
             // Lookups
             foreach (var entry in buildInstance.Root.GetAvailableLookups())
             {
-                var fileEntry = buildInstance.Root.GetEntryByLookup(entry);
-                if (!LookupMap.ContainsKey((int)fileEntry.Value.fileDataID))
+                var fileEntries = buildInstance.Root.GetEntriesByLookup(entry);
+                if (fileEntries.Count == 0)
+                    continue;
+
+                if (!LookupMap.ContainsKey((int)fileEntries[0].fileDataID))
                 {
-                    LookupMap.Add((int)fileEntry.Value.fileDataID, entry);
+                    LookupMap.Add((int)fileEntries[0].fileDataID, entry);
                 }
             }
 
@@ -1034,9 +1049,9 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
                 byte[] fileBytes;
                 if (offset == -1)
-                    fileBytes = CDN.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true);
+                    fileBytes = buildInstance.cdn.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true);
                 else
-                    fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
+                    fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
 
                 return new MemoryStream(fileBytes);
             }
@@ -1051,20 +1066,21 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             else if (IsTACTSharpInit)
             {
                 var ckey = Convert.FromHexString(CKey.ToHexString());
+                var TEKeys = buildInstance.Encoding.FindContentKey(ckey);
 
-                if (buildInstance.Encoding.TryGetEKeys(ckey, out var TEKeys))
+                if (TEKeys)
                 {
                     var md5HashEkeys = new List<MD5Hash>();
-                    for(var i = 0; i < TEKeys.Value.Length; i++)
+                    for(var i = 0; i < TEKeys.Length; i++)
                     {
-                        var ekey = TEKeys.Value[i];
+                        var ekey = TEKeys[i];
                         md5HashEkeys.Add(ekey.ToArray().ToMD5());
                     }
 
                     EKeys = new EncodingEntry
                     {
                         Keys = md5HashEkeys,
-                        Size = (long)TEKeys.Value.DecodedFileSize
+                        Size = (long)TEKeys.DecodedFileSize
                     };
 
                     return true;
@@ -1109,22 +1125,23 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 }
                 else if (IsTACTSharpInit)
                 {
-                    var fileEntry = buildInstance.Root.GetEntryByFDID(filedataid);
-                    if (fileEntry == null)
+                    var fileEntries = buildInstance.Root.GetEntriesByFDID(filedataid);
+                    if (fileEntries.Count == 0)
                         return null;
-                    var targetCKey = fileEntry.Value.md5;
+                    var targetCKey = fileEntries[0].md5;
 
-                    if (!buildInstance.Encoding.TryGetEKeys(targetCKey, out var fileEKeys) || fileEKeys == null)
+                    var fileEKeys = buildInstance.Encoding.FindContentKey(targetCKey);
+                    if (fileEKeys == false)
                         throw new Exception("EKey not found in encoding");
 
-                    var eKey = fileEKeys.Value[0];
+                    var eKey = fileEKeys[0];
 
                     var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
                     byte[] fileBytes;
                     if (offset == -1)
-                        fileBytes = CDN.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, fileEKeys.Value.DecodedFileSize, true);
+                        fileBytes = buildInstance.cdn.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
                     else
-                        fileBytes = CDN.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.Value.DecodedFileSize, true);
+                        fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
 
                     return new MemoryStream(fileBytes);
                 }
@@ -1291,30 +1308,30 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 {
                     foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
                     {
-                        var entry = buildInstance.Root.GetEntryByFDID(fdid);
-                        if (entry == null)
+                        var entries = buildInstance.Root.GetEntriesByFDID(fdid);
+                        if (entries.Count == 0)
                             continue;
 
-                        var ckey = Convert.ToHexString(entry.Value.md5.AsSpan());
+                        var ckey = Convert.ToHexString(entries[0].md5.AsSpan());
 
-                        FDIDToCHash.Add((int)entry.Value.fileDataID, ckey);
+                        FDIDToCHash.Add((int)entries[0].fileDataID, ckey);
 
                         if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
                         {
-                            value.Add((int)entry.Value.fileDataID);
+                            value.Add((int)entries[0].fileDataID);
                         }
                         else
                         {
-                            CHashToFDID.Add(ckey, [(int)entry.Value.fileDataID]);
+                            CHashToFDID.Add(ckey, [(int)entries[0].fileDataID]);
                         }
                     }
 
                     foreach (var chash in CHashToFDID.Keys)
                     {
-                        if (buildInstance.Encoding.TryGetEKeys(Convert.FromHexString(chash), out var eKey))
-                        {
-                            CHashToSize.Add(chash, (long)eKey.Value.DecodedFileSize);
-                        }
+                        var eKeys = buildInstance.Encoding.FindContentKey(Convert.FromHexString(chash));
+
+                        if (eKeys)
+                            CHashToSize.Add(chash, (long)eKeys.DecodedFileSize);
                     }
                 }
                 else
