@@ -326,3 +326,30 @@ tr.selected{
 {
   margin-top: 1em;
 }
+
+.sscInputDiv
+{
+  margin: 5px 0;
+}
+
+.sscInputLabel
+{
+  width: 8%;
+  font-weight: bold;
+}
+
+.sscInput
+{
+  width: 90%;
+  padding: 2px 0 2px 5px;
+}
+
+#sscFormButton
+{
+  margin: 20px auto;
+}
+
+.nav-item#screenshotsTabItem
+{
+  max-width: fit-content;
+}

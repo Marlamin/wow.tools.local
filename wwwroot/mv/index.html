@@ -110,11 +110,12 @@
         <div class='row justify-content-md-center'>
             <div class='col-md-11'>
                 <ul class="nav nav-pills nav-fill">
-                    <li class="nav-item">
                         <a class="nav-link active" href="#textures" data-bs-toggle="tab" role="tab">Textures</a>
-                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#geosets" data-bs-toggle="tab" role="tab" id="mapViewerButton">Geosets</a>
+                    </li>
+                    <li class="nav-item" id="screenshotsTabItem">
+                        <a class="nav-link" href="#screenshots" data-bs-toggle="tab" role="tab"><i class='fa fa-camera'></i></a>
                     </li>
                 </ul>
                 <div class="tab-content">
@@ -126,6 +127,12 @@
                     </div>
                     <div class="tab-pane fade" id="geosets" role="tabpanel" aria-labelledby="geosets-tab">
 
+                    </div>
+                    <div class="tab-pane fade" id="screenshots" role="tabpanel" aria-labelledby="screenshots-tab">
+                        <p><strong>Experimental:</strong> Take screenshots covering multiple texture and/or geoset combos.</p>
+                        <form id='sscTextureForm'><strong>Texture Slots:</strong></form>
+                        <form id='sscGeosetForm'><strong>Geosets:</strong></form>
+                        <button id='sscFormButton' type="button" class="btn btn-primary" onclick="screenShotCombos();" data-dismiss="modal">Take Screenshot Combos</button><p>Enter comma-separated texture IDs and/or geoset #s in relevant fields. Include proper values for slots with single values or they'll be set to zero.</p><p>This form is pre-filled with all known variants for this model but it may need adjusting, especially zero geosets.</p><p>Be patient and don't change tabs: the screenshot process has to be slow or it bugs out.</p>
                     </div>
                 </div>
             </div>
