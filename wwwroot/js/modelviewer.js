@@ -48,7 +48,8 @@ var Current =
     displayID: 0,
     availableGeosets: [],
     enabledGeosets: [],
-    geosetsDone: false
+    geosetsDone: false,
+    availableTextures: new Array(NUM_TEXTURE_SLOTS)
 }
 
 var DownloadQueue = [];
@@ -261,6 +262,9 @@ window.createscene = async function () {
 
     // Add input elements to texture form:
     const textureForm = document.getElementById("textureForm");
+    const sscTextureForm = document.getElementById("sscTextureForm");
+    const sscTextureListSelect = document.getElementById("sscTextureListSelect");
+    
     for (let i = 0; i < NUM_TEXTURE_SLOTS; i++)
     {
       const textureInputDiv = document.createElement('div');
@@ -308,6 +312,25 @@ window.createscene = async function () {
       textureInputDiv.appendChild(textureInput);
       textureInputDiv.appendChild(textureInputLabel);
       textureForm.appendChild(textureInputDiv);
+      
+      const sscTextureInputDiv = document.createElement('div');
+      const sscTextureInput = document.createElement('input');
+      const sscTextureInputLabel = document.createElement('label');
+      sscTextureInputDiv.classList.add("sscInputDiv");
+      sscTextureInputDiv.classList.add("sscTextureInputDiv");
+      sscTextureInput.type = "text";
+      sscTextureInput.id = "sscTex" + i;
+      sscTextureInput.setAttribute('name', "sscTextures[" + i + "]");
+      sscTextureInput.classList.add("sscInput");
+      sscTextureInput.classList.add("sscTextureInput");
+      sscTextureInputLabel.htmlFor = "sscTex" + i;
+      sscTextureInputLabel.innerHTML = (i + ":");
+      sscTextureInputLabel.classList.add("sscInputLabel");
+      sscTextureInputLabel.classList.add("sscTextureInputLabel");
+      sscTextureInputDiv.id = "sscTexDiv" + i;
+      sscTextureInputDiv.appendChild(sscTextureInputLabel);
+      sscTextureInputDiv.appendChild(sscTextureInput);
+      sscTextureForm.appendChild(sscTextureInputDiv);
     }
     
     Module["animationArrayCallback"] = function(animIDArray) {
@@ -353,6 +376,8 @@ window.createscene = async function () {
         
         const geosetControl = document.getElementById("geosets");
         geosetControl.innerHTML = "This functionality is WIP and might cause display issues. Use with caution. Sometimes a geoset value of 0 gives a valid appearance, other times it creates a hole in your model.";
+        const sscGeoForm = document.getElementById("sscGeosetForm");
+        sscGeoForm.innerHTML = "<strong>Geoset Groups:</strong>";
         for (let meshID of Current.availableGeosets){
             meshID = Number(meshID);
 
@@ -385,6 +410,31 @@ window.createscene = async function () {
             opt.innerHTML = geosetIndex;
             select.appendChild(opt);
             
+            // prefill screenshot combo tab with (mostly) valid geoset options for this model...
+            let geoInput = document.getElementById("sscGeo" + geosetGroup);
+            if (!geoInput){
+              const sscGeosetInputDiv = document.createElement('div');
+              const sscGeosetInput = document.createElement('input');
+              const sscGeosetInputLabel = document.createElement('label');
+              sscGeosetInputDiv.classList.add("sscInputDiv");
+              sscGeosetInputDiv.classList.add("sscGeosetInputDiv");
+              sscGeosetInput.type = "text";
+              sscGeosetInput.id = "sscGeo" + geosetGroup;
+              sscGeosetInput.value = geosetIndex;
+              sscGeosetInput.dataset.geosetGroup = geosetGroup;
+              sscGeosetInput.classList.add("sscInput");
+              sscGeosetInput.classList.add("sscGeosetInput");
+              sscGeosetInputLabel.htmlFor = "sscGeo" + geosetGroup;
+              sscGeosetInputLabel.innerHTML = geosetGroup + ":";
+              sscGeosetInputLabel.classList.add("sscInputLabel");
+              sscGeosetInputLabel.classList.add("sscGeosetInputLabel");
+              sscGeosetInputDiv.appendChild(sscGeosetInputLabel);
+              sscGeosetInputDiv.appendChild(sscGeosetInput);
+              sscGeoForm.appendChild(sscGeosetInputDiv);
+            }
+            else{
+              geoInput.value = geoInput.value + "," + geosetIndex;
+            }
         }
 
         Current.geosetsDone = true;
@@ -638,15 +688,27 @@ async function loadModelDisplays() {
     const skinSelect = document.getElementById("skinSelect");
     skinSelect.length = 0;
 
+    for (let i = 0; i < NUM_TEXTURE_SLOTS; i++)
+      Current.availableTextures[i] = new Set();
+    
     // Filenames?
     for (const result of results){
         var opt = document.createElement('option');
 
         if (result.ResultType == "creature"){
             // Backwards compat with current model texture setting
-            opt.value = result['TextureVariationFileDataID[0]'] + "," + result['TextureVariationFileDataID[1]'] + "," + result['TextureVariationFileDataID[2]'] + "," + result['TextureVariationFileDataID[3]'];
+            const tex0 = result['TextureVariationFileDataID[0]'];
+            const tex1 = result['TextureVariationFileDataID[1]'];
+            const tex2 = result['TextureVariationFileDataID[2]'];
+            const tex3 = result['TextureVariationFileDataID[3]'];
+            opt.value = tex0 + "," + tex1 + "," + tex2 + "," + tex3;
             opt.dataset.displayid = result.ID;
             opt.dataset.type = 'creature';
+            
+            if (tex0 != "") Current.availableTextures[11].add(tex0);
+            if (tex1 != "") Current.availableTextures[12].add(tex1);
+            if (tex2 != "") Current.availableTextures[13].add(tex2);
+            if (tex3 != "") Current.availableTextures[5].add(tex3);
 
             if (!filenameMap.has(result['TextureVariationFileDataID[0]'])){
                 const filenameResponse = await fetch("/listfile/info?filename=1&filedataid=" + result['TextureVariationFileDataID[0]']);
@@ -713,6 +775,16 @@ async function loadModelDisplays() {
         setModelDisplay(result.ID, result.ResultType);   
     }
 
+
+    // prefill screenshot combo tab with valid texture options for this model. Hide fields that should be irrelevant.
+    for (i = 0; i < Current.availableTextures.length; i++){
+      if (Current.availableTextures[i].size == 0){
+        document.getElementById("sscTexDiv" + i).hidden = true;
+        continue;
+      }
+      document.getElementById("sscTexDiv" + i).hidden = false;
+      document.getElementById("sscTex" + i).value = [...Current.availableTextures[i]].sort().join(',');
+    }
     skinSelect.style.display = "block";
 }
 
@@ -902,6 +974,87 @@ function updateTextures(){
         }
     }
     setModelTextures(textureArray);
+}
+
+function parseComboList(comboListIndex){
+  if (!document.getElementById(comboListIndex))
+    return [0];
+  list = document.getElementById(comboListIndex).value;
+
+  list = list.replace(/\s+/g, ''); // remove spaces
+  if (list == "" || list == "0")
+    return [0];
+  return list.split(",");
+}
+
+function asyncTimeout() {
+  return new Promise((resolve) => { setTimeout(resolve, 1000) });
+}
+
+function takescreenShotCombo()
+{
+  Module._createScreenshot();
+}
+
+async function screenShotComboGeo(geoNumIndex, allGeosets)
+{
+  console.log("screenShotComboGeo() called. GeoNumIndex = " + geoNumIndex);
+  if (geoNumIndex >= allGeosets.geoNums.length){
+    await asyncTimeout();
+    updateEnabledGeosets();
+    await asyncTimeout();
+    await takescreenShotCombo();
+    return;
+  }
+  var geoNum = allGeosets.geoNums[geoNumIndex];
+  var geoVals = allGeosets.geoVals[geoNumIndex];
+  for (let i = 0; i < geoVals.length; i++){
+    Current.enabledGeosets[geoNum] = Number(geoVals[i]);
+    await screenShotComboGeo(geoNumIndex+1, allGeosets);
+  }
+}
+
+async function screenShotComboTex(texNum, texArray, allTextures, allGeosets)
+{
+  console.log("screenShotComboTex() called. TexNum = " + texNum);
+  if (texNum >= NUM_TEXTURE_SLOTS){
+    await asyncTimeout();
+    setModelTextures(texArray);
+    await asyncTimeout();
+    await screenShotComboGeo(0, allGeosets);
+    return;
+  }
+  var texes = allTextures[texNum];
+  for (let i = 0; i < texes.length; i++){
+    texArray[texNum] = texes[i];
+    await screenShotComboTex(texNum+1, texArray, allTextures, allGeosets);
+  }
+}
+
+function screenShotCombos()
+{
+  // Take screenshots for multiple combos of textures and/or geoset variants for a model.
+  // It does this slowly or it bugs out.
+  var allTextures = new Array(NUM_TEXTURE_SLOTS);
+  for (let i = 0; i < allTextures.length; i++){
+    allTextures[i] = parseComboList('sscTex' + i);
+  }
+
+  let rawGeosetList = document.getElementsByClassName("sscGeosetInput");
+  var allGeosets = {};
+  allGeosets.geoNums = Array();
+  allGeosets.geoVals = Array();
+  if (rawGeosetList.length > 0){
+    for (i = 0; i < rawGeosetList.length; i++){
+      let geoNum = rawGeosetList[i].dataset.geosetGroup;
+      let geoVals = parseComboList("sscGeo"+geoNum);
+      if (geoVals.length > 1 || geoVals[0] != "0"){
+        allGeosets.geoNums.push(geoNum);
+        allGeosets.geoVals.push(geoVals);
+      }
+    }
+  }
+  screenShotComboTex(0, new Int32Array(NUM_TEXTURE_SLOTS), allTextures, allGeosets);
 }
 
 function getScenePos(){
