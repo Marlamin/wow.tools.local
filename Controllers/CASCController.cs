@@ -925,7 +925,7 @@ namespace wow.tools.local.Controllers
                 html += "</table></td></tr></table>";
             }
 
-            if (CASC.Types.TryGetValue(filedataid, out string? type) && (type == "m2" || type == "wmo"))
+            if (CASC.Types.TryGetValue(filedataid, out string? type))
             {
                 if (!Linker.existingParents.Contains(filedataid))
                 {
@@ -1188,6 +1188,8 @@ namespace wow.tools.local.Controllers
                     Linker.LinkM2(fileDataID, true);
                 else if (fileType == "wmo")
                     Linker.LinkWMO(fileDataID, true);
+                else if (fileType == "wdt")
+                    Linker.LinkWDT((int)fileDataID, true);
             }
 
             return "";
