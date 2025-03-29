@@ -95,14 +95,16 @@ namespace wow.tools.local.Controllers
                 {
                     using (var ms = new MemoryStream())
                     {
-                        var outputDir = Path.Combine(SettingsManager.extractionDir, CASC.BuildName, System.IO.Path.GetDirectoryName(entry.Name));
+                        var fileName = Path.DirectorySeparatorChar != '\\' ? entry.Name.Replace("\\", Path.DirectorySeparatorChar.ToString()) : entry.Name;
+                        var directoryName = System.IO.Path.GetDirectoryName(fileName) ?? string.Empty;
+                        var outputDir = Path.Combine(SettingsManager.extractionDir, CASC.BuildName, directoryName);
                         Directory.CreateDirectory(outputDir);
 
                         var fileStream = CASC.GetFileByEKey(eKey.Keys[0], eKey.Size);
                         fileStream.CopyTo(ms);
                         ms.Position = 0;
 
-                        System.IO.File.WriteAllBytes(Path.Combine(outputDir, Path.GetFileName(entry.Name)), ms.ToArray());
+                        System.IO.File.WriteAllBytes(Path.Combine(outputDir, Path.GetFileName(fileName)), ms.ToArray());
                     }
                 }
             }
