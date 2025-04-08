@@ -19,7 +19,6 @@
     <Compile Remove="SereniaBLPLib\**" />
     <Compile Remove="TACTSharp\**" />
     <Compile Remove="temp\**" />
-    <Compile Remove="WoWDBDefs\**" />
     <Compile Remove="WoWFormatLib\**" />
     <Compile Remove="WoWNamingLib\**" />
     <Content Remove="cache\**" />
@@ -30,7 +29,6 @@
     <Content Remove="SereniaBLPLib\**" />
     <Content Remove="TACTSharp\**" />
     <Content Remove="temp\**" />
-    <Content Remove="WoWDBDefs\**" />
     <Content Remove="WoWFormatLib\**" />
     <Content Remove="WoWNamingLib\**" />
     <EmbeddedResource Remove="cache\**" />
@@ -41,7 +39,6 @@
     <EmbeddedResource Remove="SereniaBLPLib\**" />
     <EmbeddedResource Remove="TACTSharp\**" />
     <EmbeddedResource Remove="temp\**" />
-    <EmbeddedResource Remove="WoWDBDefs\**" />
     <EmbeddedResource Remove="WoWFormatLib\**" />
     <EmbeddedResource Remove="WoWNamingLib\**" />
     <None Remove="cache\**" />
@@ -52,14 +49,8 @@
     <None Remove="SereniaBLPLib\**" />
     <None Remove="TACTSharp\**" />
     <None Remove="temp\**" />
-    <None Remove="WoWDBDefs\**" />
     <None Remove="WoWFormatLib\**" />
     <None Remove="WoWNamingLib\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="WoWDBDefs\definitions\**" LinkBase="definitions\" CopyToOutputDirectory="Always" />
-    <Content Include="WoWDBDefs\manifest.json" LinkBase="" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
