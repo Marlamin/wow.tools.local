@@ -1276,6 +1276,10 @@ const spellAttributes14 = {
     0x00100000: 'Private Aura',
 };
 
+const spellAttributes15 = {
+
+}
+
 // 151, part 0/4
 const itemStaticFlags0 = {
     0x00000001: 'No Pickup',
@@ -2852,6 +2856,7 @@ window.flagMap.set("spellmisc.Attributes[11]", spellAttributes11);
 window.flagMap.set("spellmisc.Attributes[12]", spellAttributes12);
 window.flagMap.set("spellmisc.Attributes[13]", spellAttributes13);
 window.flagMap.set("spellmisc.Attributes[14]", spellAttributes14);
+window.flagMap.set("spellmisc.Attributes[15]", spellAttributes15);
 window.flagMap.set("spellmisc.Attributes[2]", spellAttributes2);
 window.flagMap.set("spellmisc.Attributes[3]", spellAttributes3);
 window.flagMap.set("spellmisc.Attributes[4]", spellAttributes4);
