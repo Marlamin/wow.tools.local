@@ -1,7 +1,7 @@
 ﻿{
   "config": {
-    "definitionDir": "WoWDBDefs/definitions",
     "dbcFolder": "dbcs",
+    "definitionDir": "",
     "manifestFolder": "manifests",
     "listfileURL": "https://github.com/wowdev/wow-listfile/releases/latest/download/community-listfile-withcapitals.csv",
     "tactKeyURL": "https://github.com/wowdev/TACTKeys/raw/master/WoW.txt",
