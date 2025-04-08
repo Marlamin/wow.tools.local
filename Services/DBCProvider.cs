@@ -10,7 +10,7 @@ namespace wow.tools.local.Services
 
         public bool DB2IsCached(string tableName, string build)
         {
-            if (tableName.Contains("."))
+            if (tableName.Contains('.'))
                 throw new Exception("Invalid DBC name!");
 
             if (string.IsNullOrEmpty(build))
@@ -21,9 +21,7 @@ namespace wow.tools.local.Services
             var fullFileName = "dbfilesclient/" + tableName + ".db2";
 
             if (build == CASC.BuildName && CASC.DB2Exists(fullFileName))
-            {
                 return true;
-            }
 
             // Try from disk
             if (string.IsNullOrEmpty(SettingsManager.dbcFolder))
@@ -49,7 +47,7 @@ namespace wow.tools.local.Services
 
         public Stream StreamForTableName(string tableName, string build)
         {
-            if (tableName.Contains("."))
+            if (tableName.Contains('.'))
                 throw new Exception("Invalid DBC name!");
 
             if (string.IsNullOrEmpty(build))
@@ -93,7 +91,7 @@ namespace wow.tools.local.Services
 
             if (CASC.DB2Map.TryGetValue(fullFileName, out int db2fileDataID))
             {
-                var db2Req = webClient.GetAsync($"https://wago.tools/api/casc/{db2fileDataID}?version=" + build).Result;
+                var db2Req = webClient.GetAsync($"https://wago.tools/api/casc/{db2fileDataID}?download&version=" + build).Result;
 
                 if (db2Req.StatusCode == System.Net.HttpStatusCode.OK)
                 {

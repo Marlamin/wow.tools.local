@@ -8,7 +8,7 @@ namespace wow.tools.local.Services
         public static Dictionary<uint, HotfixReader> hotfixReaders = [];
         public static Dictionary<uint, List<DBCacheParser>> dbcacheParsers = [];
         public static Dictionary<int, DateTime> pushIDDetected = [];
-        public static Dictionary<uint, string> tableNames = Directory.EnumerateFiles(SettingsManager.definitionDir).ToDictionary(x => Hash(Path.GetFileNameWithoutExtension(x).ToUpper()), x => Path.GetFileNameWithoutExtension(x));
+        public static Dictionary<uint, string> tableNames = [];
 
         private static void LoadPushIDs() => pushIDDetected = JsonConvert.DeserializeObject<Dictionary<int, DateTime>>(File.ReadAllText("knownPushIDs.json"));
 
@@ -18,6 +18,15 @@ namespace wow.tools.local.Services
         {
             if (!File.Exists("knownPushIDs.json"))
                 SavePushIDs();
+
+            if(tableNames.Count == 0)
+            {
+                if(DBDManifest.DB2Map.Count == 0)
+                    DBDManifest.Load();
+
+                foreach (var entry in DBDManifest.DB2Map)
+                    tableNames.Add(Hash(entry.Key.ToUpper()), entry.Key);
+            }
 
             LoadPushIDs();
 

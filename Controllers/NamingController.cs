@@ -25,8 +25,12 @@ namespace wow.tools.local.Controllers
                 Namer.build = CASC.BuildName;
                 Namer.cacheDir = "caches";
 
-                Namer.SetProviders(dbcProvider, dbdProvider);
-                if(CASC.IsCASCLibInit)
+                if (((DBDProvider)dbdProvider).isUsingBDBD)
+                    Namer.SetProviders(dbcProvider, ((DBDProvider)dbdProvider).GetBDBDStream());
+                else
+                    Namer.SetProviders(dbcProvider, dbdProvider);
+
+                if (CASC.IsCASCLibInit)
                     Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
                 else if (CASC.IsTACTSharpInit)
                     Namer.SetTACT(ref CASC.buildInstance, ref CASC.AvailableFDIDs);

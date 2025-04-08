@@ -65,7 +65,13 @@ namespace wow.tools.local.Services
                 dbcProvider.localeFlags = locale;
             }
 
-            var dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
+            DBCD.DBCD dbcd;
+
+            if (dbdProvider.isUsingBDBD)
+                dbcd = new DBCD.DBCD(dbcProvider, dbdProvider.GetBDBDStream());
+            else
+                dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
+
             var storage = dbcd.Load(name, build);
 
             dbcProvider.localeFlags = LocaleFlags.All_WoW;

@@ -7,8 +7,9 @@ namespace wow.tools.Services
     public class DBDProvider : IDBDProvider
     {
         private readonly DBDReader dbdReader;
-        private Dictionary<string, (string FilePath, Structs.DBDefinition Definition)> definitionLookup = [];
+        private Dictionary<string, (string FilePath, Structs.DBDefinition Definition)> definitionLookup = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, List<string>> relationshipMap = [];
+        public bool isUsingBDBD = false;
 
         public DBDProvider()
         {
@@ -16,17 +17,75 @@ namespace wow.tools.Services
             LoadDefinitions();
         }
 
+        public Stream GetBDBDStream()
+        {
+            var downloadBDBD = false;
+            var cacheLocation = Path.Combine("cache", "all.bdbd");
+            var fileInfo = new FileInfo(cacheLocation);
+
+            if (fileInfo.Exists)
+            {
+                if (fileInfo.LastWriteTime.AddDays(1) > DateTime.Now)
+                    downloadBDBD = true;
+            }
+            else
+            {
+                downloadBDBD = true;
+            }
+
+            if (downloadBDBD)
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
+                    var response = client.GetAsync("https://github.com/wowdev/WoWDBDefs/releases/latest/download/all.bdbd").Result;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        File.WriteAllBytes(cacheLocation, response.Content.ReadAsByteArrayAsync().Result);
+                    }
+                    else
+                        Console.WriteLine("Failed to download all.bdbd from GitHub: " + response.StatusCode.ToString());
+                }
+            }
+
+            if (!File.Exists(cacheLocation))
+                throw new Exception("all.bdbd not found");
+
+            return new FileStream(cacheLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
+        }
+
         public int LoadDefinitions()
         {
-            var definitionsDir = SettingsManager.definitionDir;
-            Console.WriteLine("Reloading definitions from directory " + definitionsDir);
+            if(string.IsNullOrEmpty(SettingsManager.definitionDir) || !Directory.Exists(SettingsManager.definitionDir))
+            {
+                Console.WriteLine("Loading definitions from BDBD file");
+                using(var fs = GetBDBDStream())
+                {
+                    var bdbd = BDBDReader.Read(fs);
+                    foreach (var entry in bdbd)
+                    {
+                        var name = Path.GetFileNameWithoutExtension(entry.Key);
+                        var definition = entry.Value.dbd;
+                        
+                        definitionLookup.Add(name, (entry.Key, definition));
+                    }
+                    Console.WriteLine("Loaded " + definitionLookup.Count + " definitions from BDBD file!");
+                }
 
-            // lookup needs both filepath and def for DBCD to work
-            // also no longer case sensitive now
-            var definitionFiles = Directory.EnumerateFiles(definitionsDir);
-            definitionLookup = definitionFiles.ToDictionary(x => Path.GetFileNameWithoutExtension(x), x => (x, dbdReader.Read(x)), StringComparer.OrdinalIgnoreCase);
+                isUsingBDBD = true;
+            }
+            else
+            {
+                var definitionsDir = SettingsManager.definitionDir;
+                Console.WriteLine("Reloading definitions from directory " + definitionsDir);
 
-            Console.WriteLine("Loaded " + definitionLookup.Count + " definitions!");
+                // lookup needs both filepath and def for DBCD to work
+                // also no longer case sensitive now
+                var definitionFiles = Directory.EnumerateFiles(definitionsDir);
+                definitionLookup = definitionFiles.ToDictionary(x => Path.GetFileNameWithoutExtension(x), x => (x, dbdReader.Read(x)), StringComparer.OrdinalIgnoreCase);
+
+                Console.WriteLine("Loaded " + definitionLookup.Count + " definitions from definitions folder!");
+            }
 
             Console.WriteLine("Reloading relationship map");
 
@@ -59,6 +118,9 @@ namespace wow.tools.Services
 
         public Stream StreamForTableName(string tableName, string build = null)
         {
+            if(isUsingBDBD)
+                throw new Exception("DBD definitions were loaded from BDBD, we should never be using this function");
+
             tableName = Path.GetFileNameWithoutExtension(tableName);
 
             if (definitionLookup.TryGetValue(tableName, out var lookup))

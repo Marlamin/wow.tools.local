@@ -290,7 +290,7 @@ namespace wow.tools.local.Controllers
 
         [Route("analyzeUnknown")]
         [HttpGet]
-        public bool AnalyzeUnknown()
+        public async Task<bool> AnalyzeUnknown()
         {
             Console.WriteLine("Analyzing unknown files");
             var knownUnknowns = new Dictionary<int, string>();
@@ -309,11 +309,11 @@ namespace wow.tools.local.Controllers
 
                 unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
             }
-            var dbcd = new DBCD.DBCD(new DBCProvider(), new DBDProvider());
+
 
             try
             {
-                var mfdStorage = dbcd.Load("ModelFileData", CASC.BuildName);
+                var mfdStorage = await dbcManager.GetOrLoad("ModelFileData", CASC.BuildName);
                 foreach (dynamic mfdEntry in mfdStorage.Values)
                 {
                     var fdid = (int)mfdEntry.FileDataID;
@@ -332,7 +332,7 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                var tfdStorage = dbcd.Load("TextureFileData", CASC.BuildName);
+                var tfdStorage = await dbcManager.GetOrLoad("TextureFileData", CASC.BuildName);
                 foreach (dynamic tfdEntry in tfdStorage.Values)
                 {
                     var fdid = (int)tfdEntry.FileDataID;
@@ -351,7 +351,7 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                var mfdStorage = dbcd.Load("MovieFileData", CASC.BuildName);
+                var mfdStorage = await dbcManager.GetOrLoad("MovieFileData", CASC.BuildName);
                 foreach (dynamic mfdEntry in mfdStorage.Values)
                 {
                     var fdid = (int)mfdEntry.ID;
@@ -372,7 +372,7 @@ namespace wow.tools.local.Controllers
             {
                 if (CASC.FileExists(1375802))
                 {
-                    var mp3Storage = dbcd.Load("ManifestMP3", CASC.BuildName);
+                    var mp3Storage = await dbcManager.GetOrLoad("ManifestMP3", CASC.BuildName);
                     foreach (dynamic mp3Entry in mp3Storage.Values)
                     {
                         var fdid = (int)mp3Entry.ID;
@@ -580,7 +580,7 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                var skStorage = dbcd.Load("SoundKitEntry", CASC.BuildName);
+                var skStorage = await dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName);
                 foreach (dynamic skEntry in skStorage.Values)
                 {
                     var fdid = (int)skEntry.FileDataID;
