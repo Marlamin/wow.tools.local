@@ -133,7 +133,7 @@ namespace wow.tools.local.Services
                 }
                 else
                 {
-                    var versions = await buildInstance.cdn.GetProductVersions(product);
+                    var versions = await buildInstance.cdn.GetPatchServiceFile(product);
                     foreach (var line in versions.Split('\n'))
                     {
                         if (!line.StartsWith(buildInstance.Settings.Region + "|"))
@@ -1054,9 +1054,9 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
                 byte[] fileBytes;
                 if (offset == -1)
-                    fileBytes = buildInstance.cdn.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true);
+                    fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true);
                 else
-                    fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
+                    fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
 
                 return new MemoryStream(fileBytes);
             }
@@ -1149,9 +1149,9 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
                     byte[] fileBytes;
                     if (offset == -1)
-                        fileBytes = buildInstance.cdn.GetFile("wow", "data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
+                        fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
                     else
-                        fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), "wow", buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
+                        fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
 
                     return new MemoryStream(fileBytes);
                 }
