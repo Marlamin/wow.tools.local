@@ -14,27 +14,14 @@ namespace wow.tools.local.Controllers.DBC
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
         [HttpGet]
-        public async Task<string> Get()
+        public string Get()
         {
-            using (var client = new HttpClient())
-            {
-                var stream = await client.GetStreamAsync("https://github.com/wowdev/WoWDBDefs/archive/refs/heads/master.zip");
-                using (var ms = new MemoryStream())
-                {
-                    await stream.CopyToAsync(ms);
-                    ms.Position = 0;
-                    using (var archive = new ZipArchive(ms, ZipArchiveMode.Read))
-                    {
-                        archive.ExtractToDirectory("WoWDBDefs_tmp");
-                        Directory.Delete("WoWDBDefs", true);
-                        Directory.Move("WoWDBDefs_tmp/WoWDBDefs-master", "WoWDBDefs");
-                        Directory.Delete("WoWDBDefs_tmp", true);
-                    }
-                }
-            }
+            if (!dbdProvider.isUsingBDBD)
+                Console.WriteLine("WARNING: You are using a local DBD definitions directory, updating can not be done through WTL itself.");
 
-            // Reload defs
-            int count = dbdProvider.LoadDefinitions();
+            // Reload manifest & defs
+            DBDManifest.Load(true);
+            int count = dbdProvider.LoadDefinitions(true);
             dbcManager.ClearCache();
             dbcManager.ClearHotfixCache();
             return "Reloaded " + count + " definitions and cleared DBC cache!";

@@ -17,7 +17,7 @@ namespace wow.tools.Services
             LoadDefinitions();
         }
 
-        public Stream GetBDBDStream()
+        public Stream GetBDBDStream(bool forceNew = false)
         {
             var downloadBDBD = false;
             var cacheLocation = Path.Combine("cache", "all.bdbd");
@@ -25,13 +25,16 @@ namespace wow.tools.Services
 
             if (fileInfo.Exists)
             {
-                if (fileInfo.LastWriteTime.AddDays(1) > DateTime.Now)
+                if (DateTime.Now > fileInfo.LastWriteTime.AddDays(1))
                     downloadBDBD = true;
             }
             else
             {
                 downloadBDBD = true;
             }
+
+            if (forceNew)
+                downloadBDBD = true;
 
             if (downloadBDBD)
             {
@@ -54,12 +57,14 @@ namespace wow.tools.Services
             return new FileStream(cacheLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
-        public int LoadDefinitions()
+        public int LoadDefinitions(bool clearCache = false)
         {
+            definitionLookup.Clear();
+
             if(string.IsNullOrEmpty(SettingsManager.definitionDir) || !Directory.Exists(SettingsManager.definitionDir))
             {
                 Console.WriteLine("Loading definitions from BDBD file");
-                using(var fs = GetBDBDStream())
+                using(var fs = GetBDBDStream(clearCache))
                 {
                     var bdbd = BDBDReader.Read(fs);
                     foreach (var entry in bdbd)
@@ -95,7 +100,7 @@ namespace wow.tools.Services
             {
                 foreach (var column in definition.Value.Definition.columnDefinitions)
                 {
-                    if (column.Value.foreignTable == null)
+                    if (string.IsNullOrEmpty(column.Value.foreignTable))
                         continue;
 
                     var currentName = definition.Key + "::" + column.Key;

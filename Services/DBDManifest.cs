@@ -5,8 +5,8 @@ namespace wow.tools.local.Services
 {
     public static class DBDManifest
     {
-        public static Dictionary<string, ManifestEntry> DB2Map = new();
-        public static void Load()
+        public static Dictionary<string, ManifestEntry> DB2Map = new(StringComparer.InvariantCultureIgnoreCase);
+        public static void Load(bool forceNew = false)
         {
             var manifestLocation = Path.GetFullPath(Path.Combine(SettingsManager.definitionDir, "..", "manifest.json"));
 
@@ -23,7 +23,7 @@ namespace wow.tools.local.Services
 
                 if (fileInfo.Exists)
                 {
-                    if(fileInfo.LastWriteTime.AddDays(1) > DateTime.Now)
+                    if(DateTime.Now > fileInfo.LastWriteTime.AddDays(1))
                         downloadManifest = true;
                     else
                         manifestLocation = cacheLocation;
@@ -32,6 +32,9 @@ namespace wow.tools.local.Services
                 {
                     downloadManifest = true;
                 }
+
+                if(forceNew)
+                    downloadManifest = true;
 
                 if (downloadManifest)
                 {
@@ -58,7 +61,9 @@ namespace wow.tools.local.Services
 
             var manifest = JsonSerializer.Deserialize<List<ManifestEntry>>(File.ReadAllText(manifestLocation));
 
-            foreach(var entry in manifest)
+            DB2Map.Clear();
+
+            foreach (var entry in manifest)
             {
                 if(!CASC.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".db2"))
                     CASC.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".db2", entry.db2FileDataID);

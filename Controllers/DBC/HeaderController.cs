@@ -69,20 +69,14 @@ namespace wow.tools.local.Controllers.DBC
 
                         if (definition.columnDefinitions.TryGetValue(fieldName, out var columnDef))
                         {
-                            if (columnDef.foreignTable != null)
-                            {
+                            if (!string.IsNullOrEmpty(columnDef.foreignTable))
                                 result.fks.Add(fieldName, columnDef.foreignTable + "::" + columnDef.foreignColumn);
-                            }
 
                             if (columnDef.comment != null)
-                            {
                                 result.comments.Add(fieldName, columnDef.comment);
-                            }
 
                             if (!columnDef.verified)
-                            {
                                 result.unverifieds.Add(fieldName);
-                            }
                         }
                     }
                 }
@@ -103,20 +97,14 @@ namespace wow.tools.local.Controllers.DBC
 
                                     if (definition.columnDefinitions.TryGetValue(fieldName, out var columnDef))
                                     {
-                                        if (columnDef.foreignTable != null)
-                                        {
+                                        if (!string.IsNullOrEmpty(columnDef.foreignTable))
                                             result.fks.Add($"{fieldName}[{i}]", columnDef.foreignTable + "::" + columnDef.foreignColumn);
-                                        }
 
                                         if (columnDef.comment != null)
-                                        {
                                             result.comments.Add($"{fieldName}[{i}]", columnDef.comment);
-                                        }
 
                                         if (!columnDef.verified)
-                                        {
                                             result.unverifieds.Add($"{fieldName}[{i}]");
-                                        }
                                     }
                                 }
                             }
@@ -126,20 +114,14 @@ namespace wow.tools.local.Controllers.DBC
 
                                 if (definition.columnDefinitions.TryGetValue(fieldName, out var columnDef))
                                 {
-                                    if (columnDef.foreignTable != null)
-                                    {
+                                    if (!string.IsNullOrEmpty(columnDef.foreignTable))
                                         result.fks.Add(fieldName, columnDef.foreignTable + "::" + columnDef.foreignColumn);
-                                    }
 
                                     if (columnDef.comment != null)
-                                    {
                                         result.comments.Add(fieldName, columnDef.comment);
-                                    }
 
                                     if (!columnDef.verified)
-                                    {
                                         result.unverifieds.Add(fieldName);
-                                    }
                                 }
                             }
                         }
