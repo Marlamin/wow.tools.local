@@ -101,10 +101,8 @@ namespace wow.tools.local.Services
 
             string buildConfig;
             string cdnConfig;
-            if (wowFolder != null)
+            if (wowFolder != null && string.IsNullOrEmpty(overrideBC) && string.IsNullOrEmpty(overrideCDNC))
             {
-                buildInstance.Settings.BaseDir = wowFolder;
-
                 // Load from build.info
                 var buildInfoPath = Path.Combine(wowFolder, ".build.info");
                 if (!File.Exists(buildInfoPath))
@@ -114,6 +112,8 @@ namespace wow.tools.local.Services
 
                 if (!buildInfo.Entries.Any(x => x.Product == product))
                     throw new Exception("No build found for product " + product);
+
+                buildInstance.Settings.BaseDir = wowFolder;
 
                 var build = buildInfo.Entries.First(x => x.Product == product);
 
