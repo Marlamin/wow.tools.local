@@ -71,8 +71,7 @@ namespace wow.tools.local.Services
                 if (!CASC.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".dbc"))
                     CASC.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".dbc", entry.dbcFileDataID);
 
-                if (!DB2Map.ContainsKey(entry.tableName.ToLower()))
-                    DB2Map.Add(entry.tableName.ToLower(), entry);
+                DB2Map.TryAdd(entry.tableName, entry);
             }
         }
     }
