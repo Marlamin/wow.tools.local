@@ -108,12 +108,12 @@ namespace wow.tools.local.Services
                 if (!File.Exists(buildInfoPath))
                     throw new Exception("No build.info found in base directory");
 
+                buildInstance.Settings.BaseDir = wowFolder;
+
                 var buildInfo = new BuildInfo(buildInfoPath, buildInstance.Settings, buildInstance.cdn);
 
                 if (!buildInfo.Entries.Any(x => x.Product == product))
                     throw new Exception("No build found for product " + product);
-
-                buildInstance.Settings.BaseDir = wowFolder;
 
                 var build = buildInfo.Entries.First(x => x.Product == product);
 
