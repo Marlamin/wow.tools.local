@@ -152,6 +152,10 @@ namespace wow.tools.local.Services
 
             #region Configs
             buildInstance.cdn.ProductDirectory = "tpr/wow";
+            
+            if(!IsOnline)
+                buildInstance.cdn.OpenLocal();
+            
             buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
             buildInstance.Load();
 
