@@ -348,7 +348,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     EncryptedFDIDs.Add((int)fdid, []);
 
                 var eKeys = buildInstance.Encoding.FindContentKey(entries[0].md5.AsSpan());
-                if (eKeys == false)
+                if (eKeys != false)
                 {
                     var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
                     var matches = eKeyEncryptedRegex.Matches(eSpec.eSpec);
