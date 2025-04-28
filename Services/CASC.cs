@@ -181,6 +181,8 @@ namespace wow.tools.local.Services
 
             IsTACTSharpInit = true;
 
+            LoadKeys();
+
             #region Install entry conversion between TACTSharp and CASCLib
             var hasher = new CASCLib.Jenkins96();
 
@@ -503,6 +505,8 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     }
                 }
             }
+
+            LoadKeys();
 
             CurrentProduct = program;
 
