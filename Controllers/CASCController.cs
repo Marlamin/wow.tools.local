@@ -3,8 +3,8 @@ using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using SereniaBLPLib;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -1116,8 +1116,9 @@ namespace wow.tools.local.Controllers
             if (file == null)
                 return NotFound();
 
-            var blp = new BlpFile(file);
-            var image = blp.GetImage(0);
+            var blp = new BLPSharp.BLPFile(file);
+            var pixels = blp.GetPixels(0, out var w, out var h);
+            var image = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(pixels, w, h);
 
             var ms = new MemoryStream();
             image.SaveAsPng(ms);

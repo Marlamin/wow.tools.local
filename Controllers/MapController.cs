@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using wow.tools.local.Services;
 
@@ -26,19 +27,21 @@ namespace wow.tools.local.Controllers
             if (!CASC.FileExists(fileDataID))
                 fileDataID = 189076;
 
-            var blpReader = new SereniaBLPLib.BlpFile(CASC.GetFileByID(fileDataID));
-            var blp = blpReader.GetImage(0);
+            var blp = new BLPSharp.BLPFile(CASC.GetFileByID(fileDataID));
+            var pixels = blp.GetPixels(0, out var w, out var h);
+            var image = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(pixels, w, h);
+            var sortedImage = image.CloneAs<Rgba32>();
             var pixelBytes = new byte[targetSize * targetSize * 4];
 
-            if (blp.Width == targetSize)
+            if (sortedImage.Width == targetSize)
             {
-                blp.CopyPixelDataTo(pixelBytes);
+                sortedImage.CopyPixelDataTo(pixelBytes);
             }
             else
             {
                 // Minimaps dont have mipmaps, so resize :(
-                blp.Mutate(x => x.Resize(new Size(targetSize, targetSize)));
-                blp.CopyPixelDataTo(pixelBytes);
+                sortedImage.Mutate(x => x.Resize(new Size(targetSize, targetSize)));
+                sortedImage.CopyPixelDataTo(pixelBytes);
             }
 
             return new FileContentResult(pixelBytes, "application/octet-stream");

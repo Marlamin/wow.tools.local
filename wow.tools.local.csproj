@@ -16,7 +16,6 @@
     <Compile Remove="DBCD\**" />
     <Compile Remove="dbcs\**" />
     <Compile Remove="DBDiffer\**" />
-    <Compile Remove="SereniaBLPLib\**" />
     <Compile Remove="TACTSharp\**" />
     <Compile Remove="temp\**" />
     <Compile Remove="WoWFormatLib\**" />
@@ -26,7 +25,6 @@
     <Content Remove="DBCD\**" />
     <Content Remove="dbcs\**" />
     <Content Remove="DBDiffer\**" />
-    <Content Remove="SereniaBLPLib\**" />
     <Content Remove="TACTSharp\**" />
     <Content Remove="temp\**" />
     <Content Remove="WoWFormatLib\**" />
@@ -36,7 +34,6 @@
     <EmbeddedResource Remove="DBCD\**" />
     <EmbeddedResource Remove="dbcs\**" />
     <EmbeddedResource Remove="DBDiffer\**" />
-    <EmbeddedResource Remove="SereniaBLPLib\**" />
     <EmbeddedResource Remove="TACTSharp\**" />
     <EmbeddedResource Remove="temp\**" />
     <EmbeddedResource Remove="WoWFormatLib\**" />
@@ -46,7 +43,6 @@
     <None Remove="DBCD\**" />
     <None Remove="dbcs\**" />
     <None Remove="DBDiffer\**" />
-    <None Remove="SereniaBLPLib\**" />
     <None Remove="TACTSharp\**" />
     <None Remove="temp\**" />
     <None Remove="WoWFormatLib\**" />
@@ -94,6 +90,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BLPSharp" Version="0.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.3" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.3" />
     <PackageReference Include="Ribbit.NET" Version="2.0.0" />
@@ -104,7 +101,6 @@
     <ProjectReference Include="CascLib\CascLib\CascLib.csproj" />
     <ProjectReference Include="DBCD\DBCD\DBCD.csproj" />
     <ProjectReference Include="DBDiffer\DBDiffer\DBDiffer.csproj" />
-    <ProjectReference Include="SereniaBLPLib\SereniaBLPLib\SereniaBLPLib.csproj" />
     <ProjectReference Include="TACTSharp\TACTSharp\TACTSharp.csproj" />
     <ProjectReference Include="WoWFormatLib\WoWFormatLib\WoWFormatLib.csproj" />
     <ProjectReference Include="WoWNamingLib\WoWNamingLib\WoWNamingLib.csproj" />
