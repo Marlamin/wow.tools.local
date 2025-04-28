@@ -48,13 +48,6 @@ namespace wow.tools.local.Controllers
                     copy.Description = CASC.EncryptedFDIDs.Where(x => x.Value.Contains(key)).Select(x => x.Key).ToList().Count.ToString() + " file(s) as of " + CASC.BuildName;
                     KeyMetadata.KeyInfo[key] = copy;
                 }
-
-                if (WTLKeyService.HasKey(key) && !CASC.KnownKeys.Contains(key))
-                {
-                    Console.WriteLine("Adding known key from CascLib: " + key);
-                    CASC.KnownKeys.Add(key);
-                    newKeysFound = true;
-                }
             }
 
             var tkStorage = dbcManager.GetOrLoad("TactKey", CASC.BuildName, true).Result;
@@ -64,9 +57,6 @@ namespace wow.tools.local.Controllers
                 {
                     if (keyInfo.Value.ID != (int)tkRow.ID)
                         continue;
-
-                    if (!CASC.KnownKeys.Contains(keyInfo.Key))
-                        CASC.KnownKeys.Add(keyInfo.Key);
 
                     if (WTLKeyService.HasKey(keyInfo.Key))
                         continue;
@@ -107,9 +97,6 @@ namespace wow.tools.local.Controllers
                                     {
                                         var tactKeyLookup = bin.ReadUInt64();
                                         var tactKeyBytes = bin.ReadBytes(16);
-
-                                        if (!CASC.KnownKeys.Contains(tactKeyLookup))
-                                            CASC.KnownKeys.Add(tactKeyLookup);
 
                                         if (WTLKeyService.HasKey(tactKeyLookup))
                                             continue;
@@ -157,9 +144,6 @@ namespace wow.tools.local.Controllers
                                     {
                                         var tactKeyLookup = bin.ReadUInt64();
                                         var tactKeyBytes = bin.ReadBytes(16);
-
-                                        if (!CASC.KnownKeys.Contains(tactKeyLookup))
-                                            CASC.KnownKeys.Add(tactKeyLookup);
 
                                         if (WTLKeyService.HasKey(tactKeyLookup))
                                             continue;

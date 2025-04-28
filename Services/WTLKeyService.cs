@@ -2,6 +2,8 @@
 {
     public class WTLKeyService
     {
+        public static readonly List<ulong> KnownKeys = new();
+
         public static bool TryGetKey(ulong keyName, out byte[] key)
         {
             if (CASC.IsCASCLibInit)
@@ -46,6 +48,9 @@
 
         public static void SetKey(ulong keyName, byte[] key)
         {
+            if (!KnownKeys.Contains(keyName))
+                KnownKeys.Add(keyName);
+
             if (CASC.IsCASCLibInit)
                 CASCLib.KeyService.SetKey(keyName, key);
             else if (CASC.IsTACTSharpInit)
@@ -63,6 +68,10 @@
                 var splitLine = line.Split(' ');
                 var lookup = ulong.Parse(splitLine[0], System.Globalization.NumberStyles.HexNumber);
                 byte[] key = Convert.FromHexString(splitLine[1].Trim());
+
+                if(!KnownKeys.Contains(lookup))
+                    KnownKeys.Add(lookup);
+
                 SetKey(lookup, key);
             }
         }

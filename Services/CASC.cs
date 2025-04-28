@@ -24,7 +24,6 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<string, int> DB2Map = [];
 
         public static List<int> AvailableFDIDs = [];
-        public static readonly List<ulong> KnownKeys = [];
 
         public static readonly Dictionary<int, EncryptionStatus> EncryptionStatuses = [];
         public static readonly Dictionary<int, List<ulong>> EncryptedFDIDs = [];
@@ -253,9 +252,6 @@ namespace wow.tools.local.Services
                                     }
 
                                     var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
-
-                                    if (!KnownKeys.Contains(parsedLookup))
-                                        KnownKeys.Add(parsedLookup);
 
                                     if (WTLKeyService.HasKey(parsedLookup))
                                         continue;
@@ -486,9 +482,6 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                                     }
 
                                     var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
-
-                                    if (!KnownKeys.Contains(parsedLookup))
-                                        KnownKeys.Add(parsedLookup);
 
                                     if (WTLKeyService.HasKey(parsedLookup))
                                         continue;
@@ -737,10 +730,10 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
         public static bool ExportTACTKeys()
         {
-            KnownKeys.Sort();
+            WTLKeyService.KnownKeys.Sort();
 
             var tactKeyLines = new List<string>();
-            foreach (var key in KnownKeys)
+            foreach (var key in WTLKeyService.KnownKeys)
             {
                 if (!WTLKeyService.HasKey(key))
                     continue;
@@ -965,11 +958,14 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
         public static bool LoadKeys(bool forceRedownload = false)
         {
+            if (WTLKeyService.KnownKeys.Count > 0 || forceRedownload)
+                WTLKeyService.KnownKeys.Clear();
+
             var download = forceRedownload;
-            if (File.Exists("TactKey.csv"))
+            if (File.Exists("WoW.txt"))
             {
-                var info = new FileInfo("TactKey.csv");
-                if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
+                var info = new FileInfo("WoW.txt");
+                if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromHours(12)) > info.LastWriteTime)
                 {
                     Console.WriteLine("TACT Keys outdated, redownloading..");
                     download = true;
@@ -984,33 +980,11 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             {
                 Console.WriteLine("Downloading TACT keys");
 
-                List<string> tactKeyLines = [];
                 using (var s = WebClient.GetStreamAsync(SettingsManager.tactKeyURL + "?=v" + (long)DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds).Result)
-                using (var sr = new StreamReader(s))
+                using (var fs = new FileStream("WoW.txt", FileMode.Create))
                 {
-                    while (!sr.EndOfStream)
-                    {
-                        var line = sr.ReadLine();
-                        if (string.IsNullOrEmpty(line))
-                            continue;
-
-                        var splitLine = line.Split(" ");
-                        tactKeyLines.Add(splitLine[0] + ";" + splitLine[1]);
-                    }
+                    s.CopyTo(fs);
                 }
-
-                File.WriteAllLines("TactKey.csv", tactKeyLines);
-            }
-
-            if (forceRedownload)
-                KnownKeys.Clear();
-
-            foreach (var line in File.ReadAllLines("TactKey.csv"))
-            {
-                var splitLine = line.Split(";");
-                if (splitLine.Length != 2)
-                    continue;
-                KnownKeys.Add(ulong.Parse(splitLine[0], NumberStyles.HexNumber));
             }
 
             if (IsCASCLibInit || IsTACTSharpInit)
@@ -1020,7 +994,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             if (EncryptionStatuses.Count > 0)
                 RefreshEncryptionStatus();
 
-            Console.WriteLine("Finished loading TACT keys: " + KnownKeys.Count + " known keys");
+            Console.WriteLine("Loaded " + WTLKeyService.KnownKeys.Count + " known TACTkeys");
 
             return true;
         }
@@ -1036,11 +1010,11 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 {
                     encryptionStatus = EncryptionStatus.EncryptedButNot;
                 }
-                else if (encryptedFile.Value.All(value => KnownKeys.Contains(value)))
+                else if (encryptedFile.Value.All(value => WTLKeyService.KnownKeys.Contains(value)))
                 {
                     encryptionStatus = EncryptionStatus.EncryptedKnownKey;
                 }
-                else if (encryptedFile.Value.Any(value => KnownKeys.Contains(value)))
+                else if (encryptedFile.Value.Any(value => WTLKeyService.KnownKeys.Contains(value)))
                 {
                     encryptionStatus = EncryptionStatus.EncryptedMixed;
                 }
