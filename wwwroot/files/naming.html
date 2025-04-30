@@ -165,7 +165,10 @@
                             </select>
                             <br>
                             <div class="form-check">
-                                <input id="overrideVO" type='checkbox' name='overrideVO' class="form-check-input" CHECKED/> <label class="form-check-label"for="overrideVO">Override VO? (uncheck to only add new names)</label>
+                                <input id="overrideVO" type='checkbox' name='overrideVO' class="form-check-input" CHECKED /> <label class="form-check-label" for="overrideVO">Override VO? (uncheck to only add new names)</label>
+                            </div>
+                            <div class="form-check">
+                                <input id="allowCaseRenames" type='checkbox' name='allowCaseRenames' class="form-check-input" /> <label class="form-check-label" for="allowCaseRenames">Allow casing-only renames?</label>
                             </div>
                             <input type="submit" id="submitButton" class="btn btn-success form-control" value="Engage!">
                         </form>
@@ -331,7 +334,11 @@
             }).then(function (response) {
                 return response.text();
             }).then(function (data) {
-                resultTitle.innerHTML = "Result (" + (data.split('\n').length) + " names)";
+                var numResults = data.split('\n').length;
+                if (data.length == 0)
+                    numResults = 0;
+
+                resultTitle.innerHTML = "Result (" + numResults + " names)";
                 result.innerHTML = data;
                 submitButton.disabled = false;
                 submitButton.classList.remove("disabled");
@@ -535,8 +542,11 @@
                         url: "/naming/singleFile?id=" + Elements.currentID + "&name=" + encodeURIComponent(name),
                         type: 'GET',
                         success: function (data) {
-                            var result = document.getElementById("result");
-                            resultTitle.innerHTML = "Result (" + (data.split('\n').length) + " names)";
+                            var numResults = data.split('\n').length;
+                            if (data.length == 0)
+                                numResults = 0;
+
+                            resultTitle.innerHTML = "Result (" + numResults + " names)";
                             result.innerHTML = data;
                         }
                     });

@@ -168,6 +168,7 @@ namespace wow.tools.local.Controllers
 
             var checkboxes = form["namers"];
             var overrideVO = form.ContainsKey("overrideVO") && form["overrideVO"] == "on";
+            Namer.AllowCaseRenames = form.ContainsKey("allowCaseRenames") && form["allowCaseRenames"] == "on";
 
             var namerOrder = new List<string> { "DB2", "Map", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SoundKits", "SpellTex", "TerrainCubeMaps", "VO", "WWF", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x)).ToArray();
