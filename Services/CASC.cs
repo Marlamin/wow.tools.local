@@ -391,21 +391,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
             RefreshEncryptionStatus();
             Console.WriteLine("Done analyzing encrypted files");
 
-            if (File.Exists("cachedUnknowns.txt"))
-            {
-                Console.WriteLine("Loading cached types from disk");
-                var knownUnknowns = File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
-                if (knownUnknowns.Count > 0)
-                {
-                    foreach (var knownUnknown in knownUnknowns)
-                    {
-                        if (CASC.Types.TryGetValue(knownUnknown.Key, out var currentType) && currentType != "unk")
-                            continue;
-
-                        SetFileType(knownUnknown.Key, knownUnknown.Value);
-                    }
-                }
-            }
+            LoadCachedUnknowns();
 
             try
             {
@@ -693,22 +679,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             RefreshEncryptionStatus();
             Console.WriteLine("Done analyzing encrypted files");
 
-            // Loaded cached types from disk
-            if (File.Exists("cachedUnknowns.txt"))
-            {
-                Console.WriteLine("Loading cached types from disk");
-                var knownUnknowns = File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
-                if (knownUnknowns.Count > 0)
-                {
-                    foreach (var knownUnknown in knownUnknowns)
-                    {
-                        if (CASC.Types.TryGetValue(knownUnknown.Key, out var currentType) && currentType != "unk")
-                            continue;
-
-                        SetFileType(knownUnknown.Key, knownUnknown.Value);
-                    }
-                }
-            }
+            LoadCachedUnknowns();
 
             try
             {
@@ -726,6 +697,33 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
         {
             File.WriteAllLines("exported-listfile.csv", Listfile.OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value).ToArray());
             return true;
+        }
+
+        private static void LoadCachedUnknowns()
+        {
+            // Loaded cached types from disk
+            if (File.Exists("cachedUnknowns.txt"))
+            {
+                Console.WriteLine("Loading cached types from disk");
+                var knownUnknowns = File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+                if (knownUnknowns.Count > 0)
+                {
+                    foreach (var knownUnknown in knownUnknowns)
+                    {
+                        // Remove old M3 related placeholder types: m3strtbl, m3shlib, m3matlib
+                        if (knownUnknown.Value == "m3strtbl" || knownUnknown.Value == "m3shlib" || knownUnknown.Value == "m3matlib")
+                            continue;
+
+                        if (CASC.Types.TryGetValue(knownUnknown.Key, out var currentType) && currentType != "unk")
+                            continue;
+
+                        if(knownUnknown.Key == 5569152 || knownUnknown.Key == 5916032 || knownUnknown.Key == 6022679)
+                            SetFileType(knownUnknown.Key, "m3");
+                        else
+                            SetFileType(knownUnknown.Key, knownUnknown.Value);
+                    }
+                }
+            }
         }
 
         public static bool ExportTACTKeys()

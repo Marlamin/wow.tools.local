@@ -298,6 +298,13 @@ namespace wow.tools.local.Controllers
             if (System.IO.File.Exists("cachedUnknowns.txt"))
             {
                 knownUnknowns = System.IO.File.ReadAllLines("cachedUnknowns.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+
+                // Remove old M3 related placeholder types: m3strtbl, m3shlib, m3matlib
+                foreach (var key in knownUnknowns.Keys.ToList())
+                {
+                    if (knownUnknowns[key] == "m3strtbl" || knownUnknowns[key] == "m3shlib" || knownUnknowns[key] == "m3matlib")
+                        knownUnknowns.Remove(key);
+                }
             }
 
             List<int> unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
@@ -310,13 +317,23 @@ namespace wow.tools.local.Controllers
                 unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
             }
 
-
             try
             {
                 var mfdStorage = await dbcManager.GetOrLoad("ModelFileData", CASC.BuildName);
                 foreach (dynamic mfdEntry in mfdStorage.Values)
                 {
                     var fdid = (int)mfdEntry.FileDataID;
+
+                    // Skip these for now -- contains M3s
+                    if (mfdEntry.ModelResourcesID == 0)
+                    {
+                        Console.WriteLine("Skipping MFD => M2 mapping for " + fdid + " for having ModelResourcesID 0, likely an M3 file.");
+                        continue;
+                    }
+
+                    if (fdid == 5569152 || fdid == 5916032 || fdid == 6022679) // M3, hopefully these get separate out at some point in ModelFileData through a flag or something
+                        continue;
+
                     if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "m2");
@@ -528,22 +545,35 @@ namespace wow.tools.local.Controllers
                             case "TAFG":
                                 type = "gfat";
                                 break;
-                            case "2s3m":
-                            case "2S3m":
-                            case "HS3m":
-                            case "LS3m":
+                            case "M3DT":
+                            case "M3SI":
+                            case "M3ST":
+                            case "MES3":
+                            case "M3CL":
+                            case "M3SV":
+                            case "M3XF":
+                                type = "m3";
+                                break;
+                            case "m3SL":
+                            case "m3SH":
+                            case "m3SP":
+                            case "m3ST":
+                            case "m3SS":
+                            case "m3MD":
                             case "m3S2":
-                                type = "m3shlib";
-                                break;
-                            case "BD3m":
-                                type = "m3strtbl";
-                                break;
-                            case "LM3m":
-                            case "2M3m":
-                                type = "m3matlib";
+                            case "m3M2":
+                            case "m3DB":
+                            case "m3ML":
+                                type = "mtl3lib";
                                 break;
                             case "*QIL":
                                 type = "liq";
+                                break;
+                            case "<?xm":
+                                type = "xml";
+                                break;
+                            case "???1":
+                                type = "srt";
                                 break;
                             default:
                                 break;
