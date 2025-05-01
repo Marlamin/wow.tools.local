@@ -387,6 +387,51 @@ namespace wow.tools.local.Controllers
 
             try
             {
+                var movieStorage = await dbcManager.GetOrLoad("Movie", CASC.BuildName);
+                foreach (dynamic movieEntry in movieStorage.Values)
+                {
+                    var audioFDID = (int)movieEntry.AudioFileDataID;
+                    if(audioFDID != 0)
+                    {
+                        if (!CASC.Types.TryGetValue(audioFDID, out string? value) || value == "unk")
+                        {
+                            knownUnknowns.TryAdd(audioFDID, "mp3");
+                            unknownFiles.Remove(audioFDID);
+                            CASC.SetFileType(audioFDID, "mp3");
+                        }
+                    }
+
+                    var subtitleFDID = (int)movieEntry.SubtitleFileDataID;
+                    if (subtitleFDID != 0)
+                    {
+                        if (!CASC.Types.TryGetValue(subtitleFDID, out string? value) || value == "unk")
+                        {
+                            var format = (int)movieEntry.SubtitleFileFormat;
+                            var subtitleType = "srt";
+                            if (format == 118)
+                                subtitleType = "srt";
+                            else if (format == 7)
+                                subtitleType = "sbt";
+                            else
+                            {
+                                Console.WriteLine("Unknown subtitle format " + format);
+                                continue;
+                            }
+
+                            knownUnknowns.TryAdd(subtitleFDID, subtitleType);
+                            unknownFiles.Remove(subtitleFDID);
+                            CASC.SetFileType(subtitleFDID, subtitleType);
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with Movie:" + e.Message);
+            }
+
+            try
+            {
                 if (CASC.FileExists(1375802))
                 {
                     var mp3Storage = await dbcManager.GetOrLoad("ManifestMP3", CASC.BuildName);
