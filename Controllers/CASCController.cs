@@ -1405,7 +1405,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt" };
+            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls" };
 
             if (!(CASC.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
@@ -1483,6 +1483,10 @@ namespace wow.tools.local.Controllers
                         }
                     }
                     return JsonConvert.SerializeObject(m2Reader.model, Formatting.Indented, new StringEnumConverter());
+                case "bls":
+                    var blsReader = new BLSReader();
+                    blsReader.LoadBLS(fileDataID);
+                    return JsonConvert.SerializeObject(blsReader.shaderFile, Formatting.Indented, new StringEnumConverter());
                 default:
                     throw new Exception("Unsupported file type");
             }

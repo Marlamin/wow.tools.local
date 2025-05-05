@@ -223,27 +223,35 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             mimeType = "audio/ogg";
         }
         html += "<audio autoplay=\"\" controls=\"\"><source src=\"" + url + "\" type=\"" + mimeType + "\"></audio>";
-    } else if (type == "m2" || type == "wmo") {
+    } else if (type == "m2" || type == "wmo" || type == "bls") {
         html += "<ul class=\"nav nav-tabs\" role=\"tablist\">";
-        html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"modelviewer-tab\" data-bs-toggle=\"tab\" href=\"#modelviewer\" role=\"tab\" aria-controls=\"modelviewer\" aria-selected=\"true\">Modelviewer</a></li>";
-        html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"modelinfo-tab\" data-bs-toggle=\"tab\" href=\"#modelinfo\" role=\"tab\" aria-controls=\"modelinfo\" aria-selected=\"false\">Model info</a></li>";
+        if (type == "m2" || type == "wmo") {
+            html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"modelviewer-tab\" data-bs-toggle=\"tab\" href=\"#modelviewer\" role=\"tab\" aria-controls=\"modelviewer\" aria-selected=\"true\">Modelviewer</a></li>";
+            html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"modelinfo-tab\" data-bs-toggle=\"tab\" href=\"#modelinfo\" role=\"tab\" aria-controls=\"modelinfo\" aria-selected=\"false\">Model info</a></li>";
+        }
+
         html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
         html += "</ul>";
         html += "<div class=\"tab-content\">";
-        html += "<div class=\"tab-pane fade show active\" id=\"modelviewer\" role=\"tabpanel\" aria-labelledby=\"modelviewer-tab\">";
-        html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
-        if (type == "m2") {
-            html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
-        } else if (type == "wmo") {
-            html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
+        if (type == "m2" || type == "wmo") {
+            html += "<div class=\"tab-pane fade show active\" id=\"modelviewer\" role=\"tabpanel\" aria-labelledby=\"modelviewer-tab\">";
+            html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
+            if (type == "m2") {
+                html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
+            } else if (type == "wmo") {
+                html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
+            }
+            html += "</div>";
         }
-        html += "</div>";
+
         html += "<div class=\"tab-pane fade\" id=\"json\" role=\"tabpanel\" aria-labelledby=\"json-tab\">";
         html += "<pre style='max-height: 80vh' id='jsonHolder'></pre>";
         html += "</div>";
-        html += "<div class=\"tab-pane fade\" id=\"modelinfo\" role=\"tabpanel\" aria-labelledby=\"modelinfo-tab\">";
-        html += "<div id='modelinfoHolder'></div>";
-        html += "</div>";
+        if (type == "m2" || type == "wmo") {
+            html += "<div class=\"tab-pane fade\" id=\"modelinfo\" role=\"tabpanel\" aria-labelledby=\"modelinfo-tab\">";
+            html += "<div id='modelinfoHolder'></div>";
+            html += "</div>";
+        }
         html += "</div>";
 
         fetch("/casc/json?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
