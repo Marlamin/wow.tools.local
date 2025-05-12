@@ -225,6 +225,10 @@
     text-align: left
 }
 
+.d2h-file-collapse{
+    display: none;
+}
+
 .d2h-file-list-title {
     font-weight: 700
 }

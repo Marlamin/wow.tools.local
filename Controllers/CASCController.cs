@@ -1112,6 +1112,20 @@ namespace wow.tools.local.Controllers
             var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt" };
 
             var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
+            var js = @"      
+            var d2hConfig = {
+                drawFileList: false,
+                fileListToggle: false,
+                fileListStartVisible: false,
+                fileContentToggle: false,
+                matching: 'lines',
+                outputFormat: 'side-by-side',
+                inputFormat: 'diff',
+                synchronisedScroll: true,
+                highlight: true,
+                renderNothingWhenEmpty: false,
+              };
+            ";
 
             if (!CASC.Types.TryGetValue(fileDataID, out var fileType))
                 fileType = "unk";
@@ -1144,8 +1158,6 @@ namespace wow.tools.local.Controllers
                 html += "<a class='nav-link active' id='text-tab' data-bs-toggle='tab' href='#text' role='tab' aria-controls='text' aria-selected='true'>Text</a>";
                 html += "</li>";
             }
-
-            var js = "";
 
             html += "<li class='nav-item'>";
             html += "<a class='nav-link" + (!hasActiveTab ? " active" : "") + "' id='hex-tab' data-bs-toggle='tab' href='#hex' role='tab' aria-controls='hex' aria-selected='" + (!hasActiveTab ? " true" : "false") + "'>Raw (hex)</a>";
@@ -1233,15 +1245,9 @@ namespace wow.tools.local.Controllers
                                 if(data.length > 1000000)
                                     throw new Error('Too much data');
 
-                                var diffHtml = Diff2Html.html(
-                                    data, {
-                                        inputFormat: 'diff',
-                                        drawFileList: false,
-                                        matching: 'lines',
-                                        outputFormat: 'side-by-side'
-                                    }
-                                    );
-                                document.getElementById('json-content').innerHTML = diffHtml;
+                                var diff2htmlUi = new Diff2HtmlUI(document.getElementById('json-content'), data, d2hConfig);
+                                diff2htmlUi.draw();
+                                diff2htmlUi.highlightCode();
                             } catch (error) {
                                 document.getElementById('json-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                             }
@@ -1275,15 +1281,9 @@ namespace wow.tools.local.Controllers
                                 if(data.length > 1000000)
                                     throw new Error('Too much data');
 
-                                var diffHtml = Diff2Html.html(
-                                    data, {
-                                        inputFormat: 'diff',
-                                        drawFileList: false,
-                                        matching: 'lines',
-                                        outputFormat: 'side-by-side'
-                                    }
-                                    );
-                                document.getElementById('text-content').innerHTML = diffHtml;
+                                var diff2htmlUi = new Diff2HtmlUI(document.getElementById('text-content'), data, d2hConfig);
+                                diff2htmlUi.draw();
+                                diff2htmlUi.highlightCode();
                             } catch (error) {
                                 document.getElementById('text-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                             }
@@ -1306,15 +1306,9 @@ namespace wow.tools.local.Controllers
                                 if(data.length > 1000000)
                                     throw new Error('Too much data');
 
-                                var diffHtml = Diff2Html.html(
-                                    data, {
-                                        inputFormat: 'diff',
-                                        drawFileList: false,
-                                        matching: 'lines',
-                                        outputFormat: 'side-by-side'
-                                    }
-                                    );
-                                document.getElementById('hex-content').innerHTML = diffHtml;
+                                var diff2htmlUi = new Diff2HtmlUI(document.getElementById('hex-content'), data, d2hConfig);
+                                diff2htmlUi.draw();
+                                diff2htmlUi.highlightCode();
                             } catch (error) {
                                 document.getElementById('hex-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                             }
@@ -1354,11 +1348,14 @@ namespace wow.tools.local.Controllers
             if (!Directory.Exists("temp/diffs/" + from))
                 Directory.CreateDirectory("temp/diffs/" + from);
 
+            if (!CASC.Types.TryGetValue(fileDataID, out var fileType))
+                fileType = "txt";
+
             var oldFile = CASC.GetFileByID((uint)fileDataID, from);
             if (oldFile == null)
                 return "Error loading file " + fileDataID + " from build";
 
-            using (var fs = new FileStream("temp/diffs/" + from + "/" + fileDataID, FileMode.Create))
+            using (var fs = new FileStream("temp/diffs/" + from + "/" + fileDataID + "." + fileType, FileMode.Create))
             {
                 oldFile.CopyTo(fs);
             }
@@ -1370,7 +1367,7 @@ namespace wow.tools.local.Controllers
             if (newFile == null)
                 return "Error loading file " + fileDataID + " from build";
 
-            using (var fs = new FileStream("temp/diffs/" + to + "/" + fileDataID, FileMode.Create))
+            using (var fs = new FileStream("temp/diffs/" + to + "/" + fileDataID + "." + fileType, FileMode.Create))
             {
                 newFile.CopyTo(fs);
             }
@@ -1381,7 +1378,7 @@ namespace wow.tools.local.Controllers
                 p.StartInfo.UseShellExecute = false;
                 p.StartInfo.RedirectStandardOutput = true;
                 p.StartInfo.FileName = "git";
-                p.StartInfo.Arguments = "diff --no-index temp/diffs/" + from + "/" + fileDataID + " temp/diffs/" + to + "/" + fileDataID;
+                p.StartInfo.Arguments = "diff --no-index temp/diffs/" + from + "/" + fileDataID + "." + fileType + " temp/diffs/" + to + "/" + fileDataID + "." + fileType;
                 p.Start();
                 string output = p.StandardOutput.ReadToEnd();
                 p.WaitForExit();
