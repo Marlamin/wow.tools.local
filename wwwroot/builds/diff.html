@@ -36,6 +36,9 @@
     <script type="text/javascript" src="/js/anims.js?v=1658923290"></script>
     <script type="text/javascript" src="/js/bufo.js"></script>
     <script type="text/javascript" src="/js/js-blp.js"></script>
+    <link rel='stylesheet' type='text/css' href='/css/diff2html.min.css' />
+    <script src='https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js'></script>
 
 </head>
 <body>
@@ -187,26 +190,26 @@
                                         break;
                                     case "wmo":
                                     case "m2":
-                                        content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                        content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
                                         break;
                                     case "wdt":
                                         if (full.filename.endsWith("_fogs.wdt") || full.filename.endsWith("_occ.wdt") || full.filename.endsWith("_lgt.wdt") || full.filename.endsWith("_mpv.wdt")) {
-                                            content = "N/A";
+                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff (raw)</a>";
                                         } else {
-                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
                                         }
                                     case "adt":
                                         if (full.filename.endsWith("_tex0.adt") || full.filename.endsWith("_obj0.adt") || full.filename.endsWith("_obj1.adt") || full.filename.endsWith("_lod.adt")) {
-                                            content = "N/A";
+                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff (raw)</a>";
                                         } else {
-                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModalJSON(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
+                                            content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff</a>";
                                         }
                                         break;
                                      //case "ogg":
                                      //    content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModalByContenthash(\"<?= $toBuild['hash'] ?>\", \"" + full.id + "\",\"" + full.md5 + "\")'>Preview</a>";
                                      //    break;
                                     default:
-                                        content = "N/A";
+                                        content = "<a style='cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillDiffModal(\"" + from + "\", \"" + to + "\", \"" + full.id + "\")'>Diff (raw)</a>";
                                         break;
                                 }
 

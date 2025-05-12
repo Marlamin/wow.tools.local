@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
 using wow.tools.local.Services;
-using wow.tools.Services;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 using WoWFormatLib.Structs.WDT;
@@ -391,7 +390,7 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic movieEntry in movieStorage.Values)
                 {
                     var audioFDID = (int)movieEntry.AudioFileDataID;
-                    if(audioFDID != 0)
+                    if (audioFDID != 0)
                     {
                         if (!CASC.Types.TryGetValue(audioFDID, out string? value) || value == "unk")
                         {
@@ -1107,79 +1106,226 @@ namespace wow.tools.local.Controllers
 
         [Route("diffFile")]
         [HttpGet]
-        public string DiffFile(int fileDataID, string from, string to, bool json = false)
+        public string DiffFile(int fileDataID, string from, string to)
         {
-            var html = "";
-            if (CASC.Types.TryGetValue(fileDataID, out var fileType))
+            var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt" };
+            var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt" };
+
+            var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
+
+            if (!CASC.Types.TryGetValue(fileDataID, out var fileType))
+                fileType = "unk";
+
+            var hasActiveTab = false;
+
+            if (fileType == "blp")
             {
-                var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt" };
-
-                if (fileType == "blp")
-                {
-                    html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
-                    html += "<li class='nav-item'>";
-                    html += "<a class='nav-link active' id='sbs-tab' data-bs-toggle='tab' href='#sbs' role='tab' aria-controls='sbs' aria-selected='true'>Side-by-Side</a>";
-                    html += "</li>";
-                    html += "<li class='nav-item'>";
-                    html += "<a class='nav-link' id='toggle-tab' data-bs-toggle='tab' href='#toggle' role='tab' aria-controls='toggle' aria-selected='false'>Switcher</a>";
-                    html += "</li>";
-                    //html += "<li class='nav-item'><a class='nav-link' id='imagediff-tab' data-bs-toggle='tab' href='#imagediff' role='tab' aria-controls='imagediff' aria-selected='false'>Diff</a>";
-                    //html += "</li>";
-                    html += "</ul>";
-                    html += "<div class='tab-content'>";
-                    html += "<div class='tab-pane show active' id='sbs' role='tabpanel' aria-labelledby='sbs-tab'>";
-                    html += "<div class='row'>";
-                    html += "<div class='col-md-6' id='from-diff'>";
-                    html += "<h3>Build " + from + " (Before)</h3>";
-                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
-                    html += "</div>";
-                    html += "<div class='col-md-6' id='to-diff'>";
-                    html += "<h3>Build " + to + " (After)</h3>";
-                    html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
-                    html += "</div>";
-                    html += "</div>";
-                    html += "</div>";
-                    html += "<div class='tab-pane' id='toggle' role='tabpanel' aria-labelledby='toggle-tab'>";
-                    html += "<div id='toggle-content' data-current='from'><div class='col-md-6' id='from-diff'><h3>Build </h3><img style='max-width: 100%;' src=''></div></div><button class='btn btn-primary' id='toggle-button'>Switch</button>";
-                    html += "</div>";
-                    html += "</div>";
-                    html += "<script type='text/javascript'>";
-                    html += "$(document).ready(function() { $('#toggle-content').html($('#from-diff').html()); $('#toggle-button').click(function() { if(document.getElementById('toggle-content').dataset.current == 'from'){ $('#toggle-content').html($('#to-diff').html()); document.getElementById('toggle-content').dataset.current = 'to'; }else{ $('#toggle-content').html($('#from-diff').html()); document.getElementById('toggle-content').dataset.current = 'from'; }});});";
-                    html += "</script>";
-                }
-                else if (textTypes.Contains(fileType) || json == true)
-                {
-                    html = @"Note: Git is required to be installed on the system to generate text diffs<br>
-    <link rel='stylesheet' type='text/css' href='/css/diff2html.min.css' />
-    <script src='https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js'></script>
-    <script type='text/javascript' charset='utf-8'>
-        $(document).ready(function() {
-            $.get('";
-
-                    if (json)
-                        html += "/casc/jsonDiff";
-                    else
-                        html += "/casc/diffText";
-
-                    html += "?fileDataID=";
-                    html += fileDataID + "&from=" + from + "&to=" + to;
-
-                    html += @"', function(data) {
-                var diffHtml = Diff2Html.html(
-                    data, {
-                        inputFormat: 'diff',
-                        drawFileList: false,
-                        matching: 'lines',
-                        outputFormat: 'side-by-side'
-                    }
-                    );
-                document.getElementById('rawdiff').innerHTML = diffHtml;
-            });
-        });
-    </script><div id='rawdiff'></div>";
-                }
+                hasActiveTab = true;
+                html += "<li class='nav-item'>";
+                html += "<a class='nav-link active' id='sbs-tab' data-bs-toggle='tab' href='#sbs' role='tab' aria-controls='sbs' aria-selected='true'>Side-by-Side</a>";
+                html += "</li>";
+                html += "<li class='nav-item'>";
+                html += "<a class='nav-link' id='toggle-tab' data-bs-toggle='tab' href='#toggle' role='tab' aria-controls='toggle' aria-selected='false'>Switcher</a>";
+                html += "</li>";
             }
+
+            if (jsonTypes.Contains(fileType))
+            {
+                hasActiveTab = true;
+                html += "<li class='nav-item'>";
+                html += "<a class='nav-link active' id='json-tab' data-bs-toggle='tab' href='#json' role='tab' aria-controls='json' aria-selected='true'>JSON</a>";
+                html += "</li>";
+            }
+
+            if (textTypes.Contains(fileType))
+            {
+                hasActiveTab = true;
+                html += "<li class='nav-item'>";
+                html += "<a class='nav-link active' id='text-tab' data-bs-toggle='tab' href='#text' role='tab' aria-controls='text' aria-selected='true'>Text</a>";
+                html += "</li>";
+            }
+
+            var js = "";
+
+            html += "<li class='nav-item'>";
+            html += "<a class='nav-link" + (!hasActiveTab ? " active" : "") + "' id='hex-tab' data-bs-toggle='tab' href='#hex' role='tab' aria-controls='hex' aria-selected='" + (!hasActiveTab ? " true" : "false") + "'>Raw (hex)</a>";
+            html += "</li>";
+
+            html += "</ul>";
+
+            html += "<div class='tab-content'>";
+            if (fileType == "blp")
+            {
+                // side by side tab
+                html += "<div class='tab-pane active' id='sbs' role='tabpanel' aria-labelledby='sbs-tab'>";
+                html += "<div class='row'>";
+                html += "<div class='col-md-6' id='from-diff'>";
+                html += "<h3>Build " + from + " (Before)</h3>";
+                html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                html += "</div>";
+                html += "<div class='col-md-6' id='to-diff'>";
+                html += "<h3>Build " + to + " (After)</h3>";
+                html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
+                html += "</div>";
+                html += "</div>";
+                html += "</div>";
+
+                // toggle tab
+                html += "<div class='tab-pane' id='toggle' role='tabpanel' aria-labelledby='toggle-tab'>";
+                html += "<div id='toggle-content' data-current='from'>";
+                html += "<div class='col-md-6' id='from-diff'>";
+                html += "<h3>Build </h3><img style='max-width: 100%;' src=''>";
+                html += "</div>";
+                html += "</div>";
+                html += "<button class='btn btn-primary' id='toggle-button'>Switch</button>";
+                html += "</div>";
+                js += @"
+                    $(document).ready(function() { 
+.                       $('#toggle-content').html($('#from-diff').html()); 
+                        $('#toggle-button').click(function() { 
+                            if(document.getElementById('toggle-content').dataset.current == 'from'){ 
+                                $('#toggle-content').html($('#to-diff').html()); 
+                                document.getElementById('toggle-content').dataset.current = 'to'; 
+                            }else{ 
+                                $('#toggle-content').html($('#from-diff').html()); 
+                                document.getElementById('toggle-content').dataset.current = 'from'; 
+                            }
+                        });
+                    });
+                    ";
+            }
+
+            if (jsonTypes.Contains(fileType))
+            {
+                var validFileToJSON = true;
+
+                if (!CASC.Listfile.TryGetValue(fileDataID, out var filename))
+                    filename = "";
+
+                if (fileType == "wdt" && !string.IsNullOrEmpty(filename))
+                {
+                    if (filename.EndsWith("_fogs.wdt") || filename.EndsWith("_occ.wdt") || filename.EndsWith("_lgt.wdt") || filename.EndsWith("_mpv.wdt") || filename.EndsWith("_preload.wdt"))
+                        validFileToJSON = false;
+                }
+
+                if (fileType == "adt" && !string.IsNullOrEmpty(filename))
+                {
+                    if (filename.EndsWith("_tex0.adt") || filename.EndsWith("_obj0.adt") || filename.EndsWith("_obj1.adt") || filename.EndsWith("_lod.adt"))
+                        validFileToJSON = false;
+                }
+
+                html += "<div class='tab-pane active' id='json' role='tabpanel' aria-labelledby='json-tab'>";
+                html += "Note: Git is required to be installed on the system (and in PATH) to generate JSON diffs.<br>";
+
+                if (string.IsNullOrEmpty(filename))
+                    html += "<div class='alert alert-warning'>This file is a file with multiple subtypes (e.g. WDT or ADT) with an unknown filename. The file will be loaded as the main type (root WDT or root ADT), any subtypes will show incorrect information below or cause other issues.</div>";
+
+                if (validFileToJSON)
+                {
+                    html += "<div id='json-content' style='max-height: 100vh'>";
+                    html += "<i class='fa fa-spin fa-spinner'></i>";
+                    html += "</div>";
+
+                    js += @"
+                    $(document).ready(function() {
+                        $.get('/casc/diffJSON?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                            try{
+                                if(data.length > 1000000)
+                                    throw new Error('Too much data');
+
+                                var diffHtml = Diff2Html.html(
+                                    data, {
+                                        inputFormat: 'diff',
+                                        drawFileList: false,
+                                        matching: 'lines',
+                                        outputFormat: 'side-by-side'
+                                    }
+                                    );
+                                document.getElementById('json-content').innerHTML = diffHtml;
+                            } catch (error) {
+                                document.getElementById('json-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
+                            }
+                        });
+                    });
+                ";
+                }
+                else
+                {
+                    html += "<div id='json-content'>";
+                    html += "<div class='alert alert-danger'>File was detected to be a subtype (e.g. non-root ADT/WDT), can not show JSON diffs for these (yet).</div>";
+                    html += "</div>";
+                }
+
+                html += "</div>";
+            }
+
+            if (textTypes.Contains(fileType))
+            {
+                html += "<div class='tab-pane active' id='text' role='tabpanel' aria-labelledby='text-tab'>";
+                html += "Note: Git is required to be installed on the system (and in PATH) to generate text diffs.<br>";
+                html += "<div id='text-content'>";
+                html += "<i class='fa fa-spin fa-spinner'></i>";
+                html += "</div>";
+                html += "</div>";
+
+                js += @"
+                    $(document).ready(function() {
+                        $.get('/casc/diffText?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                            try{
+                                if(data.length > 1000000)
+                                    throw new Error('Too much data');
+
+                                var diffHtml = Diff2Html.html(
+                                    data, {
+                                        inputFormat: 'diff',
+                                        drawFileList: false,
+                                        matching: 'lines',
+                                        outputFormat: 'side-by-side'
+                                    }
+                                    );
+                                document.getElementById('text-content').innerHTML = diffHtml;
+                            } catch (error) {
+                                document.getElementById('text-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
+                            }
+                        });
+                    });
+                ";
+            }
+
+            html += "<div class='tab-pane" + (!hasActiveTab ? " active" : "") + "' id='hex' role='tabpanel' aria-labelledby='hex-tab'>";
+            html += "Note: Git is required to be installed on the system (and in PATH) to generate raw hex diffs.<br>";
+            html += "<div id='hex-content' style='max-height: 100vh'>";
+            html += "<i class='fa fa-spin fa-spinner'></i>";
+            html += "</div>";
+            html += "</div>";
+
+            js += @"
+                $(document).ready(function() {
+                    $.get('/casc/diffHex?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                            try{
+                                if(data.length > 1000000)
+                                    throw new Error('Too much data');
+
+                                var diffHtml = Diff2Html.html(
+                                    data, {
+                                        inputFormat: 'diff',
+                                        drawFileList: false,
+                                        matching: 'lines',
+                                        outputFormat: 'side-by-side'
+                                    }
+                                    );
+                                document.getElementById('hex-content').innerHTML = diffHtml;
+                            } catch (error) {
+                                document.getElementById('hex-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
+                            }
+                    });
+                });
+           ";
+
+            html += "</div>";
+
+            html += "<script type='text/javascript'>" + js + "</script>";
+
             return html;
         }
 
@@ -1492,7 +1638,79 @@ namespace wow.tools.local.Controllers
             }
         }
 
-        [Route("jsonDiff")]
+        [Route("hex")]
+        [HttpGet]
+        public string Hex(uint fileDataID, string? build)
+        {
+            build ??= CASC.BuildName;
+
+            if (!FileProvider.HasProvider(build))
+            {
+                if (build == CASC.BuildName)
+                {
+                    if (CASC.IsCASCLibInit)
+                    {
+                        var casc = new CASCFileProvider();
+                        casc.InitCasc(CASC.cascHandler);
+                        FileProvider.SetProvider(casc, CASC.BuildName);
+                    }
+                    else if (CASC.IsTACTSharpInit)
+                    {
+                        var tact = new TACTSharpFileProvider();
+                        tact.InitTACT(CASC.buildInstance);
+                        FileProvider.SetProvider(tact, CASC.BuildName);
+                    }
+                }
+                else
+                {
+                    var wago = new WagoFileProvider();
+                    wago.SetBuild(build);
+                    FileProvider.SetProvider(wago, build);
+                }
+            }
+
+            FileProvider.SetDefaultBuild(build);
+
+            using (var stream = FileProvider.OpenFile(fileDataID))
+            {
+                var hex = new StringBuilder();
+                var ascii = new StringBuilder();
+                using (var reader = new BinaryReader(stream))
+                {
+                    for (int i = 0; i < stream.Length; i++)
+                    {
+                        if (i % 16 == 0)
+                        {
+                            if (i != 0)
+                            {
+                                hex.Append("  ").Append(ascii).AppendLine();
+                                ascii.Clear();
+                            }
+
+                            hex.Append($"{i:X8}: ");
+                        }
+
+                        var rawByte = reader.ReadByte();
+                        hex.Append($"{rawByte:X2} ");
+                        ascii.Append(rawByte >= 32 && rawByte <= 126 ? (char)rawByte : '.');
+                    }
+
+                    // append leftovers
+                    if (ascii.Length > 0)
+                    {
+                        int padding = 16 - (int)(stream.Length % 16);
+                        if (padding < 16)
+                        {
+                            hex.Append(new string(' ', padding * 3));
+                        }
+                        hex.Append("  ").Append(ascii);
+                    }
+                }
+                return hex.ToString();
+            }
+        }
+
+        [Route("diffJSON")]
         [HttpGet]
         public string JsonDiff(uint fileDataID, string from, string to)
         {
@@ -1516,6 +1734,42 @@ namespace wow.tools.local.Controllers
                 p.StartInfo.RedirectStandardOutput = true;
                 p.StartInfo.FileName = "git";
                 p.StartInfo.Arguments = "diff --no-index temp/diffs/" + from + "/" + fileDataID + ".json" + " temp/diffs/" + to + "/" + fileDataID + ".json";
+                p.Start();
+                string output = p.StandardOutput.ReadToEnd();
+                p.WaitForExit();
+                return output;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error generating diff: " + e.Message);
+                return "Error generating diff: " + e.Message;
+            }
+        }
+
+        [Route("diffHex")]
+        [HttpGet]
+        public string HexDiff(uint fileDataID, string from, string to)
+        {
+            var oldJson = Hex(fileDataID, from);
+            var newJson = Hex(fileDataID, to);
+
+            if (!Directory.Exists("temp/diffs/" + from))
+                Directory.CreateDirectory("temp/diffs/" + from);
+
+            System.IO.File.WriteAllText("temp/diffs/" + from + "/" + fileDataID + ".hexdump", oldJson);
+
+            if (!Directory.Exists("temp/diffs/" + to))
+                Directory.CreateDirectory("temp/diffs/" + to);
+
+            System.IO.File.WriteAllText("temp/diffs/" + to + "/" + fileDataID + ".hexdump", newJson);
+
+            try
+            {
+                Process p = new();
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.FileName = "git";
+                p.StartInfo.Arguments = "diff --no-index temp/diffs/" + from + "/" + fileDataID + ".hexdump" + " temp/diffs/" + to + "/" + fileDataID + ".hexdump";
                 p.Start();
                 string output = p.StandardOutput.ReadToEnd();
                 p.WaitForExit();
