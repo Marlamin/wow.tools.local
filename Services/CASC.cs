@@ -235,6 +235,8 @@ namespace wow.tools.local.Services
                 installTags.Add(installTag.name, cascInstallTag);
             }
 
+            InstallEntries.Clear();
+
             foreach (var installEntry in buildInstance.Install.Entries)
             {
                 var cascInstallEntry = new InstallEntry()
