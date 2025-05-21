@@ -159,6 +159,8 @@ namespace wow.tools.local.Controllers
                 var ribbitClient = new Ribbit.Protocol.Client("us.version.battle.net", 1119);
                 RibbitCache["v1/summary"] = ribbitClient.Request("v1/summary").ToString();
 
+                List<(string buildConfig, string cdnConfig)> availableRemoteBuilds = new();
+
                 var builds = new Ribbit.Parsing.BPSV(RibbitCache["v1/summary"]);
                 foreach (var product in builds.data)
                 {
@@ -192,11 +194,30 @@ namespace wow.tools.local.Controllers
                         var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
                         var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
 
+                        availableRemoteBuilds.Add((splitLine[1], splitLine[2]));
+
                         result.data.Add([patch, build, product[0], splitLine[1], splitLine[2], isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
                     }
 
                     // sort by build
                     result.data = result.data.OrderByDescending(x => x[1]).ToList();
+                }
+
+                if (CASC.IsOnline && !availableRemoteBuilds.Any(x => x.buildConfig == CASC.buildInstance.Settings.BuildConfig && x.cdnConfig == CASC.buildInstance.Settings.CDNConfig))
+                {
+                    var isActive = true;
+
+                    var splitVersion = CASC.BuildName.Split(".");
+                    var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
+                    var build = splitVersion[3];
+
+                    var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
+                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
+
+                    result.data.Add([patch, build, "unknown", CASC.buildInstance.Settings.BuildConfig, CASC.buildInstance.Settings.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
+
+                    // sort by build
+                    result.data = result.data.OrderByDescending(x => x[5]).ThenByDescending(x => x[1]).ToList();
                 }
             }
 
