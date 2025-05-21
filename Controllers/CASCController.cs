@@ -1165,7 +1165,7 @@ namespace wow.tools.local.Controllers
 
             html += "</ul>";
 
-            html += "<div class='tab-content'>";
+            html += "<div class='tab-content' style='min-height: 256px;'>";
             if (fileType == "blp")
             {
                 // side by side tab
@@ -1186,23 +1186,25 @@ namespace wow.tools.local.Controllers
                 html += "<div class='tab-pane' id='toggle' role='tabpanel' aria-labelledby='toggle-tab'>";
                 html += "<div id='toggle-content' data-current='from'>";
                 html += "<div class='col-md-6' id='from-diff'>";
-                html += "<h3>Build </h3><img style='max-width: 100%;' src=''>";
+                html += "<h3>Build " + from + " (Before)</h3>";
+                html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
                 html += "</div>";
                 html += "</div>";
                 html += "<button class='btn btn-primary' id='toggle-button'>Switch</button>";
                 html += "</div>";
                 js += @"
-                    $(document).ready(function() { 
-.                       $('#toggle-content').html($('#from-diff').html()); 
-                        $('#toggle-button').click(function() { 
-                            if(document.getElementById('toggle-content').dataset.current == 'from'){ 
-                                $('#toggle-content').html($('#to-diff').html()); 
-                                document.getElementById('toggle-content').dataset.current = 'to'; 
-                            }else{ 
-                                $('#toggle-content').html($('#from-diff').html()); 
-                                document.getElementById('toggle-content').dataset.current = 'from'; 
-                            }
-                        });
+                    $('#toggle-button').click(function() { 
+                        let toggleDiv = document.getElementById('toggle-content');
+                        let fromHTML = document.getElementById('from-diff').innerHTML;
+                        let toHTML = document.getElementById('to-diff').innerHTML;
+                        
+                        if(toggleDiv.dataset.current == 'from'){ 
+                            $('#toggle-content').html(toHTML); 
+                            toggleDiv.dataset.current = 'to'; 
+                        } else { 
+                            $('#toggle-content').html(fromHTML); 
+                            toggleDiv.dataset.current = 'from'; 
+                        }
                     });
                     ";
             }
