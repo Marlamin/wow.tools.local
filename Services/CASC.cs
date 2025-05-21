@@ -162,11 +162,16 @@ namespace wow.tools.local.Services
 
             #region Configs
             if(SettingsManager.wowProduct == "wowdev")
+            {
                 buildInstance.cdn.ProductDirectory = "tpr/wowdev";
+                buildInstance.Settings.TryCDN = false;
+            }
             else
+            {
                 buildInstance.cdn.ProductDirectory = "tpr/wow";
-            
-            if(!string.IsNullOrEmpty(SettingsManager.cdnFolder))
+            }
+
+            if (!string.IsNullOrEmpty(SettingsManager.cdnFolder))
                 buildInstance.Settings.CDNDir = SettingsManager.cdnFolder;
 
             if (!IsOnline)
