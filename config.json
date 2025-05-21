@@ -8,6 +8,7 @@
     "wowFolder": "C:\\World of Warcraft",
     "wowProduct": "wow",
     "region": "eu",
+    "cdnFolder": "",
     "locale": "enUS",
     "showAllFiles": false,
     "extractionDir": "extract",

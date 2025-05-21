@@ -10,6 +10,7 @@ namespace wow.tools.local
         public static string wowFolder;
         public static string dbcFolder;
         public static string manifestFolder;
+        public static string cdnFolder;
         public static string wowProduct;
         public static string region;
         public static CASCLib.LocaleFlags cascLocale;
@@ -26,6 +27,7 @@ namespace wow.tools.local
         private const string _dbdFolderFlag = "-dbdFolder";
         private const string _dbcFolderFlag = "-dbcFolder";
         private const string _manifestFolderFlag = "-manifestFolder";
+        private const string _cdnFolderFlag = "-cdnFolder";
         private const string _listfileURLFlag = "-listfileURL";
         private const string _tactKeyURLFlag = "-tactKeyURL";
         private const string _regionFlag = "-region";
@@ -112,6 +114,7 @@ namespace wow.tools.local
 
             dbcFolder = config.GetSection("config")["dbcFolder"];
             wowFolder = config.GetSection("config")["wowFolder"];
+            cdnFolder = config.GetSection("config")["cdnFolder"];
             wowProduct = config.GetSection("config")["wowProduct"];
             showAllFiles = config.GetSection("config").GetValue<bool>("showAllFiles");
             extractionDir = config.GetSection("config")["extractionDir"];
@@ -187,6 +190,9 @@ namespace wow.tools.local
                         break;
                     case (_manifestFolderFlag):
                         manifestFolder = value;
+                        break;
+                    case (_cdnFolderFlag):
+                        cdnFolder = value;
                         break;
                     case (_listfileURLFlag):
                         listfileURL = value;

@@ -100,6 +100,7 @@ namespace wow.tools.local.Services
 
             string buildConfig;
             string cdnConfig;
+            bool loadOnline = false;
             if (wowFolder != null && string.IsNullOrEmpty(overrideBC) && string.IsNullOrEmpty(overrideCDNC))
             {
                 // Load from build.info
@@ -112,20 +113,30 @@ namespace wow.tools.local.Services
                 var buildInfo = new BuildInfo(buildInfoPath, buildInstance.Settings, buildInstance.cdn);
 
                 if (!buildInfo.Entries.Any(x => x.Product == product))
-                    throw new Exception("No build found for product " + product);
+                {
+                    Console.WriteLine("No .build.info found for product " + product + ", falling back to online mode.");
+                    loadOnline = true;
+                }
+                else
+                {
+                    var build = buildInfo.Entries.First(x => x.Product == product);
 
-                var build = buildInfo.Entries.First(x => x.Product == product);
+                    if (buildInstance.Settings.BuildConfig == null)
+                        buildInstance.Settings.BuildConfig = build.BuildConfig;
 
-                if (buildInstance.Settings.BuildConfig == null)
-                    buildInstance.Settings.BuildConfig = build.BuildConfig;
-
-                if (buildInstance.Settings.CDNConfig == null)
-                    buildInstance.Settings.CDNConfig = build.CDNConfig;
+                    if (buildInstance.Settings.CDNConfig == null)
+                        buildInstance.Settings.CDNConfig = build.CDNConfig;
+                }
             }
             else
             {
+                loadOnline = true;
+            }
+
+            if(loadOnline)
+            {
                 IsOnline = true;
-                if(!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC))
+                if (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC))
                 {
                     buildInstance.Settings.BuildConfig = overrideBC;
                     buildInstance.Settings.CDNConfig = overrideCDNC;
@@ -150,16 +161,37 @@ namespace wow.tools.local.Services
             }
 
             #region Configs
-            buildInstance.cdn.ProductDirectory = "tpr/wow";
+            if(SettingsManager.wowProduct == "wowdev")
+                buildInstance.cdn.ProductDirectory = "tpr/wowdev";
+            else
+                buildInstance.cdn.ProductDirectory = "tpr/wow";
             
-            if(!IsOnline)
-                buildInstance.cdn.OpenLocal();
-            
-            buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
-            buildInstance.Load();
+            if(!string.IsNullOrEmpty(SettingsManager.cdnFolder))
+                buildInstance.Settings.CDNDir = SettingsManager.cdnFolder;
 
-            if (buildInstance.BuildConfig == null || buildInstance.CDNConfig == null)
-                throw new Exception("Failed to load configs");
+            if (!IsOnline)
+                buildInstance.cdn.OpenLocal();
+
+            try
+            {
+                buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
+                if (buildInstance.BuildConfig == null || buildInstance.CDNConfig == null)
+                    throw new Exception("Failed to load configs");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load configs: " + e.Message);
+                return;
+            }
+
+            try
+            {
+                buildInstance.Load();
+            }catch(Exception e)
+            {
+                Console.WriteLine("Failed to load build: " + e.Message);
+                return;
+            }
 
             if (!buildInstance.BuildConfig.Values.TryGetValue("encoding", out var encodingKey))
                 throw new Exception("No encoding key found in build config");
