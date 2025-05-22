@@ -537,9 +537,7 @@ namespace wow.tools.local.Controllers
                                 type = "blp";
                                 break;
                             case "REVM":
-                                var length = bin.ReadInt32();
-                                bin.ReadBytes(length);
-
+                                bin.ReadBytes(8); // length + ver
                                 var secondChunk = bin.ReadBytes(4);
                                 var subChunk = Encoding.ASCII.GetString(secondChunk);
                                 switch (subChunk)
@@ -574,6 +572,9 @@ namespace wow.tools.local.Controllers
                                         break;
                                     case "DHPM": // WDT root
                                     case "IOAM": // WDT OCC/LGT
+                                    case "3LPM":
+                                    case "IMVP": // WDT MPV
+                                    case "GOFV": // WDT FOGS
                                         type = "wdt";
                                         break;
                                     default:

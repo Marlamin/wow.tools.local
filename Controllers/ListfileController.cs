@@ -3,9 +3,10 @@ using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
 using System.Globalization;
-using System.Reflection.Metadata.Ecma335;
 using wow.tools.local.Services;
 using wow.tools.Services;
+using WoWFormatLib.FileProviders;
+using WoWFormatLib.FileReaders;
 
 namespace wow.tools.local.Controllers
 {
@@ -417,7 +418,7 @@ namespace wow.tools.local.Controllers
             {
                 installResults = installResults.Where(x => x.Name.Contains(search)).ToList();
             }
-            
+
             foreach (var installResult in installResults.Skip(start).Take(length))
             {
                 result.data.Add(
@@ -473,7 +474,7 @@ namespace wow.tools.local.Controllers
 
             if (!string.IsNullOrEmpty(SettingsManager.dbcFolder))
             {
-                if(!Directory.Exists(SettingsManager.dbcFolder))
+                if (!Directory.Exists(SettingsManager.dbcFolder))
                     Directory.CreateDirectory(SettingsManager.dbcFolder);
 
                 var dbcFolder = new DirectoryInfo(SettingsManager.dbcFolder);
@@ -483,19 +484,19 @@ namespace wow.tools.local.Controllers
 
                     if (!versionList.ContainsKey(buildAsVersion))
                     {
-                        if(System.IO.File.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", databaseName + ".db2")) || System.IO.File.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", databaseName + ".dbc")))
+                        if (System.IO.File.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", databaseName + ".db2")) || System.IO.File.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", databaseName + ".dbc")))
                         {
                             versionList.Add(buildAsVersion, "disk");
                             continue;
                         }
-                        else if(
-                            (buildAsVersion.Major > 6) || 
-                            (buildAsVersion.Major == 1 && buildAsVersion.Minor >= 13) || 
-                            (buildAsVersion.Major == 2 && buildAsVersion.Minor >= 5) || 
+                        else if (
+                            (buildAsVersion.Major > 6) ||
+                            (buildAsVersion.Major == 1 && buildAsVersion.Minor >= 13) ||
+                            (buildAsVersion.Major == 2 && buildAsVersion.Minor >= 5) ||
                             (buildAsVersion.Major == 3 && buildAsVersion.Minor >= 4) ||
                             (buildAsVersion.Major == 4 && buildAsVersion.Minor >= 4) ||
                             (buildAsVersion.Major == 5 && buildAsVersion.Minor >= 5)
-                            ) 
+                            )
                         {
                             versionList.Add(buildAsVersion, "online");
                             continue;
@@ -577,6 +578,262 @@ namespace wow.tools.local.Controllers
                         }
 
                         var path = Path.Combine(SettingsManager.extractionDir, filePath);
+                        if (!Directory.Exists(Path.GetDirectoryName(path)))
+                            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+
+                        using (var fs = new FileStream(path, FileMode.Create))
+                            await file.CopyToAsync(fs);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to extract " + result.Key + ": " + e.Message);
+                }
+            }
+
+            return true;
+        }
+
+        [Route("extractFileList")]
+        [HttpGet]
+        public async Task<bool> ExtractFileList(string listfile, bool related = false, string exceptInBuild = "")
+        {
+            if (string.IsNullOrEmpty(listfile))
+                return false;
+
+            var listfileResults = new Dictionary<int, string>();
+            foreach (var line in System.IO.File.ReadAllLines(listfile))
+            {
+                if (string.IsNullOrEmpty(line))
+                    continue;
+                var split = line.Split(";");
+                if (split.Length > 1)
+                {
+                    var fdid = int.Parse(split[0]);
+                    var filename = split[1];
+                    listfileResults.Add(fdid, filename);
+                }
+            }
+
+            var skipFDIDs = new HashSet<int>();
+
+            if (!string.IsNullOrEmpty(exceptInBuild))
+            {
+                if (!System.IO.File.Exists(Path.Combine("manifests", exceptInBuild + ".txt")))
+                {
+                    Console.WriteLine("Manifest file for build {0} not found", exceptInBuild);
+                }
+                else
+                {
+                    var oldBuildFiles = new List<int>();
+                    foreach (var line in System.IO.File.ReadAllLines(Path.Combine("manifests", exceptInBuild + ".txt")))
+                    {
+                        var splitLine = line.Split(";");
+                        if (splitLine.Length != 2)
+                            continue;
+
+                        var fdid = int.Parse(splitLine[0]);
+                        skipFDIDs.Add(fdid);
+                    }
+                }
+            }
+
+            if (related)
+            {
+                if (!FileProvider.HasProvider(CASC.BuildName))
+                {
+                    if (CASC.IsCASCLibInit)
+                    {
+                        var casc = new CASCFileProvider();
+                        casc.InitCasc(CASC.cascHandler);
+                        FileProvider.SetProvider(casc, CASC.BuildName);
+                    }
+                    else if (CASC.IsTACTSharpInit)
+                    {
+                        var tact = new TACTSharpFileProvider();
+                        tact.InitTACT(CASC.buildInstance);
+                        FileProvider.SetProvider(tact, CASC.BuildName);
+                    }
+                }
+
+                var listfileResultsCopy = new Dictionary<int, string>(listfileResults);
+
+                // first do WMOs, they can also add M2s to the list
+                foreach (var result in listfileResultsCopy)
+                {
+                    if (skipFDIDs.Contains(result.Key))
+                        continue;
+
+                    if (!CASC.AvailableFDIDs.Contains(result.Key))
+                    {
+                        Console.WriteLine("File " + result.Key + " (" + result.Value + ") not found in CASC, skipping");
+                        continue;
+                    }
+
+                    var fileDataID = result.Key;
+
+                    var ext = Path.GetExtension(result.Value).ToLowerInvariant();
+                    if (ext != ".wmo")
+                        continue;
+
+                    try
+                    {
+                        var reader = new WMOReader();
+                        var wmo = new WoWFormatLib.Structs.WMO.WMO();
+                        try
+                        {
+                            wmo = reader.LoadWMO((uint)result.Key);
+                        }
+                        catch (NotSupportedException e)
+                        {
+                            Console.WriteLine("[WMO] " + fileDataID + " is a group WMO, skipping..");
+                            continue;
+                        }
+
+                        if (wmo.groupFileDataIDs != null)
+                            foreach (var groupFileDataID in wmo.groupFileDataIDs)
+                                listfileResults.TryAdd((int)groupFileDataID, CASC.Listfile.TryGetValue((int)groupFileDataID, out var fn) ? fn : "unknown/" + groupFileDataID.ToString() + ".wmo");
+
+                        if (wmo.doodadIds != null)
+                            foreach (var doodadID in wmo.doodadIds)
+                                listfileResults.TryAdd((int)doodadID, CASC.Listfile.TryGetValue((int)doodadID, out var fn) ? fn : "unknown/" + doodadID.ToString() + ".m2");
+
+                        if(wmo.newLightDefinitions != null)
+                            foreach(var light in wmo.newLightDefinitions)
+                                if(light.lightCookieFileID != 0)
+                                    listfileResults.TryAdd((int)light.lightCookieFileID, CASC.Listfile.TryGetValue((int)light.lightCookieFileID, out var fn) && !string.IsNullOrEmpty(fn) ? fn : "unknown/" + light.lightCookieFileID.ToString() + ".blp");
+
+                        if (wmo.textures == null && wmo.materials != null)
+                        {
+                            foreach (var material in wmo.materials)
+                            {
+                                if (material.texture1 != 0)
+                                    listfileResults.TryAdd((int)material.texture1, CASC.Listfile.TryGetValue((int)material.texture1, out var fn) ? fn : "unknown/" + material.texture1.ToString() + ".blp");
+
+                                if (material.texture2 != 0 && !listfileResults.ContainsKey((int)material.texture2))
+                                    listfileResults.TryAdd((int)material.texture2, CASC.Listfile.TryGetValue((int)material.texture2, out var fn) ? fn : "unknown/" + material.texture2.ToString() + ".blp");
+
+                                if (material.texture3 != 0 && !listfileResults.ContainsKey((int)material.texture3))
+                                    listfileResults.TryAdd((int)material.texture3, CASC.Listfile.TryGetValue((int)material.texture3, out var fn) ? fn : "unknown/" + material.texture3.ToString() + ".blp");
+
+                                if ((uint)material.shader == 23)
+                                {
+                                    if (material.color3 != 0)
+                                        listfileResults.TryAdd((int)material.color3, CASC.Listfile.TryGetValue((int)material.color3, out var fn) ? fn : "unknown/" + material.color3.ToString() + ".blp");
+
+                                    if (material.flags3 != 0)
+                                        listfileResults.TryAdd((int)material.flags3, CASC.Listfile.TryGetValue((int)material.flags3, out var fn) ? fn : "unknown/" + material.flags3.ToString() + ".blp");
+
+                                    if (material.runtimeData0 != 0)
+                                        listfileResults.TryAdd((int)material.runtimeData0, CASC.Listfile.TryGetValue((int)material.runtimeData0, out var fn) ? fn : "unknown/" + material.runtimeData0.ToString() + ".blp");
+
+                                    if (material.runtimeData1 != 0)
+                                        listfileResults.TryAdd((int)material.runtimeData1, CASC.Listfile.TryGetValue((int)material.runtimeData1, out var fn) ? fn : "unknown/" + material.runtimeData1.ToString() + ".blp");
+
+                                    if (material.runtimeData2 != 0)
+                                        listfileResults.TryAdd((int)material.runtimeData2, CASC.Listfile.TryGetValue((int)material.runtimeData2, out var fn) ? fn : "unknown/" + material.runtimeData2.ToString() + ".blp");
+
+                                    if (material.runtimeData3 != 0)
+                                        listfileResults.TryAdd((int)material.runtimeData3, CASC.Listfile.TryGetValue((int)material.runtimeData3, out var fn) ? fn : "unknown/" + material.runtimeData3.ToString() + ".blp");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message + "\n" + e.StackTrace);
+                    }
+                }
+
+                listfileResultsCopy = new Dictionary<int, string>(listfileResults);
+
+                foreach (var result in listfileResultsCopy)
+                {
+                    if (skipFDIDs.Contains(result.Key))
+                        continue;
+
+                    if (!CASC.AvailableFDIDs.Contains(result.Key))
+                    {
+                        Console.WriteLine("File " + result.Key + " (" + result.Value + ") not found in CASC, skipping");
+                        continue;
+                    }
+
+                    uint fileDataID = (uint)result.Key;
+
+                    var ext = Path.GetExtension(result.Value).ToLowerInvariant();
+                    if (ext == ".m2")
+                    {
+                        if (!CASC.FileExists(fileDataID))
+                            continue;
+
+                        try
+                        {
+                            var reader = new M2Reader();
+                            reader.LoadM2(fileDataID, false);
+
+                            if (reader.model.textureFileDataIDs != null)
+                                foreach (var textureID in reader.model.textureFileDataIDs)
+                                    listfileResults.TryAdd((int)textureID, CASC.Listfile.TryGetValue((int)textureID, out var fn) ? fn : "unknown/" + textureID.ToString() + ".blp");
+
+
+                            if (reader.model.animFileDataIDs != null)
+                            {
+                                foreach (var animFileID in reader.model.animFileDataIDs)
+                                    listfileResults.TryAdd((int)animFileID.fileDataID, CASC.Listfile.TryGetValue((int)animFileID.fileDataID, out var fn) ? fn : "unknown/" + animFileID.fileDataID.ToString() + ".anim");
+                            }
+
+                            if (reader.model.skinFileDataIDs != null)
+                                foreach (var skinFileID in reader.model.skinFileDataIDs)
+                                    listfileResults.TryAdd((int)skinFileID, CASC.Listfile.TryGetValue((int)skinFileID, out var fn) ? fn : "unknown/" + skinFileID.ToString() + ".skin");
+
+                            if (reader.model.boneFileDataIDs != null)
+                                foreach (var boneFileID in reader.model.boneFileDataIDs)
+                                    listfileResults.TryAdd((int)boneFileID, CASC.Listfile.TryGetValue((int)boneFileID, out var fn) ? fn : "unknown/" + boneFileID.ToString() + ".bone");
+
+                            if (reader.model.recursiveParticleModelFileIDs != null)
+                                foreach (var rpID in reader.model.recursiveParticleModelFileIDs)
+                                    listfileResults.TryAdd((int)rpID, CASC.Listfile.TryGetValue((int)rpID, out var fn) ? fn : "unknown/" + rpID.ToString() + ".m2");
+
+                            if (reader.model.geometryParticleModelFileIDs != null)
+                                foreach (var gpID in reader.model.geometryParticleModelFileIDs)
+                                    listfileResults.TryAdd((int)gpID, CASC.Listfile.TryGetValue((int)gpID, out var fn) ? fn : "unknown/" + gpID.ToString() + ".m2");
+
+                            listfileResults.TryAdd((int)reader.model.skelFileID, CASC.Listfile.TryGetValue((int)reader.model.skelFileID, out var sfn) ? sfn : "unknown/" + reader.model.skelFileID.ToString() + ".skel");
+
+                            listfileResults.TryAdd((int)reader.model.physFileID, CASC.Listfile.TryGetValue((int)reader.model.physFileID, out var pfn) ? pfn : "unknown/" + reader.model.physFileID.ToString() + ".m2");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message + "\n" + e.StackTrace);
+                        }
+                    }
+                }
+            }
+
+            foreach (var result in listfileResults)
+            {
+                if (skipFDIDs.Contains(result.Key))
+                    continue;
+
+                var filePath = result.Value;
+
+                try
+                {
+                    using (var file = CASC.GetFileByID((uint)result.Key))
+                    {
+                        if (file == null)
+                            continue;
+
+                        if (string.IsNullOrEmpty(result.Value))
+                        {
+                            if (CASC.Types.TryGetValue(result.Key, out var type))
+                                filePath = "unknown/" + result.Key.ToString() + "." + CASC.Types[result.Key];
+                            else
+                                filePath = "unknown/" + result.Key.ToString() + ".unk";
+                        }
+
+                        var path = Path.Combine(SettingsManager.extractionDir, filePath);
+
                         if (!Directory.Exists(Path.GetDirectoryName(path)))
                             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
@@ -678,7 +935,7 @@ namespace wow.tools.local.Controllers
 
                 foreach (var kvp in sortedMap.ToImmutableSortedDictionary())
                 {
-                    if(!string.IsNullOrEmpty(type))
+                    if (!string.IsNullOrEmpty(type))
                     {
                         if (!CASC.TypeMap.ContainsKey(type))
                             throw new Exception("Unknown type");
@@ -687,15 +944,15 @@ namespace wow.tools.local.Controllers
                             continue;
                     }
 
-                    if(CASC.Listfile.TryGetValue(kvp.Key, out var filename))
+                    if (CASC.Listfile.TryGetValue(kvp.Key, out var filename))
                     {
-                        if(hasher.ComputeHash(filename) != kvp.Value)
+                        if (hasher.ComputeHash(filename) != kvp.Value)
                         {
-                            Console.WriteLine("Including currently incorrect filename for filedata ID " + kvp.Key + " (" + filename +")");
+                            Console.WriteLine("Including currently incorrect filename for filedata ID " + kvp.Key + " (" + filename + ")");
                             sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
                         }
                     }
-                    else if(CASC.AvailableFDIDs.Contains(kvp.Key))
+                    else if (CASC.AvailableFDIDs.Contains(kvp.Key))
                     {
                         sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
                     }
