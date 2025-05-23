@@ -434,9 +434,11 @@
 
             $("#files").on('draw.dt', function () {
                 if (Elements.currentID == 0) {
-                    const data = Elements.table.row(0).data();
-                    Elements.currentID = data[0];
-                    loadFile(data[0], data[1]);
+                    if (Elements.table.rows().count() > 0) {
+                        const data = Elements.table.row(0).data();
+                        Elements.currentID = data[0];
+                        loadFile(data[0], data[1]);
+                    }
                 }
 
                 var currentSearch = encodeURIComponent($("#dt-search-0").val());
