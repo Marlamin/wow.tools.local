@@ -1266,7 +1266,7 @@ namespace wow.tools.local.Controllers
                     $(document).ready(function() {
                         $.get('/casc/diffJSON?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
                             try{
-                                if(data.length > 1000000)
+                                if(data.length > 10000000)
                                     throw new Error('Too much data');
 
                                 var diff2htmlUi = new Diff2HtmlUI(document.getElementById('json-content'), data, d2hConfig);
@@ -1302,7 +1302,7 @@ namespace wow.tools.local.Controllers
                     $(document).ready(function() {
                         $.get('/casc/diffText?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
                             try{
-                                if(data.length > 1000000)
+                                if(data.length > 10000000)
                                     throw new Error('Too much data');
 
                                 var diff2htmlUi = new Diff2HtmlUI(document.getElementById('text-content'), data, d2hConfig);
@@ -1327,7 +1327,7 @@ namespace wow.tools.local.Controllers
                 $(document).ready(function() {
                     $.get('/casc/diffHex?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
                             try{
-                                if(data.length > 1000000)
+                                if(data.length > 10000000)
                                     throw new Error('Too much data');
 
                                 var diff2htmlUi = new Diff2HtmlUI(document.getElementById('hex-content'), data, d2hConfig);
