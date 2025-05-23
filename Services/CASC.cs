@@ -195,6 +195,7 @@ namespace wow.tools.local.Services
             }catch(Exception e)
             {
                 Console.WriteLine("Failed to load build: " + e.Message);
+                Console.WriteLine(e.StackTrace);
                 return;
             }
 
