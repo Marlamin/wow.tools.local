@@ -13,6 +13,7 @@
     "showAllFiles": false,
     "extractionDir": "extract",
     "preferHighResTextures": false,
-    "useTACTSharp": true
+    "useTACTSharp": true,
+    "additionalCDNs": ""
   }
 }

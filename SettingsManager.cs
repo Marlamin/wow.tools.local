@@ -19,6 +19,7 @@ namespace wow.tools.local
         public static string extractionDir;
         public static bool preferHighResTextures = false;
         public static bool useTACTSharp = false;
+        public static string[] additionalCDNs = Array.Empty<string>();
 
         // supported command line flags and switches
         // flag syntax: -flag value || -flag=value or --switch
@@ -36,6 +37,7 @@ namespace wow.tools.local
         private const string _extractionDirFlag = "-extractionDir";
         private const string _preferHighResTexturesFlag = "-preferHighResTextures";
         private const string _useTACTSharpFlag = "-useTACTSharp";
+        private const string _additionalCDNsFlag = "-additionalCDNs";
 
         // calling the double-hyphen args 'switch' instead of 'flag' because they don't have values
         private const string _debugSwitch = "--debug";
@@ -120,6 +122,7 @@ namespace wow.tools.local
             extractionDir = config.GetSection("config")["extractionDir"];
             preferHighResTextures = config.GetSection("config").GetValue<bool>("preferHighResTextures");
             useTACTSharp = config.GetSection("config").GetValue<bool>("useTACTSharp");
+            additionalCDNs = config.GetSection("config")["additionalCDNs"]?.Split(',') ?? Array.Empty<string>();
         }
 
         private static void SetLocale(string locValue)
@@ -217,6 +220,9 @@ namespace wow.tools.local
                         break;
                     case (_useTACTSharpFlag):
                         useTACTSharp = bool.Parse(value);
+                        break;
+                    case (_additionalCDNsFlag):
+                        additionalCDNs = value.Split(',');
                         break;
                 }
             }

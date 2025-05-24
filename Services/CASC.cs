@@ -97,6 +97,7 @@ namespace wow.tools.local.Services
             }
 
             buildInstance.Settings.RootMode = RootInstance.LoadMode.Full;
+            buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.additionalCDNs);
 
             string buildConfig;
             string cdnConfig;
