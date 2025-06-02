@@ -1221,10 +1221,10 @@ namespace wow.tools.local.Controllers
                         let toHTML = document.getElementById('to-diff').innerHTML;
                         
                         if(toggleDiv.dataset.current == 'from'){ 
-                            $('#toggle-content').html(toHTML); 
+                            toggleDiv.innerHTML = toHTML; 
                             toggleDiv.dataset.current = 'to'; 
                         } else { 
-                            $('#toggle-content').html(fromHTML); 
+                            toggleDiv.innerHTML = fromHTML; 
                             toggleDiv.dataset.current = 'from'; 
                         }
                     });
@@ -1323,21 +1323,25 @@ namespace wow.tools.local.Controllers
             html += "</div>";
             html += "</div>";
 
-            js += @"
-                $(document).ready(function() {
-                    $.get('/casc/diffHex?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
-                            try{
-                                if(data.length > 10000000)
-                                    throw new Error('Too much data');
+            if (!hasActiveTab)
+                js += "$(document).ready(function() {";
+            else
+                js += "$('#hex-tab').on('click', function() {";
 
-                                var diff2htmlUi = new Diff2HtmlUI(document.getElementById('hex-content'), data, d2hConfig);
-                                diff2htmlUi.draw();
-                                diff2htmlUi.highlightCode();
-                            } catch (error) {
-                                document.getElementById('hex-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
-                            }
-                    });
+            js += @"
+                $.get('/casc/diffHex?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                        try{
+                            if(data.length > 10000000)
+                                throw new Error('Too much data');
+
+                            var diff2htmlUi = new Diff2HtmlUI(document.getElementById('hex-content'), data, d2hConfig);
+                            diff2htmlUi.draw();
+                            diff2htmlUi.highlightCode();
+                        } catch (error) {
+                            document.getElementById('hex-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
+                        }
                 });
+            });
            ";
 
             html += "</div>";
