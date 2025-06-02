@@ -521,7 +521,7 @@
             KeyInfo.Add(0x901802D29C39BAD7, (7773, "WOW-5XXXXpatch11.0.X_Beta", "Warbringers Ansurek cinematic"));
             KeyInfo.Add(0xBC96DB430294462A, (7774, "WOW-5XXXXpatch11.0.X_Beta", "War Within announcement cinematic"));
             KeyInfo.Add(0x533BF2959F86B44E, (7775, "WOW-5XXXXpatch11.0.X_Beta", "War Within full intro cinematic"));
-            KeyInfo.Add(0xF72B8F15A2E1B30B, (7777, "WOW-57361patch11.0.7_PTR", "Unknown campaign (13 quests)"));
+            KeyInfo.Add(0xF72B8F15A2E1B30B, (7777, "WOW-57361patch11.0.7_PTR", "Homecoming campaign"));
             KeyInfo.Add(0x510EF3C6FA488FC8, (7778, "WOW-5XXXXpatch11.0.X_Beta", "Al Xal Waterfall IGC"));
             KeyInfo.Add(0xCBFF82E8337A25FF, (7779, "WOW-56646patch11.0.5_XPTR", ""));
             KeyInfo.Add(0x3F265442BF535357, (7780, "WOW-56646patch11.0.5_XPTR", ""));
@@ -626,11 +626,20 @@
             KeyInfo.Add(0x486DABB73B80644C, (7911, "WOW-57361patch11.0.7_PTR", "Unknown mount"));
             KeyInfo.Add(0x8FC3C61F7DA43D43, (7912, "WOW-57361patch11.0.7_PTR", "Red Panda pet"));
             KeyInfo.Add(0xE6A9B14829ACAFDC, (7919, "WOW-59XXXpatch11.1.0_XPTR", "Blazing Royal Fire Hawk mount"));
-            KeyInfo.Add(0x9AF82E9600D84D2F, (7925, "WOW-59XXXpatch11.1.0_XPTR", "Unknown campaign"));
+            KeyInfo.Add(0x9AF82E9600D84D2F, (7925, "WOW-59XXXpatch11.1.0_XPTR", "Lingering Shadows campaign"));
             KeyInfo.Add(0x192CB3A2CEA7F367, (7926, "WOW-59XXXpatch11.1.0_XPTR", ""));
+            KeyInfo.Add(0x9DC500F50A8BAFA0, (7946, "WOW-6XXXXpatch11.1.X_PTR", "Unknown quests/item set"));
+            KeyInfo.Add(0x32196CB4685FAA82, (7958, "WOW-6XXXXpatch11.1.X_PTR", "Unknown quest/items"));
+            KeyInfo.Add(0x86BA13DA92AF992B, (7963, "WOW-6XXXXpatch11.1.X_PTR", "CrocSunMount"));
+            KeyInfo.Add(0x47BEC71E7BE0F2C3, (7964, "WOW-6XXXXpatch11.1.X_PTR", "CrocSunPet"));
             KeyInfo.Add(0x73D42621FA126703, (7970, "WOW-59XXXpatch11.1.0_XPTR", "MoP Classic Preorder store assets"));
             KeyInfo.Add(0x9471F0C5736A239A, (7973, "WOW-59XXXpatch11.1.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x02E70FF0431BCA2B, (7975, "WOW-59XXXpatch11.1.0_XPTR", "MoP Classic Preorder store data"));
+            KeyInfo.Add(0x06A96EF854F44BBE, (7979, "WOW-6XXXXpatch11.1.X_PTR", "Unknown toy/spell"));
+            KeyInfo.Add(0x806368874B2EA234, (7989, "WOW-6XXXXpatch11.1.X_PTR", "Springtime Pet Pack store assets"));
+            KeyInfo.Add(0xF793A4AF277A947C, (7990, "WOW-6XXXXpatch11.1.X_PTR", "Unknown store assets"));
+            KeyInfo.Add(0x5B7AD908DFB68C1E, (7994, "WOW-6XXXXpatch11.1.X_PTR", "Raven pack store assets"));
+            KeyInfo.Add(0x364FB291A63DD212, (7995, "WOW-6XXXXpatch11.1.X_PTR", "Unknown item set"));
         }
 
         public static void ReloadKeys()
