@@ -20,8 +20,8 @@ namespace wow.tools.local.Controllers
 
             if (!Namer.isInitialized || Namer.build != CASC.BuildName)
             {
-                Namer.wowDir = SettingsManager.wowFolder;
-                Namer.localProduct = SettingsManager.wowProduct;
+                Namer.wowDir = SettingsManager.WoWFolder;
+                Namer.localProduct = SettingsManager.WoWProduct;
                 Namer.build = CASC.BuildName;
                 Namer.cacheDir = "caches";
 
@@ -31,9 +31,9 @@ namespace wow.tools.local.Controllers
                     Namer.SetProviders(dbcProvider, dbdProvider);
 
                 if (CASC.IsCASCLibInit)
-                    Namer.SetCASC(ref CASC.cascHandler, ref CASC.AvailableFDIDs);
+                    Namer.SetCASC(ref CASC.cascHandler!, ref CASC.AvailableFDIDs);
                 else if (CASC.IsTACTSharpInit)
-                    Namer.SetTACT(ref CASC.buildInstance, ref CASC.AvailableFDIDs);
+                    Namer.SetTACT(ref CASC.buildInstance!, ref CASC.AvailableFDIDs);
 
                 Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);
                 Namer.SetSetCreatureNameForFDIDFunction(SQLiteDB.SetCreatureNameForFDID);
@@ -171,12 +171,12 @@ namespace wow.tools.local.Controllers
             Namer.AllowCaseRenames = form.ContainsKey("allowCaseRenames") && form["allowCaseRenames"] == "on";
 
             var namerOrder = new List<string> { "DB2", "Map", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SoundKits", "SpellTex", "TerrainCubeMaps", "VO", "WWF", "ContentHashes" };
-            checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x)).ToArray();
+            checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x!)).ToArray();
 
             var buildMap = new Dictionary<uint, string>();
-            if (Directory.Exists(SettingsManager.manifestFolder))
+            if (Directory.Exists(SettingsManager.ManifestFolder))
             {
-                foreach (var file in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
+                foreach (var file in Directory.GetFiles(SettingsManager.ManifestFolder, "*.txt"))
                 {
                     var fileName = Path.GetFileNameWithoutExtension(file);
                     var splitFilename = fileName.Split('.');
@@ -211,7 +211,7 @@ namespace wow.tools.local.Controllers
                         Namer.NameCreatureDisplayInfo();
                         break;
                     case "DB2":
-                        Namer.NameDBFilesClient(SettingsManager.definitionDir);
+                        Namer.NameDBFilesClient(SettingsManager.DefinitionDir);
                         break;
                     case "Emotes":
                         Namer.NameEmotes();
@@ -233,16 +233,16 @@ namespace wow.tools.local.Controllers
                         var goDisplayInfoDB = dbcManager.GetOrLoad("GameObjectDisplayInfo", CASC.BuildName, true).Result;
                         foreach (var goDisplayInfo in goDisplayInfoDB.Values)
                         {
-                            goDIDToFDID.Add(uint.Parse(goDisplayInfo["ID"].ToString()), uint.Parse(goDisplayInfo["FileDataID"].ToString()));
+                            goDIDToFDID.Add(uint.Parse(goDisplayInfo["ID"].ToString()!), uint.Parse(goDisplayInfo["FileDataID"].ToString()!));
                         }
 
                         var goNames = new Dictionary<uint, string>();
 
-                        if (!string.IsNullOrWhiteSpace(SettingsManager.wowFolder))
+                        if (!string.IsNullOrWhiteSpace(SettingsManager.WoWFolder))
                         {
-                            foreach (var gobjectCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "gameobjectcache.wdb", SearchOption.AllDirectories))
+                            foreach (var gobjectCacheFile in Directory.GetFiles(SettingsManager.WoWFolder, "gameobjectcache.wdb", SearchOption.AllDirectories))
                             {
-                                var flavorDir = new DirectoryInfo(gobjectCacheFile).Parent.Parent.Parent.Parent.Name;
+                                var flavorDir = new DirectoryInfo(gobjectCacheFile).Parent!.Parent!.Parent!.Parent!.Name;
 
                                 // Don't bother with Classic or non-Flavor directories
                                 if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
@@ -344,15 +344,18 @@ namespace wow.tools.local.Controllers
                         Namer.NameTerrainMaterial();
                         break;
                     case "VO":
-                        if (string.IsNullOrEmpty(SettingsManager.wowFolder))
+                        if (string.IsNullOrEmpty(SettingsManager.WoWFolder))
                             break;
 
                         try
                         {
                             var creatureXDIDB = dbcManager.GetOrLoad("CreatureXDisplayInfo", CASC.BuildName).Result;
-                            foreach (var creatureXDisplayInfo in creatureXDIDB.Values)
+                            if(creatureXDIDB.AvailableColumns.Contains("CreatureDisplayInfoID") && creatureXDIDB.AvailableColumns.Contains("CreatureID"))
                             {
-                                SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(creatureXDisplayInfo["CreatureDisplayInfoID"].ToString()), int.Parse(creatureXDisplayInfo["CreatureID"].ToString()));
+                                foreach (var creatureXDisplayInfo in creatureXDIDB.Values)
+                                {
+                                    SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(creatureXDisplayInfo["CreatureDisplayInfoID"].ToString()!), int.Parse(creatureXDisplayInfo["CreatureID"].ToString()!));
+                                }
                             }
                         }
                         catch (Exception e)
@@ -362,11 +365,11 @@ namespace wow.tools.local.Controllers
 
                         var currentCreatureNames = SQLiteDB.GetCreatureNames();
 
-                        if (!string.IsNullOrEmpty(SettingsManager.wowFolder))
+                        if (!string.IsNullOrEmpty(SettingsManager.WoWFolder))
                         {
-                            foreach (var creatureCacheFile in Directory.GetFiles(SettingsManager.wowFolder, "creaturecache.wdb", SearchOption.AllDirectories))
+                            foreach (var creatureCacheFile in Directory.GetFiles(SettingsManager.WoWFolder, "creaturecache.wdb", SearchOption.AllDirectories))
                             {
-                                var flavorDir = new DirectoryInfo(creatureCacheFile).Parent.Parent.Parent.Parent.Name;
+                                var flavorDir = new DirectoryInfo(creatureCacheFile).Parent!.Parent!.Parent!.Parent!.Name;
 
                                 // Don't bother with Classic or non-Flavor directories
                                 if (flavorDir.Contains("classic") || !flavorDir.StartsWith('_'))
@@ -474,9 +477,7 @@ namespace wow.tools.local.Controllers
                             }
                         }
 
-                        var textToSoundKitID = new Dictionary<string, List<uint>>();
-
-                        foreach (var buildDir in Directory.GetDirectories(SettingsManager.dbcFolder))
+                        foreach (var buildDir in Directory.GetDirectories(SettingsManager.DBCFolder))
                         {
                             if (!System.IO.File.Exists(Path.Combine(buildDir, "dbfilesclient", "BroadcastText.db2")))
                                 continue;
@@ -491,11 +492,16 @@ namespace wow.tools.local.Controllers
                             {
                                 var broadcastTextDB = dbcManager.GetOrLoad("BroadcastText", buildName, true).Result;
 
-                                foreach (var broadcastText in broadcastTextDB.Values)
+                                if(broadcastTextDB.AvailableColumns.Contains("Text_lang") && broadcastTextDB.AvailableColumns.Contains("Text1_lang") && broadcastTextDB.AvailableColumns.Contains("SoundKitID"))
                                 {
-                                    var soundKits = (uint[])broadcastText["SoundKitID"];
-
-                                    SQLiteDB.InsertOrUpdateBroadcastText(int.Parse(broadcastText["ID"].ToString()), broadcastText["Text_lang"].ToString(), broadcastText["Text1_lang"].ToString(), (int)soundKits[0], (int)soundKits[1], int.Parse(buildName.Split(".")[3]));
+                                    foreach (var broadcastText in broadcastTextDB.Values)
+                                    {
+                                        var soundKits = (uint[])broadcastText["SoundKitID"];
+                                        if (soundKits.Length > 0)
+                                        {
+                                            SQLiteDB.InsertOrUpdateBroadcastText(int.Parse(broadcastText["ID"].ToString()!), broadcastText["Text_lang"].ToString()!, broadcastText["Text1_lang"].ToString()!, (int)soundKits[0], (int)soundKits[1], int.Parse(buildName.Split(".")[3]));
+                                        }
+                                    }
                                 }
                             }
                             catch (Exception e)

@@ -61,7 +61,7 @@ namespace wow.tools.Services
         {
             definitionLookup.Clear();
 
-            if(string.IsNullOrEmpty(SettingsManager.definitionDir) || !Directory.Exists(SettingsManager.definitionDir))
+            if(string.IsNullOrEmpty(SettingsManager.DefinitionDir) || !Directory.Exists(SettingsManager.DefinitionDir))
             {
                 Console.WriteLine("Loading definitions from BDBD file");
                 using(var fs = GetBDBDStream(clearCache))
@@ -81,7 +81,7 @@ namespace wow.tools.Services
             }
             else
             {
-                var definitionsDir = SettingsManager.definitionDir;
+                var definitionsDir = SettingsManager.DefinitionDir;
                 Console.WriteLine("Reloading definitions from directory " + definitionsDir);
 
                 // lookup needs both filepath and def for DBCD to work
@@ -121,7 +121,7 @@ namespace wow.tools.Services
             return definitionLookup.Count;
         }
 
-        public Stream StreamForTableName(string tableName, string build = null)
+        public Stream StreamForTableName(string tableName, string build)
         {
             if(isUsingBDBD)
                 throw new Exception("DBD definitions were loaded from BDBD, we should never be using this function");

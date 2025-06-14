@@ -15,8 +15,8 @@ namespace wow.tools.local.Controllers
             public int draw { get; set; }
             public int recordsFiltered { get; set; }
             public int recordsTotal { get; set; }
-            public List<string[]> data { get; set; }
-            public string error { get; set; }
+            public List<string[]> data { get; set; } = new();
+            public string error { get; set; } = string.Empty;
         }
 
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
@@ -38,7 +38,7 @@ namespace wow.tools.local.Controllers
             {
                 // POST, what site uses
                 foreach (var post in Request.Form)
-                    parameters.Add(post.Key, post.Value);
+                    parameters.Add(post.Key, post.Value!);
 
                 if (parameters.TryGetValue("draw", out string? drawString))
                     draw = int.Parse(drawString);
@@ -53,7 +53,7 @@ namespace wow.tools.local.Controllers
             {
                 // GET, backwards compatibility for scripts/users using this
                 foreach (var get in Request.Query)
-                    parameters.Add(get.Key, get.Value);
+                    parameters.Add(get.Key, get.Value!);
             }
 
             if (!parameters.TryGetValue("search[value]", out var searchValue) || string.IsNullOrWhiteSpace(searchValue))

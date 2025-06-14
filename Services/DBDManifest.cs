@@ -8,9 +8,9 @@ namespace wow.tools.local.Services
         public static Dictionary<string, ManifestEntry> DB2Map = new(StringComparer.InvariantCultureIgnoreCase);
         public static void Load(bool forceNew = false)
         {
-            var manifestLocation = Path.GetFullPath(Path.Combine(SettingsManager.definitionDir, "..", "manifest.json"));
+            var manifestLocation = Path.GetFullPath(Path.Combine(SettingsManager.DefinitionDir, "..", "manifest.json"));
 
-            if (string.IsNullOrEmpty(SettingsManager.definitionDir) || !File.Exists(manifestLocation))
+            if (string.IsNullOrEmpty(SettingsManager.DefinitionDir) || !File.Exists(manifestLocation))
             {
                 Console.WriteLine("DBD directory not set, using remote manifest (cached up to a day)");
 
@@ -63,15 +63,18 @@ namespace wow.tools.local.Services
 
             DB2Map.Clear();
 
-            foreach (var entry in manifest)
+            if(manifest != null)
             {
-                if(!CASC.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".db2"))
-                    CASC.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".db2", entry.db2FileDataID);
+                foreach (var entry in manifest)
+                {
+                    if (!CASC.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".db2"))
+                        CASC.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".db2", entry.db2FileDataID);
 
-                if (!CASC.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".dbc"))
-                    CASC.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".dbc", entry.dbcFileDataID);
+                    if (!CASC.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".dbc"))
+                        CASC.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".dbc", entry.dbcFileDataID);
 
-                DB2Map.TryAdd(entry.tableName, entry);
+                    DB2Map.TryAdd(entry.tableName, entry);
+                }
             }
         }
     }

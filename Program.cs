@@ -11,10 +11,10 @@ namespace wow.tools.local
                 // this will override the config.json values if the relevant command line flags are present
                 SettingsManager.ParseCommandLineArguments(args);
 
-                if (SettingsManager.useTACTSharp)
-                    CASC.InitTACT(SettingsManager.wowFolder, SettingsManager.wowProduct);
+                if (SettingsManager.UseTACTSharp)
+                    CASC.InitTACT(SettingsManager.WoWFolder, SettingsManager.WoWProduct);
                 else
-                    CASC.InitCasc(SettingsManager.wowFolder, SettingsManager.wowProduct);
+                    CASC.InitCasc(SettingsManager.WoWFolder, SettingsManager.WoWProduct);
             }
             catch (Exception e)
             {

@@ -18,10 +18,10 @@ namespace wow.tools.local.Controllers
         private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
 
         private readonly Jenkins96 hasher = new();
-        private static Dictionary<int, List<uint>> SoundKitMap;
-        private static Dictionary<int, List<uint>> MFDMap;
-        private static Dictionary<int, List<uint>> TFDMap;
-        private static Dictionary<int, List<uint>> CMDMap;
+        private static Dictionary<int, List<uint>>? SoundKitMap;
+        private static Dictionary<int, List<uint>>? MFDMap;
+        private static Dictionary<int, List<uint>>? TFDMap;
+        private static Dictionary<int, List<uint>>? CMDMap;
         private static readonly Lock dbcLock = new Lock();
 
         public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
@@ -356,11 +356,11 @@ namespace wow.tools.local.Controllers
 
             var showM2 = true;
             if (Request.Query.TryGetValue("showM2", out var showM2String))
-                showM2 = bool.Parse(showM2String);
+                showM2 = bool.Parse(showM2String!);
 
             var showWMO = true;
             if (Request.Query.TryGetValue("showWMO", out var showWMOString))
-                showWMO = bool.Parse(showWMOString);
+                showWMO = bool.Parse(showWMOString!);
 
             //var showADT = true;
             //if (Request.Query.TryGetValue("showADT", out var showADTString))
@@ -416,7 +416,7 @@ namespace wow.tools.local.Controllers
 
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
-                installResults = installResults.Where(x => x.Name.Contains(search)).ToList();
+                installResults = installResults.Where(x => x.Name.Contains(search!)).ToList();
             }
 
             foreach (var installResult in installResults.Skip(start).Take(length))
@@ -472,19 +472,19 @@ namespace wow.tools.local.Controllers
             if (CASC.DB2Exists("DBFilesClient/" + databaseName + ".db2"))
                 versionList.Add(new Version(CASC.BuildName), "CASC");
 
-            if (!string.IsNullOrEmpty(SettingsManager.dbcFolder))
+            if (!string.IsNullOrEmpty(SettingsManager.DBCFolder))
             {
-                if (!Directory.Exists(SettingsManager.dbcFolder))
-                    Directory.CreateDirectory(SettingsManager.dbcFolder);
+                if (!Directory.Exists(SettingsManager.DBCFolder))
+                    Directory.CreateDirectory(SettingsManager.DBCFolder);
 
-                var dbcFolder = new DirectoryInfo(SettingsManager.dbcFolder);
+                var dbcFolder = new DirectoryInfo(SettingsManager.DBCFolder);
                 foreach (var build in dbdProvider.GetVersionsInDBD(databaseName))
                 {
                     var buildAsVersion = new Version(build);
 
                     if (!versionList.ContainsKey(buildAsVersion))
                     {
-                        if (System.IO.File.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", databaseName + ".db2")) || System.IO.File.Exists(Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", databaseName + ".dbc")))
+                        if (System.IO.File.Exists(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", databaseName + ".db2")) || System.IO.File.Exists(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", databaseName + ".dbc")))
                         {
                             versionList.Add(buildAsVersion, "disk");
                             continue;
@@ -516,9 +516,9 @@ namespace wow.tools.local.Controllers
                 new(CASC.BuildName)
             };
 
-            if (!string.IsNullOrEmpty(SettingsManager.dbcFolder) && Directory.Exists(SettingsManager.dbcFolder))
+            if (!string.IsNullOrEmpty(SettingsManager.DBCFolder) && Directory.Exists(SettingsManager.DBCFolder))
             {
-                var dbcFolder = new DirectoryInfo(SettingsManager.dbcFolder);
+                var dbcFolder = new DirectoryInfo(SettingsManager.DBCFolder);
                 foreach (var subfolder in dbcFolder.EnumerateDirectories())
                 {
                     var buildTest = Path.GetFileName(subfolder.Name).Split(".");
@@ -577,7 +577,7 @@ namespace wow.tools.local.Controllers
                                 filePath = "unknown/" + result.Key.ToString() + ".unk";
                         }
 
-                        var path = Path.Combine(SettingsManager.extractionDir, filePath);
+                        var path = Path.Combine(SettingsManager.ExtractionDir, filePath);
                         if (!Directory.Exists(Path.GetDirectoryName(path)))
                             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
@@ -684,7 +684,7 @@ namespace wow.tools.local.Controllers
                         {
                             wmo = reader.LoadWMO((uint)result.Key);
                         }
-                        catch (NotSupportedException e)
+                        catch (NotSupportedException)
                         {
                             Console.WriteLine("[WMO] " + fileDataID + " is a group WMO, skipping..");
                             continue;
@@ -832,7 +832,7 @@ namespace wow.tools.local.Controllers
                                 filePath = "unknown/" + result.Key.ToString() + ".unk";
                         }
 
-                        var path = Path.Combine(SettingsManager.extractionDir, filePath);
+                        var path = Path.Combine(SettingsManager.ExtractionDir, filePath);
 
                         if (!Directory.Exists(Path.GetDirectoryName(path)))
                             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -852,17 +852,17 @@ namespace wow.tools.local.Controllers
 
         [Route("dumpLookups")]
         [HttpGet]
-        public async Task<bool> DumpLookups()
+        public bool DumpLookups()
         {
-            var lookupPath = Path.Combine(SettingsManager.extractionDir, "lookups.txt");
+            var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "lookups.txt");
             using (var sw = new StreamWriter(lookupPath))
             {
                 var sortedMap = CASC.LookupMap.ToDictionary();
 
                 // If our listfile setting points to a parts dir, merge in the existing meta lookup file
-                if (!SettingsManager.listfileURL.StartsWith("http") && Directory.Exists(SettingsManager.listfileURL))
+                if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
                 {
-                    var metaFile = Path.Combine(SettingsManager.listfileURL, "..", "meta", "lookup.csv");
+                    var metaFile = Path.Combine(SettingsManager.ListfileURL, "..", "meta", "lookup.csv");
 
                     if (System.IO.File.Exists(metaFile))
                     {
@@ -897,18 +897,18 @@ namespace wow.tools.local.Controllers
 
         [Route("dumpUnkLookups")]
         [HttpGet]
-        public async Task<bool> DumpUnkLookups(string type = "")
+        public bool DumpUnkLookups(string type = "")
         {
-            var lookupPath = Path.Combine(SettingsManager.extractionDir, "unk_listfile.txt");
+            var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "unk_listfile.txt");
             var hasher = new Jenkins96();
             using (var sw = new StreamWriter(lookupPath))
             {
                 var sortedMap = CASC.LookupMap.ToDictionary();
 
                 // If our listfile setting points to a parts dir, merge in the existing meta lookup file
-                if (!SettingsManager.listfileURL.StartsWith("http") && Directory.Exists(SettingsManager.listfileURL))
+                if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
                 {
-                    var metaFile = Path.Combine(SettingsManager.listfileURL, "..", "meta", "lookup.csv");
+                    var metaFile = Path.Combine(SettingsManager.ListfileURL, "..", "meta", "lookup.csv");
 
                     if (System.IO.File.Exists(metaFile))
                     {

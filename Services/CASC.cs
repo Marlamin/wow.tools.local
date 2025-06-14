@@ -11,14 +11,14 @@ namespace wow.tools.local.Services
 {
     public static class CASC
     {
-        public static CASCHandler cascHandler;
+        public static CASCHandler? cascHandler;
         public static bool IsCASCLibInit = false;
         public static bool IsTACTSharpInit = false;
 
-        public static string BuildName;
-        public static string FullBuildName;
-        public static string CurrentProduct;
-        public static bool IsOnline;
+        public static string BuildName = "";
+        public static string FullBuildName = "";
+        public static string CurrentProduct = "";
+        public static bool IsOnline = false;
 
         public static readonly Dictionary<int, string> Listfile = [];
         public static readonly Dictionary<string, int> DB2Map = [];
@@ -69,7 +69,7 @@ namespace wow.tools.local.Services
 
         private static readonly HttpClient WebClient = new();
 
-        public static BuildInstance buildInstance;
+        public static BuildInstance? buildInstance;
 
         public static async void InitTACT(string wowFolder, string product, string overrideBC = "", string overrideCDNC = "")
         {
@@ -83,13 +83,13 @@ namespace wow.tools.local.Services
             if (File.Exists("fakebuildconfig"))
                 buildInstance.Settings.BuildConfig = "fakebuildconfig";
 
-            buildInstance.Settings.Locale = SettingsManager.tactLocale;
-            buildInstance.Settings.Region = SettingsManager.region;
+            buildInstance.Settings.Locale = SettingsManager.TACTLocale;
+            buildInstance.Settings.Region = SettingsManager.Region;
 
-            if (SettingsManager.preferHighResTextures)
+            if (SettingsManager.PreferHighResTextures)
                 Console.WriteLine("!!!! Warning: High res textures setting is not supported when using TACTSharp.");
 
-            if(SettingsManager.wowProduct != product || (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC)))
+            if(SettingsManager.WoWProduct != product || (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC)))
             {
                 Console.WriteLine("Switching builds, resetting configs..");
                 buildInstance.Settings.BuildConfig = null;
@@ -98,11 +98,9 @@ namespace wow.tools.local.Services
 
             buildInstance.Settings.RootMode = RootInstance.LoadMode.Full;
 
-            if(SettingsManager.additionalCDNs.Length > 0 && !string.IsNullOrEmpty(SettingsManager.additionalCDNs[0]))
-                buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.additionalCDNs);
+            if(SettingsManager.AdditionalCDNs.Length > 0 && !string.IsNullOrEmpty(SettingsManager.AdditionalCDNs[0]))
+                buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.AdditionalCDNs);
 
-            string buildConfig;
-            string cdnConfig;
             bool loadOnline = false;
             if (wowFolder != null && string.IsNullOrEmpty(overrideBC) && string.IsNullOrEmpty(overrideCDNC))
             {
@@ -164,7 +162,7 @@ namespace wow.tools.local.Services
             }
 
             #region Configs
-            if(SettingsManager.wowProduct == "wowdev")
+            if(SettingsManager.WoWProduct == "wowdev")
             {
                 buildInstance.cdn.ProductDirectory = "tpr/wowdev";
                 buildInstance.Settings.TryCDN = false;
@@ -174,14 +172,17 @@ namespace wow.tools.local.Services
                 buildInstance.cdn.ProductDirectory = "tpr/wow";
             }
 
-            if (!string.IsNullOrEmpty(SettingsManager.cdnFolder))
-                buildInstance.Settings.CDNDir = SettingsManager.cdnFolder;
+            if (!string.IsNullOrEmpty(SettingsManager.CDNFolder))
+                buildInstance.Settings.CDNDir = SettingsManager.CDNFolder;
 
             if (!IsOnline)
                 buildInstance.cdn.OpenLocal();
 
             try
             {
+                if(buildInstance.Settings.BuildConfig == null || buildInstance.Settings.CDNConfig == null)
+                    throw new Exception("BuildConfig or CDNConfig is null");
+
                 buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
                 if (buildInstance.BuildConfig == null || buildInstance.CDNConfig == null)
                     throw new Exception("Failed to load configs");
@@ -205,6 +206,9 @@ namespace wow.tools.local.Services
             if (!buildInstance.BuildConfig.Values.TryGetValue("encoding", out var encodingKey))
                 throw new Exception("No encoding key found in build config");
 
+            if(buildInstance.Encoding == null || buildInstance.Root == null || buildInstance.Install == null)
+                throw new Exception("Encoding, root or install are null");
+
             #endregion
 
             var totalTimer = new Stopwatch();
@@ -217,7 +221,7 @@ namespace wow.tools.local.Services
 
             // TODO: Keyring
 
-            var manifestFolder = SettingsManager.manifestFolder;
+            var manifestFolder = SettingsManager.ManifestFolder;
 
             IsTACTSharpInit = true;
 
@@ -422,10 +426,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 if (fileEntries.Count == 0)
                     continue;
 
-                if (!LookupMap.ContainsKey((int)fileEntries[0].fileDataID))
-                {
-                    LookupMap.Add((int)fileEntries[0].fileDataID, entry);
-                }
+                LookupMap.TryAdd((int)fileEntries[0].fileDataID, entry);
             }
 
             File.WriteAllLines("cachedLookups.txt", LookupMap.Select(x => x.Key + ";" + x.Value));
@@ -463,12 +464,12 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
             CASCConfig.BuildConfigOverride = "fakebuildconfig";
             CASCConfig.CDNConfigOverride = "fakecdnconfig";
 
-            locale = SettingsManager.cascLocale;
+            locale = SettingsManager.CASCLocale;
 
             if (basedir == null)
             {
                 Console.WriteLine("Initializing CASC from web for program " + program + " and locale " + locale);
-                cascHandler = CASCHandler.OpenOnlineStorage(program, SettingsManager.region);
+                cascHandler = CASCHandler.OpenOnlineStorage(program, SettingsManager.Region);
                 IsCASCLibInit = true;
                 IsOnline = true;
             }
@@ -536,8 +537,8 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
             var splitName = FullBuildName.Replace("WOW-", "").Split("patch");
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
 
-            cascHandler.Root.SetFlags(locale, false, SettingsManager.preferHighResTextures);
-            var manifestFolder = SettingsManager.manifestFolder;
+            cascHandler.Root.SetFlags(locale, false, SettingsManager.PreferHighResTextures);
+            var manifestFolder = SettingsManager.ManifestFolder;
 
             if (!Directory.Exists(manifestFolder))
                 Directory.CreateDirectory(manifestFolder);
@@ -791,17 +792,17 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             AvailableBuilds.Clear();
 
             var folderMap = new Dictionary<string, string>();
-            foreach (var flavorFile in Directory.GetFiles(SettingsManager.wowFolder, ".flavor.info", SearchOption.AllDirectories))
+            foreach (var flavorFile in Directory.GetFiles(SettingsManager.WoWFolder, ".flavor.info", SearchOption.AllDirectories))
             {
                 var flavorLines = File.ReadAllLines(flavorFile);
                 if (flavorLines.Length < 2)
                     continue;
 
-                folderMap.Add(flavorLines[1], Path.GetFileName(Path.GetDirectoryName(flavorFile)));
+                folderMap.Add(flavorLines[1], Path.GetFileName(Path.GetDirectoryName(flavorFile)!));
             }
 
             var headerMap = new Dictionary<string, byte>();
-            foreach (var line in File.ReadAllLines(Path.Combine(SettingsManager.wowFolder, ".build.info")))
+            foreach (var line in File.ReadAllLines(Path.Combine(SettingsManager.WoWFolder, ".build.info")))
             {
                 var splitLine = line.Split("|");
                 if (splitLine[0] == "Branch!STRING:0")
@@ -825,7 +826,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 if (headerMap.TryGetValue("KeyRing", out byte keyRing))
                     availableBuild.KeyRing = splitLine[keyRing];
 
-                if (folderMap.TryGetValue(availableBuild.Product, out string folder))
+                if (folderMap.TryGetValue(availableBuild.Product, out var folder))
                     availableBuild.Folder = folder;
                 else
                     Console.WriteLine("No flavor found matching " + availableBuild.Product);
@@ -838,7 +839,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
         {
             var listfileMode = "downloaded";
 
-            if (!SettingsManager.listfileURL.StartsWith("http") && Directory.Exists(SettingsManager.listfileURL))
+            if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
                 listfileMode = "parts";
 
             var listfileLines = new List<string>();
@@ -890,7 +891,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                         Console.WriteLine("Existing " + listfileName + " renamed to " + listfileName + ".bak");
                     }
 
-                    using var s = WebClient.GetStreamAsync(SettingsManager.listfileURL).Result;
+                    using var s = WebClient.GetStreamAsync(SettingsManager.ListfileURL).Result;
                     using var fs = new FileStream(listfileName, FileMode.Create);
                     s.CopyTo(fs);
                 }
@@ -906,7 +907,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             {
                 Console.WriteLine("Loading listfile from parts");
 
-                var files = Directory.GetFiles(SettingsManager.listfileURL, "*.csv");
+                var files = Directory.GetFiles(SettingsManager.ListfileURL, "*.csv");
                 var listfileLock = new Lock();
                 Parallel.ForEach(files, file =>
                 {
@@ -935,7 +936,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 var fdid = int.Parse(splitLine[0]);
                 var filename = splitLine[1];
 
-                if (SettingsManager.showAllFiles == false && !Listfile.ContainsKey(fdid))
+                if (SettingsManager.ShowAllFiles == false && !Listfile.ContainsKey(fdid))
                     continue;
 
                 var ext = Path.GetExtension(filename).Replace(".", "").ToLower();
@@ -1021,7 +1022,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             {
                 Console.WriteLine("Downloading TACT keys");
 
-                using (var s = WebClient.GetStreamAsync(SettingsManager.tactKeyURL + "?=v" + (long)DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds).Result)
+                using (var s = WebClient.GetStreamAsync(SettingsManager.TACTKeyURL + "?=v" + (long)DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds).Result)
                 using (var fs = new FileStream("WoW.txt", FileMode.Create))
                 {
                     s.CopyTo(fs);
@@ -1071,11 +1072,11 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
         public static Stream? GetFileByEKey(MD5Hash EKey, long decodedSize)
         {
             if (IsCASCLibInit)
-                return cascHandler.OpenFile(EKey);
+                return cascHandler!.OpenFile(EKey);
             else if (IsTACTSharpInit)
             {
                 var eKey = Convert.FromHexString(EKey.ToHexString());
-                var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
+                var (offset, size, archiveIndex) = buildInstance!.GroupIndex!.GetIndexInfo(eKey);
                 byte[] fileBytes;
                 if (offset == -1)
                     fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true);
@@ -1091,11 +1092,11 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
         public static bool TryGetEKeysByCKey(MD5Hash CKey, out EncodingEntry EKeys)
         {
             if (IsCASCLibInit)
-                return cascHandler.Encoding.GetEntry(CKey, out EKeys);
+                return cascHandler!.Encoding.GetEntry(CKey, out EKeys);
             else if (IsTACTSharpInit)
             {
                 var ckey = Convert.FromHexString(CKey.ToHexString());
-                var TEKeys = buildInstance.Encoding.FindContentKey(ckey);
+                var TEKeys = buildInstance!.Encoding!.FindContentKey(ckey);
 
                 if (TEKeys)
                 {
@@ -1137,7 +1138,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 {
                     try
                     {
-                        return cascHandler.OpenFile((int)filedataid);
+                        return cascHandler!.OpenFile((int)filedataid);
                     }
                     catch (Exception e)
                     {
@@ -1154,7 +1155,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 }
                 else if (IsTACTSharpInit)
                 {
-                    var rootEntries = buildInstance.Root.GetEntriesByFDID(filedataid);
+                    var rootEntries = buildInstance!.Root!.GetEntriesByFDID(filedataid);
                     if (rootEntries.Count == 0)
                         return null;
 
@@ -1164,13 +1165,13 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     if (preferredEntry.fileDataID == 0)
                         preferredEntry = rootEntries.First();
 
-                    var fileEKeys = buildInstance.Encoding.FindContentKey(preferredEntry.md5);
+                    var fileEKeys = buildInstance.Encoding!.FindContentKey(preferredEntry.md5);
                     if (fileEKeys == false)
                         throw new Exception("EKey not found in encoding");
 
                     var eKey = fileEKeys[0];
 
-                    var (offset, size, archiveIndex) = buildInstance.GroupIndex.GetIndexInfo(eKey);
+                    var (offset, size, archiveIndex) = buildInstance!.GroupIndex!.GetIndexInfo(eKey);
                     byte[] fileBytes;
                     if (offset == -1)
                         fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
@@ -1237,9 +1238,9 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
         public static bool FileExists(uint filedataid)
         {
             if (IsCASCLibInit)
-                return cascHandler.FileExists((int)filedataid);
+                return cascHandler!.FileExists((int)filedataid);
             else if (IsTACTSharpInit)
-                return buildInstance.Root.FileExists(filedataid);
+                return buildInstance!.Root!.FileExists(filedataid);
             else
                 return false;
         }
@@ -1275,7 +1276,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
 
                 if (IsCASCLibInit)
                 {
-                    if (cascHandler.Root is WowTVFSRootHandler wtrh)
+                    if (cascHandler!.Root is WowTVFSRootHandler wtrh)
                     {
                         foreach (var entry in wtrh.RootEntries)
                         {
@@ -1340,7 +1341,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 }
                 else if (IsTACTSharpInit)
                 {
-                    foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
+                    foreach (var fdid in buildInstance!.Root!.GetAvailableFDIDs())
                     {
                         var rootEntries = buildInstance.Root.GetEntriesByFDID(fdid);
                         if (rootEntries.Count == 0)
@@ -1368,7 +1369,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
 
                     foreach (var chash in CHashToFDID.Keys)
                     {
-                        var eKeys = buildInstance.Encoding.FindContentKey(Convert.FromHexString(chash));
+                        var eKeys = buildInstance.Encoding!.FindContentKey(Convert.FromHexString(chash));
 
                         if (eKeys)
                             CHashToSize.Add(chash, (long)eKeys.DecodedFileSize);
@@ -1404,7 +1405,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 File.Delete("versionHistory.json");
 
             var sortedManifestList = new List<string>();
-            foreach (var manifest in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
+            foreach (var manifest in Directory.GetFiles(SettingsManager.ManifestFolder, "*.txt"))
             {
                 sortedManifestList.Add(manifest);
             }
@@ -1458,7 +1459,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 return false;
             }
 
-            VersionHistory = JsonConvert.DeserializeObject<Dictionary<int, List<Version>>>(File.ReadAllText("versionHistory.json"));
+            VersionHistory = JsonConvert.DeserializeObject<Dictionary<int, List<Version>>>(File.ReadAllText("versionHistory.json")) ?? [];
 
             return true;
         }

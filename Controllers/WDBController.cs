@@ -42,12 +42,12 @@ namespace wow.tools.local.Controllers
             return result;
         }
 
-        [Route("quests")]
-        [HttpGet]
-        public string QuestDebug()
-        {
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.0.2.56196");
-            return questWDB.ToString();
-        }
+        //[Route("quests")]
+        //[HttpGet]
+        //public string QuestDebug()
+        //{
+        //    //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.0.2.56196");
+        //    //return questWDB.ToString();
+        //}
     }
 }

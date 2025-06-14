@@ -11,21 +11,21 @@ namespace wow.tools.local.Services
         public bool Searching { get; private set; }
         public bool Filtering { get; private set; }
         public bool Sorting { get; private set; }
-        public string SearchValue { get; private set; }
-        public string SortDirection { get; private set; }
+        public string SearchValue { get; private set; } = string.Empty;
+        public string SortDirection { get; private set; } = string.Empty;
 
         private readonly IDBCDStorage Storage;
         private readonly IReadOnlyDictionary<string, string> Parameters;
-        private readonly Func<string, string> StringFormatter;
+        private readonly Func<string, string>? StringFormatter;
         private int SortBySiteCol;
 
-        private static readonly MethodInfo ObjectToString = typeof(object).GetMethod("ToString");
+        private static readonly MethodInfo ObjectToString = typeof(object).GetMethod("ToString")!;
 
-        private Func<DBCDRow, bool> FilterFunc;
-        private Func<DBCDRow, object> SortFunc;
-        private Func<DBCDRow, string[]> ConverterFunc;
+        private Func<DBCDRow, bool>? FilterFunc;
+        private Func<DBCDRow, object>? SortFunc;
+        private Func<DBCDRow, string[]>? ConverterFunc;
 
-        public DBCViewFilter(IDBCDStorage storage, IReadOnlyDictionary<string, string> parameters, Func<string, string> stringFormatter = null)
+        public DBCViewFilter(IDBCDStorage storage, IReadOnlyDictionary<string, string> parameters, Func<string, string>? stringFormatter = null)
         {
             Storage = storage;
             Parameters = parameters;
@@ -78,7 +78,7 @@ namespace wow.tools.local.Services
                 records = records.Where(x => rowIDFilter.Contains(x.ID));
 
             // apply converter
-            var result = records.Select(ConverterFunc);
+            var result = records.Select(ConverterFunc!);
           
             foreach (var rowList in result)
             {
@@ -226,7 +226,7 @@ namespace wow.tools.local.Services
         private static Predicate<object> CreateRegexPredicate(string pattern)
         {
             var re = new Regex(pattern, RegexOptions.IgnoreCase);
-            return (field) => re.IsMatch(field.ToString());
+            return (field) => re.IsMatch(field.ToString()!);
         }
 
         private static Predicate<object> CreateFlagsPredicate(ulong flags)

@@ -57,12 +57,12 @@ namespace wow.tools.local.Controllers.DBC
                                     {
                                         for (var k = 0; k < a.Length; k++)
                                         {
-                                            newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k).ToString());
+                                            newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                                         }
                                     }
                                     else
                                     {
-                                        newDict.Add(subfieldName, subfield.ToString());
+                                        newDict.Add(subfieldName, subfield.ToString()!);
                                     }
                                 }
 
@@ -84,12 +84,12 @@ namespace wow.tools.local.Controllers.DBC
                                 {
                                     for (var k = 0; k < a.Length; k++)
                                     {
-                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k).ToString());
+                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                                     }
                                 }
                                 else
                                 {
-                                    newDict.Add(subfieldName, subfield.ToString());
+                                    newDict.Add(subfieldName, subfield.ToString()!);
                                 }
                             }
 
@@ -127,7 +127,7 @@ namespace wow.tools.local.Controllers.DBC
 
             if (!calcOffset && col == "ID")
             {
-                if (storage.TryGetValue(val, out DBCDRow row))
+                if (storage.TryGetValue(val, out var row))
                 {
                     for (var i = 0; i < storage.AvailableColumns.Length; ++i)
                     {
@@ -151,12 +151,12 @@ namespace wow.tools.local.Controllers.DBC
                                 {
                                     for (var k = 0; k < a.Length; k++)
                                     {
-                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k).ToString());
+                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                                     }
                                 }
                                 else
                                 {
-                                    newDict.Add(subfieldName, subfield.ToString());
+                                    newDict.Add(subfieldName, subfield.ToString()!);
                                 }
                             }
 
@@ -188,11 +188,11 @@ namespace wow.tools.local.Controllers.DBC
 
                         if (field is Array arrayField)
                         {
-                            field = arrayField.GetValue(arrIndex).ToString();
+                            field = arrayField.GetValue(arrIndex)!.ToString();
                         }
 
                         // Don't think FKs to arrays are possible, so only check regular value
-                        if (field.ToString() == val.ToString())
+                        if (field!.ToString() == val.ToString())
                         {
                             var newDict = new Dictionary<string, string>();
                             for (var j = 0; j < storage.AvailableColumns.Length; ++j)
@@ -204,12 +204,12 @@ namespace wow.tools.local.Controllers.DBC
                                 {
                                     for (var k = 0; k < a.Length; k++)
                                     {
-                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k).ToString());
+                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                                     }
                                 }
                                 else
                                 {
-                                    newDict.Add(subfieldName, subfield.ToString());
+                                    newDict.Add(subfieldName, subfield.ToString()!);
                                 }
                             }
 

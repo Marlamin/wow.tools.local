@@ -119,7 +119,7 @@ namespace wow.tools.local.Services
         private readonly string[] ariOps = ["ID", "+", "-", "*", "/", "%"];
         private readonly string[] valueTypes = ["0", "value", "world_state", "function"];
 
-        public HumanReadableWorldStateExpression(Dictionary<int, string> worldStateExpressionMap = null)
+        public HumanReadableWorldStateExpression(Dictionary<int, string>? worldStateExpressionMap = null)
         {
             if (worldStateExpressionMap != null)
                 this.worldStateExpressionMap = worldStateExpressionMap;
@@ -130,7 +130,7 @@ namespace wow.tools.local.Services
             StringBuilder str = new();
             foreach (var state in states)
             {
-                if (int.Parse(state["op"].ToString()) != 0)
+                if (int.Parse(state["op"].ToString()!) != 0)
                 {
                     str.Append('(');
                     str.Append(RelationalToString((Dictionary<string, object>)state["relational"]));
@@ -260,7 +260,7 @@ namespace wow.tools.local.Services
                 case 0:
                     return "0";
                 case 1:
-                    return value["value"].ToString();
+                    return value["value"].ToString()!;
                 case 2:
                     return valueTypes[Convert.ToInt32(value["type"])] + "(" + value["value"] + ")";
                 case 3:

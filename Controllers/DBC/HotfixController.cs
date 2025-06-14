@@ -11,6 +11,15 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public DataTablesResult GetHotfixes()
         {
+            if(!Request.QueryString.HasValue)
+                return new DataTablesResult
+                {
+                    draw = 0,
+                    data = [],
+                    recordsFiltered = 0,
+                    recordsTotal = 0
+                };
+
             if (HotfixManager.dbcacheParsers.Count == 0)
                 HotfixManager.LoadCaches();
 
@@ -18,7 +27,7 @@ namespace wow.tools.local.Controllers
 
             var result = new DataTablesResult
             {
-                draw = Request.QueryString.Value.Contains("draw") ? int.Parse(Request.Query["draw"]) : 0,
+                draw = Request.QueryString.Value.Contains("draw") ? int.Parse(Request.Query["draw"]!) : 0,
                 data = []
             };
 
@@ -52,8 +61,8 @@ namespace wow.tools.local.Controllers
 
             result.recordsFiltered = result.data.Count;
 
-            var numRecords = Request.QueryString.Value.Contains("length") ? int.Parse(Request.Query["length"]) : 10;
-            var startRecords = Request.QueryString.Value.Contains("start") ? int.Parse(Request.Query["start"]) : 0;
+            var numRecords = Request.QueryString.Value.Contains("length") ? int.Parse(Request.Query["length"]!) : 10;
+            var startRecords = Request.QueryString.Value.Contains("start") ? int.Parse(Request.Query["start"]!) : 0;
 
             result.data = result.data.Skip(startRecords).Take(numRecords).ToList();
             result.recordsTotal = result.data.Count;

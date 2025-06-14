@@ -112,9 +112,9 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            if (SettingsManager.wowFolder != null)
+            if (!string.IsNullOrEmpty(SettingsManager.WoWFolder))
             {
-                foreach (var file in Directory.GetFiles(SettingsManager.wowFolder, "DBCache.bin", SearchOption.AllDirectories))
+                foreach (var file in Directory.GetFiles(SettingsManager.WoWFolder, "DBCache.bin", SearchOption.AllDirectories))
                 {
                     var cache = new DBCacheParser(file);
 

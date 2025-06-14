@@ -10,7 +10,7 @@ namespace wow.tools.local.Services
         public static Dictionary<int, DateTime> pushIDDetected = [];
         public static Dictionary<uint, string> tableNames = [];
 
-        private static void LoadPushIDs() => pushIDDetected = JsonConvert.DeserializeObject<Dictionary<int, DateTime>>(File.ReadAllText("knownPushIDs.json"));
+        private static void LoadPushIDs() => pushIDDetected = JsonConvert.DeserializeObject<Dictionary<int, DateTime>>(File.ReadAllText("knownPushIDs.json")) ?? [];
 
         private static void SavePushIDs() => File.WriteAllText("knownPushIDs.json", JsonConvert.SerializeObject(pushIDDetected));
 
@@ -60,13 +60,13 @@ namespace wow.tools.local.Services
                 }
             }
 
-            if (SettingsManager.wowFolder == null)
+            if (string.IsNullOrEmpty(SettingsManager.WoWFolder))
             {
                 Console.WriteLine("No WoW folder set, skipping further hotfix load");
                 return;
             }
 
-            foreach (var file in Directory.GetFiles(SettingsManager.wowFolder, "DBCache.bin", SearchOption.AllDirectories))
+            foreach (var file in Directory.GetFiles(SettingsManager.WoWFolder, "DBCache.bin", SearchOption.AllDirectories))
             {
                 var reader = new HotfixReader(file);
                 if (!hotfixReaders.ContainsKey((uint)reader.BuildId))

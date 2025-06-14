@@ -709,7 +709,7 @@ namespace wow.tools.local.Services
             insertCmd.Transaction = transaction;
             insertCmd.Prepare();
 
-            var manifestPath = Path.Combine(SettingsManager.manifestFolder, buildName + ".txt");
+            var manifestPath = Path.Combine(SettingsManager.ManifestFolder, buildName + ".txt");
             if (!File.Exists(manifestPath))
             {
                 Console.WriteLine("Manifest file for build {0} not found, can't import", buildName);

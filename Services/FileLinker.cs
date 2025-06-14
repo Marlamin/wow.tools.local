@@ -167,7 +167,7 @@ namespace wow.tools.local.Services
             }
 
             if (needTransaction)
-                insertCmd.Transaction.Commit();
+                insertCmd.Transaction!.Commit();
         }
 
         public static void LinkWMO(uint fileDataID, bool forceRecheck = false, bool needTransaction = true)
@@ -201,7 +201,7 @@ namespace wow.tools.local.Services
                 {
                     wmo = reader.LoadWMO(fileDataID);
                 }
-                catch (NotSupportedException e)
+                catch (NotSupportedException)
                 {
                     Console.WriteLine("[WMO] " + fileDataID + " is a group WMO, skipping..");
                     CASC.SetFileType((int)fileDataID, "gwmo");
@@ -305,7 +305,7 @@ namespace wow.tools.local.Services
             }
 
             if (needTransaction)
-                insertCmd.Transaction.Commit();
+                insertCmd.Transaction!.Commit();
         }
 
         public static void LinkWDT(int wdtid, bool forceRecheck = false)

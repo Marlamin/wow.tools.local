@@ -13,7 +13,7 @@ namespace wow.tools.local.Controllers.DBC
 
         public class PeekResult
         {
-            public Dictionary<string, string> values { get; set; }
+            public Dictionary<string, string> values { get; set; } = [];
             public int offset { get; set; }
         }
 
@@ -34,7 +34,7 @@ namespace wow.tools.local.Controllers.DBC
 
             Console.WriteLine("Serving peek row for " + name + "::" + col + " (" + build + ", hotfixes: " + useHotfixes + ") value " + val);
 
-            List<int> pushIDList = null;
+            List<int>? pushIDList = null;
 
             if (useHotfixes && pushIDs != "")
             {
@@ -98,12 +98,12 @@ namespace wow.tools.local.Controllers.DBC
                         {
                             for (var k = 0; k < a.Length; k++)
                             {
-                                result.values.Add(subfieldName + "[" + k + "]", a.GetValue(k).ToString());
+                                result.values.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                             }
                         }
                         else
                         {
-                            result.values.Add(subfieldName, subfield.ToString());
+                            result.values.Add(subfieldName, subfield.ToString()!);
                         }
                     }
                 }
@@ -135,12 +135,12 @@ namespace wow.tools.local.Controllers.DBC
                             {
                                 for (var k = 0; k < a.Length; k++)
                                 {
-                                    result.values.Add(subfieldName + "[" + k + "]", a.GetValue(k).ToString());
+                                    result.values.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                                 }
                             }
                             else
                             {
-                                result.values.Add(subfieldName, subfield.ToString());
+                                result.values.Add(subfieldName, subfield.ToString()!);
                             }
                         }
 

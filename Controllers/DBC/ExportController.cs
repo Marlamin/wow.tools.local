@@ -61,7 +61,7 @@ namespace wow.tools.Local.Controllers
             var parameters = DefaultParameters;
 
             if (Request.Method == "POST")
-                parameters = Request.Form.ToDictionary(x => x.Key, x => (string)x.Value);
+                parameters = (IReadOnlyDictionary<string, string>)Request.Form.ToDictionary(x => x.Key, x => (string)x.Value!);
 
             try
             {
@@ -102,12 +102,12 @@ namespace wow.tools.Local.Controllers
                     var cleanName = dbname.ToLower();
                     var filestream = CASC.GetDB2ByName("dbfilesclient/" + dbname + ".db2");
 
-                    if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, CASC.BuildName, "dbfilesclient")))
+                    if (!Directory.Exists(Path.Combine(SettingsManager.DBCFolder, CASC.BuildName, "dbfilesclient")))
                     {
-                        Directory.CreateDirectory(Path.Combine(SettingsManager.dbcFolder, CASC.BuildName, "dbfilesclient"));
+                        Directory.CreateDirectory(Path.Combine(SettingsManager.DBCFolder, CASC.BuildName, "dbfilesclient"));
                     }
 
-                    using (var exportStream = new FileStream(Path.Combine(SettingsManager.dbcFolder, CASC.BuildName, "dbfilesclient", cleanName + ".db2"), FileMode.Create))
+                    using (var exportStream = new FileStream(Path.Combine(SettingsManager.DBCFolder, CASC.BuildName, "dbfilesclient", cleanName + ".db2"), FileMode.Create))
                     {
                         filestream.CopyTo(exportStream);
                     }
@@ -198,7 +198,7 @@ namespace wow.tools.Local.Controllers
                 {
                     var extension = "";
 
-                    string fileName = Path.Combine(SettingsManager.dbcFolder, fullBuild, "dbfilesclient", $"{tableName}.db2");
+                    string fileName = Path.Combine(SettingsManager.DBCFolder, fullBuild, "dbfilesclient", $"{tableName}.db2");
 
                     if (System.IO.File.Exists(fileName))
                     {

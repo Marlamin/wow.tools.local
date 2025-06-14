@@ -30,7 +30,7 @@
                 if (TACTSharp.KeyService.TryGetKey(keyName, out var key))
                     return key;
 
-                return null;
+                return Array.Empty<byte>();
             }
             else
                 throw new Exception("No TACT/CASC library initialized");

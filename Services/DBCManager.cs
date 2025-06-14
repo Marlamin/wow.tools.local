@@ -21,7 +21,7 @@ namespace wow.tools.local.Services
             return await GetOrLoad(name, build, false);
         }
 
-        public async Task<IDBCDStorage> GetOrLoad(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int> pushIDFilter = null)
+        public async Task<IDBCDStorage> GetOrLoad(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int>? pushIDFilter = null)
         {
             if (locale != LocaleFlags.All_WoW)
             {
@@ -33,8 +33,8 @@ namespace wow.tools.local.Services
                 return LoadDBC(name, build, useHotfixes, locale, pushIDFilter);
             }
 
-            if (Cache.TryGetValue((name, build, useHotfixes), out IDBCDStorage cachedDBC))
-                return cachedDBC;
+            if (Cache.TryGetValue((name, build, useHotfixes), out var cachedDBC))
+                return (DBCD.IDBCDStorage)cachedDBC!;
 
             SemaphoreSlim mylock = Locks.GetOrAdd((name, build, useHotfixes), k => new SemaphoreSlim(1, 1));
 
@@ -55,10 +55,10 @@ namespace wow.tools.local.Services
                 mylock.Release();
             }
 
-            return cachedDBC;
+            return (DBCD.IDBCDStorage)cachedDBC!;
         }
 
-        private IDBCDStorage LoadDBC(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int> pushIDFilter = null)
+        private IDBCDStorage LoadDBC(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int>? pushIDFilter = null)
         {
             if (locale != LocaleFlags.All_WoW)
             {

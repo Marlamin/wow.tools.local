@@ -131,14 +131,14 @@ namespace wow.tools.local.Controllers
         private static string GetEnumMemberAttrValue<T>(T enumVal)
         {
             var enumType = typeof(T);
-            var memInfo = enumType.GetMember(enumVal.ToString());
+            var memInfo = enumType.GetMember(enumVal!.ToString()!);
             var attr = memInfo.FirstOrDefault()?.GetCustomAttributes(false).OfType<EnumMemberAttribute>().FirstOrDefault();
-            if (attr != null)
+            if (attr != null && attr.Value != null)
             {
                 return attr.Value;
             }
 
-            return null;
+            return string.Empty;
         }
 
         private static string ARGBToDiv(uint argb)

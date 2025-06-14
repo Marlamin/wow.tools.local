@@ -96,10 +96,16 @@ namespace wow.tools.local.Controllers
                     {
                         var fileName = Path.DirectorySeparatorChar != '\\' ? entry.Name.Replace("\\", Path.DirectorySeparatorChar.ToString()) : entry.Name;
                         var directoryName = System.IO.Path.GetDirectoryName(fileName) ?? string.Empty;
-                        var outputDir = Path.Combine(SettingsManager.extractionDir, CASC.BuildName, directoryName);
+                        var outputDir = Path.Combine(SettingsManager.ExtractionDir, CASC.BuildName, directoryName);
                         Directory.CreateDirectory(outputDir);
 
                         var fileStream = CASC.GetFileByEKey(eKey.Keys[0], eKey.Size);
+                        if(fileStream == null)
+                        {
+                            Console.WriteLine($"Failed to extract {fileName} from install entries, file not found in CASC.");
+                            continue;
+                        }
+
                         fileStream.CopyTo(ms);
                         ms.Position = 0;
 
@@ -130,7 +136,7 @@ namespace wow.tools.local.Controllers
                 result.data = [];
             }
 
-            if (!remote && SettingsManager.wowFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.wowFolder, ".build.info")))
+            if (!remote && SettingsManager.WoWFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.WoWFolder, ".build.info")))
             {
                 foreach (var availableBuild in CASC.AvailableBuilds)
                 {
@@ -142,10 +148,10 @@ namespace wow.tools.local.Controllers
 
                     // It's possible that we're not actually on the same build as the product is on when loading custom configs with TACTSharp. Double check.
                     if (isActive && CASC.IsTACTSharpInit)
-                        isActive = availableBuild.BuildConfig == CASC.buildInstance.Settings.BuildConfig && availableBuild.CDNConfig == CASC.buildInstance.Settings.CDNConfig;
+                        isActive = availableBuild.BuildConfig == CASC.buildInstance!.Settings.BuildConfig && availableBuild.CDNConfig == CASC.buildInstance!.Settings.CDNConfig;
 
-                    var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
-                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
+                    var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.ManifestFolder, patch + "." + build + ".txt"));
+                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
                     result.data.Add([patch, build, availableBuild.Product, availableBuild.Folder, availableBuild.BuildConfig, availableBuild.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
                 }
 
@@ -189,10 +195,10 @@ namespace wow.tools.local.Controllers
                         var isActive = CASC.CurrentProduct == product[0] && CASC.IsOnline;
                         // It's possible that we're not actually on the same build as the product is on when loading custom configs with TACTSharp. Double check.
                         if (isActive && CASC.IsTACTSharpInit)
-                            isActive = splitLine[1] == CASC.buildInstance.Settings.BuildConfig && splitLine[2] == CASC.buildInstance.Settings.CDNConfig;
+                            isActive = splitLine[1] == CASC.buildInstance!.Settings.BuildConfig && splitLine[2] == CASC.buildInstance!.Settings.CDNConfig;
 
-                        var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
-                        var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
+                        var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.ManifestFolder, patch + "." + build + ".txt"));
+                        var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
 
                         availableRemoteBuilds.Add((splitLine[1], splitLine[2]));
 
@@ -203,7 +209,7 @@ namespace wow.tools.local.Controllers
                     result.data = result.data.OrderByDescending(x => x[1]).ToList();
                 }
 
-                if (CASC.IsOnline && !availableRemoteBuilds.Any(x => x.buildConfig == CASC.buildInstance.Settings.BuildConfig && x.cdnConfig == CASC.buildInstance.Settings.CDNConfig))
+                if (CASC.IsOnline && !availableRemoteBuilds.Any(x => x.buildConfig == CASC.buildInstance!.Settings.BuildConfig && x.cdnConfig == CASC.buildInstance!.Settings.CDNConfig))
                 {
                     var isActive = true;
 
@@ -211,10 +217,10 @@ namespace wow.tools.local.Controllers
                     var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
                     var build = splitVersion[3];
 
-                    var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.manifestFolder, patch + "." + build + ".txt"));
-                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.dbcFolder, patch + "." + build, "dbfilesclient"));
+                    var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.ManifestFolder, patch + "." + build + ".txt"));
+                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
 
-                    result.data.Add([patch, build, "unknown", CASC.buildInstance.Settings.BuildConfig, CASC.buildInstance.Settings.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
+                    result.data.Add([patch, build, "unknown", CASC.buildInstance!.Settings.BuildConfig, CASC.buildInstance!.Settings.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
 
                     // sort by build
                     result.data = result.data.OrderByDescending(x => x[5]).ThenByDescending(x => x[1]).ToList();
@@ -228,18 +234,18 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool SwitchProduct(string product, bool isOnline = false)
         {
-            if (SettingsManager.useTACTSharp)
-                CASC.InitTACT(isOnline ? "" : SettingsManager.wowFolder, product);
+            if (SettingsManager.UseTACTSharp)
+                CASC.InitTACT(isOnline ? "" : SettingsManager.WoWFolder, product);
             else
-                CASC.InitCasc(isOnline ? "" : SettingsManager.wowFolder, product);
+                CASC.InitCasc(isOnline ? "" : SettingsManager.WoWFolder, product);
 
             // Don't respond until things are done loading
             while (true)
             {
-                if (SettingsManager.useTACTSharp && CASC.IsTACTSharpInit)
+                if (SettingsManager.UseTACTSharp && CASC.IsTACTSharpInit)
                     return true;
 
-                if (!SettingsManager.useTACTSharp && CASC.IsCASCLibInit)
+                if (!SettingsManager.UseTACTSharp && CASC.IsCASCLibInit)
                     return true;
             }
         }
@@ -248,10 +254,10 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool SwitchConfigs(string buildconfig, string cdnconfig)
         {
-            if (!SettingsManager.useTACTSharp)
+            if (!SettingsManager.UseTACTSharp)
                 return false;
 
-            CASC.InitTACT(null, "wow", buildconfig, cdnconfig);
+            CASC.InitTACT(string.Empty, "wow", buildconfig, cdnconfig);
 
             // Don't respond until things are done loading
             while (true)
@@ -300,9 +306,9 @@ namespace wow.tools.local.Controllers
         public List<string> ListManifests()
         {
             var cachedManifests = new List<string>();
-            if (Directory.Exists(SettingsManager.manifestFolder))
+            if (Directory.Exists(SettingsManager.ManifestFolder))
             {
-                foreach (var file in Directory.GetFiles(SettingsManager.manifestFolder, "*.txt"))
+                foreach (var file in Directory.GetFiles(SettingsManager.ManifestFolder, "*.txt"))
                     cachedManifests.Add(Path.GetFileNameWithoutExtension(file));
             }
             return [.. cachedManifests.OrderByDescending(x => int.Parse(x.Split(".")[3]))];
@@ -733,8 +739,8 @@ namespace wow.tools.local.Controllers
                 };
             }
 
-            var rootFromEntries = (await System.IO.File.ReadAllLinesAsync(Path.Combine(SettingsManager.manifestFolder, from + ".txt"))).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
-            var rootToEntries = (await System.IO.File.ReadAllLinesAsync(Path.Combine(SettingsManager.manifestFolder, to + ".txt"))).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            var rootFromEntries = (await System.IO.File.ReadAllLinesAsync(Path.Combine(SettingsManager.ManifestFolder, from + ".txt"))).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            var rootToEntries = (await System.IO.File.ReadAllLinesAsync(Path.Combine(SettingsManager.ManifestFolder, to + ".txt"))).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
 
             var fromEntries = rootFromEntries.Keys.ToHashSet();
             var toEntries = rootToEntries.Keys.ToHashSet();
@@ -1535,7 +1541,7 @@ namespace wow.tools.local.Controllers
 
         [Route("checkFilesFromFile")]
         [HttpGet]
-        public async Task<string> CheckFilesFromFile(string file = "")
+        public string CheckFilesFromFile(string file = "")
         {
             var filenames = System.IO.File.ReadAllLines(file);
             var unknownFDIDs = CASC.Listfile.Where(x => x.Value == "").Select(x => x.Key).ToList();

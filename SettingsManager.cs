@@ -1,25 +1,27 @@
-﻿using TACTSharp;
+﻿using CASCLib;
+using TACTSharp;
 
 namespace wow.tools.local
 {
     public static class SettingsManager
     {
-        public static string definitionDir;
-        public static string listfileURL;
-        public static string tactKeyURL;
-        public static string wowFolder;
-        public static string dbcFolder;
-        public static string manifestFolder;
-        public static string cdnFolder;
-        public static string wowProduct;
-        public static string region;
-        public static CASCLib.LocaleFlags cascLocale;
-        public static RootInstance.LocaleFlags tactLocale;
-        public static bool showAllFiles = false;
-        public static string extractionDir;
-        public static bool preferHighResTextures = false;
-        public static bool useTACTSharp = false;
-        public static string[] additionalCDNs = Array.Empty<string>();
+        private static string definitionDir = string.Empty;
+        private static string listfileURL = string.Empty;
+        private static string tactKeyURL = string.Empty;
+        private static string wowFolder = string.Empty;
+        private static string dbcFolder = string.Empty;
+        private static string manifestFolder = "manifests";
+        private static string extractionDir = "extract";
+        private static string cdnFolder = string.Empty;
+        private static string wowProduct = string.Empty;
+        private static string region = "eu";
+
+        private static CASCLib.LocaleFlags cascLocale;
+        private static RootInstance.LocaleFlags tactLocale;
+        private static bool showAllFiles = false;
+        private static bool preferHighResTextures = false;
+        private static bool useTACTSharp = false;
+        private static string[] additionalCDNs = Array.Empty<string>();
 
         // supported command line flags and switches
         // flag syntax: -flag value || -flag=value or --switch
@@ -41,6 +43,23 @@ namespace wow.tools.local
 
         // calling the double-hyphen args 'switch' instead of 'flag' because they don't have values
         private const string _debugSwitch = "--debug";
+
+        public static string DefinitionDir { get => definitionDir; private set => definitionDir = value; }
+        public static string ListfileURL { get => listfileURL; private set => listfileURL = value; }
+        public static string TACTKeyURL { get => tactKeyURL; private set => tactKeyURL = value; }
+        public static string WoWFolder { get => wowFolder; private set => wowFolder = value; }
+        public static string DBCFolder { get => dbcFolder; private set => dbcFolder = value; }
+        public static string ManifestFolder { get => manifestFolder; private set => manifestFolder = value; }
+        public static string ExtractionDir { get => extractionDir; private set => extractionDir = value; }
+        public static string CDNFolder { get => cdnFolder; private set => cdnFolder = value; }
+        public static string WoWProduct { get => wowProduct; private set => wowProduct = value; }
+        public static string Region { get => region; private set => region = value; }
+        public static bool ShowAllFiles { get => showAllFiles; private set => showAllFiles = value; }
+        public static RootInstance.LocaleFlags TACTLocale { get => tactLocale; private set => tactLocale = value; }
+        public static LocaleFlags CASCLocale { get => cascLocale; private set => cascLocale = value; }
+        public static bool PreferHighResTextures { get => preferHighResTextures; private set => preferHighResTextures = value; }
+        public static bool UseTACTSharp { get => useTACTSharp; private set => useTACTSharp = value; }
+        public static string[] AdditionalCDNs { get => additionalCDNs; private set => additionalCDNs = value; }
 
         // to add a new flag, add a new const string above
         //    then add a new case to the switch statement in either HandleFlag or HandleSwitch with the functionality you want
@@ -82,22 +101,16 @@ namespace wow.tools.local
                 Environment.CurrentDirectory = appDir;
             }
 
-            definitionDir = config.GetSection("config")["definitionDir"];
-            listfileURL = config.GetSection("config")["listfileURL"];
-            tactKeyURL = config.GetSection("config")["tactKeyURL"];
+            definitionDir = config.GetSection("config")["definitionDir"] ?? string.Empty;
+            listfileURL = config.GetSection("config")["listfileURL"] ?? string.Empty;
+            tactKeyURL = config.GetSection("config")["tactKeyURL"] ?? string.Empty;
 
-            if (config.GetSection("config")["region"] != null)
-            {
-                region = config.GetSection("config")["region"];
-            }
-            else
-            {
-                region = "eu";
-            }
+            region = config.GetSection("config")["region"] ?? "eu";
 
-            if (config.GetSection("config")["locale"] != null)
+            string? localeValue = config.GetSection("config")["locale"];
+            if (localeValue != null)
             {
-                SetLocale(config.GetSection("config")["locale"]);
+                SetLocale(localeValue);
             }
             else
             {
@@ -105,21 +118,14 @@ namespace wow.tools.local
                 tactLocale = RootInstance.LocaleFlags.enUS;
             }
 
-            if (config.GetSection("config")["manifestFolder"] != null)
-            {
-                manifestFolder = config.GetSection("config")["manifestFolder"];
-            }
-            else
-            {
-                manifestFolder = "manifests";
-            }
+            manifestFolder = config.GetSection("config")["manifestFolder"] ?? "manifests";
 
-            dbcFolder = config.GetSection("config")["dbcFolder"];
-            wowFolder = config.GetSection("config")["wowFolder"];
-            cdnFolder = config.GetSection("config")["cdnFolder"];
-            wowProduct = config.GetSection("config")["wowProduct"];
+            dbcFolder = config.GetSection("config")["dbcFolder"] ?? string.Empty;
+            wowFolder = config.GetSection("config")["wowFolder"] ?? string.Empty;
+            cdnFolder = config.GetSection("config")["cdnFolder"] ?? string.Empty;
+            wowProduct = config.GetSection("config")["wowProduct"] ?? string.Empty;
             showAllFiles = config.GetSection("config").GetValue<bool>("showAllFiles");
-            extractionDir = config.GetSection("config")["extractionDir"];
+            extractionDir = config.GetSection("config")["extractionDir"] ?? string.Empty;
             preferHighResTextures = config.GetSection("config").GetValue<bool>("preferHighResTextures");
             useTACTSharp = config.GetSection("config").GetValue<bool>("useTACTSharp");
             additionalCDNs = config.GetSection("config")["additionalCDNs"]?.Split(',') ?? Array.Empty<string>();
@@ -198,7 +204,7 @@ namespace wow.tools.local
                         cdnFolder = value;
                         break;
                     case (_listfileURLFlag):
-                        listfileURL = value;
+                        ListfileURL = value;
                         break;
                     case (_tactKeyURLFlag):
                         tactKeyURL = value;
@@ -296,7 +302,7 @@ namespace wow.tools.local
         {
             if (string.IsNullOrEmpty(wowFolder))
             {
-                wowFolder = null;
+                wowFolder = string.Empty;
             }
             else
             {

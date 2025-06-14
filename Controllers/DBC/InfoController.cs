@@ -12,8 +12,8 @@ namespace wow.tools.local.Controllers
             public int draw { get; set; }
             public int recordsFiltered { get; set; }
             public int recordsTotal { get; set; }
-            public List<string[]> data { get; set; }
-            public string error { get; set; }
+            public List<string[]> data { get; set; } = [];
+            public string error { get; set; } = string.Empty;
         }
 
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
@@ -23,7 +23,7 @@ namespace wow.tools.local.Controllers
         {
             var parameters = new Dictionary<string, string>();
             foreach (var get in Request.Query)
-                parameters.Add(get.Key, get.Value);
+                parameters.Add(get.Key, get.Value!);
 
             var draw = 0;
             if (parameters.TryGetValue("draw", out string? value))
@@ -34,7 +34,7 @@ namespace wow.tools.local.Controllers
                 draw = draw
             };
 
-            if (!Directory.Exists(Path.Combine(SettingsManager.dbcFolder, build)))
+            if (!Directory.Exists(Path.Combine(SettingsManager.DBCFolder, build)))
             {
                 result.error = "Could not find DBCs on disk for build " + build + "!";
                 return result;
@@ -53,9 +53,9 @@ namespace wow.tools.local.Controllers
                     if (CASC.DB2Exists("DBFilesClient/" + db2 + ".db2"))
                         fs = CASC.GetDB2ByName("DBFilesClient/" + db2 + ".db2");
                 }
-                else if (!string.IsNullOrEmpty(SettingsManager.dbcFolder))
+                else if (!string.IsNullOrEmpty(SettingsManager.DBCFolder))
                 {
-                    string fileName = Path.Combine(SettingsManager.dbcFolder, build, "dbfilesclient", db2 + ".db2");
+                    string fileName = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", db2 + ".db2");
 
                     if (System.IO.File.Exists(fileName))
                         fs = System.IO.File.OpenRead(fileName);

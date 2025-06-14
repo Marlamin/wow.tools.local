@@ -17,13 +17,13 @@ namespace wow.tools.local.Controllers.DBC
     {
         public class HeaderResult
         {
-            public List<string> headers { get; set; }
-            public Dictionary<string, string> fks { get; set; }
-            public Dictionary<string, string> comments { get; set; }
-            public List<string> unverifieds { get; set; }
+            public List<string> headers { get; set; } = [];
+            public Dictionary<string, string> fks { get; set; } = [];
+            public Dictionary<string, string> comments { get; set; } = [];
+            public List<string> unverifieds { get; set; } = [];
 
-            public Dictionary<string, List<string>> relationsToColumns { get; set; }
-            public string error { get; set; }
+            public Dictionary<string, List<string>> relationsToColumns { get; set; } = [];
+            public string error { get; set; } = string.Empty;
         }
 
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
