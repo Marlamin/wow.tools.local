@@ -214,11 +214,11 @@
                     updateToDBChref(urlParams.get('dbc'), urlParams.get('new'));
 
                     //this callback will be fired once all ajax calls have finished.
-                    if (resp1[0]['error'] != null) {
+                    if (resp1[0]['error'] != "") {
                         alert("An error occured on the server:\n" + resp1[0]['error']);
                     }
 
-                    if (resp2[0]['error'] != null) {
+                    if (resp2[0]['error'] != "") {
                         alert("An error occured on the server:\n" + resp2[0]['error']);
                     }
                     var fields = [...new Set([].concat(...resp1[0].headers, ...resp2[0].headers))];

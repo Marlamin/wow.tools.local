@@ -187,7 +187,7 @@
                 $.ajax({
                     "url": "/dbc/header/" + currentParams["dbc"] + "/?build=" + currentParams["build"],
                     "success": function (json) {
-                        if (json['error'] != null) {
+                        if (json['error'] != "") {
                             if (json['error'] == "No valid definition found for this layouthash or build!") {
                                 json['error'] += "\n\nPlease open an issue on the WoWDBDefs repository with the DBC name and selected version on GitHub to request a definition for this build.\n\nhttps://github.com/wowdev/WoWDBDefs";
                             }
