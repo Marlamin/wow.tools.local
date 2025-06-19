@@ -272,7 +272,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
                 document.getElementById('modelinfoHolder').innerHTML = text;
             });
         }
-    } else if (type == "lua" || type == "txt" || type == "srt" || type == "toc") {
+    } else if (type == "lua" || type == "txt" || type == "srt" || type == "toc" || type == "hlsl") {
         fetch(url).then((response) => response.text()).then((text) => {
             document.getElementById('codeHolder').innerHTML = text;
         });

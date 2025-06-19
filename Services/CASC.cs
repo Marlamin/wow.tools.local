@@ -102,7 +102,7 @@ namespace wow.tools.local.Services
                 buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.AdditionalCDNs);
 
             bool loadOnline = false;
-            if (wowFolder != null && string.IsNullOrEmpty(overrideBC) && string.IsNullOrEmpty(overrideCDNC))
+            if (!string.IsNullOrEmpty(wowFolder) && string.IsNullOrEmpty(overrideBC) && string.IsNullOrEmpty(overrideCDNC))
             {
                 // Load from build.info
                 var buildInfoPath = Path.Combine(wowFolder, ".build.info");

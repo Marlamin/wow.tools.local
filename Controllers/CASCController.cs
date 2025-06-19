@@ -647,6 +647,15 @@ namespace wow.tools.local.Controllers
                             case "???1":
                                 type = "srt";
                                 break;
+                            case "<Ui ":
+                                type = "xml";
+                                break;
+                            case "## T":
+                                type = "toc";
+                                break;
+                            case "#pra":
+                                type = "hlsl";
+                                break;
                             default:
                                 break;
                         }
@@ -1136,7 +1145,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string DiffFile(int fileDataID, string from, string to)
         {
-            var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt" };
+            var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt", "hlsl" };
             var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt" };
 
             var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";

@@ -47,7 +47,6 @@
                     hotfix.data = bin.ReadBytes(hotfix.dataSize);
                     hotfixes.Add(hotfix);
                 }
-
             }
         }
     }
