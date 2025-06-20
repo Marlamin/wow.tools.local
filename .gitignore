@@ -416,5 +416,7 @@ knownPushIDs.json
 versionHistory.json
 WTL.db
 WTL.db-journal
+hotfixes.db
+hotfixes.db-journal
 extract
 dump
