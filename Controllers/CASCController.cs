@@ -1146,7 +1146,7 @@ namespace wow.tools.local.Controllers
         public string DiffFile(int fileDataID, string from, string to)
         {
             var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt", "hlsl" };
-            var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt" };
+            var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt", "m3" };
 
             var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
             var js = @"      
@@ -1591,7 +1591,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls" };
+            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3" };
 
             if (!(CASC.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
@@ -1669,6 +1669,10 @@ namespace wow.tools.local.Controllers
                         }
                     }
                     return JsonConvert.SerializeObject(m2Reader.model, Formatting.Indented, new StringEnumConverter());
+                case "m3":
+                    var m3Reader = new M3Reader();
+                    m3Reader.LoadM3(fileDataID);
+                    return JsonConvert.SerializeObject(m3Reader.model, Formatting.Indented, new StringEnumConverter());
                 case "bls":
                     var blsReader = new BLSReader();
                     blsReader.LoadBLS(fileDataID);

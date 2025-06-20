@@ -223,12 +223,17 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             mimeType = "audio/ogg";
         }
         html += "<audio autoplay=\"\" controls=\"\"><source src=\"" + url + "\" type=\"" + mimeType + "\"></audio>";
-    } else if (type == "m2" || type == "wmo" || type == "bls") {
+    } else if (type == "m2" || type == "wmo" || type == "bls" || type == "m3") {
         html += "<ul class=\"nav nav-tabs\" role=\"tablist\">";
-        if (type == "m2" || type == "wmo") {
-            html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"modelviewer-tab\" data-bs-toggle=\"tab\" href=\"#modelviewer\" role=\"tab\" aria-controls=\"modelviewer\" aria-selected=\"true\">Modelviewer</a></li>";
-            html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"modelinfo-tab\" data-bs-toggle=\"tab\" href=\"#modelinfo\" role=\"tab\" aria-controls=\"modelinfo\" aria-selected=\"false\">Model info</a></li>";
-            html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
+        if (type == "m2" || type == "wmo" || type == "m3") {
+            if (type == "m2" || type == "wmo") {
+                html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"modelviewer-tab\" data-bs-toggle=\"tab\" href=\"#modelviewer\" role=\"tab\" aria-controls=\"modelviewer\" aria-selected=\"true\">Modelviewer</a></li>";
+                html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"modelinfo-tab\" data-bs-toggle=\"tab\" href=\"#modelinfo\" role=\"tab\" aria-controls=\"modelinfo\" aria-selected=\"false\">Model info</a></li>";
+                html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
+            } else if (type == "m3") {
+                html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
+
+            }
         } else if (type == "bls") {
             html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
         }
@@ -246,8 +251,12 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             html += "</div>";
         }
 
-        if (type == "m2" || type == "wmo") {
-            html += "<div class=\"tab-pane\" id=\"json\" role=\"tabpanel\" aria-labelledby=\"json-tab\">";
+        if (type == "m2" || type == "wmo" || type == "m3") {
+            if (type == "m3") {
+                html += "<div class=\"tab-pane show active\" id=\"json\" role=\"tabpanel\" aria-labelledby=\"json-tab\">";
+            } else {
+                html += "<div class=\"tab-pane\" id=\"json\" role=\"tabpanel\" aria-labelledby=\"json-tab\">";
+            }
             html += "<pre style='max-height: 80vh' id='jsonHolder'></pre>";
             html += "</div>";
         } else if (type == "bls") {
@@ -256,7 +265,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             html += "</div>";
         }
       
-        if (type == "m2" || type == "wmo") {
+        if (type == "m2" || type == "wmo" || type == "m3") {
             html += "<div class=\"tab-pane\" id=\"modelinfo\" role=\"tabpanel\" aria-labelledby=\"modelinfo-tab\">";
             html += "<div id='modelinfoHolder'></div>";
             html += "</div>";
@@ -267,7 +276,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             document.getElementById('jsonHolder').innerHTML = text;
         });
 
-        if (type == "wmo" || type == "m2") {
+        if (type == "wmo" || type == "m2" || type == "m3") {
             fetch("/model/info?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
                 document.getElementById('modelinfoHolder').innerHTML = text;
             });
