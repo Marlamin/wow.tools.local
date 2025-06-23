@@ -1,5 +1,4 @@
-﻿using DBDefsLib;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using static wow.tools.local.Services.Linker;
 
 namespace wow.tools.local.Services
@@ -115,7 +114,7 @@ namespace wow.tools.local.Services
                             {
                                 foreach (var wagoBuild in wagoBranch.Value)
                                 {
-                                    if(knownBCs.Contains(wagoBuild.build_config))
+                                    if (knownBCs.Contains(wagoBuild.build_config))
                                         continue; // skip already known build configs, wago bug
 
                                     if (wagoBuild.is_bgdl)
@@ -288,7 +287,14 @@ namespace wow.tools.local.Services
                 cmd.Parameters.AddWithValue("@cdnConfig", cdnConfig);
                 cmd.Parameters.AddWithValue("@build", buildNumber);
                 cmd.Parameters.AddWithValue("@firstSeen", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
-                cmd.ExecuteNonQuery();
+                try
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("Failed to insert build {0} into wow_builds (probably fine don't worry about it) with message {1}", version, e.Message);
+                }
             }
         }
 
