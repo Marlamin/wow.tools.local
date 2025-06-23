@@ -200,7 +200,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    broadcastTextCache[int.Parse(reader["broadcastTextID"].ToString()!)] = int.Parse(reader["LastUpdatedBuild"].ToString()!);
+                    broadcastTextCache[reader.GetInt32(0)] = reader.GetInt32(1);
                 }
 
                 reader.Close();
@@ -214,7 +214,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    creatureCache[int.Parse(reader["creatureID"].ToString()!)] = int.Parse(reader["LastUpdatedBuild"].ToString()!);
+                    creatureCache[reader.GetInt32(0)] = reader.GetInt32(1);
                 }
 
                 reader.Close();
@@ -228,7 +228,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    VOFDIDToCreatureNameCache[int.Parse(reader["fileDataID"].ToString()!)] = reader["creature"].ToString()!;
+                    VOFDIDToCreatureNameCache[reader.GetInt32(0)] = reader["creature"].ToString()!;
                 }
             }
 
@@ -240,12 +240,11 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    if (!displayIDToCreatureIDCache.ContainsKey(int.Parse(reader["displayID"].ToString()!)))
-                    {
-                        displayIDToCreatureIDCache[int.Parse(reader["displayID"].ToString()!)] = [];
-                    }
+                    var displayID = reader.GetInt32(0);
+                    if (!displayIDToCreatureIDCache.ContainsKey(displayID))
+                        displayIDToCreatureIDCache[displayID] = [];
 
-                    displayIDToCreatureIDCache[int.Parse(reader["displayID"].ToString()!)].Add(int.Parse(reader["creatureID"].ToString()!));
+                    displayIDToCreatureIDCache[displayID].Add(int.Parse(reader["creatureID"].ToString()!));
                 }
             }
         }
@@ -470,8 +469,8 @@ namespace wow.tools.local.Services
                 {
                     var Text_lang = reader["Text_lang"].ToString();
                     var Text1_lang = reader["Text1_lang"].ToString();
-                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString()!);
-                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString()!);
+                    var soundKitID0 = (uint)reader.GetInt32(2);
+                    var soundKitID1 = (uint)reader.GetInt32(3);
 
                     if (soundKitID0 != 0 && !string.IsNullOrEmpty(Text_lang))
                     {
@@ -534,14 +533,15 @@ namespace wow.tools.local.Services
 
             using (var cmd = dbConn.CreateCommand())
             {
-                cmd.CommandText = "SELECT SoundKitID0,SoundKitID1, broadcastTextID FROM wow_broadcasttext WHERE SoundKitID0 != 0 OR SoundKitID1 != 0";
+                cmd.CommandText = "SELECT SoundKitID0, SoundKitID1, broadcastTextID FROM wow_broadcasttext WHERE SoundKitID0 != 0 OR SoundKitID1 != 0";
                 var reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    var broadcastTextID = uint.Parse(reader["broadcastTextID"].ToString()!);
-                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString()!);
-                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString()!);
+                    var soundKitID0 = (uint)reader.GetInt32(0);
+                    var soundKitID1 = (uint)reader.GetInt32(1);
+                    var broadcastTextID = (uint)reader.GetInt32(2);
+
                     BroadcastTextIDToSoundKitIDs.Add(broadcastTextID, (soundKitID0, soundKitID1));
                 }
 
@@ -558,13 +558,13 @@ namespace wow.tools.local.Services
 
             using (var cmd = dbConn.CreateCommand())
             {
-                cmd.CommandText = "SELECT SoundKitID0,SoundKitID1, broadcastTextID FROM wow_broadcasttext WHERE SoundKitID0 != 0 OR SoundKitID1 != 0";
+                cmd.CommandText = "SELECT broadcastTextID, SoundKitID0, SoundKitID1 FROM wow_broadcasttext WHERE SoundKitID0 != 0 OR SoundKitID1 != 0";
                 var reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    var broadcastTextID = uint.Parse(reader["broadcastTextID"].ToString()!);
-                    var soundKitID0 = uint.Parse(reader["SoundKitID0"].ToString()!);
+                    var broadcastTextID = (uint)reader.GetInt32(0);
+                    var soundKitID0 = (uint)reader.GetInt32(1);
                     if (soundKitID0 != 0)
                     {
                         if (!SoundKitIDToBCTextID.ContainsKey(soundKitID0))
@@ -574,7 +574,7 @@ namespace wow.tools.local.Services
                             SoundKitIDToBCTextID[soundKitID0].Add(broadcastTextID);
                     }
 
-                    var soundKitID1 = uint.Parse(reader["SoundKitID1"].ToString()!);
+                    var soundKitID1 = (uint)reader.GetInt32(2);
                     if (soundKitID1 != 0)
                     {
                         if (!SoundKitIDToBCTextID.ContainsKey(soundKitID1))
@@ -627,7 +627,7 @@ namespace wow.tools.local.Services
 
                 while (reader.Read())
                 {
-                    creatures[uint.Parse(reader["creatureID"].ToString()!)] = reader["name"].ToString()!;
+                    creatures[(uint)reader.GetInt32(0)] = reader["name"].ToString()!;
                 }
 
                 reader.Close();
@@ -760,7 +760,7 @@ namespace wow.tools.local.Services
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        var broadcastTextID = uint.Parse(reader["broadcastTextID"].ToString()!);
+                        var broadcastTextID = (uint)reader.GetInt32(0);
                         if (broadcastTextID != 0)
                             results.Add(broadcastTextID);
                     }
@@ -796,7 +796,7 @@ namespace wow.tools.local.Services
                 {
                     files.Add(new LinkedFile()
                     {
-                        fileDataID = uint.Parse(reader["parent"].ToString()!),
+                        fileDataID = (uint)reader.GetInt32(0),
                         linkType = reader["type"].ToString()!
                     });
                 }
@@ -821,7 +821,7 @@ namespace wow.tools.local.Services
                 {
                     files.Add(new LinkedFile()
                     {
-                        fileDataID = uint.Parse(reader["child"].ToString()!),
+                        fileDataID = (uint)reader.GetInt32(0),
                         linkType = reader["type"].ToString()!
                     });
                 }
