@@ -849,6 +849,15 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 else
                     Console.WriteLine("No flavor found matching " + availableBuild.Product);
 
+                try
+                {
+                    SQLiteDB.InsertBuildIfNotExists(availableBuild.Product, availableBuild.Version, availableBuild.BuildConfig, availableBuild.CDNConfig);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error inserting build into database: " + e.Message);
+                }
+
                 AvailableBuilds.Add(availableBuild);
             }
         }
