@@ -1,7 +1,5 @@
 ﻿using DBDefsLib;
 using Microsoft.Data.Sqlite;
-using System.Net;
-using WoWNamingLib.Utils;
 using static wow.tools.local.Services.Linker;
 
 namespace wow.tools.local.Services
@@ -81,20 +79,22 @@ namespace wow.tools.local.Services
 
             var buildCountCmd = new SqliteCommand("SELECT COUNT(*) FROM wow_builds", dbConn);
             var buildCount = (long)buildCountCmd.ExecuteScalar()!;
-            if(buildCount == 0)
+            if (buildCount == 0)
             {
-                var insertBuildCmd = new SqliteCommand("INSERT INTO wow_builds (product, buildConfig, cdnConfig, productConfig, version, build, firstSeen) VALUES (@product, @buildConfig, @cdnConfig, @productConfig, @version, @build, @firstSeen)", dbConn);
-                insertBuildCmd.Parameters.AddWithValue("@product", "");
-                insertBuildCmd.Parameters.AddWithValue("@buildConfig", "");
-                insertBuildCmd.Parameters.AddWithValue("@cdnConfig", "");
-                insertBuildCmd.Parameters.AddWithValue("@productConfig", "");
-                insertBuildCmd.Parameters.AddWithValue("@version", "");
-                insertBuildCmd.Parameters.AddWithValue("@build", 0);
-                insertBuildCmd.Parameters.AddWithValue("@firstSeen", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
-
                 // seed initial data from wago
                 try
                 {
+                    var transaction = dbConn.BeginTransaction();
+                    var insertBuildCmd = new SqliteCommand("INSERT INTO wow_builds (product, buildConfig, cdnConfig, productConfig, version, build, firstSeen) VALUES (@product, @buildConfig, @cdnConfig, @productConfig, @version, @build, @firstSeen)", dbConn);
+                    insertBuildCmd.Transaction = transaction;
+                    insertBuildCmd.Parameters.AddWithValue("@product", "");
+                    insertBuildCmd.Parameters.AddWithValue("@buildConfig", "");
+                    insertBuildCmd.Parameters.AddWithValue("@cdnConfig", "");
+                    insertBuildCmd.Parameters.AddWithValue("@productConfig", "");
+                    insertBuildCmd.Parameters.AddWithValue("@version", "");
+                    insertBuildCmd.Parameters.AddWithValue("@build", 0);
+                    insertBuildCmd.Parameters.AddWithValue("@firstSeen", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+
                     Console.WriteLine("Seeding initial builds table from wago.tools");
                     using (var client = new HttpClient())
                     {
@@ -109,10 +109,15 @@ namespace wow.tools.local.Services
                         }
                         else
                         {
+                            var knownBCs = new HashSet<string>();
+
                             foreach (var wagoBranch in wagoBuilds)
                             {
                                 foreach (var wagoBuild in wagoBranch.Value)
                                 {
+                                    if(knownBCs.Contains(wagoBuild.build_config))
+                                        continue; // skip already known build configs, wago bug
+
                                     if (wagoBuild.is_bgdl)
                                         continue; // skip background download builds
 
@@ -121,6 +126,9 @@ namespace wow.tools.local.Services
                                         continue; // invalid version
 
                                     var buildNumber = int.Parse(buildVersion[3]);
+                                    buildToVersion[buildNumber] = wagoBuild.version;
+
+                                    knownBCs.Add(wagoBuild.build_config);
 
                                     insertBuildCmd.Parameters["@product"].Value = wagoBuild.product;
                                     insertBuildCmd.Parameters["@buildConfig"].Value = wagoBuild.build_config;
@@ -134,7 +142,7 @@ namespace wow.tools.local.Services
                                     {
                                         insertBuildCmd.ExecuteNonQuery();
                                     }
-                                    catch(Exception e)
+                                    catch (Exception e)
                                     {
                                         Console.WriteLine("Failed to insert seeded wago build: " + e.Message);
                                     }
@@ -142,7 +150,10 @@ namespace wow.tools.local.Services
                             }
                         }
                     }
-                }catch(Exception ex)
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
                 {
                     Console.WriteLine("Error fetching Wago builds: " + ex.Message);
                 }
@@ -243,7 +254,7 @@ namespace wow.tools.local.Services
         {
             if (buildToVersion.TryGetValue(build, out var version))
                 return version;
-            
+
             using (var cmd = dbConn.CreateCommand())
             {
                 cmd.CommandText = "SELECT version FROM wow_builds WHERE build = @build";
@@ -266,7 +277,7 @@ namespace wow.tools.local.Services
                 return; // invalid version
 
             var buildNumber = int.Parse(buildVersion[3]);
-            if(buildToVersion.ContainsKey(buildNumber))
+            if (buildToVersion.ContainsKey(buildNumber))
                 return;
 
             using (var cmd = dbConn.CreateCommand())

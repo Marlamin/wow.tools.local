@@ -179,6 +179,8 @@ namespace wow.tools.local.Services
             insertParsedCMD.CommandText = "INSERT INTO wow_hotfixes_parsed (md5) VALUES (@md5)";
             insertParsedCMD.Parameters.AddWithValue("@md5", string.Empty);
 
+            var knownPushIDRecordsInCache = new HashSet<(int pushID, uint recordID, uint tableHash)>();
+
             foreach (var newHotfix in newHotfixes)
             {
                 var tableName = tableNames.TryGetValue(newHotfix.tableHash, out string? value) ? value : "Unknown_" + newHotfix.tableHash.ToString("X8");
@@ -204,6 +206,11 @@ namespace wow.tools.local.Services
 
                 if (!knownPushIDs.Contains(newHotfix.pushID))
                 {
+                    if(knownPushIDRecordsInCache.Contains((newHotfix.pushID, newHotfix.recordID, newHotfix.tableHash)))
+                    {
+                        Console.WriteLine("Warning: Skipping hotfix with pushID " + newHotfix.pushID + " and recordID " + newHotfix.recordID + " as it was already seen in this push.");
+                        continue;
+                    }
                     insertHotfixCMD.Parameters["@pushID"].Value = newHotfix.pushID;
                     insertHotfixCMD.Parameters["@tableName"].Value = tableName;
                     insertHotfixCMD.Parameters["@isValid"].Value = newHotfix.status;
@@ -240,13 +247,14 @@ namespace wow.tools.local.Services
                             knownData.Add(knownDataEntry);
                         }
                     }
+
+                    knownPushIDRecordsInCache.Add((newHotfix.pushID, newHotfix.recordID, newHotfix.tableHash));
                 }
             }
 
             // Add to list after done inserting
             foreach (var newHotfix in newHotfixes)
                 knownPushIDs.Add(newHotfix.pushID);
-
 
             if (!knownParsedMD5s.Contains(md5))
             {
