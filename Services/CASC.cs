@@ -9,7 +9,7 @@ using WoWFormatLib;
 
 namespace wow.tools.local.Services
 {
-    public static class CASC
+    public static partial class CASC
     {
         public static CASCHandler? cascHandler;
         public static bool IsCASCLibInit = false;
@@ -40,6 +40,10 @@ namespace wow.tools.local.Services
         public static List<AvailableBuild> AvailableBuilds = [];
         public static List<int> OtherLocaleOnlyFiles = [];
         public static List<InstallEntry> InstallEntries = [];
+
+        [GeneratedRegex(@"(?<=e:\{)([0-9a-fA-F]{16})(?=,)", RegexOptions.Compiled)]
+        private static partial Regex eKeyRegex();
+
         public struct Version
         {
             public string buildName;
@@ -388,45 +392,45 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
             #endregion
 
             Console.WriteLine("Analyzing files");
-            var eKeyEncryptedRegex = new Regex(@"(?<=e:\{)([0-9a-fA-F]{16})(?=,)", RegexOptions.Compiled);
-            foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
+            Parallel.ForEach(buildInstance.Root.GetAvailableFDIDs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, fdid =>
             {
                 var entries = buildInstance.Root.GetEntriesByFDID(fdid);
                 if (entries.Count == 0)
-                    continue;
-
-                if (EncryptedFDIDs.ContainsKey((int)fdid))
-                    continue;
-
-                if ((entries[0].contentFlags & RootInstance.ContentFlags.Encrypted) != 0)
-                    EncryptedFDIDs.Add((int)fdid, []);
-
+                    return;
+                    
+                int fdidInt = (int)fdid;
+                
+                lock (EncryptedFDIDs)
+                {
+                    if (EncryptedFDIDs.ContainsKey(fdidInt))
+                        return;
+                        
+                    if ((entries[0].contentFlags & RootInstance.ContentFlags.Encrypted) != 0)
+                        EncryptedFDIDs.TryAdd(fdidInt, new List<ulong>());
+                }
+                
                 var eKeys = buildInstance.Encoding.FindContentKey(entries[0].md5.AsSpan());
                 if (eKeys != false)
                 {
                     var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
-                    var matches = eKeyEncryptedRegex.Matches(eSpec.eSpec);
-                    var usedKeys = new List<ulong>();
-
-                    if (matches.Count != 0)
+                    var matches = eKeyRegex().Matches(eSpec.eSpec);
+                    
+                    if (matches.Count > 0)
                     {
                         var keys = matches.Cast<Match>().Select(m => BitConverter.ToUInt64(m.Value.FromHexString(), 0)).ToList();
-                        usedKeys.AddRange(keys);
-                    }
-
-                    if (usedKeys.Count > 0)
-                    {
-                        if (EncryptedFDIDs.TryGetValue((int)fdid, out List<ulong>? encryptedIDs))
+                        if (keys.Count > 0)
                         {
-                            encryptedIDs.AddRange(usedKeys);
-                        }
-                        else
-                        {
-                            EncryptedFDIDs.Add((int)fdid, new List<ulong>(usedKeys));
+                            lock (EncryptedFDIDs)
+                            {
+                                if (EncryptedFDIDs.TryGetValue(fdidInt, out List<ulong>? encryptedIDs))
+                                    encryptedIDs.AddRange(keys);
+                                else
+                                    EncryptedFDIDs[fdidInt] = new List<ulong>(keys);
+                            }
                         }
                     }
                 }
-            }
+            });
 
             // Lookups
             foreach (var entry in buildInstance.Root.GetAvailableLookups())
