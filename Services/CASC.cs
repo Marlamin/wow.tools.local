@@ -986,12 +986,12 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     DB2Map.Add(filenameLower, fdid);
 
                 if (
-                    filenameLower.StartsWith("models") ||
-                    filenameLower.StartsWith("unkmaps") ||
-                    filenameLower.Contains("autogen-names") ||
-                    filenameLower.Contains(fdid.ToString()) ||
-                    filenameLower.Contains("unk_exp") ||
-                    filenameLower.Contains("tileset/unused") ||
+                    filenameLower.StartsWith("models", StringComparison.Ordinal) ||
+                    filenameLower.StartsWith("unkmaps", StringComparison.Ordinal) ||
+                    filenameLower.Contains("autogen-names", StringComparison.Ordinal) ||
+                    filenameLower.Contains(fdid.ToString(), StringComparison.Ordinal) ||
+                    filenameLower.Contains("unk_exp", StringComparison.Ordinal) ||
+                    filenameLower.Contains("tileset/unused", StringComparison.Ordinal) ||
                     string.IsNullOrEmpty(filename)
                     )
                 {
