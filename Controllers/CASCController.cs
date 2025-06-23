@@ -1368,8 +1368,11 @@ namespace wow.tools.local.Controllers
 
         [Route("blp2png")]
         [HttpGet]
-        public ActionResult Blp2Png(int fileDataID, string build)
+        public ActionResult Blp2Png(int fileDataID, string build = "")
         {
+            if (string.IsNullOrEmpty(build) || build == "?")
+                build = CASC.BuildName;
+
             var file = CASC.GetFileByID((uint)fileDataID, build);
             if (file == null)
                 return NotFound();

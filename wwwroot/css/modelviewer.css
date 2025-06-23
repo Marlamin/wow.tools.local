@@ -22,6 +22,12 @@ html, body{
     touch-action: none;
 }
 
+#js-mv-container {
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
 #fpsLabel {
     position: absolute;
     right: 0px;

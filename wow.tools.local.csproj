@@ -64,6 +64,8 @@
     <Content Remove="wwwroot\files\install.html" />
     <Content Remove="wwwroot\files\naming.html" />
     <Content Remove="wwwroot\header.html" />
+    <Content Remove="wwwroot\js\m3modelviewer.js" />
+    <Content Remove="wwwroot\mv\m3.html" />
   </ItemGroup>
   
   <ItemGroup>

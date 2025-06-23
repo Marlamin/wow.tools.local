@@ -362,11 +362,15 @@ namespace wow.tools.local.Controllers
             if (Request.Query.TryGetValue("showWMO", out var showWMOString))
                 showWMO = bool.Parse(showWMOString!);
 
+            var showM3 = false;
+            if (Request.Query.TryGetValue("showM3", out var showM3String))
+                showM3 = bool.Parse(showM3String!);
+
             //var showADT = true;
             //if (Request.Query.TryGetValue("showADT", out var showADTString))
             //    showADT = bool.Parse(showADTString);
 
-            var listfileResults = new Dictionary<int, string>(CASC.Listfile.Where(x => (showM2 && CASC.TypeMap["m2"].Contains(x.Key)) || (showWMO && CASC.TypeMap["wmo"].Contains(x.Key))));
+            var listfileResults = new Dictionary<int, string>(CASC.Listfile.Where(x => (showM2 && CASC.TypeMap["m2"].Contains(x.Key)) || (showWMO && CASC.TypeMap["wmo"].Contains(x.Key)) || (showM3 && CASC.TypeMap["m3"].Contains(x.Key))));
 
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
