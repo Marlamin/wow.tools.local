@@ -1,4 +1,6 @@
-﻿namespace wow.tools.local.Services
+﻿using System.IO;
+
+namespace wow.tools.local.Services
 {
     public struct HotfixEntry
     {
@@ -22,20 +24,18 @@
             using (var fs = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var bin = new BinaryReader(fs))
             {
-                var hotfix = new HotfixEntry();
                 bin.ReadUInt32(); // Signature
                 var version = bin.ReadUInt32();
                 if (version != 9)
-                {
-                    //Console.WriteLine("Unsupported DBCache version " + version + ", skipping");
                     return;
-                }
+
                 build = bin.ReadInt32();
                 bin.BaseStream.Position += 32;
 
                 while (bin.BaseStream.Position < bin.BaseStream.Length)
                 {
                     bin.ReadUInt32(); // Signature
+                    var hotfix = new HotfixEntry();
                     hotfix.regionID = bin.ReadUInt32();
                     hotfix.pushID = bin.ReadInt32();
                     hotfix.uniqueID = bin.ReadUInt32();

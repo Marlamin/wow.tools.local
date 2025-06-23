@@ -219,6 +219,15 @@ namespace wow.tools.local.Services
             var splitName = FullBuildName.Replace("WOW-", "").Split("patch");
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
 
+            try
+            {
+                SQLiteDB.InsertBuildIfNotExists(CurrentProduct, BuildName, buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error inserting build into database: " + e.Message);
+            }
+
             // TODO: Keyring
 
             var manifestFolder = SettingsManager.ManifestFolder;
@@ -544,6 +553,15 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 Directory.CreateDirectory(manifestFolder);
 
             InstallEntries = cascHandler.Install.GetEntries().ToList();
+
+            try
+            {
+                SQLiteDB.InsertBuildIfNotExists(CurrentProduct, BuildName, cascHandler.Config.GetVersionsVariable("BuildConfig"), cascHandler.Config.GetVersionsVariable("CDNConfig"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error inserting build into database: " + e.Message);
+            }
 
             AvailableFDIDs.Clear();
 

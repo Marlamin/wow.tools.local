@@ -1,4 +1,6 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using DBDefsLib;
+using Microsoft.Data.Sqlite;
+using System.Net;
 using WoWNamingLib.Utils;
 using static wow.tools.local.Services.Linker;
 
@@ -6,13 +8,26 @@ namespace wow.tools.local.Services
 {
     public static class SQLiteDB
     {
-        public static SqliteConnection dbConn = new("Data Source=WTL.db");
+        public static readonly SqliteConnection dbConn = new("Data Source=WTL.db");
+        public static readonly SqliteConnection hotfixDBConn = new("Data Source=hotfixes.db");
         public static readonly Dictionary<string, HashSet<int>> newFilesBetweenVersion = [];
         private static readonly Dictionary<int, int> broadcastTextCache = [];
         public static readonly Dictionary<int, int> creatureCache = [];
         public static readonly Dictionary<int, string> VOFDIDToCreatureNameCache = [];
         public static readonly Dictionary<int, List<int>> displayIDToCreatureIDCache = [];
+        public static readonly Dictionary<int, string> buildToVersion = [];
         public static object SQLiteLock = new();
+
+        class WagoBuild
+        {
+            public string product { get; set; }
+            public string version { get; set; }
+            public string created_at { get; set; }
+            public string build_config { get; set; }
+            public string product_config { get; set; }
+            public string cdn_config { get; set; }
+            public bool is_bgdl { get; set; }
+        }
 
         static SQLiteDB()
         {
@@ -59,6 +74,112 @@ namespace wow.tools.local.Services
 
             indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_displayids_creature_idx ON wow_displayids_creature (displayID, creatureID)", dbConn);
             indexCmd.ExecuteNonQuery();
+
+            // wow_builds
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_builds (product TEXT, buildConfig TEXT, cdnConfig TEXT, productConfig TEXT, version TEXT, build INTEGER, firstSeen TEXT, UNIQUE(`buildconfig`))", dbConn);
+            createCmd.ExecuteNonQuery();
+
+            var buildCountCmd = new SqliteCommand("SELECT COUNT(*) FROM wow_builds", dbConn);
+            var buildCount = (long)buildCountCmd.ExecuteScalar()!;
+            if(buildCount == 0)
+            {
+                var insertBuildCmd = new SqliteCommand("INSERT INTO wow_builds (product, buildConfig, cdnConfig, productConfig, version, build, firstSeen) VALUES (@product, @buildConfig, @cdnConfig, @productConfig, @version, @build, @firstSeen)", dbConn);
+                insertBuildCmd.Parameters.AddWithValue("@product", "");
+                insertBuildCmd.Parameters.AddWithValue("@buildConfig", "");
+                insertBuildCmd.Parameters.AddWithValue("@cdnConfig", "");
+                insertBuildCmd.Parameters.AddWithValue("@productConfig", "");
+                insertBuildCmd.Parameters.AddWithValue("@version", "");
+                insertBuildCmd.Parameters.AddWithValue("@build", 0);
+                insertBuildCmd.Parameters.AddWithValue("@firstSeen", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                // seed initial data from wago
+                try
+                {
+                    Console.WriteLine("Seeding initial builds table from wago.tools");
+                    using (var client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
+                        var response = client.GetAsync("https://wago.tools/api/builds").Result;
+                        var json = response.Content.ReadAsStringAsync().Result;
+                        var wagoBuilds = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<WagoBuild>>>(json);
+                        if (wagoBuilds == null)
+                        {
+                            Console.WriteLine("Failed to parse Wago builds JSON response.");
+                            return;
+                        }
+                        else
+                        {
+                            foreach (var wagoBranch in wagoBuilds)
+                            {
+                                foreach (var wagoBuild in wagoBranch.Value)
+                                {
+                                    if (wagoBuild.is_bgdl)
+                                        continue; // skip background download builds
+
+                                    var buildVersion = wagoBuild.version.Split('.');
+                                    if (buildVersion.Length != 4)
+                                        continue; // invalid version
+
+                                    var buildNumber = int.Parse(buildVersion[3]);
+
+                                    insertBuildCmd.Parameters["@product"].Value = wagoBuild.product;
+                                    insertBuildCmd.Parameters["@buildConfig"].Value = wagoBuild.build_config;
+                                    insertBuildCmd.Parameters["@cdnConfig"].Value = wagoBuild.cdn_config;
+                                    insertBuildCmd.Parameters["@productConfig"].Value = wagoBuild.product_config ?? "";
+                                    insertBuildCmd.Parameters["@version"].Value = wagoBuild.version;
+                                    insertBuildCmd.Parameters["@build"].Value = buildNumber;
+                                    insertBuildCmd.Parameters["@firstSeen"].Value = wagoBuild.created_at;
+
+                                    try
+                                    {
+                                        insertBuildCmd.ExecuteNonQuery();
+                                    }
+                                    catch(Exception e)
+                                    {
+                                        Console.WriteLine("Failed to insert seeded wago build: " + e.Message);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }catch(Exception ex)
+                {
+                    Console.WriteLine("Error fetching Wago builds: " + ex.Message);
+                }
+            }
+            else
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT version, build FROM wow_builds ORDER BY build";
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var version = reader["version"].ToString()!;
+                        var build = int.Parse(reader["build"].ToString()!);
+                        buildToVersion[build] = version;
+                    }
+                }
+            }
+
+            // prepare hotfixes
+            hotfixDBConn.Open();
+
+            // wow_hotfixes
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS `wow_hotfixes` (`pushID` integer NOT NULL,  `recordID` integer NOT NULL,  `tableName` varchar(100) NOT NULL,  `isValid` integer NOT NULL,  `build` integer NOT NULL,  `region` integer DEFAULT NULL,  `firstdetected` timestamp NOT NULL DEFAULT current_timestamp, UNIQUE (`pushID`,`recordID`,`tableName`));", hotfixDBConn);
+            createCmd.ExecuteNonQuery();
+
+            // wow_hotfixpushxbuild
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS `wow_hotfixpushxbuild` (`PushID` integer NOT NULL,  `RegionID` integer NOT NULL,  `Build` integer NOT NULL,  `DetectedAt` timestamp NOT NULL DEFAULT current_timestamp,  UNIQUE (`PushID`,`RegionID`,`Build`));", hotfixDBConn);
+            createCmd.ExecuteNonQuery();
+
+            // wow_hotfixes_data
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS `wow_hotfixes_data` (`pushID` integer NOT NULL, `recordID` integer NOT NULL, `tableHash` integer NOT NULL, `dataBefore` blob, `dataAfter` blob NOT NULL, UNIQUE (`pushID`,`recordID`,`tableHash`));", hotfixDBConn);
+            createCmd.ExecuteNonQuery();
+
+            // wow_hotfixes_parsed
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS `wow_hotfixes_parsed` (`md5` TEXT NOT NULL, UNIQUE (`md5`));", hotfixDBConn);
+            createCmd.ExecuteNonQuery();
 
             // prepare broadcastTextCache
             using (var cmd = dbConn.CreateCommand())
@@ -115,6 +236,49 @@ namespace wow.tools.local.Services
 
                     displayIDToCreatureIDCache[int.Parse(reader["displayID"].ToString()!)].Add(int.Parse(reader["creatureID"].ToString()!));
                 }
+            }
+        }
+
+        public static string GetVersionByBuild(int build)
+        {
+            if (buildToVersion.TryGetValue(build, out var version))
+                return version;
+            
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT version FROM wow_builds WHERE build = @build";
+                cmd.Parameters.AddWithValue("@build", build);
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    buildToVersion[build] = reader["version"].ToString()!;
+                    return buildToVersion[build];
+                }
+            }
+
+            return "";
+        }
+
+        public static void InsertBuildIfNotExists(string product, string version, string buildConfig, string cdnConfig)
+        {
+            var buildVersion = version.Split('.');
+            if (buildVersion.Length != 4)
+                return; // invalid version
+
+            var buildNumber = int.Parse(buildVersion[3]);
+            if(buildToVersion.ContainsKey(buildNumber))
+                return;
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "INSERT INTO wow_builds (product, version, buildConfig, cdnConfig, productConfig, build, firstSeen) VALUES (@product, @version, @buildConfig, @cdnConfig, '', @build, @firstSeen)";
+                cmd.Parameters.AddWithValue("@product", product);
+                cmd.Parameters.AddWithValue("@version", version);
+                cmd.Parameters.AddWithValue("@buildConfig", buildConfig);
+                cmd.Parameters.AddWithValue("@cdnConfig", cdnConfig);
+                cmd.Parameters.AddWithValue("@build", buildNumber);
+                cmd.Parameters.AddWithValue("@firstSeen", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+                cmd.ExecuteNonQuery();
             }
         }
 
