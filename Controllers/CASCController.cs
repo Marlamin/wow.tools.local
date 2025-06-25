@@ -1126,14 +1126,29 @@ namespace wow.tools.local.Controllers
             html += "</table></td></tr>";
             */
 
-            // IDK how to do this in C# fast
-            /*
             html += "<tr><td colspan='2'><b>Neighbouring files</b></td></tr>";
             html += "<tr><td colspan='2'><table class='table table-sm'>";
             html += "<tr><th>ID</th><th>Filename</th></tr>";
-            
+
+            var listfileAsKeys = CASC.Listfile.Keys.ToList();
+            listfileAsKeys.Sort();
+            var fileDataIDPosition = listfileAsKeys.IndexOf(filedataid);
+
+            for (int i = -5; i < 6; i++)
+            {
+                int idx = fileDataIDPosition + i;
+                if (idx < 0 || idx >= listfileAsKeys.Count)
+                    continue;
+
+                var fdid = listfileAsKeys[idx];
+                if (CASC.Listfile.TryGetValue(fdid, out var listfileName))
+                    if (fdid == filedataid)
+                        html += "<tr><td style='color: red'><b>" + fdid + "</b></td><td style='color: red'><b>" + listfileName + "</b></td></tr>";
+                    else
+                        html += "<tr><td>" + fdid + "</td><td>" + listfileName + "</td></tr>";
+            }
+
             html += "</table></td></tr></table>";
-            */
             moreInfoInitLock.Exit();
             return html;
         }
