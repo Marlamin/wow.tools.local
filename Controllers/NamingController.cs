@@ -274,37 +274,40 @@ namespace wow.tools.local.Controllers
                             }
                         }
 
-                        foreach (var gobjectCacheFile in Directory.GetFiles("caches", "gameobjectcache*", SearchOption.AllDirectories))
+                        if (Directory.Exists("caches"))
                         {
-                            uint build = 0;
-
-                            using (var ms = new MemoryStream(System.IO.File.ReadAllBytes(gobjectCacheFile)))
-                            using (var bin = new BinaryReader(ms))
+                            foreach (var gobjectCacheFile in Directory.GetFiles("caches", "gameobjectcache*", SearchOption.AllDirectories))
                             {
-                                bin.ReadUInt32();
-                                build = bin.ReadUInt32();
-                            }
+                                uint build = 0;
 
-                            if (buildMap.TryGetValue(build, out var buildName))
-                            {
-                                Console.WriteLine("Loading " + gobjectCacheFile + " for " + buildName);
-                                var gobjectCache = WDBReader.Read(gobjectCacheFile, buildName);
-                                foreach (var entry in gobjectCache.entries)
+                                using (var ms = new MemoryStream(System.IO.File.ReadAllBytes(gobjectCacheFile)))
+                                using (var bin = new BinaryReader(ms))
                                 {
+                                    bin.ReadUInt32();
+                                    build = bin.ReadUInt32();
+                                }
 
-                                    if (entry.Value.TryGetValue("GameObjectDisplayID", out var displayID))
+                                if (buildMap.TryGetValue(build, out var buildName))
+                                {
+                                    Console.WriteLine("Loading " + gobjectCacheFile + " for " + buildName);
+                                    var gobjectCache = WDBReader.Read(gobjectCacheFile, buildName);
+                                    foreach (var entry in gobjectCache.entries)
                                     {
-                                        var displayIDButInt = uint.Parse(displayID);
-                                        if (entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
+
+                                        if (entry.Value.TryGetValue("GameObjectDisplayID", out var displayID))
                                         {
-                                            goNames.TryAdd(displayIDButInt, name);
+                                            var displayIDButInt = uint.Parse(displayID);
+                                            if (entry.Value.TryGetValue("Name[0]", out var name) && !name.Contains(' ') && (name.Contains("10") || name.Contains("11")))
+                                            {
+                                                goNames.TryAdd(displayIDButInt, name);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                Console.WriteLine("No full build name found for build " + build);
+                                else
+                                {
+                                    Console.WriteLine("No full build name found for build " + build);
+                                }
                             }
                         }
 
@@ -410,48 +413,51 @@ namespace wow.tools.local.Controllers
                             }
                         }
 
-                        foreach (var creatureCacheFile in Directory.GetFiles("caches", "creaturecache*", SearchOption.AllDirectories))
+                        if (Directory.Exists("caches"))
                         {
-                            uint build = 0;
-
-                            using (var ms = new MemoryStream(System.IO.File.ReadAllBytes(creatureCacheFile)))
-                            using (var bin = new BinaryReader(ms))
+                            foreach (var creatureCacheFile in Directory.GetFiles("caches", "creaturecache*", SearchOption.AllDirectories))
                             {
-                                bin.ReadUInt32();
-                                build = bin.ReadUInt32();
-                            }
+                                uint build = 0;
 
-                            if (buildMap.TryGetValue(build, out var buildName))
-                            {
-                                Console.WriteLine("Loading " + creatureCacheFile + " for " + buildName);
-                                var creatureCache = WDBReader.Read(creatureCacheFile, buildName);
-                                foreach (var entry in creatureCache.entries)
+                                using (var ms = new MemoryStream(System.IO.File.ReadAllBytes(creatureCacheFile)))
+                                using (var bin = new BinaryReader(ms))
                                 {
-                                    if (!currentCreatureNames.TryGetValue(entry.Key, out var currentCreatureName))
-                                    {
-                                        Console.WriteLine("Discovered new creature: " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
-                                        SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
-                                        currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
-                                    }
-                                    else if (currentCreatureName != entry.Value["Name[0]"] && creatureCache.clientBuild > SQLiteDB.creatureCache[(int)entry.Key])
-                                    {
-                                        Console.WriteLine("Updating creature name: " + currentCreatureName + " => " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
-                                        SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
-                                        currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
-                                    }
+                                    bin.ReadUInt32();
+                                    build = bin.ReadUInt32();
+                                }
 
-                                    for (var i = 0; i < int.Parse(entry.Value["NumCreatureDisplays"]); i++)
+                                if (buildMap.TryGetValue(build, out var buildName))
+                                {
+                                    Console.WriteLine("Loading " + creatureCacheFile + " for " + buildName);
+                                    var creatureCache = WDBReader.Read(creatureCacheFile, buildName);
+                                    foreach (var entry in creatureCache.entries)
                                     {
-                                        SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(entry.Value["CreatureDisplayInfoID[" + i + "]"]), (int)entry.Key);
+                                        if (!currentCreatureNames.TryGetValue(entry.Key, out var currentCreatureName))
+                                        {
+                                            Console.WriteLine("Discovered new creature: " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                            SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                            currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                        }
+                                        else if (currentCreatureName != entry.Value["Name[0]"] && creatureCache.clientBuild > SQLiteDB.creatureCache[(int)entry.Key])
+                                        {
+                                            Console.WriteLine("Updating creature name: " + currentCreatureName + " => " + entry.Value["Name[0]"] + " (" + entry.Key + ")");
+                                            SQLiteDB.InsertOrUpdateCreature((int)entry.Key, entry.Value["Name[0]"], creatureCache.buildInfo.build);
+                                            currentCreatureNames[entry.Key] = entry.Value["Name[0]"];
+                                        }
+
+                                        for (var i = 0; i < int.Parse(entry.Value["NumCreatureDisplays"]); i++)
+                                        {
+                                            SQLiteDB.InsertOrUpdateDisplayIDToCreatureID(int.Parse(entry.Value["CreatureDisplayInfoID[" + i + "]"]), (int)entry.Key);
+                                        }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                Console.WriteLine("No full build name found for build " + build);
+                                else
+                                {
+                                    Console.WriteLine("No full build name found for build " + build);
+                                }
                             }
                         }
-
+                       
                         if (!string.IsNullOrEmpty(form["creatureCacheWDBFilename"]) && System.IO.File.Exists(form["creatureCacheWDBFilename"]))
                         {
                             var creatureCache = WDBReader.Read(form["creatureCacheWDBFilename"], CASC.BuildName);
