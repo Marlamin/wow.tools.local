@@ -25,6 +25,7 @@ namespace wow.tools.local.Controllers
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
         private static readonly Dictionary<string, string> RibbitCache = new();
+        private static readonly Lock moreInfoInitLock = new Lock();
 
         [Route("fdid")]
         [HttpGet]
@@ -863,6 +864,8 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public async Task<string> MoreInfo(int filedataid)
         {
+            moreInfoInitLock.Enter();
+
             CASC.EnsureCHashesLoaded();
 
             // Yes, generating HTML here is ugly but that's how the old system worked and I can't be arsed to redo it.
@@ -1131,6 +1134,7 @@ namespace wow.tools.local.Controllers
             
             html += "</table></td></tr></table>";
             */
+            moreInfoInitLock.Exit();
             return html;
         }
 
