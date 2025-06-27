@@ -904,8 +904,9 @@ namespace wow.tools.local.Controllers
 
             html += "<tr><td>Type</td><td>" + (CASC.Types.TryGetValue(filedataid, out string? value) ? value : "unk") + "</td></tr>";
 
-            if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKey))
+            if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
             {
+                var cKey = Convert.ToHexStringLower(cKeyBytes);
                 html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
                 html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out long size) ? size + " bytes" : "N/A") + "</td></tr>";
             }

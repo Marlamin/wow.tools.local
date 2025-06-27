@@ -32,7 +32,7 @@ namespace wow.tools.local.Services
         public static Dictionary<int, ulong> LookupMap = [];
 
         public static readonly Dictionary<string, List<int>> CHashToFDID = [];
-        public static readonly Dictionary<int, string> FDIDToCHash = [];
+        public static readonly Dictionary<int, byte[]> FDIDToCHash = [];
         public static readonly Dictionary<int, HashSet<string>> FDIDToCHashSet = [];
         public static readonly Dictionary<string, long> CHashToSize = [];
         public static readonly HashSet<int> PlaceholderFiles = [];
@@ -1322,7 +1322,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                                 ckey = preferredEntry.cKey.ToHexString();
                             }
 
-                            FDIDToCHash.Add(entry.Key, ckey);
+                            FDIDToCHash.Add(entry.Key, ckey.ToByteArray());
 
                             if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
                             {
@@ -1349,7 +1349,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                                 ckey = preferredEntry.cKey.ToHexString();
                             }
 
-                            FDIDToCHash.Add(entry.Key, ckey);
+                            FDIDToCHash.Add(entry.Key, ckey.ToByteArray());
 
                             if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
                             {
@@ -1372,39 +1372,38 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 }
                 else if (IsTACTSharpInit)
                 {
-                    foreach (var fdid in buildInstance!.Root!.GetAvailableFDIDs())
+                    var chashLock = new Lock();
+                    Parallel.ForEach(buildInstance!.Root!.GetAvailableFDIDs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, fdid =>
                     {
                         var rootEntries = buildInstance.Root.GetEntriesByFDID(fdid);
                         if (rootEntries.Count == 0)
-                            continue;
+                            return;
 
-                        var preferredEntry = rootEntries.FirstOrDefault(subentry =>
-subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW) || subentry.localeFlags.HasFlag(buildInstance.Settings.Locale)));
+                        var preferredEntry = rootEntries.FirstOrDefault(subentry => subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW) || subentry.localeFlags.HasFlag(buildInstance.Settings.Locale)));
 
                         if (preferredEntry.fileDataID == 0)
                             preferredEntry = rootEntries.First();
 
                         var ckey = Convert.ToHexString(preferredEntry.md5.AsSpan());
 
-                        FDIDToCHash.Add((int)preferredEntry.fileDataID, ckey);
-
-                        if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
+                        lock (chashLock)
                         {
-                            value.Add((int)preferredEntry.fileDataID);
-                        }
-                        else
-                        {
-                            CHashToFDID.Add(ckey, [(int)preferredEntry.fileDataID]);
-                        }
-                    }
+                            FDIDToCHash.Add((int)preferredEntry.fileDataID, preferredEntry.md5.AsSpan().ToArray());
 
-                    foreach (var chash in CHashToFDID.Keys)
+                            if (CHashToFDID.TryGetValue(ckey, out List<int>? currentFDIDs))
+                                currentFDIDs.Add((int)preferredEntry.fileDataID);
+                            else
+                                CHashToFDID.Add(ckey, [(int)preferredEntry.fileDataID]);
+                        }
+                    });
+
+                    Parallel.ForEach(CHashToFDID.Keys, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, chash =>
                     {
                         var eKeys = buildInstance.Encoding!.FindContentKey(Convert.FromHexString(chash));
-
                         if (eKeys)
-                            CHashToSize.Add(chash, (long)eKeys.DecodedFileSize);
-                    }
+                            lock(chashLock)
+                                CHashToSize.Add(chash, (long)eKeys.DecodedFileSize);
+                    });
                 }
                 else
                 {
