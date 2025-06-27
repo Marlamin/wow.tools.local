@@ -620,7 +620,7 @@ namespace wow.tools.local.Services
             return VOFDIDToCreatureNameCache.ToDictionary(x => (uint)x.Key, x => x.Value);
         }
 
-        public static Dictionary<uint, string> GetCreatureNames(int start = -1, int count = -1)
+        public static Dictionary<uint, string> GetCreatureNames(int start = -1, int count = -1, string search = "")
         {
             var creatures = new Dictionary<uint, string>();
 
@@ -628,13 +628,31 @@ namespace wow.tools.local.Services
             {
                 if (start != -1 && count != -1)
                 {
-                    cmd.CommandText = "SELECT creatureID, name FROM wow_creatures ORDER BY creatureID ASC LIMIT @start, @count ";
-                    cmd.Parameters.AddWithValue("@start", start);
-                    cmd.Parameters.AddWithValue("@count", count);
+                    if (string.IsNullOrEmpty(search))
+                    {
+                        cmd.CommandText = "SELECT creatureID, name FROM wow_creatures ORDER BY creatureID ASC LIMIT @start, @count ";
+                        cmd.Parameters.AddWithValue("@start", start);
+                        cmd.Parameters.AddWithValue("@count", count);
+                    }
+                    else
+                    {
+                        cmd.CommandText = "SELECT creatureID, name FROM wow_creatures WHERE name LIKE @search ORDER BY creatureID ASC LIMIT @start, @count ";
+                        cmd.Parameters.AddWithValue("@start", start);
+                        cmd.Parameters.AddWithValue("@count", count);
+                        cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                    }
                 }
                 else
                 {
-                    cmd.CommandText = "SELECT creatureID, name FROM wow_creatures";
+                    if (string.IsNullOrEmpty(search))
+                    {
+                        cmd.CommandText = "SELECT creatureID, name FROM wow_creatures";
+                    }
+                    else
+                    {
+                        cmd.CommandText = "SELECT creatureID, name FROM wow_creatures  WHERE name LIKE @search";
+                        cmd.Parameters.AddWithValue("@search", "%" + search + "%");
+                    }
                 }
 
                 var reader = cmd.ExecuteReader();

@@ -22,7 +22,7 @@ namespace wow.tools.local.Controllers
                 data = []
             };
 
-            var results = SQLiteDB.GetCreatureNames(start, length);
+            var results = SQLiteDB.GetCreatureNames(start, length, Request.Query.TryGetValue("search[value]", out var search) ? search : "");
 
             if (length == -1)
             {
