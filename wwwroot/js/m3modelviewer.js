@@ -179,6 +179,15 @@ if (urlFileDataID){
     Current.fileDataID = urlFileDataID;
 }
 
+var urlEmbed = new URL(window.location).searchParams.get("embed");
+if (urlEmbed) {
+    Current.embedded = true;
+    $("#navbar").hide();
+    $("#js-sidebar-button").hide();
+    $("#fpsLabel").hide();
+    console.log("Running modelviewer in embedded mode!");
+}
+
 window.addEventListener('resize', () => {
     var canvas = document.getElementById("wowcanvas");
     if (canvas){
