@@ -908,7 +908,7 @@ namespace wow.tools.local.Controllers
 
         [Route("dumpUnkLookups")]
         [HttpGet]
-        public bool DumpUnkLookups(string type = "")
+        public bool DumpUnkLookups(string search = "")
         {
             var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "unk_listfile.txt");
             var hasher = new Jenkins96();
@@ -944,16 +944,11 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
+                var searchResults = DoSearch(CASC.GetAllListfileNames(), search);
                 foreach (var kvp in sortedMap.ToImmutableSortedDictionary())
                 {
-                    if (!string.IsNullOrEmpty(type))
-                    {
-                        if (!CASC.TypeMap.ContainsKey(type))
-                            throw new Exception("Unknown type");
-
-                        if (!CASC.TypeMap[type].Contains(kvp.Key))
-                            continue;
-                    }
+                    if (!searchResults.ContainsKey(kvp.Key))
+                        continue;
 
                     if (CASC.Listfile.TryGetValue(kvp.Key, out var filename))
                     {
