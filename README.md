@@ -50,6 +50,9 @@ Getting one from the latest release gives you a lot of data, but if you want to 
 
 Keep in mind that it uses cached manifests on disk to generate the file history. If you only have e.g. Dragonflight builds, file history would only show history going as far back as Dragonflight, with all files being added in the first Dragonflight build you have on disk. 
 
+## hotfixes.db
+hotfixes.db is a SQLite database that contains specifically just data related to hotfixes. WTL will automatically generate it and fill it with available hotfix data. Every now and then I will also attached an uptodate hotfixes.db to the latest GitHub release in case you want a longer history.
+
 ## Build diffs
 Very rudimentary build diffing is available through the builds page. Only builds that have been previously loaded (or are currently loaded) can be diffed from/to. No file comparisons are available yet (with the exception of DB2 diffs, text formats and BLP textures, which are available, see below paragraph for notes) and previews for added files on the diff page will show previews of the files in the currently loaded build, so make sure the build you want to diff TO is the currently active build. New files will not be available for preview until "Analyze unknown files" on the files page has been done (first time will take a while, progress can be checked in the console window). Files that remain unknown either have a unpreviewable/unknown type, are empty or are encrypted.
 
@@ -57,7 +60,7 @@ Very rudimentary build diffing is available through the builds page. Only builds
 DB2 diffs are available between DB2s that are either extracted on disk (see step 4 of configuration) or from the currently loaded build. Extracting DB2s for the current build to the directory mentioned in step 4 is available through a button on the builds page, which will also tell you if DB2s for a certain build are missing. Make sure to do this if you want to be able to diff DB2s with this build in the future.
 
 ## Hotfixes
-Hotfixes are loaded from DBCache files that exist in the WoW directory (for all products) or manually placed `*.bin` files in the `caches` directory in the wow.tools.local directory. Hotfix diffs are available on the Hotfixes page but keep in mind the "First detected" column will only be updated upon requesting that page. After updating the DBCache files (either manually or by logging into/then quitting the game), a restart of WTL is currently required. The hotfixes page only shows hotfixes from the currently loaded build.
+Hotfixes are loaded from DBCache files that exist in the WoW directory (for all products) or manually placed `*.bin` files in the `caches` directory in the wow.tools.local directory. Hotfix diffs are available on the Hotfixes page but keep in mind the "First detected" column will list times WTL first detected the hotfixes, not when the hotfixes were pushed to realms. After updating the DBCache files (either manually or by logging into/then quitting the game), a restart of WTL is currently required. The hotfixes page only shows hotfixes from hotfixes it has detected. Optionally, you can download hotfixes.db from the latest release that has it to backlog a large amount of hotfix history (up to that release).
 
 ## File links
 File links (e.g. textures in M2 files, M2 doodads in WMO files, etc) are parsed (and then saved) when the "More Information" screen is loaded and will be available for that file from that point on. For a pre-compiled database with most file links (for retail WoW) already present, download "WTL.db" from the latest release that has one and replace the file on disk.
