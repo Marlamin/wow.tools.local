@@ -278,6 +278,8 @@ namespace wow.tools.local.Services
             if (buildToVersion.ContainsKey(buildNumber))
                 return;
 
+            buildToVersion.Add(buildNumber, version);
+
             using (var cmd = dbConn.CreateCommand())
             {
                 cmd.CommandText = "INSERT INTO wow_builds (product, version, buildConfig, cdnConfig, productConfig, build, firstSeen) VALUES (@product, @version, @buildConfig, @cdnConfig, '', @build, @firstSeen)";

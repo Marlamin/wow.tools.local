@@ -35,7 +35,7 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<int, string> FDIDToCHash = [];
         public static readonly Dictionary<int, HashSet<string>> FDIDToCHashSet = [];
         public static readonly Dictionary<string, long> CHashToSize = [];
-        public static readonly List<int> PlaceholderFiles = [];
+        public static readonly HashSet<int> PlaceholderFiles = [];
         public static Dictionary<int, List<Version>> VersionHistory = [];
         public static List<AvailableBuild> AvailableBuilds = [];
         public static List<int> OtherLocaleOnlyFiles = [];
