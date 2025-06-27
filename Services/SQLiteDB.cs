@@ -662,6 +662,31 @@ namespace wow.tools.local.Services
             }
         }
 
+        public static HashSet<int> getFilesInVersion(string build)
+        {
+            if (build.Split('.').Length != 4)
+                return [];
+
+            var buildFiles = new HashSet<int>();
+
+            if (!File.Exists(Path.Combine("manifests", build + ".txt")))
+            {
+                Console.WriteLine("Manifest file for build {0} not found, can't generate list of files", build);
+                return buildFiles;
+            }
+
+            foreach (var line in File.ReadAllLines(Path.Combine("manifests", build + ".txt")))
+            {
+                var splitLine = line.Split(";");
+                if (splitLine.Length != 2)
+                    continue;
+
+                buildFiles.Add(int.Parse(splitLine[0]));
+            }
+
+            return buildFiles;
+        }
+
         public static HashSet<int> getNewFilesBetweenVersions(string oldBuild, string newBuild)
         {
             // Check if valid builds

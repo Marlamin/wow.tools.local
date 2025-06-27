@@ -63,6 +63,13 @@ namespace wow.tools.local.Controllers
 
                 return resultsIn.Where(p => newFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
+            else if (search.StartsWith("in:"))
+            {
+                var build = search.Replace("in:", "");
+                var presentFiles = SQLiteDB.getFilesInVersion(build);
+
+                return resultsIn.Where(p => presentFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+            }
             else if (search == "unnamed")
             {
                 return resultsIn.Where(p => p.Value.Length == 0).ToDictionary();
