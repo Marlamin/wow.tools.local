@@ -10,7 +10,7 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<string, HashSet<int>> newFilesBetweenVersion = [];
         private static readonly Dictionary<int, int> broadcastTextCache = [];
         public static readonly Dictionary<int, int> creatureCache = [];
-        public static readonly Dictionary<int, string> VOFDIDToCreatureNameCache = [];
+        private static readonly Dictionary<int, string> VOFDIDToCreatureNameCache = [];
         public static readonly Dictionary<int, List<int>> displayIDToCreatureIDCache = [];
         public static readonly Dictionary<int, string> buildToVersion = [];
         public static object SQLiteLock = new();
@@ -217,18 +217,6 @@ namespace wow.tools.local.Services
                 }
 
                 reader.Close();
-            }
-
-            // prepare VOFDIDToCreatureNameCache
-            using (var cmd = dbConn.CreateCommand())
-            {
-                cmd.CommandText = "SELECT fileDataID, creature FROM wow_files_creature";
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    VOFDIDToCreatureNameCache[reader.GetInt32(0)] = reader["creature"].ToString()!;
-                }
             }
 
             // prepare displayIDToCreatureIDCache
@@ -505,10 +493,10 @@ namespace wow.tools.local.Services
 
         public static bool SetCreatureNameForFDID(int fileDataID, string creatureName)
         {
+            EnsureVOCreatureCacheLoaded();
+
             if (VOFDIDToCreatureNameCache.TryGetValue(fileDataID, out var cachedCreatureName) && cachedCreatureName == creatureName)
-            {
                 return false;
-            }
 
             if (creatureName == "" || creatureName == null) // yes this happens
             {
@@ -609,8 +597,26 @@ namespace wow.tools.local.Services
             }
         }
 
+        private static void EnsureVOCreatureCacheLoaded()
+        {
+            if(VOFDIDToCreatureNameCache.Count > 0)
+                return;
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT fileDataID, creature FROM wow_files_creature";
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    VOFDIDToCreatureNameCache[reader.GetInt32(0)] = reader["creature"].ToString()!;
+                }
+            }
+        }
+
         public static Dictionary<uint, string> GetCreatureToFDIDMap()
         {
+            EnsureVOCreatureCacheLoaded();
             return VOFDIDToCreatureNameCache.ToDictionary(x => (uint)x.Key, x => x.Value);
         }
 
@@ -805,6 +811,7 @@ namespace wow.tools.local.Services
 
         public static string getCreatureNameByFileDataID(int fileDataID)
         {
+            EnsureVOCreatureCacheLoaded();
             if (VOFDIDToCreatureNameCache.TryGetValue(fileDataID, out var cachedCreatureName))
             {
                 return cachedCreatureName;
