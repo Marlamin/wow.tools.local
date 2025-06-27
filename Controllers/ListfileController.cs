@@ -110,6 +110,51 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.Listfile.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
+            else if (search.StartsWith("skit:"))
+            {
+                lock (dbcLock)
+                {
+                    if (SoundKitMap == null)
+                    {
+                        try
+                        {
+                            var soundKitEntryDB = dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName).Result;
+                            if (!soundKitEntryDB.AvailableColumns.Contains("SoundKitID") || !soundKitEntryDB.AvailableColumns.Contains("FileDataID"))
+                                throw new Exception("Missing required columns in SoundKitEntry");
+
+                            if (soundKitEntryDB != null)
+                            {
+                                SoundKitMap = new Dictionary<int, List<uint>>();
+                                foreach (var row in soundKitEntryDB.Values)
+                                {
+                                    var soundKitID = row.Field<uint>("SoundKitID");
+                                    var fileDataID = row.Field<int>("FileDataID");
+                                    if (SoundKitMap.TryGetValue(fileDataID, out List<uint>? soundKitIDs))
+                                        soundKitIDs.Add(soundKitID);
+                                    else
+                                        SoundKitMap[fileDataID] = new List<uint> { soundKitID };
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
+                        }
+                    }
+                }
+
+                if (!uint.TryParse(search.Trim().Replace("skit:", ""), out var skitID))
+                    return resultsIn;
+
+                return resultsIn.Where(x => SoundKitMap.ContainsKey(x.Key) && SoundKitMap[x.Key].Contains(skitID)).ToDictionary(p => p.Key, p => p.Value);
+            }
+            else if (search.StartsWith("chash:"))
+            {
+                if (!CASC.CHashToFDID.TryGetValue(search.Trim().Replace("chash:", "").ToUpperInvariant(), out var resultFDIDs))
+                    return [];
+
+                return resultsIn.Where(x => resultFDIDs.Contains(x.Key)).ToDictionary(p => p.Key, p => p.Value);
+            }
             else if (search == "haslookup")
             {
                 var fdids = new HashSet<int>(CASC.LookupMap.Keys);
@@ -709,9 +754,9 @@ namespace wow.tools.local.Controllers
                             foreach (var doodadID in wmo.doodadIds)
                                 listfileResults.TryAdd((int)doodadID, CASC.Listfile.TryGetValue((int)doodadID, out var fn) ? fn : "unknown/" + doodadID.ToString() + ".m2");
 
-                        if(wmo.newLightDefinitions != null)
-                            foreach(var light in wmo.newLightDefinitions)
-                                if(light.lightCookieFileID != 0)
+                        if (wmo.newLightDefinitions != null)
+                            foreach (var light in wmo.newLightDefinitions)
+                                if (light.lightCookieFileID != 0)
                                     listfileResults.TryAdd((int)light.lightCookieFileID, CASC.Listfile.TryGetValue((int)light.lightCookieFileID, out var fn) && !string.IsNullOrEmpty(fn) ? fn : "unknown/" + light.lightCookieFileID.ToString() + ".blp");
 
                         if (wmo.textures == null && wmo.materials != null)
