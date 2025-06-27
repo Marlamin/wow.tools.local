@@ -7,7 +7,7 @@
     <RepositoryUrl>https://github.com/Marlamin/wow.tools.local</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>0.7.4</Version>
+    <Version>0.8.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -80,9 +80,12 @@
     <None Remove="exported-tactkeys.csv" />
     <None Remove="exported-unknown.csv" />
     <None Remove="groupNames.txt" />
+    <None Remove="hotfixes.db" />
     <None Remove="listfile.csv" />
     <None Remove="listfile.csv.bak" />
     <None Remove="listfile.txt" />
+    <None Remove="lookup.csv" />
+    <None Remove="spellnames.txt" />
     <None Remove="spellOutput.txt" />
     <None Remove="TactKey.csv" />
     <None Remove="verified-listfile.csv" />
