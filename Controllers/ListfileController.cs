@@ -955,6 +955,11 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool DumpUnkLookups(string search = "")
         {
+            if (string.IsNullOrEmpty(SettingsManager.ExtractionDir))
+                throw new Exception("Extraction dir not set in config, please set it and try again");
+
+            if (!Directory.Exists(SettingsManager.ExtractionDir))
+                Directory.CreateDirectory(SettingsManager.ExtractionDir);
             var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "unk_listfile.txt");
             var hasher = new Jenkins96();
             using (var sw = new StreamWriter(lookupPath))
