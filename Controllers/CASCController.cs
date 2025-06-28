@@ -1614,7 +1614,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3" };
+            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat" };
 
             if (!(CASC.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
@@ -1699,7 +1699,30 @@ namespace wow.tools.local.Controllers
                 case "bls":
                     var blsReader = new BLSReader();
                     blsReader.LoadBLS(fileDataID);
-                    return JsonConvert.SerializeObject(blsReader.shaderFile, Formatting.Indented, new StringEnumConverter());
+                    //var extractDir = Path.Combine("extract", "bls", fileDataID.ToString());
+                    //var baseName = fileDataID.ToString();
+
+                    //if (CASC.Listfile.TryGetValue((int)fileDataID, out var shaderFileName) && !string.IsNullOrEmpty(shaderFileName))
+                    //{
+                    //    baseName = fileDataID.ToString() + " (" + shaderFileName.Replace("shaders/", "").Replace(".bls", "").Replace("/", "-") + ")";
+                    //    extractDir = Path.Combine("extract", "bls", baseName);
+                    //}
+
+                    //if (!Directory.Exists(extractDir))
+                    //    Directory.CreateDirectory(extractDir);
+
+                    var json = JsonConvert.SerializeObject(blsReader.shaderFile, Formatting.Indented, new StringEnumConverter());
+                    //System.IO.File.WriteAllText(Path.Combine(Path.Combine("extract", "bls"), baseName + ".json"), json);
+                    //var shaderIndex = 0;
+                    //foreach(var decompressedShader in blsReader.shaderFile.decompressedShaders)
+                    //{
+                    //    System.IO.File.WriteAllBytes(Path.Combine(extractDir, "shader_" + shaderIndex++ + ".bytes"), decompressedShader);
+                    //}
+                    return json;
+                case "gfat":
+                    var gfatReader = new GFATReader();
+                    var gfat = gfatReader.LoadGFAT(fileDataID);
+                    return JsonConvert.SerializeObject(gfat, Formatting.Indented, new StringEnumConverter());
                 default:
                     throw new Exception("Unsupported file type");
             }
