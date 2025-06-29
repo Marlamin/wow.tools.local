@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
 using wow.tools.local.Services;
+using WoWFormatLib;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 using WoWFormatLib.Structs.WDT;
@@ -101,7 +102,7 @@ namespace wow.tools.local.Controllers
                         Directory.CreateDirectory(outputDir);
 
                         var fileStream = CASC.GetFileByEKey(eKey.Keys[0], eKey.Size);
-                        if(fileStream == null)
+                        if (fileStream == null)
                         {
                             Console.WriteLine($"Failed to extract {fileName} from install entries, file not found in CASC.");
                             continue;
@@ -1631,7 +1632,7 @@ namespace wow.tools.local.Controllers
 
         [Route("json")]
         [HttpGet]
-        public string Json(uint fileDataID, string? build)
+        public string Json(uint fileDataID, string? build, string? overrideCKey = "", string? overrideType = "")
         {
             build ??= CASC.BuildName;
 
@@ -1669,7 +1670,7 @@ namespace wow.tools.local.Controllers
 
             FileProvider.SetDefaultBuild(build);
 
-            switch (fileType)
+            switch (!string.IsNullOrEmpty(overrideType) ? overrideType : fileType)
             {
                 case "wdt":
                     var wdtReader = new WDTReader();
@@ -1719,7 +1720,12 @@ namespace wow.tools.local.Controllers
                     return JsonConvert.SerializeObject(m3Reader.model, Formatting.Indented, new StringEnumConverter());
                 case "bls":
                     var blsReader = new BLSReader();
-                    blsReader.LoadBLS(fileDataID);
+
+                    if (!string.IsNullOrEmpty(overrideCKey))
+                        blsReader.LoadBLS(overrideCKey.ToByteArray());
+                    else
+                        blsReader.LoadBLS(fileDataID);
+
                     //var extractDir = Path.Combine("extract", "bls", fileDataID.ToString());
                     //var baseName = fileDataID.ToString();
 
@@ -1743,6 +1749,10 @@ namespace wow.tools.local.Controllers
                 case "gfat":
                     var gfatReader = new GFATReader();
                     var gfat = gfatReader.LoadGFAT(fileDataID);
+
+                    if (!string.IsNullOrEmpty(overrideCKey))
+                        gfat = gfatReader.LoadGFAT(overrideCKey.ToByteArray());
+
                     return JsonConvert.SerializeObject(gfat, Formatting.Indented, new StringEnumConverter());
                 default:
                     throw new Exception("Unsupported file type");
