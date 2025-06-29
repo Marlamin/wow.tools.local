@@ -906,9 +906,30 @@ namespace wow.tools.local.Controllers
 
             if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
             {
-                var cKey = Convert.ToHexStringLower(cKeyBytes);
-                html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
-                html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out long size) ? size + " bytes" : "N/A") + "</td></tr>";
+                if (CASC.FDIDToExtraCHashes.TryGetValue(filedataid, out List<byte[]>? extraCHashes))
+                {
+                    var cKey = Convert.ToHexStringLower(cKeyBytes);
+                    html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'>";
+
+                    html += "<a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a> (preferred)<br>";
+
+                    foreach (var extraCKey in extraCHashes)
+                    {
+                        var extraCKeyHex = Convert.ToHexStringLower(extraCKey);
+                        html += "<a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + extraCKeyHex.ToLower() + "\")'>" + extraCKeyHex.ToLower() + "</a> (<a href='/casc/chash?contenthash=" + extraCKeyHex + "&filename=" + filedataid + ".bytes'>download</a>)<br>";
+                    }
+
+                    html += "</td></tr>";
+
+                    html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out long size) ? size + " bytes" : "N/A") + " (for preferred version)</td></tr>";
+                }
+                else
+                {
+                    var cKey = Convert.ToHexStringLower(cKeyBytes);
+                    html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
+                    html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out long size) ? size + " bytes" : "N/A") + "</td></tr>";
+                }
+
             }
 
             if (CASC.EncryptionStatuses.TryGetValue(filedataid, out var encryptionStatus))

@@ -2,7 +2,6 @@
 using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Globalization;
 using System.Text.RegularExpressions;
 using TACTSharp;
 using WoWFormatLib;
@@ -34,6 +33,7 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<string, List<int>> CHashToFDID = [];
         public static readonly Dictionary<int, byte[]> FDIDToCHash = [];
         public static readonly Dictionary<int, HashSet<string>> FDIDToCHashSet = [];
+        public static readonly Dictionary<int, List<byte[]>> FDIDToExtraCHashes = [];
         public static readonly Dictionary<string, long> CHashToSize = [];
         public static readonly HashSet<int> PlaceholderFiles = [];
         public static Dictionary<int, List<Version>> VersionHistory = [];
@@ -93,7 +93,7 @@ namespace wow.tools.local.Services
             if (SettingsManager.PreferHighResTextures)
                 Console.WriteLine("!!!! Warning: High res textures setting is not supported when using TACTSharp.");
 
-            if(SettingsManager.WoWProduct != product || (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC)))
+            if (SettingsManager.WoWProduct != product || (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC)))
             {
                 Console.WriteLine("Switching builds, resetting configs..");
                 buildInstance.Settings.BuildConfig = null;
@@ -102,7 +102,7 @@ namespace wow.tools.local.Services
 
             buildInstance.Settings.RootMode = RootInstance.LoadMode.Full;
 
-            if(SettingsManager.AdditionalCDNs.Length > 0 && !string.IsNullOrEmpty(SettingsManager.AdditionalCDNs[0]))
+            if (SettingsManager.AdditionalCDNs.Length > 0 && !string.IsNullOrEmpty(SettingsManager.AdditionalCDNs[0]))
                 buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.AdditionalCDNs);
 
             bool loadOnline = false;
@@ -138,7 +138,7 @@ namespace wow.tools.local.Services
                 loadOnline = true;
             }
 
-            if(loadOnline)
+            if (loadOnline)
             {
                 IsOnline = true;
                 if (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC))
@@ -166,7 +166,7 @@ namespace wow.tools.local.Services
             }
 
             #region Configs
-            if(SettingsManager.WoWProduct == "wowdev")
+            if (SettingsManager.WoWProduct == "wowdev")
             {
                 buildInstance.cdn.ProductDirectory = "tpr/wowdev";
                 buildInstance.Settings.TryCDN = false;
@@ -184,7 +184,7 @@ namespace wow.tools.local.Services
 
             try
             {
-                if(buildInstance.Settings.BuildConfig == null || buildInstance.Settings.CDNConfig == null)
+                if (buildInstance.Settings.BuildConfig == null || buildInstance.Settings.CDNConfig == null)
                     throw new Exception("BuildConfig or CDNConfig is null");
 
                 buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
@@ -200,7 +200,8 @@ namespace wow.tools.local.Services
             try
             {
                 buildInstance.Load();
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine("Failed to load build: " + e.Message);
                 Console.WriteLine(e.StackTrace);
@@ -210,7 +211,7 @@ namespace wow.tools.local.Services
             if (!buildInstance.BuildConfig.Values.TryGetValue("encoding", out var encodingKey))
                 throw new Exception("No encoding key found in build config");
 
-            if(buildInstance.Encoding == null || buildInstance.Root == null || buildInstance.Install == null)
+            if (buildInstance.Encoding == null || buildInstance.Root == null || buildInstance.Install == null)
                 throw new Exception("Encoding, root or install are null");
 
             #endregion
@@ -392,29 +393,34 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
             #endregion
 
             Console.WriteLine("Analyzing files");
+            var chashLock = new Lock();
+
             Parallel.ForEach(buildInstance.Root.GetAvailableFDIDs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, fdid =>
             {
                 var entries = buildInstance.Root.GetEntriesByFDID(fdid);
                 if (entries.Count == 0)
                     return;
-                    
+
                 int fdidInt = (int)fdid;
-                
+
                 lock (EncryptedFDIDs)
                 {
                     if (EncryptedFDIDs.ContainsKey(fdidInt))
                         return;
-                        
+
                     if ((entries[0].contentFlags & RootInstance.ContentFlags.Encrypted) != 0)
                         EncryptedFDIDs.TryAdd(fdidInt, new List<ulong>());
                 }
-                
-                var eKeys = buildInstance.Encoding.FindContentKey(entries[0].md5.AsSpan());
+                var cKey = entries[0].md5.AsSpan();
+                var eKeys = buildInstance.Encoding.FindContentKey(cKey);
                 if (eKeys != false)
                 {
+                    lock(chashLock)
+                        CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (long)eKeys.DecodedFileSize);
+
                     var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
                     var matches = eKeyRegex().Matches(eSpec.eSpec);
-                    
+
                     if (matches.Count > 0)
                     {
                         var keys = matches.Cast<Match>().Select(m => BitConverter.ToUInt64(m.Value.FromHexString(), 0)).ToList();
@@ -783,7 +789,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                         if (CASC.Types.TryGetValue(knownUnknown.Key, out var currentType) && currentType != "unk")
                             continue;
 
-                        if(knownUnknown.Key == 5569152 || knownUnknown.Key == 5916032 || knownUnknown.Key == 6022679)
+                        if (knownUnknown.Key == 5569152 || knownUnknown.Key == 5916032 || knownUnknown.Key == 6022679)
                             SetFileType(knownUnknown.Key, "m3");
                         else
                             SetFileType(knownUnknown.Key, knownUnknown.Value);
@@ -1132,7 +1138,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 if (TEKeys)
                 {
                     var md5HashEkeys = new List<MD5Hash>();
-                    for(var i = 0; i < TEKeys.Length; i++)
+                    for (var i = 0; i < TEKeys.Length; i++)
                     {
                         var ekey = TEKeys[i];
                         md5HashEkeys.Add(ekey.ToArray().ToMD5());
@@ -1395,13 +1401,37 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                             else
                                 CHashToFDID.Add(ckey, [(int)preferredEntry.fileDataID]);
                         }
+
+                        if (rootEntries.Count > 1)
+                        {
+                            for (int i = 1; i < rootEntries.Count; i++)
+                            {
+                                var cKey = rootEntries[i].md5.AsSpan().ToArray();
+
+                                lock (chashLock)
+                                {
+                                    if (FDIDToCHash[(int)fdid].SequenceEqual(cKey))
+                                        continue;
+
+                                    if (FDIDToExtraCHashes.TryGetValue((int)fdid, out List<byte[]>? extraCHashes))
+                                    {
+                                        if (!extraCHashes.Contains(cKey))
+                                            extraCHashes.Add(cKey);
+                                    }
+                                    else
+                                    {
+                                        FDIDToExtraCHashes[(int)fdid] = new List<byte[]> { cKey };
+                                    }
+                                }
+                            }
+                        }
                     });
 
                     Parallel.ForEach(CHashToFDID.Keys, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, chash =>
                     {
                         var eKeys = buildInstance.Encoding!.FindContentKey(Convert.FromHexString(chash));
                         if (eKeys)
-                            lock(chashLock)
+                            lock (chashLock)
                                 CHashToSize.Add(chash, (long)eKeys.DecodedFileSize);
                     });
                 }
