@@ -164,6 +164,8 @@
                 }
             });
 
+            const tableContainer = document.getElementById("tableContainer");
+
             if (currentDBC != undefined) {
                 console.log("Refreshing versions");
                 var versionAPIURL = "/listfile/db2/" + currentDBC + "/versions";
@@ -230,156 +232,171 @@
                         tableHeaders += "<th>" + val + "</th>";
                     });
 
-                    $("#tableContainer").empty();
-                    $("#tableContainer").append('<table id="dbtable" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>');
+                    tableContainer.innerHTML = '<table id="dbtable" class="table table-striped table-bordered" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>';
+                    $('#dbtable').DataTable({
+                        "pageLength": 25,
+                        "ordering": false,
+                        "bFilter": false,
+                        "lengthMenu": [[10, 25, 50, 100, 1000], [10, 25, 50, 100, 1000]],
+                        layout: {
+                            bottomEnd: 'inputPaging'
+                        },
+                        "processing": true,
+                        "serverSide": true,
+                        "ajax": {
+                            url: dataURL,
+                            type: "POST"
+                        },
+                        "columnDefs": [{
+                            "targets": "_all",
+                            "render":
+                                /*
+                                Overrides cell rendering in particular the cell's value if there is an applicable diff
+                                - for Added/Removed, this applies a flat +/- diff snippet
+                                - for Replaced this applies a html snippet containing diff information
+                                    - for numbers this is a flat '-x+y', for text diff_match_patch is used
+                                    */
+                                function (data, type, row, meta) {
+
+                                    // grab the formatted field name
+                                    var field = meta.settings.aoColumns[meta.col].sTitle;
+
+                                    //! USE THIS
+                                    // if an array split out the field and ordinal
+                                    //var match = /^(.*)\[(\d+)\]$/.exec(field);
+                                    var match = false;
+
+                                    // assign the cell value
+                                    data = match ? row.row[match[1]][match[2]] : row.row[field];
+
+                                    const headers = resp2[0].headers // using build #2 for all fk references
+
+                                    const columnWithTable = currentDBC + '.' + headers[meta.col];
+                                    let fk = "";
+
+                                    if (meta.col in fkCols) {
+                                        fk = fkCols[meta.col];
+                                    } else if (conditionalFKs.has(columnWithTable)) {
+                                        let conditionalFK = conditionalFKs.get(columnWithTable);
+                                        conditionalFK.forEach(function (conditionalFKEntry) {
+                                            let condition = conditionalFKEntry[0].split(
+                                                '=');
+                                            let conditionTarget = condition[0].split('.');
+                                            let conditionValue = condition[1];
+                                            let resultTarget = conditionalFKEntry[1];
+
+                                            let colTarget = headers.indexOf(
+                                                conditionTarget[1]);
+
+                                            // Col target found?
+                                            if (colTarget > -1) {
+                                                if (row.row[colTarget] == conditionValue) {
+                                                    fk = resultTarget;
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    // only apply on the initial display event for replaced rows that have a diff
+                                    if (type !== 'display' || row.op !== "Replaced" || row.diff === null) {
+                                        if (fk != "") {
+                                            if (fk == "FileData::ID") {
+                                                data =
+                                                    "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-build=" + newBuild + " data-tooltip='file' data-id='" +
+                                                    row.row[field] + "' onclick='fillModal(" + row.row[field] + ")'>" + row.row[field] + "</a>";
+                                            } else {
+                                                data =
+                                                    "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
+                                                    row.row[field] + "' data-fk='" + fk +
+                                                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+                                                    row.row[field] + ", \"" + fk + "\", \"" +
+                                                    newBuild + "\")'>" + row.row[field] +
+                                                    "</a>";
+                                            }
+                                        } else if (field.startsWith("Flags") || flagMap.has(columnWithTable)) {
+                                            data = "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='flags' data-table='" + currentDBC + "' data-col='" + field + "' data-value='" + row.row[field] + "'  data-build=" + newBuild + ">0x" + dec2hex(row.row[field]) + "</span>";
+                                        } else {
+                                            data = columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2[0], fkCols, 0);
+                                        }
+
+                                        return data;
+                                    }
+
+                                    // find and apply the specific diff for this field
+                                    // if no diff is found then return the default data value
+                                    var diff = row.diff.find(x => x.property == field);
+                                    if (!diff) {
+                                        return columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2[0], fkCols, 0);
+                                    }
+
+                                    // apply the diff html information
+                                    switch (diff.op) {
+                                        case "Added":
+                                            return '<ins class="diff-added">' + columnRender(row.row, field, diff.currentvalue, currentDBC, newBuild, resp2[0], fkCols) + '</ins>';
+                                        case "Removed":
+                                            return '<del class="diff-removed">' + columnRender(row.row, field, diff.previousvalue, currentDBC, newBuild, resp2[0], fkCols) + '</del>';
+                                        case "Replaced":
+                                            {
+                                                if (!isNaN(diff.previousvalue) && !isNaN(diff.currentvalue)) {
+                                                    // for numbers, check if they're a fk so we can add tooltips and links
+                                                    // otherwise just show the fake diff
+                                                    if (fk != "") {
+                                                        var newValue =
+                                                            "<a class='diff-added' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
+                                                            diff.currentvalue + "' data-fk='" + fk +
+                                                            "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+                                                            diff.currentvalue + ", \"" + fk + "\", \"" +
+                                                            newBuild + "\")'>" + diff.currentvalue +
+                                                            "</a>";
+
+                                                        var prevValue =
+                                                            "<a class='diff-removed' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
+                                                            diff.previousvalue + "' data-fk='" + fk +
+                                                            "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+                                                            diff.previousvalue + ", \"" + fk + "\", \"" +
+                                                            newBuild + "\")'>" + diff.previousvalue +
+                                                            "</a>";
+
+                                                        return prevValue + '&rarr; ' + newValue;
+                                                    } else if (field.startsWith("Flags") || flagMap.has(columnWithTable)) {
+                                                        var previousFlags = "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='flags' data-table='" + currentDBC + "' data-col='" + field + "' data-value='" + diff.previousvalue + "' data-build=" + oldBuild + ">0x" + dec2hex(diff.previousvalue) + "</span>";
+                                                        var newFlags = "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='flags' data-table='" + currentDBC + "' data-col='" + field + "' data-value='" + diff.currentvalue + "' data-build=" + newBuild + ">0x" + dec2hex(diff.currentvalue) + "</span>"
+
+                                                        return '<del class="diff-removed">' + previousFlags + '</del> &rarr; ' +
+                                                            '<ins class="diff-added">' + newFlags + '</ins>';
+                                                    } else {
+                                                        return '<del class="diff-removed">' + diff.previousvalue + '</del> &rarr; ' +
+                                                            '<ins class="diff-added">' + diff.currentvalue + '</ins>';
+                                                    }
+                                                } else {
+                                                    // for text use diff_match_patch to compute a real diff
+                                                    var dmp = new diff_match_patch();
+                                                    var dmp_diff = dmp.diff_main(diff.previousvalue, diff.currentvalue);
+                                                    dmp.diff_cleanupSemantic(dmp_diff);
+                                                    return dmp.diff_prettyHtml(dmp_diff);
+                                                }
+                                            }
+                                    }
+
+                                    return data;
+                                },
+                            "defaultContent": ""
+                        }],
+                        "language": {
+                            "emptyTable": "No differences were found"
+                        },
+                        "createdRow":
+                            /* Overrides row rendering for Added/Removed rows */
+                            function (ele, row, rowIndex) {
+                                if (row.op == "Added" || row.op == "Removed") {
+                                    $(ele).addClass(row.op.toLowerCase()); // apply the formatting class
+                                }
+                            },
+                    });
                     $.ajax({
                         "url": dataURL,
                         "success": function (json) {
-                            $('#dbtable').DataTable({
-                                "data": json['data'],
-                                "pageLength": 25,
-                                "ordering": false,
-                                "bFilter": false,
-                                "lengthMenu": [[10, 25, 50, 100, 1000], [10, 25, 50, 100, 1000]],
-                                layout: {
-                                    bottomEnd: 'inputPaging'
-                                },
-                                "columnDefs": [{
-                                    "targets": "_all",
-                                    "render":
-                                        /*
-                                        Overrides cell rendering in particular the cell's value if there is an applicable diff
-                                        - for Added/Removed, this applies a flat +/- diff snippet
-                                        - for Replaced this applies a html snippet containing diff information
-                                            - for numbers this is a flat '-x+y', for text diff_match_patch is used
-                                            */
-                                        function (data, type, row, meta) {
-
-                                            // grab the formatted field name
-                                            var field = meta.settings.aoColumns[meta.col].sTitle;
-
-                                            //! USE THIS
-                                            // if an array split out the field and ordinal
-                                            //var match = /^(.*)\[(\d+)\]$/.exec(field);
-                                            var match = false;
-
-                                            // assign the cell value
-                                            data = match ? row.row[match[1]][match[2]] : row.row[field];
-
-                                            const headers = resp2[0].headers // using build #2 for all fk references
-
-                                            const columnWithTable = currentDBC + '.' + headers[meta.col];
-                                            let fk = "";
-
-                                            if (meta.col in fkCols) {
-                                                fk = fkCols[meta.col];
-                                            } else if (conditionalFKs.has(columnWithTable)) {
-                                                let conditionalFK = conditionalFKs.get(columnWithTable);
-                                                conditionalFK.forEach(function (conditionalFKEntry) {
-                                                    let condition = conditionalFKEntry[0].split(
-                                                        '=');
-                                                    let conditionTarget = condition[0].split('.');
-                                                    let conditionValue = condition[1];
-                                                    let resultTarget = conditionalFKEntry[1];
-
-                                                    let colTarget = headers.indexOf(
-                                                        conditionTarget[1]);
-
-                                                    // Col target found?
-                                                    if (colTarget > -1) {
-                                                        if (row.row[colTarget] == conditionValue) {
-                                                            fk = resultTarget;
-                                                        }
-                                                    }
-                                                });
-                                            }
-
-                                            // only apply on the initial display event for replaced rows that have a diff
-                                            if (type !== 'display' || row.op !== "Replaced" || row.diff === null) {
-                                                if (fk != "") {
-                                                    if (fk == "FileData::ID") {
-                                                        data =
-                                                            "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-build=" + newBuild + " data-tooltip='file' data-id='" +
-                                                            row.row[field] + "' onclick='fillModal(" + row.row[field] + ")'>" + row.row[field] + "</a>";
-                                                    } else {
-                                                        data =
-                                                            "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
-                                                            row.row[field] + "' data-fk='" + fk +
-                                                            "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
-                                                            row.row[field] + ", \"" + fk + "\", \"" +
-                                                            newBuild + "\")'>" + row.row[field] +
-                                                            "</a>";
-                                                    }
-
-                                                }
-                                                return data;
-                                            }
-
-                                            // find and apply the specific diff for this field
-                                            // if no diff is found then return the default data value
-                                            var diff = row.diff.find(x => x.property == field);
-                                            if (!diff) {
-                                                return data;
-                                            }
-
-                                            // apply the diff html information
-                                            switch (diff.op) {
-                                                case "Added":
-                                                    return '<ins class="diff-added">' + diff.currentvalue + '</ins>';
-                                                case "Removed":
-                                                    return '<del class="diff-removed">' + diff.currentvalue + '</del>';
-                                                case "Replaced":
-                                                    {
-                                                        if (!isNaN(diff.previousvalue) && !isNaN(diff.currentvalue)) {
-                                                            // for numbers, check if they're a fk so we can add tooltips and links
-                                                            // otherwise just show the fake diff
-                                                            if (fk != "") {
-                                                                var newValue =
-                                                                    "<a class='diff-added' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
-                                                                    diff.currentvalue + "' data-fk='" + fk +
-                                                                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
-                                                                    diff.currentvalue + ", \"" + fk + "\", \"" +
-                                                                    newBuild + "\")'>" + diff.currentvalue +
-                                                                    "</a>";
-
-                                                                var prevValue =
-                                                                    "<a class='diff-removed' style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
-                                                                    diff.previousvalue + "' data-fk='" + fk +
-                                                                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
-                                                                    diff.previousvalue + ", \"" + fk + "\", \"" +
-                                                                    newBuild + "\")'>" + diff.previousvalue +
-                                                                    "</a>";
-
-                                                                return prevValue + '&rarr; ' + newValue;
-                                                            } else {
-                                                                return '<del class="diff-removed">' + diff.previousvalue + '</del> &rarr; ' +
-                                                                    '<ins class="diff-added">' + diff.currentvalue + '</ins>';
-                                                            }
-                                                        } else {
-                                                            // for text use diff_match_patch to compute a real diff
-                                                            var dmp = new diff_match_patch();
-                                                            var dmp_diff = dmp.diff_main(diff.previousvalue, diff.currentvalue);
-                                                            dmp.diff_cleanupSemantic(dmp_diff);
-                                                            return dmp.diff_prettyHtml(dmp_diff);
-                                                        }
-                                                    }
-                                            }
-
-                                            return data;
-                                        },
-                                    "defaultContent": ""
-                                }],
-                                "language": {
-                                    "emptyTable": "No differences were found"
-                                },
-                                "createdRow":
-                                    /* Overrides row rendering for Added/Removed rows */
-                                    function (ele, row, rowIndex) {
-                                        if (row.op == "Added" || row.op == "Removed") {
-                                            $(ele).addClass(row.op.toLowerCase()); // apply the formatting class
-                                        }
-                                    }
-                            });
+                            
                         },
                         "dataType": "json"
                     });

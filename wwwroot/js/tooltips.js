@@ -95,6 +95,8 @@ function tooltip2(el, event){
             generateFileTooltip(tooltipTargetValue, tooltipDiv);
         } else if (tooltipType == 'wex') {
             generateWExTooltip(tooltipTargetValue, tooltipDiv);
+        } else if (tooltipType == "flags") {
+            generateFlagsTooltip(el.dataset.table, el.dataset.col, el.dataset.value, tooltipDiv);
         } else {
             console.log("Unsupported tooltip type " + tooltipType);
             return;
@@ -288,6 +290,59 @@ function generateWExTooltip(ex, tooltip) {
             console.log("An error occurred retrieving data to generate the tooltip: " + error);
             tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
         });
+}
+
+function generateFlagsTooltip(table, col, value, tooltip) {
+    const tooltipDesc = tooltip.querySelector(".tooltip-desc");
+    if (BigInt === undefined) {
+        tooltipDesc.innerHTML = "BigInt is not supported on this browser.";
+        return;
+    }
+
+    if (value == 0) {
+        tooltipDesc.innerHTML = "No flags set.";
+        return;
+    }
+
+    const targetFlags = flagMap.get(table.toLowerCase() + '.' + col);
+
+    if (targetFlags == 0) {
+        tooltipDesc.innerHTML = "No defined flags found for this field (" + table + "::" + col + ").";
+        return;
+    }
+
+    if (value == "-1") {
+        tooltipDesc.innerHTML = "-1 usually means all flags are enabled.";
+        return;
+    }
+
+    const usedFlags = [];
+    for (let i = 0; i < 32; i++) {
+        let toCheck = BigInt(1) << BigInt(i);
+        if (BigInt(value) & toCheck) {
+            if (targetFlags !== undefined && targetFlags[toCheck]) {
+                usedFlags.push(['0x' + "" + dec2hex(toCheck, true), targetFlags[toCheck]]);
+            } else {
+                usedFlags.push(['0x' + "" + dec2hex(toCheck, true), ""]);
+            }
+        }
+    }
+
+    let tooltipContents = "<table class='tooltip-table'>";
+
+    for (let i = 0; i < usedFlags.length; i++) {
+        tooltipContents += "<tr><td><b>" + usedFlags[i][0] + "</b></td>";
+        if (usedFlags[i][1] == "") {
+            tooltipContents += "<td style='opacity: 0.6;'><i>Unknown flag</i></td>";
+        } else {
+            tooltipContents += "<td>" + usedFlags[i][1] + "</td>";
+        }
+        tooltipContents += "</tr>";
+    }
+
+    tooltipContents += "</table>";
+
+    tooltipDesc.innerHTML = tooltipContents;
 }
 
 function repositionTooltip(tooltip){

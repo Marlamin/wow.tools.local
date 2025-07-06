@@ -198,7 +198,6 @@ function BGRA2RGBA(color){
             bytes[i] = 0;
         }
     }
-    console.log(color + " => #" + hex + " => " + bytes);
 
     let b = bytes[2];
     let g = bytes[1];
@@ -207,7 +206,6 @@ function BGRA2RGBA(color){
 
     return "rgba(" + r + "," + g + "," + b + "," + a + ")";
 }
-
 
 function getFlagDescriptions(db, field, value, targetFlags = 0){
     let usedFlags = Array();
@@ -340,4 +338,183 @@ function parseDate(date){
         const utcDate = new Date(Date.UTC(year, month - 1, dotm, hour, minute, 0));
         return utcDate.toUTCString();
     }
+}
+
+function columnRender(row, columnName, columnValue, tableName, build, json, fks, idHeader) {
+    let fk = "";
+
+    const headers = json["headers"];
+
+    const colIndex = headers.indexOf(columnName);
+    if (colIndex in fks) {
+        fk = fks[colIndex];
+    }
+
+    let returnVar = columnValue;
+    const columnWithTable = tableName + '.' + columnName;
+
+    if (conditionalFKs.has(columnWithTable)) {
+        let conditionalFK = conditionalFKs.get(columnWithTable);
+        conditionalFK.forEach(function (conditionalFKEntry) {
+            let condition = conditionalFKEntry[0].split(
+                '=');
+            let conditionTarget = condition[0].split('.');
+            let conditionValue = condition[1];
+            let resultTarget = conditionalFKEntry[1];
+
+            let colTarget = headers.indexOf(conditionTarget[1]);
+
+            // Col target found?
+            if (colTarget > -1) {
+                if (row[colTarget] == conditionValue) {
+                    fk = resultTarget;
+                }
+            }
+        });
+    }
+
+    if (fk != "") {
+        if (fk == "FileData::ID") {
+            returnVar =
+                "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" +
+                columnValue + "' data-build= '" + build + "' onclick='fillModal(" + columnValue + ")'>" + columnValue + "</a>";
+            //} else if (fk == "SoundEntries::ID" && parseInt(
+            //    build[0]) > 6) {
+            //    returnVar =
+            //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+            //        columnValue + ", \"SoundKit::ID\",\"" +
+            //        build + "\")'>" + columnValue +
+            //        "</a>";
+            //} else if (fk == "Item::ID" && columnValue > 0) {
+            //    returnVar =
+            //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='item' data-id='" +
+            //        columnValue +
+            //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+            //        columnValue + ", \"" + fk + "\", \"" +
+            //        build + "\")'>" + columnValue +
+            //        "</a>";
+            //} else if (fk.toLowerCase() == "questv2::id" && columnValue > 0) {
+            //    returnVar =
+            //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='quest' data-id='" +
+            //        columnValue +
+            //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+            //        columnValue + ", \"" + fk + "\", \"" +
+            //        build + "\")'>" + columnValue +
+            //        "</a>";
+            //} else if (fk == "Creature::ID" && columnValue > 0) {
+            //    returnVar =
+            //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='creature' data-id='" +
+            //        columnValue +
+            //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+            //        columnValue + ", \"" + fk + "\", \"" +
+            //        build + "\")'>" + columnValue +
+            //        "</a>";
+            //} else if (fk.toLowerCase() == "spell::id" && columnValue > 0) {
+            //    returnVar =
+            //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
+            //        columnValue +
+            //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+            //        columnValue + ", \"" + fk + "\", \"" +
+            //        build + "\")'>" + columnValue +
+            //        "</a>";
+        } else {
+            returnVar =
+                "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-id='" + columnValue + "' data-fk='" + fk +
+            "' data-build= '" + build + "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+                columnValue + ", \"" + fk + "\", \"" +
+                build + "\")'>" + columnValue +
+                "</a>";
+        }
+    } else if (columnName.startsWith("Flags") || flagMap.has(columnWithTable)) {
+        returnVar = " <span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-build= '" + build + "' data-tooltip='flags' data-table='" + tableName + "' data-col='" + columnName + "' data-value='" + columnValue + "'>0x" + dec2hex(columnValue) + "</span>";
+    } else if (columnWithTable == "item.ID") {
+        returnVar =
+            "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='item' data-build= '" + build + "' data-id='" +
+            columnValue + "'>" + columnValue + "</span>";
+    } else if (columnWithTable == "spell.ID" || columnWithTable == "spellname.ID") {
+        returnVar =
+            "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='spell' data-build= '" + build + "' data-id='" +
+            columnValue + "'>" + columnValue + "</span>";
+    } else if (tableName.toLowerCase() == "playercondition" && columnName.endsWith("Logic") && columnValue != 0) {
+        returnVar += " <i>(" + parseLogic(columnValue) + ")</i>";
+    } else if (tableName.toLowerCase() == "worldstateexpression" && columnName == "Expression") {
+        returnVar = "<span style='cursor: help; border-bottom: 1px dotted;' data-tooltip='wex' data-build= '" + build + "' data-id='" + columnValue + "'>" + columnValue + "</span>";
+    }
+
+    if ("relationToColumns" in json && columnName in json["relationsToColumns"] &&
+        columnWithTable != "spell.ID") {
+        returnVar = " <a data-bs-toggle='modal' href='' style='cursor: help; border-bottom: 1px solid;' data-bs-target='#foreignKeySearchModal' onClick='fkDBSearch(\"" + tableName + "\", \"" + columnName + "\", \"" + columnValue + "\")'>" + columnValue + "</a>";
+    }
+
+    if (enumMap.has(columnWithTable)) {
+        var enumVal = getEnum(tableName.toLowerCase(),
+            columnName, columnValue);
+        if (columnValue == '0' && enumVal == "Unk") {
+            // returnVar += columnValue;
+        } else {
+            returnVar += " <i>(" + enumVal + ")</i>";
+        }
+    }
+
+    if (conditionalEnums.has(columnWithTable)) {
+        let conditionalEnum = conditionalEnums.get(columnWithTable);
+        conditionalEnum.forEach(function (conditionalEnumEntry) {
+            let condition = conditionalEnumEntry[0].split(
+                '=');
+            let conditionTarget = condition[0].split('.');
+            let conditionValue = condition[1];
+            let resultEnum = conditionalEnumEntry[1];
+
+            let colTarget = headers.indexOf(conditionTarget[1]);
+            
+            // Col target found?
+            if (colTarget > -1) {
+                if (row[colTarget] == conditionValue) {
+                    var enumVal = getEnumVal(resultEnum,
+                        columnValue);
+                    if (columnValue == '0' && enumVal ==
+                        "Unk") {
+                        returnVar = columnValue;
+                    } else {
+                        returnVar = columnValue +
+                            " <i>(" + enumVal + ")</i>";
+                    }
+                }
+            }
+        });
+    }
+
+    if (conditionalFlags.has(columnWithTable)) {
+        let conditionalFlag = conditionalFlags.get(columnWithTable);
+        conditionalFlag.forEach(function (conditionalFlagEntry) {
+            let condition = conditionalFlagEntry[0].split(
+                '=');
+            let conditionTarget = condition[0].split('.');
+            let conditionValue = condition[1];
+            let resultFlag = conditionalFlagEntry[1];
+
+            let colTarget = headers.indexOf(conditionTarget[1]);
+            // Col target found?
+            if (colTarget > -1) {
+                if (row[colTarget] == conditionValue) {
+                    returnVar =
+                        "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-content='" +
+                        getFlagDescriptions(tableName, columnName, columnValue, resultFlag).join(",<br> ") + "'>0x" + dec2hex(columnValue) + "</span>";
+                }
+            }
+        });
+    }
+
+    if (colorFields.includes(columnWithTable)) {
+        returnVar =
+            "<div style='display: inline-block; border: 2px solid black; height: 19px; width: 19px; background-color: " + BGRA2RGBA(columnValue) + "'>&nbsp;</div> " + columnValue;
+    }
+
+    if (dateFields.includes(columnWithTable)) {
+        let parsedDate = parseDate(columnValue);
+        if (parsedDate && parsedDate != "")
+            returnVar = parsedDate + "<small> (" + columnValue + ")</small>";
+    }
+
+    return returnVar;
 }
