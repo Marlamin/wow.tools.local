@@ -96,7 +96,11 @@ function tooltip2(el, event){
         } else if (tooltipType == 'wex') {
             generateWExTooltip(tooltipTargetValue, tooltipDiv);
         } else if (tooltipType == "flags") {
-            generateFlagsTooltip(el.dataset.table, el.dataset.col, el.dataset.value, tooltipDiv);
+            if (el.dataset.overrideflag != null) {
+                generateFlagsTooltip(el.dataset.table, el.dataset.col, el.dataset.value, tooltipDiv, el.dataset.overrideflag);
+            } else {
+                generateFlagsTooltip(el.dataset.table, el.dataset.col, el.dataset.value, tooltipDiv);
+            }
         } else {
             console.log("Unsupported tooltip type " + tooltipType);
             return;
@@ -292,7 +296,7 @@ function generateWExTooltip(ex, tooltip) {
         });
 }
 
-function generateFlagsTooltip(table, col, value, tooltip) {
+function generateFlagsTooltip(table, col, value, tooltip, overrideflag) {
     const tooltipDesc = tooltip.querySelector(".tooltip-desc");
     if (BigInt === undefined) {
         tooltipDesc.innerHTML = "BigInt is not supported on this browser.";
@@ -304,7 +308,9 @@ function generateFlagsTooltip(table, col, value, tooltip) {
         return;
     }
 
-    const targetFlags = flagMap.get(table.toLowerCase() + '.' + col);
+    let targetFlags = flagMap.get(table.toLowerCase() + '.' + col);
+    if (overrideflag != null)
+        targetFlags = JSON.parse(overrideflag);
 
     if (targetFlags == 0) {
         tooltipDesc.innerHTML = "No defined flags found for this field (" + table + "::" + col + ").";

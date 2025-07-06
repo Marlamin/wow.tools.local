@@ -47,7 +47,7 @@
                 <option value=''>enUS (Default)</option>
             </select>-->
             <div class='btn-group'>
-                <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled' data-bs-trigger='hover' data-bs-placement='bottom' data-bs-container='body' data-bs-toggle='popover' data-bs-html='true'><i class='fa fa-download'></i> CSV</a>
+                <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled'><i class='fa fa-download'></i> CSV</a>
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     <span class="sr-only">Toggle Dropdown</span>
                 </button>
@@ -1116,12 +1116,6 @@
                         }
 
                         window.location.hash = hashPart;
-
-                        $('.popover').remove();
-
-                        $("[data-bs-toggle=popover]").popover({
-                            sanitize: false
-                        });
                     });
                 });
         }

@@ -277,34 +277,6 @@
                                 loadSceneScript(data[0], build);
                             });
                         });
-
-                        // $('#dbtable').on( 'draw.dt', function () {
-
-                        //     let currentPage = $('#dbtable').DataTable().page() + 1;
-                        //     let hashPart = "page=" + currentPage;
-
-                        //     const currentSearch = encodeURIComponent($("#dt-search-0").val());
-                        //     if(currentSearch != ""){
-                        //         hashPart += "&search=" + currentSearch;
-                        //     }
-
-                        //     const columnSearches = $('#dbtable').DataTable().columns().search();
-                        //     for(let i = 0; i < columnSearches.length; i++){
-                        //         var colSearch = columnSearches[i];
-
-                        //         if(colSearch == "")
-                        //             continue;
-
-                        //         hashPart += "&colFilter[" + i + "]=" + encodeURIComponent(colSearch);
-                        //     }
-
-                        //     window.location.hash = hashPart;
-
-                        //     $('.popover').remove();
-
-                        //     $("[data-bs-toggle=popover]").popover({sanitize: false});
-                        // });
-
                     },
                     "dataType": "json"
                 });
