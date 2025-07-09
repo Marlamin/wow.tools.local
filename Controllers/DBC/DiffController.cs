@@ -6,7 +6,7 @@ using wow.tools.local.Services;
 
 namespace wow.tools.Local.Controllers
 {
-    [Route("dbc/diff")]
+    [Route("dbc/")]
     [ApiController]
     public class DiffController(IDBCManager dbcManager) : ControllerBase
     {
@@ -14,6 +14,15 @@ namespace wow.tools.Local.Controllers
         private static Lock diffLock = new();
         private static Dictionary<(string table, string build1, string build2, bool useHotfixesFor1, bool useHotfixesFor2), WoWToolsDiffResult> diffCache = new();
 
+        [Route("clearCache")]
+        [HttpGet]
+        public async Task ClearCache()
+        {
+            diffCache.Clear();
+        }
+
+        [Route("diff")]
+        [HttpPost]
         public async Task<string> Diff(string name, string build1, string build2, bool useHotfixesFor1 = false, bool useHotfixesFor2 = false)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(build1) || string.IsNullOrEmpty(build2))

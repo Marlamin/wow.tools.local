@@ -293,6 +293,10 @@
 
             const response = await fetch("/dbc/reloadDefs");
             console.log(await response.text());
+
+            const response2 = await fetch("/dbc/clearCache");
+            console.log(await response2.text());
+
             window.location.reload();
         }
 
