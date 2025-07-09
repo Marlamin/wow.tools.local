@@ -7,6 +7,7 @@ namespace wow.tools.local.Services
     {
         public LocaleFlags localeFlags = LocaleFlags.All_WoW;
         private static HttpClient webClient = new();
+        public bool LoadFromBuildManager { get; set; } = false;
 
         public bool DB2IsCached(string tableName, string build)
         {
@@ -83,11 +84,38 @@ namespace wow.tools.local.Services
             if (File.Exists(fileName))
                 return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
+            // try dbc on disk
             fileName = Path.ChangeExtension(fileName, ".dbc");
 
-            // if the dbc variant doesn't exist throw
-            if (File.Exists(fileName)) 
+            if (File.Exists(fileName))
                 return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+            // if the dbc variant doesn't exist on disk, try BuildManager if enabled
+            if (LoadFromBuildManager)
+            {
+                try
+                {
+                    var buildInstance = BuildManager.GetBuildByVersion(build);
+                    if (buildInstance == null)
+                    {
+                        Console.WriteLine("Build not found in BuildManager: " + build);
+                        throw new FileNotFoundException($"Unable to find {tableName} for {build}");
+                    }
+
+                    // Try DB2
+                    if (CASC.DB2Map.TryGetValue(fullFileName.ToLower(), out int fileDataID) && buildInstance.Root!.FileExists((uint)fileDataID))
+                        return new MemoryStream(buildInstance.OpenFileByFDID((uint)fileDataID));
+
+                    // Try DBC
+                    if (CASC.DB2Map.TryGetValue(Path.ChangeExtension(fullFileName, ".dbc").ToLower(), out fileDataID) && buildInstance.Root!.FileExists((uint)fileDataID))
+                        return new MemoryStream(buildInstance.OpenFileByFDID((uint)fileDataID));
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Unable to load DB2 from BuildManager: " + ex.Message);
+                }
+            }
 
             if (CASC.DB2Map.TryGetValue(fullFileName, out int db2fileDataID))
             {
@@ -104,15 +132,22 @@ namespace wow.tools.local.Services
 
                         if (!string.IsNullOrEmpty(SettingsManager.DBCFolder) && !File.Exists(Path.Combine(SettingsManager.DBCFolder, "dbfilesclient", $"{tableName}.db2")))
                         {
-                            Console.WriteLine("Caching " + tableName + " for build " + build + " to disk..");
-                            if (!Directory.Exists(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient")))
-                                Directory.CreateDirectory(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient"));
-
-                            var db2File = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", $"{tableName}.db2");
-
-                            using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
+                            try
                             {
-                                db2Stream.CopyTo(fileStream);
+                                Console.WriteLine("Caching " + tableName + " for build " + build + " to disk..");
+                                if (!Directory.Exists(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient")))
+                                    Directory.CreateDirectory(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient"));
+
+                                var db2File = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", $"{tableName}.db2");
+
+                                using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
+                                {
+                                    db2Stream.CopyTo(fileStream);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Error caching DB2 to disk: " + ex.Message);
                             }
 
                             db2Stream.Position = 0;
@@ -138,15 +173,22 @@ namespace wow.tools.local.Services
 
                         if (!string.IsNullOrEmpty(SettingsManager.DBCFolder) && !File.Exists(Path.Combine(SettingsManager.DBCFolder, "dbfilesclient", $"{tableName}.dbc")))
                         {
-                            Console.WriteLine("Caching " + tableName + " for build " + build + " to disk..");
-                            if (!Directory.Exists(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient")))
-                                Directory.CreateDirectory(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient"));
-
-                            var db2File = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", $"{tableName}.dbc");
-
-                            using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
+                            try
                             {
-                                dbcStream.CopyTo(fileStream);
+                                Console.WriteLine("Caching " + tableName + " for build " + build + " to disk..");
+                                if (!Directory.Exists(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient")))
+                                    Directory.CreateDirectory(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient"));
+
+                                var db2File = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", $"{tableName}.dbc");
+
+                                using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
+                                {
+                                    dbcStream.CopyTo(fileStream);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Error caching DBC to disk: " + ex.Message);
                             }
 
                             dbcStream.Position = 0;

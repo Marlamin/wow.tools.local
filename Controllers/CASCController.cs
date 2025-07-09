@@ -780,6 +780,7 @@ namespace wow.tools.local.Controllers
 
                         try
                         {
+                            dbcProvider.LoadFromBuildManager = true;
                             var fromDB2 = dbcProvider.StreamForTableName(basename, from);
                             var fromDB2Header = new byte[4];
                             await fromDB2.ReadExactlyAsync(fromDB2Header);
@@ -829,6 +830,8 @@ namespace wow.tools.local.Controllers
                 Removed = removedFiles.Select(toRemovedDiffEntryDelegate),
                 Modified = modifiedFiles.Select(toModifiedDiffEntryDelegate)
             };
+
+            dbcProvider.LoadFromBuildManager = false;
 
             Console.WriteLine($"Added: {diff.Added.Count()}, removed: {diff.Removed.Count()}, modified: {diff.Modified.Count()}, common: {commonEntries.Count()}");
 

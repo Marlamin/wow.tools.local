@@ -16,7 +16,7 @@ namespace wow.tools.Local.Controllers
 
         [Route("clearCache")]
         [HttpGet]
-        public async Task ClearCache()
+        public void ClearCache()
         {
             diffCache.Clear();
         }

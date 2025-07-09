@@ -26,6 +26,17 @@ namespace wow.tools.local.Services
             public bool is_bgdl { get; set; }
         }
 
+        public class BuildMetaData
+        {
+            public string product { get; set; }
+            public string buildConfig { get; set; }
+            public string cdnConfig { get; set; }
+            public string productConfig { get; set; }
+            public string version { get; set; }
+            public int build { get; set; }
+            public string firstSeen { get; set; }
+        }
+
         static SQLiteDB()
         {
             dbConn.Open();
@@ -256,6 +267,56 @@ namespace wow.tools.local.Services
             return "";
         }
 
+        public static BuildMetaData? GetBuildInfoByBuildConfig(string buildConfig)
+        {
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT product, version, buildConfig, cdnConfig, productConfig, build, firstSeen FROM wow_builds WHERE buildConfig = @buildConfig";
+                cmd.Parameters.AddWithValue("@buildConfig", buildConfig);
+                var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new BuildMetaData
+                    {
+                        product = reader["product"].ToString()!,
+                        version = reader["version"].ToString()!,
+                        buildConfig = reader["buildConfig"].ToString()!,
+                        cdnConfig = reader["cdnConfig"].ToString()!,
+                        productConfig = reader["productConfig"].ToString()!,
+                        build = int.Parse(reader["build"].ToString()!),
+                        firstSeen = reader["firstSeen"].ToString()!
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        public static BuildMetaData? GetBuildInfoByVersion(string version)
+        {
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT product, version, buildConfig, cdnConfig, productConfig, build, firstSeen FROM wow_builds WHERE version = @version";
+                cmd.Parameters.AddWithValue("@version", version);
+                var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new BuildMetaData
+                    {
+                        product = reader["product"].ToString()!,
+                        version = reader["version"].ToString()!,
+                        buildConfig = reader["buildConfig"].ToString()!,
+                        cdnConfig = reader["cdnConfig"].ToString()!,
+                        productConfig = reader["productConfig"].ToString()!,
+                        build = int.Parse(reader["build"].ToString()!),
+                        firstSeen = reader["firstSeen"].ToString()!
+                    };
+                }
+            }
+
+            return null;
+        }
+
         public static void InsertBuildIfNotExists(string product, string version, string buildConfig, string cdnConfig)
         {
             var buildVersion = version.Split('.');
@@ -281,7 +342,7 @@ namespace wow.tools.local.Services
                 {
                     cmd.ExecuteNonQuery();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine("Failed to insert build {0} into wow_builds (probably fine don't worry about it) with message {1}", version, e.Message);
                 }
@@ -599,7 +660,7 @@ namespace wow.tools.local.Services
 
         private static void EnsureVOCreatureCacheLoaded()
         {
-            if(VOFDIDToCreatureNameCache.Count > 0)
+            if (VOFDIDToCreatureNameCache.Count > 0)
                 return;
 
             using (var cmd = dbConn.CreateCommand())

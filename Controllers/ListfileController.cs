@@ -530,10 +530,18 @@ namespace wow.tools.local.Controllers
 
             if (!string.IsNullOrEmpty(SettingsManager.DBCFolder))
             {
-                if (!Directory.Exists(SettingsManager.DBCFolder))
-                    Directory.CreateDirectory(SettingsManager.DBCFolder);
+                try
+                {
+                    if (!Directory.Exists(SettingsManager.DBCFolder))
+                        Directory.CreateDirectory(SettingsManager.DBCFolder);
 
-                var dbcFolder = new DirectoryInfo(SettingsManager.DBCFolder);
+                    var dbcFolder = new DirectoryInfo(SettingsManager.DBCFolder);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error creating or listing DBC folder: " + e.Message);
+                }
+
                 foreach (var build in dbdProvider.GetVersionsInDBD(databaseName))
                 {
                     var buildAsVersion = new Version(build);
