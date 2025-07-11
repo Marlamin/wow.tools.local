@@ -958,21 +958,23 @@ namespace wow.tools.local.Controllers
                         break;
                 }
 
-                var usedKeys = CASC.EncryptedFDIDs[filedataid];
+                var usedKeys = CASC.EncryptedFDIDs[filedataid].Distinct();
+
                 html += "<tr><td>Encryption status</td><td>" + prettyEncryptionStatus + "<br>";
                 html += "<table class='table table-sm table-inverse'>";
                 html += "<thead><tr><th></th><th style='width: 10%'>Key</th><th style='width: 4%'>ID</th><th style='width: 22%'>First seen</th><th>Description</th></tr></thead>";
 
-                var usedKeyInfo = new List<(ulong lookup, int ID, string FirstSeen, string Description)>();
+                var usedKeyInfo = new List<(ulong lookup, int ID, string FirstSeen, string Description, int totalFiles)>();
                 foreach (var key in usedKeys)
                 {
+                    var affectedFiles = CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(key)).Select(kvp => kvp.Key).Count();
                     if (KeyMetadata.KeyInfo.TryGetValue(key, out var keyInfo))
                     {
-                        usedKeyInfo.Add((key, keyInfo.ID, keyInfo.FirstSeen, keyInfo.Description));
+                        usedKeyInfo.Add((key, keyInfo.ID, keyInfo.FirstSeen, keyInfo.Description, affectedFiles));
                     }
                     else
                     {
-                        usedKeyInfo.Add((key, 0, "N/A", "No metadata known for this key, this is fine if this is a voice over file or a recently added key. Check back in a future version."));
+                        usedKeyInfo.Add((key, 0, "N/A", "No metadata known for this key, this is fine if this is a voice over file or a recently added key. Check back in a future version.", affectedFiles));
                     }
                 }
 
@@ -996,7 +998,7 @@ namespace wow.tools.local.Controllers
 
                 foreach (var key in usedKeyInfo.OrderBy(x => x.ID))
                 {
-                    html += "<tr><td>" + (WTLKeyService.HasKey(key.lookup) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "'>" + key.lookup.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + key.ID + "</td><td>" + key.FirstSeen + "</td><td>" + key.Description + "</td></tr>";
+                    html += "<tr><td>" + (WTLKeyService.HasKey(key.lookup) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "'>" + key.lookup.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + key.ID + "</td><td>" + key.FirstSeen + "</td><td>" + key.Description + " <small><i>(" + key.totalFiles  +" total files)</i></small></td></tr>";
 
                     if (db2EncryptionMetaData.TryGetValue(key.lookup, out var encryptedIDs))
                     {
