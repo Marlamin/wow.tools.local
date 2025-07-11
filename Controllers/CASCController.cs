@@ -764,7 +764,8 @@ namespace wow.tools.local.Controllers
             var removedFiles = removedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootFromEntries[entry]));
             var modifiedFiles = new List<KeyValuePair<int, string>>();
 
-            foreach (var entry in commonEntries)
+            var modifiedLock = new Lock();
+            Parallel.ForEach(commonEntries, entry =>
             {
 
                 // DB2 files are special, we need to ignore the string in header (if current build, obviously)
@@ -783,11 +784,11 @@ namespace wow.tools.local.Controllers
                             dbcProvider.LoadFromBuildManager = true;
                             var fromDB2 = dbcProvider.StreamForTableName(basename, from);
                             var fromDB2Header = new byte[4];
-                            await fromDB2.ReadExactlyAsync(fromDB2Header);
+                            fromDB2.ReadExactly(fromDB2Header);
 
                             var toDB2 = dbcProvider.StreamForTableName(basename, to);
                             var toDB2Header = new byte[4];
-                            await toDB2.ReadExactlyAsync(toDB2Header);
+                            toDB2.ReadExactly(toDB2Header);
 
                             if (MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457 && MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457)
                             {
@@ -795,15 +796,16 @@ namespace wow.tools.local.Controllers
                                 toDB2.Position = 136;
 
                                 var remainingFromBytes = new byte[fromDB2.Length - 136];
-                                await fromDB2.ReadExactlyAsync(remainingFromBytes);
+                                fromDB2.ReadExactly(remainingFromBytes);
 
                                 var remainingToBytes = new byte[toDB2.Length - 136];
-                                await toDB2.ReadExactlyAsync(remainingToBytes);
+                                toDB2.ReadExactly(remainingToBytes);
 
                                 if (!remainingFromBytes.SequenceEqual(remainingToBytes))
-                                    modifiedFiles.Add(new KeyValuePair<int, string>(entry, rootToEntries[entry]));
+                                    lock (modifiedLock)
+                                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, rootToEntries[entry]));
 
-                                continue;
+                                return;
                             }
                         }
                         catch (Exception e)
@@ -817,8 +819,9 @@ namespace wow.tools.local.Controllers
                 var patchedFile = rootToEntries[entry];
 
                 if (originalFile != patchedFile)
-                    modifiedFiles.Add(new KeyValuePair<int, string>(entry, patchedFile));
-            }
+                    lock (modifiedLock)
+                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, patchedFile));
+            });
 
             var toAddedDiffEntryDelegate = toDiffEntry("added");
             var toRemovedDiffEntryDelegate = toDiffEntry("removed");
