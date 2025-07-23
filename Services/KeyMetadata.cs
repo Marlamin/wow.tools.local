@@ -630,7 +630,7 @@
             KeyInfo.Add(0x9AF82E9600D84D2F, (7925, "WOW-59XXXpatch11.1.0_XPTR", "Lingering Shadows campaign"));
             KeyInfo.Add(0x192CB3A2CEA7F367, (7926, "WOW-59XXXpatch11.1.0_XPTR", ""));
             KeyInfo.Add(0x9DC500F50A8BAFA0, (7946, "WOW-6XXXXpatch11.1.X_PTR", "Unknown quests/item set"));
-            KeyInfo.Add(0x32196CB4685FAA82, (7958, "WOW-6XXXXpatch11.1.X_PTR", "Unknown quest/items"));
+            KeyInfo.Add(0x32196CB4685FAA82, (7958, "WOW-6XXXXpatch11.1.X_PTR", "Stormstout Sha-Warped item set"));
             KeyInfo.Add(0x7FC2952239F631A3, (7960, "WOW-61476patch11.2.0_XPTR", "Unknown mount/spells"));
             KeyInfo.Add(0x67636DEC9B3AEC72, (7961, "WOW-61476patch11.2.0_XPTR", "Unknown battle pet"));
             KeyInfo.Add(0x58547A6C357573C1, (7962, "WOW-61476patch11.2.0_XPTR", "Unknown item set"));
@@ -640,28 +640,31 @@
             KeyInfo.Add(0x9471F0C5736A239A, (7973, "WOW-59XXXpatch11.1.0_XPTR", "Unknown store assets"));
             KeyInfo.Add(0x02E70FF0431BCA2B, (7975, "WOW-59XXXpatch11.1.0_XPTR", "MoP Classic Preorder store data"));
             KeyInfo.Add(0x0B41ACE6E5974AF8, (7976, "WOW-61476patch11.2.0_XPTR", "Unknown quests/VO"));
-            KeyInfo.Add(0x06A96EF854F44BBE, (7979, "WOW-6XXXXpatch11.1.X_PTR", "Unknown toy/spell"));
+            KeyInfo.Add(0x06A96EF854F44BBE, (7979, "WOW-6XXXXpatch11.1.X_PTR", "Azure Sea Skiff toy"));
             KeyInfo.Add(0x3FCBE300420A53DD, (7982, "WOW-61476patch11.2.0_XPTR", "Unknown cinematic"));
             KeyInfo.Add(0x7A42DEEAF347E6A5, (7983, "WOW-61476patch11.2.0_XPTR", "Unknown cinematic"));
             KeyInfo.Add(0xB3B44D11A21E4E00, (7984, "WOW-61476patch11.2.0_XPTR", "Unknown VO"));
             KeyInfo.Add(0xAB91AA4CBB2E952E, (7985, "WOW-61476patch11.2.0_XPTR", "Unknown VO"));
             KeyInfo.Add(0xD8281156E65C1586, (7986, "WOW-61476patch11.2.0_XPTR", "Unknown creatures/VO"));
             KeyInfo.Add(0x806368874B2EA234, (7989, "WOW-6XXXXpatch11.1.X_PTR", "Springtime Pet Pack store assets"));
-            KeyInfo.Add(0xF793A4AF277A947C, (7990, "WOW-6XXXXpatch11.1.X_PTR", "Unknown store assets"));
+            KeyInfo.Add(0xF793A4AF277A947C, (7990, "WOW-6XXXXpatch11.1.X_PTR", "Emerald Inferno Pack store assets"));
             KeyInfo.Add(0xE30F16DA7EC0EBC4, (7991, "WOW-61476patch11.2.0_XPTR", "Unknown mount/item set"));
             KeyInfo.Add(0x5B7AD908DFB68C1E, (7994, "WOW-6XXXXpatch11.1.X_PTR", "Raven pack store assets"));
-            KeyInfo.Add(0x364FB291A63DD212, (7995, "WOW-6XXXXpatch11.1.X_PTR", "Unknown item set"));
+            KeyInfo.Add(0x364FB291A63DD212, (7995, "WOW-6XXXXpatch11.1.X_PTR", "Stillwater Fisher Attire item set"));
             KeyInfo.Add(0xAC55C5288E102262, (7996, "WOW-61476patch11.2.0_XPTR", ""));
             KeyInfo.Add(0xA614DF6E152C6721, (8001, "WOW-61476patch11.2.0_XPTR", "Unknown mount"));
             KeyInfo.Add(0xCD7892B09FB19B2C, (8002, "WOW-61476patch11.2.0_XPTR", "Unknown item set"));
             KeyInfo.Add(0xF62EB86E1F0AC655, (8004, "WOW-61476patch11.2.0_XPTR", "Unknown VO"));
-            KeyInfo.Add(0xCD80F7B32428FA15, (8005, "WOW-61476patch11.2.0_XPTR", "Unknown store asset"));
-            KeyInfo.Add(0x82F2C3957CE26609, (8006, "WOW-61476patch11.2.0_XPTR", "Unknown store asset"));
-            KeyInfo.Add(0x67D3B8D43EA50BBB, (8007, "WOW-61476patch11.2.0_XPTR", "Unknown store asset"));
-            KeyInfo.Add(0x3C0B108D4109940D, (8008, "WOW-61476patch11.2.0_XPTR", "Unknown store asset"));
-            KeyInfo.Add(0xF68848F467B23CA7, (8009, "WOW-61476patch11.2.0_XPTR", "Unknown store asset"));
+            KeyInfo.Add(0xCD80F7B32428FA15, (8005, "WOW-61476patch11.2.0_XPTR", "2025 12 month sub offer assets"));
+            KeyInfo.Add(0x82F2C3957CE26609, (8006, "WOW-61476patch11.2.0_XPTR", "2025 12 month sub offer assets"));
+            KeyInfo.Add(0x67D3B8D43EA50BBB, (8007, "WOW-61476patch11.2.0_XPTR", "2025 12 month sub offer assets"));
+            KeyInfo.Add(0x3C0B108D4109940D, (8008, "WOW-61476patch11.2.0_XPTR", "2025 12 month sub offer assets"));
+            KeyInfo.Add(0xF68848F467B23CA7, (8009, "WOW-61476patch11.2.0_XPTR", "Tropical Wave Pack store asset"));
             KeyInfo.Add(0x2FBD53C07215527F, (8017, "WOW-61559patch11.1.7_Retail", "Encrypted WorldStateExpression"));
             KeyInfo.Add(0x3C4EDA3CC7E85F80, (8018, "WOW-61476patch11.2.0_XPTR", ""));
+            KeyInfo.Add(0x030C5FF41A65B7B2, (8029, "WOW-61XXXpatch11.2.0_XPTR", "2025 12 month sub offer assets"));
+            KeyInfo.Add(0x1C845FA7C4B4E13A, (8030, "WOW-61XXXpatch11.2.0_XPTR", "2025 12 month sub offer assets"));
+            KeyInfo.Add(0x8CCB7CE46A059E0B, (8031, "WOW-61xxxpatch11.2.0_XPTR", "2025 12 month sub offer assets"));
         }
 
         public static void ReloadKeys()
