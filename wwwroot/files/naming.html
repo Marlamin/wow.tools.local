@@ -352,7 +352,7 @@
 
         function resultsAsTxt() {
             var fakeLink = document.createElement("a");
-            fakeLink.href = "data:text/plain;charset=UTF-8," + result.value;
+            fakeLink.href = "data:text/plain;charset=UTF-8," + encodeURIComponent(result.value);
             fakeLink.setAttribute("download", "WTL-suggestions.txt");
             fakeLink.click();
         }
