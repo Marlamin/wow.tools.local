@@ -40,13 +40,11 @@ namespace wow.tools.local.Controllers
                 return result;
             }
 
-            result.data = [];
-
             var db2s = dbcManager.GetDBCNames(build);
 
             foreach (var db2 in db2s)
             {
-                Stream fs = new MemoryStream();
+                Stream? fs = null;
 
                 if (string.IsNullOrEmpty(build) || build == CASC.BuildName)
                 {
@@ -55,27 +53,26 @@ namespace wow.tools.local.Controllers
                 }
                 else if (!string.IsNullOrEmpty(SettingsManager.DBCFolder))
                 {
-                    string fileName = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", db2 + ".db2");
+                    string directoryPath = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient");
+                    if (Directory.Exists(directoryPath))
+                    {
+                        string? fileName = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
+                            fn.EndsWith($"{db2}.db2", StringComparison.OrdinalIgnoreCase) ||
+                            fn.EndsWith($"{db2}.dbc", StringComparison.OrdinalIgnoreCase));
 
-                    if (System.IO.File.Exists(fileName))
-                        fs = System.IO.File.OpenRead(fileName);
-
-                    fileName = Path.ChangeExtension(fileName, ".dbc");
-
-                    if (System.IO.File.Exists(fileName))
-                        fs = System.IO.File.OpenRead(fileName);
-
-                    // try lowercase
-                    fileName = fileName.ToLower();
-
-                    if (System.IO.File.Exists(fileName))
-                        fs = System.IO.File.OpenRead(fileName);
-
-                    fileName = Path.ChangeExtension(fileName, ".db2");
-
-                    if (System.IO.File.Exists(fileName))
-                        fs = System.IO.File.OpenRead(fileName);
+                        if (fileName != null)
+                            fs = System.IO.File.OpenRead(fileName);
+                    }
                 }
+
+                // No dbc/db2 found. No need to go any further.
+                if (fs == null)
+                {
+                    result.error = "Could not find DBCs on disk for build " + build + "!";
+                    return result;
+                }
+
+                result.data = [];
 
                 using (var bin = new BinaryReader(fs))
                 {
