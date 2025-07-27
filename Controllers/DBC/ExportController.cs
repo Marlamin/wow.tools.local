@@ -196,23 +196,21 @@ namespace wow.tools.Local.Controllers
                 }
                 else
                 {
-                    var extension = "";
+                    string directoryPath = Path.Combine(SettingsManager.DBCFolder, fullBuild, "dbfilesclient");
+                    if (!Directory.Exists(directoryPath))
+                        throw new FileNotFoundException($"Unable to DBC/DB2 folder for {fullBuild}, are DBC/DB2 for this build extracted?");
 
-                    string fileName = Path.Combine(SettingsManager.DBCFolder, fullBuild, "dbfilesclient", $"{tableName}.db2");
+                    // Try to find a matching dbc or db2 file, ignoring case sensitivity to maintain the same behavior on all platforms
+                    string? fileName = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
+                        fn.EndsWith($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
+                        fn.EndsWith($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase));
 
-                    if (System.IO.File.Exists(fileName))
-                    {
-                        extension = "db2";
-                    }
-                    else
-                    {
-                        fileName = Path.ChangeExtension(fileName, ".dbc");
+                    if (fileName == null)
+                        throw new FileNotFoundException($"Unable to find {tableName}, are DB2s/DBCs for this build extracted?");
 
-                        if (!System.IO.File.Exists(fileName))
-                            throw new FileNotFoundException($"Unable to find {tableName}, are DB2s for this build extracted?");
-
-                        extension = "dbc";
-                    }
+                    string? extension = Path.GetExtension(fileName); // includes the period char as well
+                    if (extension == null)
+                        throw new FileNotFoundException($"Unable to find a valid DBC/DB2 {tableName} table with valid file extension.");
 
                     using (var stream = provider.StreamForTableName(tableName, fullBuild))
                     using (var ms = new MemoryStream())
@@ -220,7 +218,7 @@ namespace wow.tools.Local.Controllers
                         await stream.CopyToAsync(ms);
                         return new FileContentResult(ms.ToArray(), "application/octet-stream")
                         {
-                            FileDownloadName = Path.GetFileName(tableName.ToLower() + "." + extension)
+                            FileDownloadName = Path.GetFileName(tableName.ToLower() + extension)
                         };
                     }
                 }

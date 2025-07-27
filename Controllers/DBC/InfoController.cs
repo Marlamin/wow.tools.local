@@ -56,6 +56,7 @@ namespace wow.tools.local.Controllers
                     string directoryPath = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient");
                     if (Directory.Exists(directoryPath))
                     {
+                        // Try to either find a db2 or dbc file, ignoring casing to maintain identical behavior on all platforms
                         string? fileName = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
                             fn.EndsWith($"{db2}.db2", StringComparison.OrdinalIgnoreCase) ||
                             fn.EndsWith($"{db2}.dbc", StringComparison.OrdinalIgnoreCase));
