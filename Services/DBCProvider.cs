@@ -31,19 +31,16 @@ namespace wow.tools.local.Services
                 throw new FileNotFoundException($"Unable to find {tableName}");
             }
 
-            string fileName = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", $"{tableName}.db2");
+            string directoryPath = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient");
+            if (!Directory.Exists(directoryPath))
+                return false;
 
-            // if the db2 variant doesn't exist try dbc
-            if (File.Exists(fileName))
-                return true;
+            // Try to either find a db2 or dbc file, ignoring casing to maintain identical behavior on all platforms
+            bool hasTableFile = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
+                fn.EndsWith($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
+                fn.EndsWith($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase)) != null;
 
-            fileName = Path.ChangeExtension(fileName, ".dbc");
-
-            // if the dbc variant doesn't exist throw
-            if (File.Exists(fileName))
-                return true;
-
-            return false;
+            return hasTableFile;
         }
 
         public Stream StreamForTableName(string tableName, string build)
@@ -78,17 +75,17 @@ namespace wow.tools.local.Services
                 throw new FileNotFoundException($"Unable to find {tableName}");
             }
 
-            string fileName = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", $"{tableName}.db2");
+            string directoryPath = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient");
+            if (Directory.Exists(directoryPath))
+            {
+                // Try to either find a db2 or dbc file, ignoring casing to maintain identical behavior on all platforms
+                string? fileName = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
+                    fn.EndsWith($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
+                    fn.EndsWith($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase));
 
-            // if the db2 variant doesn't exist try dbc
-            if (File.Exists(fileName))
-                return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-
-            // try dbc on disk
-            fileName = Path.ChangeExtension(fileName, ".dbc");
-
-            if (File.Exists(fileName))
-                return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                if (fileName != null)
+                    return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            }
 
             // if the dbc variant doesn't exist on disk, try BuildManager if enabled
             if (LoadFromBuildManager)

@@ -375,7 +375,7 @@ namespace wow.tools.local.Controllers
                     result.data.Add(
                   [
                       listfileResult.Key.ToString(), // ID
-                        listfileResult.Value, // Filename 
+                        listfileResult.Value, // Filename
                         lookup != 0 ? lookup.ToString("X16") : "", // Lookup
                         CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
                         CASC.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
@@ -445,7 +445,7 @@ namespace wow.tools.local.Controllers
                 result.data.Add(
                     [
                         listfileResult.Key.ToString(), // ID
-                        listfileResult.Value, // Filename 
+                        listfileResult.Value, // Filename
                         CASC.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup) ? lookup.ToString("X16") : "", // Lookup
                         "", // Versions
                         CASC.Types.TryGetValue(listfileResult.Key, out string? type) ? type : "unk", // Type
@@ -542,18 +542,29 @@ namespace wow.tools.local.Controllers
                     Console.WriteLine("Error creating or listing DBC folder: " + e.Message);
                 }
 
+
                 foreach (var build in dbdProvider.GetVersionsInDBD(databaseName))
                 {
                     var buildAsVersion = new Version(build);
 
                     if (!versionList.ContainsKey(buildAsVersion))
                     {
-                        if (System.IO.File.Exists(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", databaseName + ".db2")) || System.IO.File.Exists(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", databaseName + ".dbc")))
+                        string directoryPath = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient");
+                        if (Directory.Exists(directoryPath))
                         {
-                            versionList.Add(buildAsVersion, "disk");
-                            continue;
+                            // Try to either find a db2 or dbc file, ignoring casing to maintain identical behavior on all platforms
+                            bool hasBuildOnDisk = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
+                                fn.EndsWith($"{databaseName}.db2", StringComparison.OrdinalIgnoreCase) ||
+                                fn.EndsWith($"{databaseName}.dbc", StringComparison.OrdinalIgnoreCase)) != null;
+
+                            if (hasBuildOnDisk)
+                            {
+                                versionList.Add(buildAsVersion, "disk");
+                                continue;
+                            }
                         }
-                        else if (
+
+                        if (
                             (buildAsVersion.Major > 6) ||
                             (buildAsVersion.Major == 1 && buildAsVersion.Minor >= 13) ||
                             (buildAsVersion.Major == 2 && buildAsVersion.Minor >= 5) ||
@@ -563,7 +574,6 @@ namespace wow.tools.local.Controllers
                             )
                         {
                             versionList.Add(buildAsVersion, "online");
-                            continue;
                         }
                     }
                 }
