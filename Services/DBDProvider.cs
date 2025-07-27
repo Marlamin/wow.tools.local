@@ -38,6 +38,9 @@ namespace wow.tools.Services
 
             if (downloadBDBD)
             {
+                if(!Directory.Exists("cache"))
+                    Directory.CreateDirectory("cache");
+
                 using (var client = new HttpClient())
                 {
                     client.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
@@ -71,7 +74,7 @@ namespace wow.tools.Services
                     {
                         var name = Path.GetFileNameWithoutExtension(entry.Key);
                         var definition = entry.Value.dbd;
-                        
+
                         definitionLookup.Add(name, (entry.Key, definition));
                     }
                     Console.WriteLine("Loaded " + definitionLookup.Count + " definitions from BDBD file!");
