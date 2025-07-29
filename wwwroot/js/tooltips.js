@@ -126,6 +126,9 @@ function generateFKTooltip(targetFK, value, tooltip, build)
 {
     console.log("Generating foreign key tooltip for " + value);
 
+    if (parseInt(build.split('.')[0]) > 6 && targetFK == "SoundEntries::ID")
+        targetFK = "soundkit::ID";
+
     const collapsedFKs = ["playercondition::id", "holidays::id", "spellchaineffects::id", "spellvisual::id", "soundkitadvanced::id"];
 
     const tooltipIcon = tooltip.querySelector(".tooltip-icon img");

@@ -41,6 +41,9 @@ function openFKModal(value, location, build){
     wowheadMap.set("creature", "https://www.wowhead.com/npc=");
     wowheadMap.set("gameobjects", "https://www.wowhead.com/object=");
 
+    if (parseInt(build.split('.')[0]) > 6 && location == "SoundEntries::ID")
+        location = "soundkit::ID";
+
     const splitLocation = location.split("::");
     const db = splitLocation[0].toLowerCase();
     const col = splitLocation[1];
