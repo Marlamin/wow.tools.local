@@ -1,5 +1,6 @@
 ﻿using CASCLib;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using System.Text.Json;
 using wow.tools.local.Services;
 
@@ -85,7 +86,7 @@ namespace wow.tools.local.Controllers
                                 bin.ReadCString(); // Text1_lang
 
                                 var remaining = bin.BaseStream.Length - bin.BaseStream.Position;
-                                if(remaining == 44 || remaining == 45)
+                                if (remaining == 44 || remaining == 45)
                                     continue;
 
                                 bin.BaseStream.Position = bin.BaseStream.Length - 28;
@@ -178,6 +179,139 @@ namespace wow.tools.local.Controllers
                 CASC.RefreshEncryptionStatus();
 
             return JsonSerializer.Serialize(keyInfos.OrderBy(x => x.ID));
+        }
+
+        [Route("moreinfo")]
+        [HttpGet]
+        public string MoreInfo(string lookup)
+        {
+            CASC.EnsureCHashesLoaded();
+
+            if (!ulong.TryParse(lookup, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var converted))
+                return "";
+
+            var output = "<table class='table table-striped table-bordered'>";
+
+            var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
+            var files = CASC.Listfile.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+
+            output += "<tr><td style='width: 200px;'>Lookup</td><td>" + converted.ToString("X16") + " (" + converted + ")</td></tr>";
+            output += "<tr><td style='width: 200px;'>Status</td><td>" + (WTLKeyService.HasKey(converted) ? "Available" : "Unavailable") + "</td></tr>";
+            if (WTLKeyService.HasKey(converted))
+                output += "<tr><td style='width: 200px;'>Key</td><td>" + Convert.ToHexString(WTLKeyService.GetKey(converted)) + "</td></tr>";
+
+            output += "<tr><td style='width: 200px;'>File count</td><td>" + files.Count + "</td></tr>";
+
+            if (files.Count == 0)
+            {
+                output += "</table>";
+                return output;
+            }
+            output += "<tr><td colspan='2'>File list</td></tr>";
+            output += "<tr><td colspan='2'><table class='table-bordered>";
+            // DB2s first
+            foreach (var file in files)
+            {
+                var filedataid = file.Key;
+
+                long size = 0;
+                List<byte[]> cKeys = [];
+                if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
+                {
+                    if (CASC.FDIDToExtraCHashes.TryGetValue(filedataid, out List<byte[]>? extraCHashes))
+                    {
+                        var cKey = Convert.ToHexStringLower(cKeyBytes);
+                        cKeys.Add(cKeyBytes);
+
+                        foreach (var extraCKey in extraCHashes)
+                            cKeys.Add(extraCKey);
+
+                        foreach (var cKeyB in cKeys)
+                            if (CASC.CHashToSize.TryGetValue(Convert.ToHexStringLower(cKeyB), out size) && size != 0)
+                                break;
+                    }
+                    else
+                    {
+                        var cKey = Convert.ToHexStringLower(cKeyBytes);
+                        cKeys.Add(cKeyBytes);
+                        CASC.CHashToSize.TryGetValue(cKey, out size);
+                    }
+                }
+
+                if (CASC.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
+                {
+                    output += "<tr><td>" + file.Key + "</td><td>db2</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => Convert.ToHexString(x)).ToList()) + "</td><td>" + size + " bytes</td></tr>";
+
+                    var db2EncryptionMetaData = new Dictionary<ulong, int[]>();
+
+                    try
+                    {
+                        var storage = dbcManager.GetOrLoad(Path.GetFileNameWithoutExtension(file.Value), CASC.BuildName).Result;
+                        db2EncryptionMetaData = storage.GetEncryptedIDs();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Unable to get encrypted DB2 info for DB2 " + filedataid + ": " + e.Message);
+                    }
+
+                    output += "<tr><td colspan='3'><table class='table table-bordered'>";
+                    output += "<tr><td>Encrypted record IDs</td><td>" + string.Join(", ", db2EncryptionMetaData.Where(x => x.Key == converted).Select(x => x.Value).FirstOrDefault()!);
+
+                    if (WTLKeyService.HasKey(converted))
+                    {
+                        output += " <a href='/dbc/?dbc=" + Path.GetFileNameWithoutExtension(CASC.Listfile[filedataid]).ToLower() + "&build=" + CASC.BuildName + "#page=1&search=encrypted%3A" + converted.ToString("X16").PadLeft(16, '0') + "' target='_BLANK' class='text-success'> (view)</a>";
+                    }
+
+                    output += "</td></tr>";
+                    output += "</table></td></tr>";
+                }
+            }
+
+            foreach (var file in files)
+            {
+                if (CASC.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
+                    continue;
+
+                var filedataid = file.Key;
+                long size = 0;
+                List<byte[]> cKeys = [];
+                if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
+                {
+                    if (CASC.FDIDToExtraCHashes.TryGetValue(filedataid, out List<byte[]>? extraCHashes))
+                    {
+                        var cKey = Convert.ToHexStringLower(cKeyBytes);
+                        cKeys.Add(cKeyBytes);
+
+                        foreach (var extraCKey in extraCHashes)
+                            cKeys.Add(extraCKey);
+
+                        CASC.CHashToSize.TryGetValue(cKey, out size);
+                    }
+                    else
+                    {
+                        var cKey = Convert.ToHexStringLower(cKeyBytes);
+                        cKeys.Add(cKeyBytes);
+                        CASC.CHashToSize.TryGetValue(cKey, out size);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(fileType) && (size == 6660 || size == 88612 || size == 175972))
+                    fileType = "blp?";
+
+                var filename = file.Value;
+                if(string.IsNullOrEmpty(filename))
+                {
+                    if(WoWNamingLib.Namers.ContentHashNamer.knownHashes.TryGetValue(Convert.ToHexStringLower(cKeyBytes), out var chashname))
+                    {
+                        filename = "Content hash name: " + chashname;
+                    }
+                }
+                output += "<tr><td>" + file.Key + "</td><td>" + fileType + "</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => Convert.ToHexString(x)).ToList()) + "</td><td>" + size + " bytes</td></tr>";
+            }
+            output += "</table></td></tr>";
+
+            output += "</table>";
+            return output;
         }
     }
 }

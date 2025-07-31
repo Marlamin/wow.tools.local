@@ -49,6 +49,21 @@
 
         </div>
     </div>
+    <div class="modal" id="moreInfoModal" tabindex="-1" role="dialog" aria-labelledby="moreInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="moreInfoModalLabel">More information</h5>
+                </div>
+                <div class="modal-body" id="moreInfoModalContent">
+                    <i class="fa fa-refresh fa-spin" style="font-size:24px"></i> This may take a while to load, please wait...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="/js/files.js"></script>
     <script type='text/javascript'>
         getKeys();
@@ -58,7 +73,6 @@
             let output = "";
 
             json.forEach(function (entry) {
-                console.log(entry);
                 let keyBytes = "????????????????????????????????";
 
                 if (entry.Key != "") {
@@ -73,10 +87,15 @@
                 if (entry.FirstSeen.length == 23)
                     descriptionPadding = "   ";
 
-                output += " <a target='_BLANK' href='/files/#search=encrypted%3A" + entry.Lookup + "&page=1&sort=0&desc=asc'>" + entry.Lookup + "</a>  " + keyBytes + "  salsa20   " + entry.ID + idPadding + entry.FirstSeen + descriptionPadding + entry.Description + "\n";
+                output += " <a target='_BLANK' href='/files/#search=encrypted%3A" + entry.Lookup + "&page=1&sort=0&desc=asc'>" + entry.Lookup + "</a>  " + keyBytes + "  salsa20   " + entry.ID + idPadding + entry.FirstSeen + descriptionPadding + entry.Description + "<a data-bs-toggle='modal' data-bs-target='#moreInfoModal' href='#' onclick='moreInfo(\"" + entry.Lookup + "\");event.preventDefault();' style='user-select: none;'>  More info</a>\n";
             });
 
             document.getElementById("output").innerHTML = output;
+        }
+
+        function moreInfo(lookup) {
+            $("#moreInfoModalContent").load("/keys/moreinfo?lookup=" + lookup);
+            return false;
         }
     </script>
     <link href="/css/files.css" rel="stylesheet">
