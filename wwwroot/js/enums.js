@@ -3098,9 +3098,15 @@ const socketColorEnum = {
     19: 'PUNCHCARD_RED',
     20: 'PUNCHCARD_YELLOW',
     21: 'PUNCHCARD_BLUE',
-    22: 'CYPHER',
-    23: 'TINKER',
-    24: 'PRIMORDIAL'
+    22: 'DOMINATION',
+    23: 'CYPHER',
+    24: 'TINKER',
+    25: 'PRIMORDIAL'
+    26: 'FRAGRANCE',
+    27: 'SINGINGTHUNDER',
+    28: 'SINGINGSEA',
+    29: 'SINGINGWIND',
+    30: 'FIBER'
 }
 
 // 176
