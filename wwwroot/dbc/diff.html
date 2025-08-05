@@ -316,7 +316,7 @@
                                         } else if (field.startsWith("Flags") || flagMap.has(columnWithTable)) {
                                             data = "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='flags' data-table='" + currentDBC + "' data-col='" + field + "' data-value='" + row.row[field] + "'  data-build=" + newBuild + ">0x" + dec2hex(row.row[field]) + "</span>";
                                         } else {
-                                            data = columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2[0], fkCols, 0);
+                                            data = columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2[0], fkCols, 0, conditionalFKs);
                                         }
 
                                         return data;
@@ -326,7 +326,7 @@
                                     // if no diff is found then return the default data value
                                     var diff = row.diff.find(x => x.property == field);
                                     if (!diff) {
-                                        return columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2[0], fkCols, 0);
+                                        return columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2[0], fkCols, 0, conditionalFKs);
                                     }
 
                                     // apply the diff html information

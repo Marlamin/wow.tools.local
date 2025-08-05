@@ -343,7 +343,7 @@ function parseDate(date){
     }
 }
 
-function columnRender(row, columnName, columnValue, tableName, build, json, fks, idHeader) {
+function columnRender(row, columnName, columnValue, tableName, build, json, fks, idHeader, conditionalFKs) {
     let fk = "";
 
     const headers = json["headers"];

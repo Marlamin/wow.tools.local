@@ -1078,7 +1078,7 @@
                         "columnDefs": [{
                             "targets": allCols,
                             "render": function (data, type, full, meta) {
-                                return columnRender(full, json.headers[meta.col], data, currentParams["dbc"], currentParams["build"], json, fkCols);
+                                return columnRender(full, json.headers[meta.col], data, currentParams["dbc"], currentParams["build"], json, fkCols, null, conditionalFKs);
                             }
                         }],
                         "createdRow": function (row, data, dataIndex) {

@@ -3101,7 +3101,7 @@ const socketColorEnum = {
     22: 'DOMINATION',
     23: 'CYPHER',
     24: 'TINKER',
-    25: 'PRIMORDIAL'
+    25: 'PRIMORDIAL',
     26: 'FRAGRANCE',
     27: 'SINGINGTHUNDER',
     28: 'SINGINGSEA',
