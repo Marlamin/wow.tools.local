@@ -83,9 +83,12 @@ async function updateTitle() {
 }
 
 async function checkForUpdates(force = false) {
-    if (document.cookie && !force) {
-        newUpdateAvailable(JSON.parse(document.cookie).updateAvailable);
-        return;
+    const lastUpdateCheck = localStorage.getItem("lastUpdate");
+    if (lastUpdateCheck != null && !force) {
+        const json = JSON.parse(lastUpdateCheck);
+        if (json.lastCheck > Date.now() - 24 * 60 * 60 * 1000) {
+            return;
+        }
     }
 
     const latestReleaseResponse = await fetch("https://api.github.com/repos/marlamin/wow.tools.local/releases/latest");
@@ -95,17 +98,15 @@ async function checkForUpdates(force = false) {
     const currentVersionResponse = await fetch("/casc/getVersion");
     const currentVersion = await currentVersionResponse.text();
     
+    var updateData = new Object();
+    updateData.updateAvailable = true;
+    updateData.latestVersion = latestReleaseTag;
+    updateData.lastCheck = Date.now();
+    localStorage.setItem("lastUpdate", JSON.stringify(updateData));
+
     if (latestReleaseTag !== currentVersion) {
-        var cookieData = new Object();
-        cookieData.updateAvailable = true;
-        cookieData.latestVersion = latestReleaseTag;
-        document.cookie = JSON.stringify(cookieData);
         newUpdateAvailable(true);
     } else {
-        var cookieData = new Object();
-        cookieData.updateAvailable = false;
-        cookieData.latestVersion = latestReleaseTag;
-        document.cookie = JSON.stringify(cookieData);
         newUpdateAvailable(false);
     }
 }
