@@ -652,8 +652,8 @@
             KeyInfo.Add(0x5B7AD908DFB68C1E, (7994, "WOW-6XXXXpatch11.1.X_PTR", "Raven pack store assets"));
             KeyInfo.Add(0x364FB291A63DD212, (7995, "WOW-6XXXXpatch11.1.X_PTR", "Stillwater Fisher Attire item set"));
             KeyInfo.Add(0xAC55C5288E102262, (7996, "WOW-61476patch11.2.0_XPTR", ""));
-            KeyInfo.Add(0xA614DF6E152C6721, (8001, "WOW-61476patch11.2.0_XPTR", "Unknown mount"));
-            KeyInfo.Add(0xCD7892B09FB19B2C, (8002, "WOW-61476patch11.2.0_XPTR", "Unknown item set"));
+            KeyInfo.Add(0xA614DF6E152C6721, (8001, "WOW-61476patch11.2.0_XPTR", "Void-Forged Overseer mount"));
+            KeyInfo.Add(0xCD7892B09FB19B2C, (8002, "WOW-61476patch11.2.0_XPTR", "Void-Bound Swimwear Set"));
             KeyInfo.Add(0xF62EB86E1F0AC655, (8004, "WOW-61476patch11.2.0_XPTR", "Unknown VO"));
             KeyInfo.Add(0xCD80F7B32428FA15, (8005, "WOW-61476patch11.2.0_XPTR", "2025 12 month sub offer assets"));
             KeyInfo.Add(0x82F2C3957CE26609, (8006, "WOW-61476patch11.2.0_XPTR", "2025 12 month sub offer assets"));
