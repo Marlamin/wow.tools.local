@@ -336,10 +336,8 @@ namespace wow.tools.local
                 case "extractionDir":
                     if (string.IsNullOrEmpty(value))
                         return (false, "Folder must be set but does not have to exist (will be created)");
-                    else if (Directory.Exists(value))
-                        return (true, string.Empty);
                     else
-                        return (false, "Directory does not exist");
+                        return (true, string.Empty);
                 case "showAllFiles":
                 case "useTACTSharp":
                 case "preferHighResTextures":
