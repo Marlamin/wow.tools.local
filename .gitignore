@@ -420,3 +420,4 @@ hotfixes.db
 hotfixes.db-journal
 extract
 dump
+config.json
