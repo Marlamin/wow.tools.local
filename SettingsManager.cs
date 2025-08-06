@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using Microsoft.AspNetCore.Http;
+using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
 using TACTSharp;
 
 namespace wow.tools.local
@@ -17,21 +19,21 @@ namespace wow.tools.local
     {
         public static readonly Dictionary<string, WTLSetting> Settings = new Dictionary<string, WTLSetting>
         {
-            {"definitionDir", new WTLSetting { Key = "definitionDir", Value = string.Empty, Description = "Directory where the definition files are stored.", Type = "string", DefaultValue = string.Empty }},
-            {"listfileURL", new WTLSetting { Key = "listfileURL", Value = string.Empty, Description = "URL to the listfile used for CASC operations.", Type = "string", DefaultValue = "https://github.com/wowdev/wow-listfile/releases/latest/download/community-listfile-withcapitals.csv" }},
-            {"tactKeyURL", new WTLSetting { Key = "tactKeyURL", Value = string.Empty, Description = "URL to the TACT key file.", Type = "string", DefaultValue = "https://github.com/wowdev/TACTKeys/raw/master/WoW.txt" }},
+            {"definitionDir", new WTLSetting { Key = "definitionDir", Value = string.Empty, Description = "Directory where the definition files (.dbd's) are stored. If not set they are automatically periodically downloaded from GitHub.", Type = "string", DefaultValue = string.Empty }},
+            {"listfileURL", new WTLSetting { Key = "listfileURL", Value = string.Empty, Description = "URL to the CSV listfile. If you have the wowdev/wow-listfile repository locally, this can also be the path of the 'parts' directory.", Type = "string", DefaultValue = "https://github.com/wowdev/wow-listfile/releases/latest/download/community-listfile-withcapitals.csv" }},
+            {"tactKeyURL", new WTLSetting { Key = "tactKeyURL", Value = string.Empty, Description = "URL to the TACT key TXT file.", Type = "string", DefaultValue = "https://github.com/wowdev/TACTKeys/raw/master/WoW.txt" }},
             {"wowFolder", new WTLSetting { Key = "wowFolder", Value = string.Empty, Description = "Path to the WoW installation folder.", Type = "string", DefaultValue = string.Empty }},
             {"dbcFolder", new WTLSetting { Key = "dbcFolder", Value = string.Empty, Description = "Path to the DBC folder.", Type = "string", DefaultValue = "dbcs" }},
             {"manifestFolder", new WTLSetting { Key = "manifestFolder", Value = "manifests", Description = "Folder where manifests are stored.", Type = "string", DefaultValue = "manifests" }},
             {"extractionDir", new WTLSetting { Key = "extractionDir", Value = "extract", Description = "Directory where files will be extracted to.", Type = "string", DefaultValue = "extract" }},
-            {"cdnFolder", new WTLSetting { Key = "cdnFolder", Value = string.Empty, Description = "Path to the CDN folder.", Type = "string", DefaultValue = string.Empty }},
+            {"cdnFolder", new WTLSetting { Key = "cdnFolder", Value = string.Empty, Description = "If you have a copy of the WoW CDN available locally, you can set this to the path of the directory containing a tpr/wow folder.", Type = "string", DefaultValue = string.Empty }},
             {"wowProduct", new WTLSetting { Key = "wowProduct", Value = string.Empty, Description = "The WoW product to use (e.g. 'wow', 'wowt', 'wow_classic', etc.).", Type = "string", DefaultValue = "wow" }},
             {"region", new WTLSetting { Key = "region", Value = "eu", Description = "The region to use (e.g. 'eu', 'us', etc.).", Type = "string", DefaultValue = "eu" }},
             {"showAllFiles", new WTLSetting { Key = "showAllFiles", Value = "false", Description = "Whether to show all files in WTL, including those not present in the loaded build.", Type = "bool", DefaultValue = "false" }},
-            {"locale", new WTLSetting { Key = "locale", Value = "enUS", Description = "The locale to use.", Type = "string", DefaultValue = "enUS" }},
-            {"preferHighResTextures", new WTLSetting { Key = "preferHighResTextures", Value = "false", Description = "Whether to prefer high-res textures when available (Classic).", Type = "bool", DefaultValue = "false" }},
-            {"useTACTSharp", new WTLSetting { Key = "useTACTSharp", Value = "false", Description = "Whether to use TACTSharp for TACT operations.", Type = "bool", DefaultValue = "true" }},
-            {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDNs to use for downloading files, separated by commas.", Type = "string", DefaultValue = string.Empty }},
+            {"locale", new WTLSetting { Key = "locale", Value = "enUS", Description = "The locale to use (e.g. enUS, deDE, zhCN, etc.).", Type = "string", DefaultValue = "enUS" }},
+            {"preferHighResTextures", new WTLSetting { Key = "preferHighResTextures", Value = "false", Description = "Whether to prefer high-res textures when available (Classic only).", Type = "bool", DefaultValue = "false" }},
+            {"useTACTSharp", new WTLSetting { Key = "useTACTSharp", Value = "false", Description = "Whether to use TACTSharp for TACT operations. Uses CASCLib if disabled.", Type = "bool", DefaultValue = "true" }},
+            {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDN hosts to use for downloading files, separated by commas.", Type = "string", DefaultValue = string.Empty }},
         };
 
         private static CASCLib.LocaleFlags cascLocale;
@@ -113,7 +115,8 @@ namespace wow.tools.local
                     if (setting.Key == "wowFolder")
                     {
                         DetectWoWFolder();
-                        ValidateWowFolder();
+                        if(!ValidateWowFolder(WoWFolder))
+                            WoWFolder = string.Empty; // reset if the detected folder is invalid
                     }
                 }
             }
@@ -259,33 +262,111 @@ namespace wow.tools.local
             ProcessFlags(args);
 
             // since this runs after LoadSettings() AND the command line arguments are parsed, I'm comfortable throwing this folder check here.
-            ValidateWowFolder();
+            if(!ValidateWowFolder(WoWFolder))
+                WoWFolder = string.Empty; // reset if the detected folder is invalid
         }
 
-        private static bool ValidateWowFolder()
+        public static (bool, string) ValidateSetting(string key, string value)
         {
-            if (string.IsNullOrEmpty(WoWFolder))
+            switch (key)
             {
-                WoWFolder = string.Empty;
+
+                case "wowProduct":
+                    if (string.IsNullOrEmpty(value) || !value.StartsWith("wow", StringComparison.OrdinalIgnoreCase))
+                        return (false, "Product is empty or does not start with 'wow'");
+                    else
+                        return (true, string.Empty);
+                case "wowFolder":
+                    return (!string.IsNullOrEmpty(value) && !ValidateWowFolder(value) ? (false, "Invalid WoW folder path or .build.info file not found.") : (true, string.Empty));
+                case "cdnFolder":
+                    if (!string.IsNullOrEmpty(value) && !Directory.Exists(value))
+                        return (false, "Directory does not exist");
+                    else
+                        return (true, string.Empty);
+                case "locale":
+                    var validLocales = new[] { "deDE", "enUS", "enGB", "ruRU", "zhCN", "zhTW", "enTW", "esES", "esMX", "frFR", "itIT", "koKR", "ptBR", "ptPT" };
+                    if (validLocales.Contains(value))
+                    {
+                        SetLocale(value);
+                        return (true, string.Empty);
+                    }
+                    else
+                        return (false, "Invalid locale. Available locales: deDE, enUS, enGB, ruRU, zhCN, zhTW, enTW, esES, esMX, frFR, itIT, koKR, ptBR, ptPT");
+                case "region":
+                    var validRegions = new[] { "eu", "us", "kr", "cn", "tw" };
+                    if (validRegions.Contains(value))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Invalid region. Available regions: eu, us, kr, cn, tw");
+                case "definitionDir":
+                    if(string.IsNullOrEmpty(value))
+                        return (true, string.Empty);
+                    else if (Directory.Exists(value) && File.Exists(Path.Combine(value, "Map.dbd")))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Invalid path to definitions directory (must contain a Map.dbd)");
+                case "listfileURL":
+                    if (Uri.TryCreate(value, UriKind.Absolute, out var listfileURIResult) && (listfileURIResult.Scheme == Uri.UriSchemeHttp || listfileURIResult.Scheme == Uri.UriSchemeHttps) && value.EndsWith(".csv"))
+                        return (true, string.Empty);
+                    else
+                        if(Directory.Exists(value) && File.Exists(Path.Combine(value, "placeholder.csv")))
+                            return (true, string.Empty);
+                        else
+                            return (false, "Invalid listfile URL (must be a valid link and end in .csv) or invalid path to parts (directory must contain placeholder.csv)");
+                case "tactKeyURL":
+                    if (Uri.TryCreate(value, UriKind.Absolute, out var tcURIResult) && (tcURIResult.Scheme == Uri.UriSchemeHttp || tcURIResult.Scheme == Uri.UriSchemeHttps) && (value.EndsWith(".txt") || value.EndsWith(".csv")))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Invalid TACT key list URL (must end in .txt or .csv)");
+                case "additionalCDNs":
+                    if (string.IsNullOrEmpty(value))
+                        return (true, string.Empty);
+                    else
+                    {
+                        var cdns = value.Split(',');
+                        foreach (var cdn in cdns)
+                        {
+                            if (string.IsNullOrWhiteSpace(cdn) || cdn.StartsWith("http"))
+                                return (false, "Invalid CDN host: " + cdn + "(must not contain http/https or slashes, only a host name)");
+                        }
+                        return (true, string.Empty);
+                    }
+                case "dbcFolder":
+                case "manifestFolder":
+                case "extractionDir":
+                    if (string.IsNullOrEmpty(value))
+                        return (false, "Folder must be set but does not have to exist (will be created)");
+                    else if (Directory.Exists(value))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Directory does not exist");
+                case "showAllFiles":
+                case "useTACTSharp":
+                case "preferHighResTextures":
+                    if (bool.TryParse(value, out _))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Value must be a boolean (true/false)");
+            }
+
+            return (true, "Not checked");
+        }
+
+        private static bool ValidateWowFolder(string folder)
+        {
+            if (string.IsNullOrEmpty(folder))
+            {
                 return false;
             }
             else
             {
-                if (!Directory.Exists(WoWFolder))
+                if (!Directory.Exists(folder))
                 {
                     return false;
                 }
                 else
                 {
-                    if (!File.Exists(Path.Combine(WoWFolder, ".build.info")))
-                    {
-                        WoWFolder = string.Empty;
-                        return false;
-                    }
-                    else
-                    {
-                        return true;
-                    }
+                    return File.Exists(Path.Combine(folder, ".build.info"));
                 }
             }
         }

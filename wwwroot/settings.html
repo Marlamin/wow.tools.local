@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>WoW.tools</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- JQuery -->
+    <script src="/js/jquery.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/tooltips.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" id="navbar"></nav>
+    <div class="container-fluid">
+        <h3>Settings</h3>
+        <p>Certain settings might need a restart to apply.</p>
+        <div id="settingsContainer">
+
+        </div>
+    </div>
+    <script type="text/javascript">
+        LoadSettings();
+
+        async function LoadSettings() {
+            const settingsHolder = document.getElementById("settingsContainer");
+            settingsHolder.innerHTML = "";
+
+            const settingsResult = await fetch("/settings/list");
+            const settings = await settingsResult.json();
+
+            var output = "<form id='settingsForm' onsubmit='event.preventDefault(); saveSettings()' method='POST'><table class='table'>";
+            output += "<thead><tr><th style='width: 200px'>Key</th><th style='width: 500px;'>Value</th><th style='width: 200px'>Default</th><th>Description</th></tr></thead>";
+
+            for (let i = 0; i < settings.length; i++) {
+                const setting = settings[i];
+                output += "<tr>";
+                output += "<td><label for='field_" + setting.key + "'>" + setting.key + "</label></td>";
+                output += "<td><input class='form-control' id='field_" + setting.key + "' oninput='validateSetting(\"" + setting.key + "\")' style='width: 100%' type='text' name='" + setting.key + "' value='" + setting.value + "'/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                if (setting.defaultValue == "")
+                    output += "<td style='font-size: 15px;' class='text-muted'><i>Empty</i></td>";
+                else
+                    output += "<td style='font-size: 15px;'>" + setting.defaultValue + "</td>";
+                output += "<td>" + setting.description + "</td>";
+                output += "</tr>";
+            }
+
+            output += "</table>";
+            output += "<button id='settingsSubmit' class='btn btn-success'>Save</button>";
+            output +="</form>";
+
+            settingsHolder.innerHTML = output;
+
+            for (let i = 0; i < settings.length; i++) {
+                validateSetting(settings[i].key);
+            }
+        }
+
+        async function saveSettings() {
+            const allInputs = document.getElementsByClassName('is-invalid');
+            if (allInputs.length > 0)
+                return false;
+
+            const newSettings = new URLSearchParams(new FormData(document.getElementById("settingsForm")));
+            const saveResult = await fetch("/settings/save", { method: 'POST', body: newSettings });
+            if (saveResult.ok)
+                LoadSettings();
+
+            return false;
+        }
+
+        async function validateSetting(setting) {
+            const source = document.getElementById("field_" + setting);
+            const value = source.value;
+            const feedbackDiv = document.getElementById("field_" + setting + "_feedback");
+            let formData = new FormData();
+            formData.set("key", setting);
+            formData.set("value", value);
+
+            const checkResult = await fetch("/settings/check", { method: 'POST', body: new URLSearchParams(formData) });
+            const feedback = await checkResult.text();
+
+            if (checkResult.ok) {
+                source.classList.remove('is-invalid');
+
+                if(feedback != "Not checked")
+                    source.classList.add('is-valid');
+
+                feedbackDiv.innerHTML = "";
+            } else {
+                source.classList.remove('is-valid');
+                source.classList.add('is-invalid');
+
+                feedbackDiv.innerHTML = "Invalid input: " + feedback;
+            }
+
+            const allInputs = document.getElementsByClassName('is-invalid');
+            const submitButton = document.getElementById('settingsSubmit');
+            if (allInputs.length > 0) {
+                submitButton.classList.add('disabled');
+            } else {
+                submitButton.classList.remove('disabled');
+            }
+        }
+    </script>
+</body>
+</html>
