@@ -299,7 +299,7 @@ namespace wow.tools.local.Controllers
                     fileType = "blp?";
 
                 var filename = file.Value;
-                if(string.IsNullOrEmpty(filename))
+                if(string.IsNullOrEmpty(filename) && cKeyBytes != null)
                 {
                     if(WoWNamingLib.Namers.ContentHashNamer.knownHashes.TryGetValue(Convert.ToHexStringLower(cKeyBytes), out var chashname))
                     {
