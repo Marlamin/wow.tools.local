@@ -56,6 +56,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="config.json" />
     <Content Remove="knownPushIDs.json" />
     <Content Remove="versionHistory.json" />
     <Content Remove="wwwroot\db\broadcasttext.html" />
