@@ -1,72 +1,69 @@
-﻿using CASCLib;
+﻿using System.Runtime.InteropServices;
 using TACTSharp;
 
 namespace wow.tools.local
 {
+    public record WTLSetting
+    {
+        public required string Key { get; init; }
+        public required string Description { get; init; }
+        public required string Type { get; init; } // e.g. "string", "bool", "int", etc.
+        public required string DefaultValue { get; init; } // default value for the setting
+        public required string Value { get; set; }
+    };
+
+
     public static class SettingsManager
     {
-        private static string definitionDir = string.Empty;
-        private static string listfileURL = string.Empty;
-        private static string tactKeyURL = string.Empty;
-        private static string wowFolder = string.Empty;
-        private static string dbcFolder = string.Empty;
-        private static string manifestFolder = "manifests";
-        private static string extractionDir = "extract";
-        private static string cdnFolder = string.Empty;
-        private static string wowProduct = string.Empty;
-        private static string region = "eu";
+        public static readonly Dictionary<string, WTLSetting> Settings = new Dictionary<string, WTLSetting>
+        {
+            {"definitionDir", new WTLSetting { Key = "definitionDir", Value = string.Empty, Description = "Directory where the definition files are stored.", Type = "string", DefaultValue = string.Empty }},
+            {"listfileURL", new WTLSetting { Key = "listfileURL", Value = string.Empty, Description = "URL to the listfile used for CASC operations.", Type = "string", DefaultValue = "https://github.com/wowdev/wow-listfile/releases/latest/download/community-listfile-withcapitals.csv" }},
+            {"tactKeyURL", new WTLSetting { Key = "tactKeyURL", Value = string.Empty, Description = "URL to the TACT key file.", Type = "string", DefaultValue = "https://github.com/wowdev/TACTKeys/raw/master/WoW.txt" }},
+            {"wowFolder", new WTLSetting { Key = "wowFolder", Value = string.Empty, Description = "Path to the WoW installation folder.", Type = "string", DefaultValue = string.Empty }},
+            {"dbcFolder", new WTLSetting { Key = "dbcFolder", Value = string.Empty, Description = "Path to the DBC folder.", Type = "string", DefaultValue = "dbcs" }},
+            {"manifestFolder", new WTLSetting { Key = "manifestFolder", Value = "manifests", Description = "Folder where manifests are stored.", Type = "string", DefaultValue = "manifests" }},
+            {"extractionDir", new WTLSetting { Key = "extractionDir", Value = "extract", Description = "Directory where files will be extracted to.", Type = "string", DefaultValue = "extract" }},
+            {"cdnFolder", new WTLSetting { Key = "cdnFolder", Value = string.Empty, Description = "Path to the CDN folder.", Type = "string", DefaultValue = string.Empty }},
+            {"wowProduct", new WTLSetting { Key = "wowProduct", Value = string.Empty, Description = "The WoW product to use (e.g. 'wow', 'wowt', 'wow_classic', etc.).", Type = "string", DefaultValue = "wow" }},
+            {"region", new WTLSetting { Key = "region", Value = "eu", Description = "The region to use (e.g. 'eu', 'us', etc.).", Type = "string", DefaultValue = "eu" }},
+            {"showAllFiles", new WTLSetting { Key = "showAllFiles", Value = "false", Description = "Whether to show all files in WTL, including those not present in the loaded build.", Type = "bool", DefaultValue = "false" }},
+            {"locale", new WTLSetting { Key = "locale", Value = "enUS", Description = "The locale to use.", Type = "string", DefaultValue = "enUS" }},
+            {"preferHighResTextures", new WTLSetting { Key = "preferHighResTextures", Value = "false", Description = "Whether to prefer high-res textures when available (Classic).", Type = "bool", DefaultValue = "false" }},
+            {"useTACTSharp", new WTLSetting { Key = "useTACTSharp", Value = "false", Description = "Whether to use TACTSharp for TACT operations.", Type = "bool", DefaultValue = "true" }},
+            {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDNs to use for downloading files, separated by commas.", Type = "string", DefaultValue = string.Empty }},
+        };
 
         private static CASCLib.LocaleFlags cascLocale;
         private static RootInstance.LocaleFlags tactLocale;
-        private static bool showAllFiles = false;
-        private static bool preferHighResTextures = false;
-        private static bool useTACTSharp = false;
-        private static string[] additionalCDNs = Array.Empty<string>();
 
-        // supported command line flags and switches
-        // flag syntax: -flag value || -flag=value or --switch
-        private const string _wowFolderFlag = "-wowFolder";
-        private const string _wowProductFlag = "-product";
-        private const string _dbdFolderFlag = "-dbdFolder";
-        private const string _dbcFolderFlag = "-dbcFolder";
-        private const string _manifestFolderFlag = "-manifestFolder";
-        private const string _cdnFolderFlag = "-cdnFolder";
-        private const string _listfileURLFlag = "-listfileURL";
-        private const string _tactKeyURLFlag = "-tactKeyURL";
-        private const string _regionFlag = "-region";
-        private const string _localeFlag = "-locale";
-        private const string _showAllFilesFlag = "-showAllFiles";
-        private const string _extractionDirFlag = "-extractionDir";
-        private const string _preferHighResTexturesFlag = "-preferHighResTextures";
-        private const string _useTACTSharpFlag = "-useTACTSharp";
-        private const string _additionalCDNsFlag = "-additionalCDNs";
+        // Strings
+        public static string DefinitionDir { get => Settings["definitionDir"].Value; set => Settings["definitionDir"].Value = value; }
+        public static string ListfileURL { get => Settings["listfileURL"].Value; set => Settings["listfileURL"].Value = value; }
+        public static string TACTKeyURL { get => Settings["tactKeyURL"].Value; set => Settings["tactKeyURL"].Value = value; }
+        public static string WoWFolder { get => Settings["wowFolder"].Value; set => Settings["wowFolder"].Value = value; }
+        public static string DBCFolder { get => Settings["dbcFolder"].Value; set => Settings["dbcFolder"].Value = value; }
+        public static string ManifestFolder { get => Settings["manifestFolder"].Value; set => Settings["manifestFolder"].Value = value; }
+        public static string ExtractionDir { get => Settings["extractionDir"].Value; set => Settings["extractionDir"].Value = value; }
+        public static string CDNFolder { get => Settings["cdnFolder"].Value; set => Settings["cdnFolder"].Value = value; }
+        public static string WoWProduct { get => Settings["wowProduct"].Value; set => Settings["wowProduct"].Value = value; }
+        public static string Region { get => Settings["region"].Value; set => Settings["region"].Value = value; }
 
-        // calling the double-hyphen args 'switch' instead of 'flag' because they don't have values
-        private const string _debugSwitch = "--debug";
+        // Bools
+        public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
+        public static bool PreferHighResTextures { get => bool.Parse(Settings["preferHighResTextures"].Value); set => Settings["preferHighResTextures"].Value = value.ToString().ToLower(); }
+        public static bool UseTACTSharp { get => bool.Parse(Settings["useTACTSharp"].Value); set => Settings["useTACTSharp"].Value = value.ToString().ToLower(); }
 
-        public static string DefinitionDir { get => definitionDir; private set => definitionDir = value; }
-        public static string ListfileURL { get => listfileURL; private set => listfileURL = value; }
-        public static string TACTKeyURL { get => tactKeyURL; private set => tactKeyURL = value; }
-        public static string WoWFolder { get => wowFolder; private set => wowFolder = value; }
-        public static string DBCFolder { get => dbcFolder; private set => dbcFolder = value; }
-        public static string ManifestFolder { get => manifestFolder; private set => manifestFolder = value; }
-        public static string ExtractionDir { get => extractionDir; private set => extractionDir = value; }
-        public static string CDNFolder { get => cdnFolder; private set => cdnFolder = value; }
-        public static string WoWProduct { get => wowProduct; private set => wowProduct = value; }
-        public static string Region { get => region; private set => region = value; }
-        public static bool ShowAllFiles { get => showAllFiles; private set => showAllFiles = value; }
-        public static RootInstance.LocaleFlags TACTLocale { get => tactLocale; private set => tactLocale = value; }
-        public static LocaleFlags CASCLocale { get => cascLocale; private set => cascLocale = value; }
-        public static bool PreferHighResTextures { get => preferHighResTextures; private set => preferHighResTextures = value; }
-        public static bool UseTACTSharp { get => useTACTSharp; private set => useTACTSharp = value; }
-        public static string[] AdditionalCDNs { get => additionalCDNs; private set => additionalCDNs = value; }
+        // Enums
+        public static RootInstance.LocaleFlags TACTLocale { get => tactLocale; set => tactLocale = value; }
+        public static CASCLib.LocaleFlags CASCLocale { get => cascLocale; set => cascLocale = value; }
 
-        // to add a new flag, add a new const string above
-        //    then add a new case to the switch statement in either HandleFlag or HandleSwitch with the functionality you want
-
-        // TODO:
-        // make it easier to associate flags with values and add new flags
-        // flags are currently case-sensitive, probably not best practice. easy to fix, i'm just being lazy
+        // Arrays
+        public static string[] AdditionalCDNs
+        {
+            get => Settings["additionalCDNs"].Value.Split(',');
+            set => Settings["additionalCDNs"].Value = string.Join(",", value);
+        }
 
         static SettingsManager()
         {
@@ -85,50 +82,62 @@ namespace wow.tools.local
 
         public static void LoadSettings()
         {
-
-            IConfigurationRoot config;
             var cwd = Directory.GetCurrentDirectory();
             var appDir = AppDomain.CurrentDomain.BaseDirectory;
 
-            try
+            string configPath = Path.Combine(cwd, "config.json");
+            bool hasConfig = File.Exists(configPath);
+            if (!hasConfig && File.Exists(Path.Combine(appDir, "config.json")))
+                Environment.CurrentDirectory = appDir; // set the current directory to the app's directory if config.json is there
+
+            if (hasConfig)
             {
-                config = new ConfigurationBuilder().SetBasePath(cwd).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
-            }
-            catch (Exception)
-            { // if we can't find config.json in the cwd, try the app's directory instead. This is to support launching from the command line, which might not be started in the app's directory
-              // this could cause soft errors in case of misconfiguration, but too bad
-                config = new ConfigurationBuilder().SetBasePath(appDir).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
-                Environment.CurrentDirectory = appDir;
-            }
+                var config = new ConfigurationBuilder().SetBasePath(cwd).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
+                if (config.GetSection("config").Exists())
+                    foreach (var setting in Settings)
+                    {
+                        setting.Value.Value = config.GetSection("config")[setting.Key] ?? setting.Value.DefaultValue;
 
-            definitionDir = config.GetSection("config")["definitionDir"] ?? string.Empty;
-            listfileURL = config.GetSection("config")["listfileURL"] ?? string.Empty;
-            tactKeyURL = config.GetSection("config")["tactKeyURL"] ?? string.Empty;
-
-            region = config.GetSection("config")["region"] ?? "eu";
-
-            string? localeValue = config.GetSection("config")["locale"];
-            if (localeValue != null)
-            {
-                SetLocale(localeValue);
+                        if (setting.Key == "locale")
+                            SetLocale(setting.Value.Value);
+                    }
             }
             else
             {
-                cascLocale = CASCLib.LocaleFlags.enUS;
-                tactLocale = RootInstance.LocaleFlags.enUS;
+                foreach (var setting in Settings)
+                {
+                    setting.Value.Value = setting.Value.DefaultValue;
+                    if (setting.Key == "locale")
+                        SetLocale(setting.Value.Value);
+
+                    if (setting.Key == "wowFolder")
+                    {
+                        DetectWoWFolder();
+                        ValidateWowFolder();
+                    }
+                }
             }
 
-            manifestFolder = config.GetSection("config")["manifestFolder"] ?? "manifests";
+            // After loading settings, always save them to ensure the config.json is valid and up-to-date (when e.g. settings are added/removed).
+            SaveSettings();
+        }
 
-            dbcFolder = config.GetSection("config")["dbcFolder"] ?? string.Empty;
-            wowFolder = config.GetSection("config")["wowFolder"] ?? string.Empty;
-            cdnFolder = config.GetSection("config")["cdnFolder"] ?? string.Empty;
-            wowProduct = config.GetSection("config")["wowProduct"] ?? string.Empty;
-            showAllFiles = config.GetSection("config").GetValue<bool>("showAllFiles");
-            extractionDir = config.GetSection("config")["extractionDir"] ?? string.Empty;
-            preferHighResTextures = config.GetSection("config").GetValue<bool>("preferHighResTextures");
-            useTACTSharp = config.GetSection("config").GetValue<bool>("useTACTSharp");
-            additionalCDNs = config.GetSection("config")["additionalCDNs"]?.Split(',') ?? Array.Empty<string>();
+        public static void SaveSettings()
+        {
+            var cwd = Directory.GetCurrentDirectory();
+            var appDir = AppDomain.CurrentDomain.BaseDirectory;
+            bool hasConfig = File.Exists(Path.Combine(cwd, "config.json"));
+            if (!hasConfig && File.Exists(Path.Combine(appDir, "config.json")))
+                Environment.CurrentDirectory = appDir;
+
+            var configPath = Path.Combine(Environment.CurrentDirectory, "config.json");
+            dynamic newConfigJson = new System.Dynamic.ExpandoObject();
+            newConfigJson.config = new Dictionary<string, string>();
+            foreach (var setting in Settings)
+                newConfigJson.config[setting.Key] = setting.Value.Value;
+
+            string json = System.Text.Json.JsonSerializer.Serialize(newConfigJson, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(configPath, json);
         }
 
         private static void SetLocale(string locValue)
@@ -183,54 +192,9 @@ namespace wow.tools.local
         {
             if (!string.IsNullOrEmpty(value))
             {
-                switch (flag)
-                {
-                    case (_wowFolderFlag):
-                        wowFolder = value;
-                        break;
-                    case (_wowProductFlag):
-                        wowProduct = value;
-                        break;
-                    case (_dbdFolderFlag):
-                        definitionDir = value;
-                        break;
-                    case (_dbcFolderFlag):
-                        dbcFolder = value;
-                        break;
-                    case (_manifestFolderFlag):
-                        manifestFolder = value;
-                        break;
-                    case (_cdnFolderFlag):
-                        cdnFolder = value;
-                        break;
-                    case (_listfileURLFlag):
-                        ListfileURL = value;
-                        break;
-                    case (_tactKeyURLFlag):
-                        tactKeyURL = value;
-                        break;
-                    case (_regionFlag):
-                        region = value;
-                        break;
-                    case (_localeFlag):
-                        SetLocale(value);
-                        break;
-                    case (_showAllFilesFlag):
-                        showAllFiles = bool.Parse(value);
-                        break;
-                    case (_extractionDirFlag):
-                        extractionDir = value;
-                        break;
-                    case (_preferHighResTexturesFlag):
-                        preferHighResTextures = bool.Parse(value);
-                        break;
-                    case (_useTACTSharpFlag):
-                        useTACTSharp = bool.Parse(value);
-                        break;
-                    case (_additionalCDNsFlag):
-                        additionalCDNs = value.Split(',');
-                        break;
-                }
+                foreach (var setting in Settings)
+                    if (flag.Equals("-" + setting.Key, StringComparison.OrdinalIgnoreCase))
+                        setting.Value.Value = value;
             }
         }
 
@@ -240,7 +204,7 @@ namespace wow.tools.local
             {
                 switch (flag)
                 {
-                    case (_debugSwitch):
+                    case ("--debug"):
                         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
                         break;
                 }
@@ -298,25 +262,51 @@ namespace wow.tools.local
             ValidateWowFolder();
         }
 
-        private static void ValidateWowFolder()
+        private static bool ValidateWowFolder()
         {
-            if (string.IsNullOrEmpty(wowFolder))
+            if (string.IsNullOrEmpty(WoWFolder))
             {
-                wowFolder = string.Empty;
+                WoWFolder = string.Empty;
+                return false;
             }
             else
             {
-                if (!Directory.Exists(wowFolder))
+                if (!Directory.Exists(WoWFolder))
                 {
-                    throw new DirectoryNotFoundException("Could not find folder " + wowFolder);
+                    return false;
                 }
                 else
                 {
-                    if (!File.Exists(Path.Combine(wowFolder, ".build.info")))
+                    if (!File.Exists(Path.Combine(WoWFolder, ".build.info")))
                     {
-                        throw new FileNotFoundException("Unable to find .build.info in WoW directory. Make sure you selected the root WoW directory and not a subfolder.");
+                        WoWFolder = string.Empty;
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
                     }
                 }
+            }
+        }
+
+        private static void DetectWoWFolder()
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return;
+
+            // Try registry!
+            var wowPath = Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Blizzard Entertainment\World of Warcraft", "InstallPath", null) as string;
+            if (!string.IsNullOrEmpty(wowPath))
+            {
+                // Check if this is a subfolder in a shared installation, if so go up one level
+                if (wowPath.EndsWith("_\\"))
+                {
+                    var pathInfo = new DirectoryInfo(wowPath);
+                    wowPath = pathInfo.Parent!.FullName;
+                }
+
+                WoWFolder = wowPath;
             }
         }
     }
