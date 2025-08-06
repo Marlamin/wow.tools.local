@@ -37,8 +37,8 @@ namespace wow.tools.local.Services
 
             // Try to either find a db2 or dbc file, ignoring casing to maintain identical behavior on all platforms
             bool hasTableFile = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
-                fn.EndsWith($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
-                fn.EndsWith($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase)) != null;
+                Path.GetFileName(fn).Equals($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
+                Path.GetFileName(fn).Equals($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase)) != null;
 
             return hasTableFile;
         }
@@ -80,8 +80,8 @@ namespace wow.tools.local.Services
             {
                 // Try to either find a db2 or dbc file, ignoring casing to maintain identical behavior on all platforms
                 string? fileName = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
-                    fn.EndsWith($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
-                    fn.EndsWith($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase));
+                    Path.GetFileName(fn).Equals($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
+                    Path.GetFileName(fn).Equals($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase));
 
                 if (fileName != null)
                     return new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
