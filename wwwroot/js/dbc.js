@@ -280,6 +280,10 @@ function parseLogic(l) { var i=0;var r = ""
     return r;
 }
 
+function parseTimestamp(timestamp) {
+    return new Date(timestamp * 1000).toISOString();
+}
+
 function parseDate(date){
     if (date == 0)
         return "";
@@ -516,6 +520,9 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
         if (parsedDate && parsedDate != "")
             returnVar = parsedDate + "<small> (" + columnValue + ")</small>";
     }
+
+    if (columnName == "Timestamp")
+        returnVar += " <i><small>" + parseTimestamp(columnValue) + "</small></i>";
 
     return returnVar;
 }
