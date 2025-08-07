@@ -1,6 +1,7 @@
 ﻿using CASCLib;
 using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Immutable;
 using System.Globalization;
 using wow.tools.local.Services;
@@ -554,8 +555,8 @@ namespace wow.tools.local.Controllers
                         {
                             // Try to either find a db2 or dbc file, ignoring casing to maintain identical behavior on all platforms
                             bool hasBuildOnDisk = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
-                                fn.EndsWith($"{databaseName}.db2", StringComparison.OrdinalIgnoreCase) ||
-                                fn.EndsWith($"{databaseName}.dbc", StringComparison.OrdinalIgnoreCase)) != null;
+                                Path.GetFileName(fn).Equals($"{databaseName}.db2", StringComparison.OrdinalIgnoreCase) ||
+                                Path.GetFileName(fn).Equals($"{databaseName}.dbc", StringComparison.OrdinalIgnoreCase)) != null;
 
                             if (hasBuildOnDisk)
                             {

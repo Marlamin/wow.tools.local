@@ -42,6 +42,8 @@ namespace wow.tools.local.Controllers
 
             var db2s = dbcManager.GetDBCNames(build);
 
+            result.data = [];
+
             foreach (var db2 in db2s)
             {
                 Stream? fs = null;
@@ -58,8 +60,8 @@ namespace wow.tools.local.Controllers
                     {
                         // Try to either find a db2 or dbc file, ignoring casing to maintain identical behavior on all platforms
                         string? fileName = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
-                            fn.EndsWith($"{db2}.db2", StringComparison.OrdinalIgnoreCase) ||
-                            fn.EndsWith($"{db2}.dbc", StringComparison.OrdinalIgnoreCase));
+                            Path.GetFileName(fn).Equals($"{db2}.db2", StringComparison.OrdinalIgnoreCase) ||
+                            Path.GetFileName(fn).Equals($"{db2}.dbc", StringComparison.OrdinalIgnoreCase));
 
                         if (fileName != null)
                             fs = System.IO.File.OpenRead(fileName);
@@ -73,7 +75,6 @@ namespace wow.tools.local.Controllers
                     return result;
                 }
 
-                result.data = [];
 
                 using (var bin = new BinaryReader(fs))
                 {
