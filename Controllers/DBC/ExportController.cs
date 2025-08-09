@@ -202,8 +202,8 @@ namespace wow.tools.Local.Controllers
 
                     // Try to find a matching dbc or db2 file, ignoring case sensitivity to maintain the same behavior on all platforms
                     string? fileName = Directory.EnumerateFiles(directoryPath).FirstOrDefault(fn =>
-                        fn.EndsWith($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
-                        fn.EndsWith($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase));
+                        Path.GetFileName(fn).Equals($"{tableName}.db2", StringComparison.OrdinalIgnoreCase) ||
+                        Path.GetFileName(fn).Equals($"{tableName}.dbc", StringComparison.OrdinalIgnoreCase));
 
                     if (fileName == null)
                         throw new FileNotFoundException($"Unable to find {tableName}, are DB2s/DBCs for this build extracted?");
