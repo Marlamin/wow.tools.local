@@ -106,11 +106,14 @@ namespace wow.tools.local.Services
             var properties = new List<Expression>();
             var filters = new Dictionary<Expression, Predicate<object>>(); // [DBCDRow.Property, Predicate]
 
-            var firstItem = Storage.Values.First();
+            var firstItem = Storage.Values.FirstOrDefault();
             var siteColIndex = 0;
 
             for (var i = 0; i < Storage.AvailableColumns.Length; ++i)
             {
+                if (firstItem == null)
+                    continue;
+
                 var field = firstItem[Storage.AvailableColumns[i]];
                 var size = 1;
                 var isArray = false;
