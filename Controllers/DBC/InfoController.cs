@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CASCLib;
+using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers
@@ -51,7 +52,7 @@ namespace wow.tools.local.Controllers
                 if (string.IsNullOrEmpty(build) || build == CASC.BuildName)
                 {
                     if (CASC.DB2Exists("DBFilesClient/" + db2 + ".db2"))
-                        fs = CASC.GetDB2ByName("DBFilesClient/" + db2 + ".db2");
+                        fs = CASC.GetDB2ByName("DBFilesClient/" + db2 + ".db2", LocaleFlags.All_WoW);
                 }
                 else if (!string.IsNullOrEmpty(SettingsManager.DBCFolder))
                 {

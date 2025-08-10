@@ -91,7 +91,7 @@ namespace wow.tools.Local.Controllers
 
         [Route("alltodisk")]
         [HttpGet]
-        public bool ExportAllToDisk()
+        public bool ExportAllToDisk(LocaleFlags locale = LocaleFlags.All_WoW)
         {
             Console.WriteLine("Exporting all DBCs from current build to disk");
 
@@ -100,7 +100,7 @@ namespace wow.tools.Local.Controllers
                 try
                 {
                     var cleanName = dbname.ToLower();
-                    var filestream = CASC.GetDB2ByName("dbfilesclient/" + dbname + ".db2");
+                    var filestream = CASC.GetDB2ByName("dbfilesclient/" + dbname + ".db2", locale);
 
                     if (!Directory.Exists(Path.Combine(SettingsManager.DBCFolder, CASC.BuildName, "dbfilesclient")))
                     {
@@ -176,7 +176,7 @@ namespace wow.tools.Local.Controllers
 
         [Route("db2")]
         [HttpGet]
-        public async Task<ActionResult> GetDB2ByTableName(string tableName, string fullBuild)
+        public async Task<ActionResult> GetDB2ByTableName(string tableName, string fullBuild, LocaleFlags locale = LocaleFlags.All_WoW)
         {
             var provider = new DBCProvider();
 
@@ -189,7 +189,7 @@ namespace wow.tools.Local.Controllers
                 {
                     // Load from CASC
                     var fullFileName = "dbfilesclient/" + tableName + ".db2";
-                    return new FileStreamResult(CASC.GetDB2ByName(fullFileName), "application/octet-stream")
+                    return new FileStreamResult(CASC.GetDB2ByName(fullFileName, locale), "application/octet-stream")
                     {
                         FileDownloadName = Path.GetFileName(tableName.ToLower() + ".db2")
                     };

@@ -14,7 +14,7 @@ namespace wow.tools.local.Services
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
 
         private MemoryCache Cache = new(new MemoryCacheOptions() { SizeLimit = 250 });
-        private readonly ConcurrentDictionary<(string, string, bool), SemaphoreSlim> Locks = [];
+        private readonly ConcurrentDictionary<(string, string, bool, LocaleFlags), SemaphoreSlim> Locks = [];
 
         public async Task<IDBCDStorage> GetOrLoad(string name, string build)
         {
@@ -33,21 +33,21 @@ namespace wow.tools.local.Services
                 return LoadDBC(name, build, useHotfixes, locale, pushIDFilter);
             }
 
-            if (Cache.TryGetValue((name, build, useHotfixes), out var cachedDBC))
+            if (Cache.TryGetValue((name, build, useHotfixes, locale), out var cachedDBC))
                 return (DBCD.IDBCDStorage)cachedDBC!;
 
-            SemaphoreSlim mylock = Locks.GetOrAdd((name, build, useHotfixes), k => new SemaphoreSlim(1, 1));
+            SemaphoreSlim mylock = Locks.GetOrAdd((name, build, useHotfixes, locale), k => new SemaphoreSlim(1, 1));
 
             await mylock.WaitAsync();
 
             try
             {
-                if (!Cache.TryGetValue((name, build, useHotfixes), out cachedDBC))
+                if (!Cache.TryGetValue((name, build, useHotfixes, locale), out cachedDBC))
                 {
                     // Key not in cache, load DBC
                     Console.WriteLine("DBC " + name + " for build " + build + " (hotfixes: " + useHotfixes + ") is not cached, loading!");
-                    cachedDBC = LoadDBC(name, build, useHotfixes);
-                    Cache.Set((name, build, useHotfixes), cachedDBC, new MemoryCacheEntryOptions().SetSize(1));
+                    cachedDBC = LoadDBC(name, build, useHotfixes, locale);
+                    Cache.Set((name, build, useHotfixes, locale), cachedDBC, new MemoryCacheEntryOptions().SetSize(1));
                 }
             }
             finally
@@ -74,7 +74,7 @@ namespace wow.tools.local.Services
 
             var storage = dbcd.Load(name, build);
 
-            dbcProvider.localeFlags = LocaleFlags.All_WoW;
+            dbcProvider.localeFlags = locale;
 
             var splitBuild = build.Split('.');
 

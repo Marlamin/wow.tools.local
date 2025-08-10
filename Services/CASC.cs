@@ -1164,7 +1164,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             }
         }
 
-        public static Stream? GetFileByID(uint filedataid, string? build = null)
+        public static Stream? GetFileByID(uint filedataid, string? build = null, LocaleFlags locale = LocaleFlags.All_WoW)
         {
             if (string.IsNullOrEmpty(build))
                 build = BuildName;
@@ -1192,12 +1192,17 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 }
                 else if (IsTACTSharpInit)
                 {
+                    var tactLocale = (RootInstance.LocaleFlags)locale;
+
+                    if (locale == LocaleFlags.All_WoW)
+                        tactLocale = buildInstance!.Settings.Locale;
+
                     var rootEntries = buildInstance!.Root!.GetEntriesByFDID(filedataid);
                     if (rootEntries.Count == 0)
                         return null;
 
-                    var preferredEntry = rootEntries.FirstOrDefault(subentry =>
-subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW) || subentry.localeFlags.HasFlag(buildInstance.Settings.Locale)));
+                    var preferredEntry = rootEntries.FirstOrDefault(subentry => 
+subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag((RootInstance.LocaleFlags)tactLocale)) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW));
 
                     if (preferredEntry.fileDataID == 0)
                         preferredEntry = rootEntries.First();
@@ -1213,7 +1218,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     if (offset == -1)
                         fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
                     else
-                        fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
+                        fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
 
                     return new MemoryStream(fileBytes);
                 }
@@ -1252,11 +1257,11 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
             }
         }
 
-        public static Stream GetDB2ByName(string filename)
+        public static Stream GetDB2ByName(string filename, LocaleFlags locale)
         {
             if (DB2Map.TryGetValue(filename.ToLower(), out int fileDataID) && FileExists((uint)fileDataID))
             {
-                return GetFileByID((uint)fileDataID)!;
+                return GetFileByID((uint)fileDataID, CASC.BuildName, locale)!;
             }
 
             throw new FileNotFoundException("Could not find " + filename + " in listfile");

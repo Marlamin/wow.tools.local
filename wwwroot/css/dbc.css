@@ -24,6 +24,10 @@
 	margin-bottom: 5px;
 }
 
+#localeSelection{
+	width: 75px;
+}
+
 #browseButton{
 	float: left;
 	width: 75px;

@@ -60,7 +60,7 @@ namespace wow.tools.local.Services
                 // Load from CASC
                 try
                 {
-                    return CASC.GetDB2ByName(fullFileName);
+                    return CASC.GetDB2ByName(fullFileName, localeFlags);
                 }
                 catch (FileNotFoundException e)
                 {

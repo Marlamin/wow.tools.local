@@ -43,9 +43,7 @@
         <form id='dbcform' action='/dbc/' method='GET'>
             <select id='fileFilter' class='form-control form-control-sm'></select>
             <select id='buildFilter' name='build' class='form-control form-control-sm buildFilter'></select>
-            <!--<select id='localeSelection' name='locale' class='form-control form-control-sm buildFilter'>
-                <option value=''>enUS (Default)</option>
-            </select>-->
+            <select id='localeSelection' name='locale' class='form-control form-control-sm buildFilter'></select>
             <div class='btn-group'>
                 <a href='' id='downloadCSVButton' class='form-control form-control-sm btn btn-sm btn-secondary disabled'><i class='fa fa-download'></i> CSV</a>
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -271,13 +269,14 @@
 
 
         var Locales = {
+            enUS: "English (US)",
             koKR: "Korean",
             frFR: "French",
             deDE: "German",
             zhCN: "Simplified Chinese",
             esES: "Spanish",
             zhTW: "Taiwanese Mandarin",
-            enGB: "Also English",
+            enGB: "English (GB)",
             esMX: "Mexican Spanish",
             ruRU: "Russian",
             ptBR: "Brazilian Portugese",
@@ -524,9 +523,9 @@
                 url += "&build=" + currentParams["build"];
             }
 
-            //if (currentParams["locale"]) {
-            //    url += "&locale=" + currentParams["locale"];
-            //}
+            if (currentParams["locale"]) {
+                url += "&locale=" + currentParams["locale"];
+            }
 
             if (currentParams["hotfixes"]) {
                 url += "&hotfixes=" + currentParams["hotfixes"];
@@ -898,22 +897,23 @@
             Settings.filtersCurrentlyEnabled = false;
 
             build = currentParams["build"];
+            locale = currentParams["locale"];
 
             $("#dbtable").html(
                 "<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>"
             );
             document.getElementById('downloadCSVButton').href = buildURL(currentParams).replace("/dbc/?dbc=", "/dbc/export/?name=");
-            document.getElementById('downloadallCSVLink').href = "/dbc/export/all/?build=" + currentParams["build"];
-            document.getElementById('downloadDB2Link').href = "/dbc/export/db2/?tableName=" + currentParams["dbc"] + "&fullBuild=" + currentParams["build"];
+            document.getElementById('downloadallCSVLink').href = "/dbc/export/all/?build=" + build + "&locale=" + locale;
+            document.getElementById('downloadDB2Link').href = "/dbc/export/db2/?tableName=" + currentParams["dbc"] + "&fullBuild=" + build + "&locale=" + locale;
 
             document.getElementById('downloadCSVButton').classList.remove("disabled");
             $("#loadingMessage").html("Loading..");
 
             let apiArgs = currentParams["dbc"] + "/?build=" + currentParams["build"];
 
-            //if (currentParams["locale"] != "") {
-            //    apiArgs += "&locale=" + currentParams["locale"];
-            //}
+            if (currentParams["locale"] != "") {
+                apiArgs += "&locale=" + currentParams["locale"];
+            }
 
             if (currentParams["hotfixes"]) {
                 apiArgs += "&useHotfixes=true";
@@ -1156,6 +1156,26 @@
                 }
             }
 
+             if (vars["locale"] == null) {
+                 currentParams["locale"] = "";
+             } else {
+                 currentParams["locale"] = vars["locale"];
+             }
+
+             const localeSelection = document.getElementById("localeSelection");
+
+             for (let value of Object.entries(Locales)) {
+                 var option = document.createElement("option");
+                 option.val = value[1];
+                 option.text = value[0];
+
+                 if(currentParams["locale"] == value[0]){
+                     option.selected = true;
+                 }
+
+                 localeSelection.appendChild(option);
+             }
+
             currentParams["hotfixes"] = false;
             if (vars["hotfixes"] == "true") {
                 currentParams["hotfixes"] = true;
@@ -1186,6 +1206,11 @@
                 currentParams["build"] = $('#buildFilter').val();
                 loadTable();
             });
+
+             $('#localeSelection').on('change', function() {
+                 currentParams["locale"] = $('#localeSelection').val();
+                 loadTable();
+             });
 
             $('#hotfixToggle').on('change', function () {
                 if (document.getElementById('hotfixToggle').checked) {
