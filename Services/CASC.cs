@@ -87,6 +87,9 @@ namespace wow.tools.local.Services
             if (File.Exists("fakebuildconfig"))
                 buildInstance.Settings.BuildConfig = "fakebuildconfig";
 
+            if (File.Exists("fakecdnconfig"))
+                buildInstance.Settings.CDNConfig = "fakecdnconfig";
+
             buildInstance.Settings.Locale = SettingsManager.TACTLocale;
             buildInstance.Settings.Region = SettingsManager.Region;
 
