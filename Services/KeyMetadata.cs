@@ -652,8 +652,10 @@
             KeyInfo.Add(0x5B7AD908DFB68C1E, (7994, "WOW-6XXXXpatch11.1.X_PTR", "Raven pack store assets"));
             KeyInfo.Add(0x364FB291A63DD212, (7995, "WOW-6XXXXpatch11.1.X_PTR", "Stillwater Fisher Attire item set"));
             KeyInfo.Add(0xAC55C5288E102262, (7996, "WOW-61476patch11.2.0_XPTR", ""));
+            KeyInfo.Add(0x21B16375CF558F7C, (7997, "WOW-62554patch11.2.5_PTR", "Unknown customizable mount"));
             KeyInfo.Add(0xA614DF6E152C6721, (8001, "WOW-61476patch11.2.0_XPTR", "Void-Forged Overseer mount"));
             KeyInfo.Add(0xCD7892B09FB19B2C, (8002, "WOW-61476patch11.2.0_XPTR", "Void-Bound Swimwear Set"));
+            KeyInfo.Add(0x20825B2B476839DF, (8003, "WOW-62554patch11.2.5_PTR", "Unknown mount"));
             KeyInfo.Add(0xF62EB86E1F0AC655, (8004, "WOW-61476patch11.2.0_XPTR", "Locus-Walkers Ally IGC"));
             KeyInfo.Add(0xCD80F7B32428FA15, (8005, "WOW-61476patch11.2.0_XPTR", "2025 12 month sub offer assets"));
             KeyInfo.Add(0x82F2C3957CE26609, (8006, "WOW-61476patch11.2.0_XPTR", "2025 12 month sub offer assets"));
@@ -665,6 +667,11 @@
             KeyInfo.Add(0x030C5FF41A65B7B2, (8029, "WOW-61XXXpatch11.2.0_XPTR", "2025 12 month sub offer assets"));
             KeyInfo.Add(0x1C845FA7C4B4E13A, (8030, "WOW-61XXXpatch11.2.0_XPTR", "2025 12 month sub offer assets"));
             KeyInfo.Add(0x8CCB7CE46A059E0B, (8031, "WOW-61xxxpatch11.2.0_XPTR", "2025 12 month sub offer assets"));
+            KeyInfo.Add(0x8821702552130673, (8032, "WOW-62554patch11.2.5_PTR", "Unknown mount"));
+            KeyInfo.Add(0xEAD13B27FB8ABB5E, (8033, "WOW-62554patch11.2.5_PTR", "Unknown customizable mount"));
+            KeyInfo.Add(0xF2739A299FA3502C, (8038, "WOW-62554patch11.2.5_PTR", "Unknown pet/drake mount"));
+            KeyInfo.Add(0x2B2E5B323017C442, (8041, "WOW-62554patch11.2.5_PTR", "12.0 pre-order decor (probably)"));
+            KeyInfo.Add(0xA57557D928428352, (8083, "WOW-62554patch11.2.5_PTR", "Unknown item set (Legion remix?)"));
         }
 
         public static void ReloadKeys()
