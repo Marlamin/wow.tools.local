@@ -53,7 +53,7 @@ namespace wow.tools.local.Controllers
                 if (builds.Length != 2)
                     return [];
 
-                if (builds[1] == "current")
+                if (builds[1] == "current" || builds[1] == "now")
                     builds[1] = CASC.BuildName;
 
                 var newFiles = new HashSet<int>();
@@ -111,7 +111,7 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.Listfile.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
-            else if (search.StartsWith("skit:"))
+            else if (search.StartsWith("skitid:") || search.StartsWith("skit:"))
             {
                 lock (dbcLock)
                 {
