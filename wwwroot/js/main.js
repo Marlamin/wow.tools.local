@@ -87,6 +87,7 @@ async function checkForUpdates(force = false) {
     if (lastUpdateCheck != null && !force) {
         const json = JSON.parse(lastUpdateCheck);
         if (json.lastCheck > Date.now() - 24 * 60 * 60 * 1000) {
+            newUpdateAvailable(false);
             return;
         }
     }
