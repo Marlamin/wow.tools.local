@@ -2597,6 +2597,9 @@ const traitNodeFlag = {
     0x2: 'NeverPurchasable',
     0x4: 'TestPositionLocked',
     0x8: 'TestGridPositioned',
+    0x10: 'ActiveAtFirstRank',
+    0x20: 'ShowExpandedSelection',
+    0x40: 'HideMaxRank'
 }
 
 const traitNodeGroupFlag = {

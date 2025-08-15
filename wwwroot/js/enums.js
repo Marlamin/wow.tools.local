@@ -5706,7 +5706,8 @@ const traitNodeEntryType = {
     6: "SpendDiamond",
     7: "ProfPath",
     8: "ProfPerk",
-    9: "ProfPathUnlock"
+    9: "ProfPathUnlock",
+    10: "SpendInfinite"
 }
 
 const traitNodeType = {
@@ -5733,7 +5734,8 @@ const traitEdgeType = {
 const traitCurrencyType = {
     0: "Gold",
     1: "CurrencyTypesBased",
-    2: "TraitSourced"
+    2: "TraitSourced",
+    3: "TraitSourcedPlayerDataElement"
 }
 
 const traitConditionType = {
