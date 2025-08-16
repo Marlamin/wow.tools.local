@@ -238,7 +238,7 @@ namespace wow.tools.local.Services
 
             IsTACTSharpInit = true;
 
-            LoadKeys();
+            WTLKeyService.LoadKeys();
 
             #region Install entry conversion between TACTSharp and CASCLib
             var hasher = new CASCLib.Jenkins96();
@@ -538,7 +538,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 }
             }
 
-            LoadKeys();
+            WTLKeyService.LoadKeys();
 
             CurrentProduct = program;
 
@@ -614,6 +614,9 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
 
                     SQLiteDB.ImportBuildIntoFileHistory(BuildName);
+
+                    Console.WriteLine("Force updating DBDs after new build..");
+                    DBDProvider.GetBDBDStream(true);
                 }
             }
 
@@ -754,22 +757,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             Console.WriteLine("Finished loading " + BuildName);
         }
 
-        public static bool ExportTACTKeys()
-        {
-            WTLKeyService.KnownKeys.Sort();
 
-            var tactKeyLines = new List<string>();
-            foreach (var key in WTLKeyService.KnownKeys)
-            {
-                if (!WTLKeyService.HasKey(key))
-                    continue;
-
-                tactKeyLines.Add(key.ToString("X16") + " " + Convert.ToHexString(WTLKeyService.GetKey(key)));
-            }
-
-            File.WriteAllLines("WoW.txt", tactKeyLines.ToArray());
-            return true;
-        }
 
         public static void LoadBuildInfo()
         {
@@ -826,49 +814,6 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
                 AvailableBuilds.Add(availableBuild);
             }
-        }
-
-        public static bool LoadKeys(bool forceRedownload = false)
-        {
-            if (WTLKeyService.KnownKeys.Count > 0 || forceRedownload)
-                WTLKeyService.KnownKeys.Clear();
-
-            var download = forceRedownload;
-            if (File.Exists("WoW.txt"))
-            {
-                var info = new FileInfo("WoW.txt");
-                if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromHours(12)) > info.LastWriteTime)
-                {
-                    Console.WriteLine("TACT Keys outdated, redownloading..");
-                    download = true;
-                }
-            }
-            else
-            {
-                download = true;
-            }
-
-            if (download)
-            {
-                Console.WriteLine("Downloading TACT keys");
-
-                using (var s = WebClient.GetStreamAsync(SettingsManager.TACTKeyURL + "?=v" + (long)DateTime.UtcNow.Subtract(DateTime.UnixEpoch).TotalSeconds).Result)
-                using (var fs = new FileStream("WoW.txt", FileMode.Create))
-                {
-                    s.CopyTo(fs);
-                }
-            }
-
-            if (IsCASCLibInit || IsTACTSharpInit)
-                WTLKeyService.LoadKeys();
-
-            // If there are known statuses, make sure to reload.
-            if (EncryptionStatuses.Count > 0)
-                RefreshEncryptionStatus();
-
-            Console.WriteLine("Loaded " + WTLKeyService.KnownKeys.Count + " known TACTkeys");
-
-            return true;
         }
 
         public static void RefreshEncryptionStatus()
@@ -1078,11 +1023,6 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 return buildInstance!.Root!.FileExists(filedataid);
             else
                 return false;
-        }
-
-        public static string GetKey(ulong lookup)
-        {
-            return Convert.ToHexString(WTLKeyService.GetKey(lookup));
         }
 
         public static bool EnsureCHashesLoaded()

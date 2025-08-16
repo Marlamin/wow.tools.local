@@ -290,7 +290,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool UpdateTACTKeys()
         {
-            CASC.LoadKeys(true);
+            WTLKeyService.LoadKeys(true);
             return true;
         }
 
@@ -298,10 +298,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool ExportTACTKeys()
         {
-            CASC.ExportTACTKeys();
+            WTLKeyService.ExportTACTKeys();
             return true;
         }
-
 
         [Route("listManifests")]
         [HttpGet]
