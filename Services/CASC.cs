@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using TACTSharp;
+using wow.tools.Services;
 using WoWFormatLib;
 
 namespace wow.tools.local.Services
@@ -40,6 +41,8 @@ namespace wow.tools.local.Services
         public static List<AvailableBuild> AvailableBuilds = [];
         public static List<int> OtherLocaleOnlyFiles = [];
         public static List<InstallEntry> InstallEntries = [];
+
+        private static readonly Lock CHashLock = new();
 
         [GeneratedRegex(@"(?<=e:\{)([0-9a-fA-F]{16})(?=,)", RegexOptions.Compiled)]
         private static partial Regex eKeyRegex();
@@ -236,8 +239,6 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Error inserting build into database: " + e.Message);
             }
 
-            // TODO: Keyring
-
             var manifestFolder = SettingsManager.ManifestFolder;
 
             IsTACTSharpInit = true;
@@ -292,37 +293,34 @@ namespace wow.tools.local.Services
                     {
                         try
                         {
-                            using (var httpClient = new HttpClient())
+                            var keyring = WebClient.GetStreamAsync("https://blzddist1-a.akamaihd.net/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
+
+                            string keyringContents;
+                            if (!string.IsNullOrEmpty(build.Armadillo))
+                                keyringContents = new StreamReader(new ArmadilloCrypt(build.Armadillo).DecryptFileToStream(build.KeyRing, keyring)).ReadToEnd();
+                            else
+                                keyringContents = new StreamReader(keyring).ReadToEnd();
+
+                            foreach (var line in keyringContents.Split("\n"))
                             {
-                                var keyring = httpClient.GetStreamAsync("https://blzddist1-a.akamaihd.net/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
+                                var splitLine = line.Split(" = ");
+                                if (splitLine.Length != 2)
+                                    continue;
 
-                                string keyringContents;
-                                if (!string.IsNullOrEmpty(build.Armadillo))
-                                    keyringContents = new StreamReader(new ArmadilloCrypt(build.Armadillo).DecryptFileToStream(build.KeyRing, keyring)).ReadToEnd();
-                                else
-                                    keyringContents = new StreamReader(keyring).ReadToEnd();
-
-                                foreach (var line in keyringContents.Split("\n"))
+                                var lookup = splitLine[0].Replace("key-", "");
+                                if (lookup.Length != 16)
                                 {
-                                    var splitLine = line.Split(" = ");
-                                    if (splitLine.Length != 2)
-                                        continue;
-
-                                    var lookup = splitLine[0].Replace("key-", "");
-                                    if (lookup.Length != 16)
-                                    {
-                                        Console.WriteLine("Warning: KeyRing lookup " + lookup + " is not 16 characters long, skipping..");
-                                        continue;
-                                    }
-
-                                    var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
-
-                                    if (WTLKeyService.HasKey(parsedLookup))
-                                        continue;
-
-                                    Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
-                                    WTLKeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
+                                    Console.WriteLine("Warning: KeyRing lookup " + lookup + " is not 16 characters long, skipping..");
+                                    continue;
                                 }
+
+                                var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
+
+                                if (WTLKeyService.HasKey(parsedLookup))
+                                    continue;
+
+                                Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
+                                WTLKeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
                             }
                         }
                         catch (Exception e)
@@ -360,6 +358,9 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
 
                 SQLiteDB.ImportBuildIntoFileHistory(BuildName);
+
+                Console.WriteLine("Force updating DBDs after new build..");
+                DBDProvider.GetBDBDStream(true);
             }
 
             Listfile.Clear();
@@ -418,7 +419,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 var eKeys = buildInstance.Encoding.FindContentKey(cKey);
                 if (eKeys != false)
                 {
-                    lock(chashLock)
+                    lock (chashLock)
                         CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (long)eKeys.DecodedFileSize);
 
                     var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
@@ -510,37 +511,34 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     {
                         try
                         {
-                            using (var httpClient = new HttpClient())
+                            var keyring = WebClient.GetStreamAsync("https://blzddist1-a.akamaihd.net/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
+
+                            string keyringContents;
+                            if (!string.IsNullOrEmpty(build.Armadillo))
+                                keyringContents = new StreamReader(new ArmadilloCrypt(build.Armadillo).DecryptFileToStream(build.KeyRing, keyring)).ReadToEnd();
+                            else
+                                keyringContents = new StreamReader(keyring).ReadToEnd();
+
+                            foreach (var line in keyringContents.Split("\n"))
                             {
-                                var keyring = httpClient.GetStreamAsync("https://blzddist1-a.akamaihd.net/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
+                                var splitLine = line.Split(" = ");
+                                if (splitLine.Length != 2)
+                                    continue;
 
-                                string keyringContents;
-                                if (!string.IsNullOrEmpty(build.Armadillo))
-                                    keyringContents = new StreamReader(new ArmadilloCrypt(build.Armadillo).DecryptFileToStream(build.KeyRing, keyring)).ReadToEnd();
-                                else
-                                    keyringContents = new StreamReader(keyring).ReadToEnd();
-
-                                foreach (var line in keyringContents.Split("\n"))
+                                var lookup = splitLine[0].Replace("key-", "");
+                                if (lookup.Length != 16)
                                 {
-                                    var splitLine = line.Split(" = ");
-                                    if (splitLine.Length != 2)
-                                        continue;
-
-                                    var lookup = splitLine[0].Replace("key-", "");
-                                    if (lookup.Length != 16)
-                                    {
-                                        Console.WriteLine("Warning: KeyRing lookup " + lookup + " is not 16 characters long, skipping..");
-                                        continue;
-                                    }
-
-                                    var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
-
-                                    if (WTLKeyService.HasKey(parsedLookup))
-                                        continue;
-
-                                    Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
-                                    WTLKeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
+                                    Console.WriteLine("Warning: KeyRing lookup " + lookup + " is not 16 characters long, skipping..");
+                                    continue;
                                 }
+
+                                var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
+
+                                if (WTLKeyService.HasKey(parsedLookup))
+                                    continue;
+
+                                Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
+                                WTLKeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
                             }
                         }
                         catch (Exception e)
@@ -600,6 +598,9 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
 
                     SQLiteDB.ImportBuildIntoFileHistory(BuildName);
+
+                    Console.WriteLine("Force updating DBDs after new build..");
+                    DBDProvider.GetBDBDStream(true);
                 }
             }
             else if (cascHandler.Root is WowRootHandler wrh)
@@ -1121,7 +1122,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 if (offset == -1)
                     fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true);
                 else
-                    fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
+                    fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
 
                 return new MemoryStream(fileBytes);
             }
@@ -1204,7 +1205,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     if (rootEntries.Count == 0)
                         return null;
 
-                    var preferredEntry = rootEntries.FirstOrDefault(subentry => 
+                    var preferredEntry = rootEntries.FirstOrDefault(subentry =>
 subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag((RootInstance.LocaleFlags)tactLocale)) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW));
 
                     if (preferredEntry.fileDataID == 0)
@@ -1386,7 +1387,6 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 }
                 else if (IsTACTSharpInit)
                 {
-                    var chashLock = new Lock();
                     Parallel.ForEach(buildInstance!.Root!.GetAvailableFDIDs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, fdid =>
                     {
                         var rootEntries = buildInstance.Root.GetEntriesByFDID(fdid);
@@ -1400,7 +1400,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
 
                         var ckey = Convert.ToHexString(preferredEntry.md5.AsSpan());
 
-                        lock (chashLock)
+                        lock (CHashLock)
                         {
                             FDIDToCHash.Add((int)preferredEntry.fileDataID, preferredEntry.md5.AsSpan().ToArray());
 
@@ -1416,7 +1416,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                             {
                                 var cKey = rootEntries[i].md5.AsSpan().ToArray();
 
-                                lock (chashLock)
+                                lock (CHashLock)
                                 {
                                     if (FDIDToCHash[(int)fdid].SequenceEqual(cKey))
                                         continue;
@@ -1439,7 +1439,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     {
                         var eKeys = buildInstance.Encoding!.FindContentKey(Convert.FromHexString(chash));
                         if (eKeys)
-                            lock (chashLock)
+                            lock (CHashLock)
                                 CHashToSize.Add(chash, (long)eKeys.DecodedFileSize);
                     });
                 }

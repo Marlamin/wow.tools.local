@@ -17,7 +17,7 @@ namespace wow.tools.Services
             LoadDefinitions();
         }
 
-        public Stream GetBDBDStream(bool forceNew = false)
+        public static Stream GetBDBDStream(bool forceNew = false)
         {
             var downloadBDBD = false;
             var cacheLocation = Path.Combine("cache", "all.bdbd");

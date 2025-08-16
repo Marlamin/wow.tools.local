@@ -68,7 +68,7 @@ namespace wow.tools.local.Services
             DBCD.DBCD dbcd;
 
             if (dbdProvider.isUsingBDBD)
-                dbcd = new DBCD.DBCD(dbcProvider, dbdProvider.GetBDBDStream());
+                dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
             else
                 dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
 

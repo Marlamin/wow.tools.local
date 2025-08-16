@@ -26,7 +26,7 @@ namespace wow.tools.local.Controllers
                 Namer.cacheDir = "caches";
 
                 if (((DBDProvider)dbdProvider).isUsingBDBD)
-                    Namer.SetProviders(dbcProvider, ((DBDProvider)dbdProvider).GetBDBDStream());
+                    Namer.SetProviders(dbcProvider, DBDProvider.GetBDBDStream());
                 else
                     Namer.SetProviders(dbcProvider, dbdProvider);
 
@@ -117,8 +117,7 @@ namespace wow.tools.local.Controllers
                     string.IsNullOrEmpty(name)
                 )
                 {
-                    if (!CASC.PlaceholderFiles.Contains(id))
-                        CASC.PlaceholderFiles.Add(id);
+                    CASC.PlaceholderFiles.Add(id);
                 }
                 else
                 {
