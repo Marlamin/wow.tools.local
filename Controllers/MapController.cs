@@ -72,7 +72,7 @@ namespace wow.tools.local.Controllers
                 seenMaps.Add(entry["Directory"].ToString()!.ToLower());
             }
 
-            var allMinimaps = CASC.Listfile.Values.Where(x => x.StartsWith("world/minimaps", StringComparison.CurrentCultureIgnoreCase) && !x.StartsWith("world/minimaps/wmo", StringComparison.CurrentCultureIgnoreCase)).Select(x => Path.GetDirectoryName(x)!.Replace("world\\minimaps\\", "")).Distinct();
+            var allMinimaps = Listfile.NameMap.Values.Where(x => x.StartsWith("world/minimaps", StringComparison.CurrentCultureIgnoreCase) && !x.StartsWith("world/minimaps/wmo", StringComparison.CurrentCultureIgnoreCase)).Select(x => Path.GetDirectoryName(x)!.Replace("world\\minimaps\\", "")).Distinct();
             Console.WriteLine();
             foreach (var minimap in allMinimaps)
             {
@@ -99,7 +99,7 @@ namespace wow.tools.local.Controllers
             //      return mapMaskCache[mapID];
 
             var mask = new List<int>();
-            var allMinimaps = CASC.Listfile.Where(x => x.Value.StartsWith("world/minimaps/" + directory.ToLower(), StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Value, x => x.Key);
+            var allMinimaps = Listfile.NameMap.Where(x => x.Value.StartsWith("world/minimaps/" + directory.ToLower(), StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Value, x => x.Key);
 
             if (wdtFileDataID == 0)
             {
@@ -118,7 +118,7 @@ namespace wow.tools.local.Controllers
                 return mask;
             }
 
-            var wdtName = CASC.Listfile.Where(x => x.Value.EndsWith(".wdt") && x.Value.StartsWith(mapID.ToString())).FirstOrDefault().Value;
+            var wdtName = Listfile.NameMap.Where(x => x.Value.EndsWith(".wdt") && x.Value.StartsWith(mapID.ToString())).FirstOrDefault().Value;
 
             var wdt = CASC.GetFileByID(wdtFileDataID);
 

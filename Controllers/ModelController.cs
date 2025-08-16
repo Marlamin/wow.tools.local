@@ -33,7 +33,7 @@ namespace wow.tools.local.Controllers
 
             var returnString = "";
 
-            if (!CASC.Types.TryGetValue(fileDataID, out var type))
+            if (!Listfile.Types.TryGetValue(fileDataID, out var type))
                 type = "unk";
 
             if (type == "wmo")
@@ -74,7 +74,7 @@ namespace wow.tools.local.Controllers
                 foreach (var gfdid in wmo.groupFileDataIDs)
                 {
                     returnString += "<tr>";
-                    var groupFilename = CASC.Listfile.TryGetValue((int)gfdid, out var gfilename) ? gfilename.ToString() : "";
+                    var groupFilename = Listfile.NameMap.TryGetValue((int)gfdid, out var gfilename) ? gfilename.ToString() : "";
                     returnString += "<td>" + gfdid + "</td><td>" + groupFilename + "</td>";
                     returnString += "</tr>";
                 }
@@ -94,21 +94,21 @@ namespace wow.tools.local.Controllers
                     returnString += "<td>Shader: " + GetEnumMemberAttrValue(material.shader) + "</td></tr>";
                     returnString += "<tr><td colspan=5>";
                     returnString += "<table class='table table-striped'>";
-                    returnString += "<tr><td>Texture1</td><td>" + material.texture1 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.texture1, out var texture1Filename) ? texture1Filename : "Unknown filename") + "</td></tr>";
+                    returnString += "<tr><td>Texture1</td><td>" + material.texture1 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.texture1, out var texture1Filename) ? texture1Filename : "Unknown filename") + "</td></tr>";
                     returnString += "<tr><td>Color (<attr title='Self Illuminated Day Night'>SIDN</attr>)</td><td>" + material.color1 + "</td><td>" + ARGBToDiv(material.color1) + "</td></tr>";
                     returnString += "<tr><td>Frame color (<attr title='Self Illuminated Day Night'>SIDN</attr>)</td><td>" + material.color1b + "</td><td>" + ARGBToDiv(material.color1b) + "</td></tr>";
-                    returnString += "<tr><td>Texture 2</td><td>" + material.texture2 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.texture2, out var texture2Filename) ? texture2Filename : "Unknown filename") + "</td></tr>";
+                    returnString += "<tr><td>Texture 2</td><td>" + material.texture2 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.texture2, out var texture2Filename) ? texture2Filename : "Unknown filename") + "</td></tr>";
                     returnString += "<tr><td>Diff color</td><td>" + material.color2 + "</td><td>" + ARGBToDiv(material.color2) + "</td></tr>";
-                    returnString += "<tr><td>Texture 3</td><td>" + material.texture3 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.texture3, out var texture3Filename) ? texture3Filename : "Unknown filename") + "</td></tr>";
+                    returnString += "<tr><td>Texture 3</td><td>" + material.texture3 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.texture3, out var texture3Filename) ? texture3Filename : "Unknown filename") + "</td></tr>";
 
                     if ((uint)material.shader == 23)
                     {
-                        returnString += "<tr><td>Texture 4</td><td>" + material.color3 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.color3, out var t4n) ? t4n : "Unknown filename") + "</td></tr>";
-                        returnString += "<tr><td>Texture 5</td><td>" + material.flags3 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.flags3, out var t5n) ? t5n : "Unknown filename") + "</td></tr>";
-                        returnString += "<tr><td>Texture 6</td><td>" + material.runtimeData0 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.runtimeData0, out var t6n) ? t6n : "Unknown filename") + "</td></tr>";
-                        returnString += "<tr><td>Texture 7</td><td>" + material.runtimeData1 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.runtimeData1, out var t7n) ? t7n : "Unknown filename") + "</td></tr>";
-                        returnString += "<tr><td>Texture 8</td><td>" + material.runtimeData2 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.runtimeData2, out var t8n) ? t8n : "Unknown filename") + "</td></tr>";
-                        returnString += "<tr><td>Texture 9</td><td>" + material.runtimeData3 + "</td><td>" + (CASC.Listfile.TryGetValue((int)material.runtimeData3, out var t9n) ? t9n : "Unknown filename") + "</td></tr>";
+                        returnString += "<tr><td>Texture 4</td><td>" + material.color3 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.color3, out var t4n) ? t4n : "Unknown filename") + "</td></tr>";
+                        returnString += "<tr><td>Texture 5</td><td>" + material.flags3 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.flags3, out var t5n) ? t5n : "Unknown filename") + "</td></tr>";
+                        returnString += "<tr><td>Texture 6</td><td>" + material.runtimeData0 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.runtimeData0, out var t6n) ? t6n : "Unknown filename") + "</td></tr>";
+                        returnString += "<tr><td>Texture 7</td><td>" + material.runtimeData1 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.runtimeData1, out var t7n) ? t7n : "Unknown filename") + "</td></tr>";
+                        returnString += "<tr><td>Texture 8</td><td>" + material.runtimeData2 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.runtimeData2, out var t8n) ? t8n : "Unknown filename") + "</td></tr>";
+                        returnString += "<tr><td>Texture 9</td><td>" + material.runtimeData3 + "</td><td>" + (Listfile.NameMap.TryGetValue((int)material.runtimeData3, out var t9n) ? t9n : "Unknown filename") + "</td></tr>";
                     }
                     else
                     {

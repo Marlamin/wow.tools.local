@@ -100,11 +100,11 @@ namespace wow.tools.local.Services
                     }
 
                     // Try DB2
-                    if (CASC.DB2Map.TryGetValue(fullFileName.ToLower(), out int fileDataID) && buildInstance.Root!.FileExists((uint)fileDataID))
+                    if (Listfile.DB2Map.TryGetValue(fullFileName.ToLower(), out int fileDataID) && buildInstance.Root!.FileExists((uint)fileDataID))
                         return new MemoryStream(buildInstance.OpenFileByFDID((uint)fileDataID));
 
                     // Try DBC
-                    if (CASC.DB2Map.TryGetValue(Path.ChangeExtension(fullFileName, ".dbc").ToLower(), out fileDataID) && buildInstance.Root!.FileExists((uint)fileDataID))
+                    if (Listfile.DB2Map.TryGetValue(Path.ChangeExtension(fullFileName, ".dbc").ToLower(), out fileDataID) && buildInstance.Root!.FileExists((uint)fileDataID))
                         return new MemoryStream(buildInstance.OpenFileByFDID((uint)fileDataID));
 
                 }
@@ -114,7 +114,7 @@ namespace wow.tools.local.Services
                 }
             }
 
-            if (CASC.DB2Map.TryGetValue(fullFileName, out int db2fileDataID))
+            if (Listfile.DB2Map.TryGetValue(fullFileName, out int db2fileDataID))
             {
                 var db2Req = webClient.GetAsync($"https://wago.tools/api/casc/{db2fileDataID}?download&version=" + build).Result;
 
@@ -155,7 +155,7 @@ namespace wow.tools.local.Services
                 }
             }
 
-            if (CASC.DB2Map.TryGetValue(Path.ChangeExtension(fullFileName, ".dbc"), out int dbcfileDataID))
+            if (Listfile.DB2Map.TryGetValue(Path.ChangeExtension(fullFileName, ".dbc"), out int dbcfileDataID))
             {
                 var dbcReq = webClient.GetAsync($"https://wago.tools/api/casc/{dbcfileDataID}?version=" + build).Result;
 

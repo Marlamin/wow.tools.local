@@ -50,7 +50,7 @@ namespace wow.tools.local.Controllers
                                     continue;
                                 }
 
-                                var entryname = Path.GetFileName(CASC.Listfile[(int)filedataid]);
+                                var entryname = Path.GetFileName(Listfile.NameMap[(int)filedataid]);
                                 if (entryname == "")
                                 {
                                     entryname = filedataid.ToString() + ".unk";

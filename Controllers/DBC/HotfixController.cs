@@ -28,7 +28,7 @@ namespace wow.tools.local.Controllers
                 data = []
             };
 
-            if(SQLiteDB.hotfixDBConn.State != System.Data.ConnectionState.Open)
+            if (SQLiteDB.hotfixDBConn.State != System.Data.ConnectionState.Open)
                 SQLiteDB.hotfixDBConn.Open();
 
             var totalHotfixesSQL = "SELECT COUNT(*) FROM wow_hotfixes";
@@ -55,7 +55,7 @@ namespace wow.tools.local.Controllers
                 var tableName = reader.GetString(2);
                 var status = reader.GetInt32(3);
                 var build = SQLiteDB.GetVersionByBuild(reader.GetInt32(4));
-                if(string.IsNullOrEmpty(build))
+                if (string.IsNullOrEmpty(build))
                     build = "?"; // Question mark makes it just load current build
 
                 var region = reader.GetInt32(5); // defunct, use hotfixpushxbuild instead
@@ -69,10 +69,10 @@ namespace wow.tools.local.Controllers
                     build.ToString(),
                     status.ToString(),
                     firstdetected.ToString(),
-                    CASC.DB2Map.ContainsKey("dbfilesclient/" + tableName.ToLower() + ".db2") ? "1" : "0"
+                    Listfile.DB2Map.ContainsKey("dbfilesclient/" + tableName.ToLower() + ".db2") ? "1" : "0"
                 ]);
             }
-            
+
             return result;
         }
     }

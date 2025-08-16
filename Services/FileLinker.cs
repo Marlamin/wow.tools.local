@@ -204,7 +204,7 @@ namespace wow.tools.local.Services
                 catch (NotSupportedException)
                 {
                     Console.WriteLine("[WMO] " + fileDataID + " is a group WMO, skipping..");
-                    CASC.SetFileType((int)fileDataID, "gwmo");
+                    Listfile.SetFileType((int)fileDataID, "gwmo");
                     return;
                 }
 
@@ -219,7 +219,7 @@ namespace wow.tools.local.Services
                     foreach (var groupFileDataID in wmo.groupFileDataIDs)
                     {
                         InsertEntry(insertCmd, groupFileDataID, "wmo group");
-                        CASC.SetFileType((int)groupFileDataID, "gwmo");
+                        Listfile.SetFileType((int)groupFileDataID, "gwmo");
                     }
                 }
 
@@ -323,7 +323,7 @@ namespace wow.tools.local.Services
                 existingParents.Remove(wdtid);
             }
 
-            if (!CASC.Listfile.TryGetValue(wdtid, out var wdtFilename))
+            if (!Listfile.NameMap.TryGetValue(wdtid, out var wdtFilename))
             {
                 Console.WriteLine("Unable to find filename for WDT " + wdtid + ", skipping linking!");
                 return;
@@ -459,7 +459,7 @@ namespace wow.tools.local.Services
         public static void Link(bool fullrun = false)
         {
             #region M2
-            if (!CASC.TypeMap.TryGetValue("m2", out var m2ids))
+            if (!Listfile.TypeMap.TryGetValue("m2", out var m2ids))
             {
                 Console.WriteLine("Unable to get M2 files, make sure types have been detected at least once.");
                 return;
@@ -492,7 +492,7 @@ namespace wow.tools.local.Services
             #endregion
 
             #region WMO
-            if (!CASC.TypeMap.TryGetValue("wmo", out var wmoids))
+            if (!Listfile.TypeMap.TryGetValue("wmo", out var wmoids))
             {
                 Console.WriteLine("Unable to get WMO files, make sure types have been detected at least once.");
                 return;
@@ -523,7 +523,7 @@ namespace wow.tools.local.Services
             #endregion
 
             #region Maps
-            if (!CASC.TypeMap.TryGetValue("wdt", out var wdtids))
+            if (!Listfile.TypeMap.TryGetValue("wdt", out var wdtids))
             {
                 Console.WriteLine("Unable to get WDT files, make sure types have been detected at least once.");
                 return;

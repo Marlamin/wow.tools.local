@@ -35,12 +35,12 @@ namespace wow.tools.local.Controllers
 
                 if (cleaned == "model")
                 {
-                    var m2AndWMO = new HashSet<int>(CASC.TypeMap["m2"].Concat(CASC.TypeMap["wmo"]));
+                    var m2AndWMO = new HashSet<int>(Listfile.TypeMap["m2"].Concat(Listfile.TypeMap["wmo"]));
                     return resultsIn.Where(p => m2AndWMO.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
                 }
                 else
                 {
-                    if (CASC.TypeMap.TryGetValue(cleaned, out var fdids))
+                    if (Listfile.TypeMap.TryGetValue(cleaned, out var fdids))
                         return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
                 }
 
@@ -77,7 +77,7 @@ namespace wow.tools.local.Controllers
             }
             else if (search == "isplaceholder")
             {
-                return resultsIn.Where(p => CASC.PlaceholderFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(p => Listfile.PlaceholderFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
             else if (search == "encrypted")
             {
@@ -108,7 +108,7 @@ namespace wow.tools.local.Controllers
                 if (fdidRange.Length != 2 || !int.TryParse(fdidRange[0], out var fdidLower) || !int.TryParse(fdidRange[1], out var fdidUpper))
                     return [];
 
-                var fdids = new HashSet<int>(CASC.Listfile.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
+                var fdids = new HashSet<int>(Listfile.NameMap.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
                 return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
             }
             else if (search.StartsWith("skitid:") || search.StartsWith("skit:"))
@@ -147,7 +147,7 @@ namespace wow.tools.local.Controllers
                 if (!uint.TryParse(search.Trim().Replace("skit:", ""), out var skitID))
                     return resultsIn;
 
-                return resultsIn.Where(x => SoundKitMap.ContainsKey(x.Key) && SoundKitMap[x.Key].Contains(skitID)).ToDictionary(p => p.Key, p => p.Value);
+                return resultsIn.Where(x => SoundKitMap!.ContainsKey(x.Key) && SoundKitMap[x.Key].Contains(skitID)).ToDictionary(p => p.Key, p => p.Value);
             }
             else if (search.StartsWith("chash:"))
             {
@@ -311,11 +311,11 @@ namespace wow.tools.local.Controllers
             var result = new DataTablesResult()
             {
                 draw = draw,
-                recordsTotal = CASC.Listfile.Count,
+                recordsTotal = Listfile.NameMap.Count,
                 data = []
             };
 
-            var listfileResults = new Dictionary<int, string>(CASC.Listfile);
+            var listfileResults = new Dictionary<int, string>(Listfile.NameMap);
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
@@ -379,7 +379,7 @@ namespace wow.tools.local.Controllers
                         listfileResult.Value, // Filename
                         lookup != 0 ? lookup.ToString("X16") : "", // Lookup
                         CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
-                        CASC.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
+                        Listfile.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
                         CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encryptionStatus) ? encryptionStatus.ToString() : "",
                         CASC.OtherLocaleOnlyFiles.Contains(listfileResult.Key) ? "true" : "false", // Non-native locale
                         "", // Placeholder filename
@@ -403,7 +403,7 @@ namespace wow.tools.local.Controllers
             var result = new DataTablesResult()
             {
                 draw = draw,
-                recordsTotal = CASC.Listfile.Count,
+                recordsTotal = Listfile.NameMap.Count,
                 data = []
             };
 
@@ -423,7 +423,7 @@ namespace wow.tools.local.Controllers
             //if (Request.Query.TryGetValue("showADT", out var showADTString))
             //    showADT = bool.Parse(showADTString);
 
-            var listfileResults = new Dictionary<int, string>(CASC.Listfile.Where(x => (showM2 && CASC.TypeMap["m2"].Contains(x.Key)) || (showWMO && CASC.TypeMap["wmo"].Contains(x.Key)) || (showM3 && CASC.TypeMap["m3"].Contains(x.Key))));
+            var listfileResults = new Dictionary<int, string>(Listfile.NameMap.Where(x => (showM2 && Listfile.TypeMap["m2"].Contains(x.Key)) || (showWMO && Listfile.TypeMap["wmo"].Contains(x.Key)) || (showM3 && Listfile.TypeMap["m3"].Contains(x.Key))));
 
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
@@ -449,7 +449,7 @@ namespace wow.tools.local.Controllers
                         listfileResult.Value, // Filename
                         CASC.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup) ? lookup.ToString("X16") : "", // Lookup
                         "", // Versions
-                        CASC.Types.TryGetValue(listfileResult.Key, out string? type) ? type : "unk", // Type
+                        Listfile.Types.TryGetValue(listfileResult.Key, out string? type) ? type : "unk", // Type
                         CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encStatus) ? encStatus.ToString() : "0"
                     ]);
             }
@@ -499,7 +499,7 @@ namespace wow.tools.local.Controllers
             {
                 foreach (var id in split)
                 {
-                    if (CASC.Listfile.TryGetValue(int.Parse(id), out var name))
+                    if (Listfile.NameMap.TryGetValue(int.Parse(id), out var name))
                         return name;
                 }
 
@@ -507,7 +507,7 @@ namespace wow.tools.local.Controllers
             }
             else
             {
-                if (CASC.Listfile.TryGetValue(int.Parse(filedataid), out var name))
+                if (Listfile.NameMap.TryGetValue(int.Parse(filedataid), out var name))
                     return name;
                 else
                     return "";
@@ -616,7 +616,7 @@ namespace wow.tools.local.Controllers
         {
             if (string.IsNullOrEmpty(search))
                 return false;
-            var listfileResults = new Dictionary<int, string>(CASC.Listfile);
+            var listfileResults = new Dictionary<int, string>(Listfile.NameMap);
             if (!string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
@@ -646,8 +646,8 @@ namespace wow.tools.local.Controllers
                         var filePath = result.Value;
                         if (string.IsNullOrEmpty(result.Value))
                         {
-                            if (CASC.Types.TryGetValue(result.Key, out var type))
-                                filePath = "unknown/" + result.Key.ToString() + "." + CASC.Types[result.Key];
+                            if (Listfile.Types.TryGetValue(result.Key, out var type))
+                                filePath = "unknown/" + result.Key.ToString() + "." + Listfile.Types[result.Key];
                             else
                                 filePath = "unknown/" + result.Key.ToString() + ".unk";
                         }
@@ -767,49 +767,49 @@ namespace wow.tools.local.Controllers
 
                         if (wmo.groupFileDataIDs != null)
                             foreach (var groupFileDataID in wmo.groupFileDataIDs)
-                                listfileResults.TryAdd((int)groupFileDataID, CASC.Listfile.TryGetValue((int)groupFileDataID, out var fn) ? fn : "unknown/" + groupFileDataID.ToString() + ".wmo");
+                                listfileResults.TryAdd((int)groupFileDataID, Listfile.NameMap.TryGetValue((int)groupFileDataID, out var fn) ? fn : "unknown/" + groupFileDataID.ToString() + ".wmo");
 
                         if (wmo.doodadIds != null)
                             foreach (var doodadID in wmo.doodadIds)
-                                listfileResults.TryAdd((int)doodadID, CASC.Listfile.TryGetValue((int)doodadID, out var fn) ? fn : "unknown/" + doodadID.ToString() + ".m2");
+                                listfileResults.TryAdd((int)doodadID, Listfile.NameMap.TryGetValue((int)doodadID, out var fn) ? fn : "unknown/" + doodadID.ToString() + ".m2");
 
                         if (wmo.newLightDefinitions != null)
                             foreach (var light in wmo.newLightDefinitions)
                                 if (light.lightCookieFileID != 0)
-                                    listfileResults.TryAdd((int)light.lightCookieFileID, CASC.Listfile.TryGetValue((int)light.lightCookieFileID, out var fn) && !string.IsNullOrEmpty(fn) ? fn : "unknown/" + light.lightCookieFileID.ToString() + ".blp");
+                                    listfileResults.TryAdd((int)light.lightCookieFileID, Listfile.NameMap.TryGetValue((int)light.lightCookieFileID, out var fn) && !string.IsNullOrEmpty(fn) ? fn : "unknown/" + light.lightCookieFileID.ToString() + ".blp");
 
                         if (wmo.textures == null && wmo.materials != null)
                         {
                             foreach (var material in wmo.materials)
                             {
                                 if (material.texture1 != 0)
-                                    listfileResults.TryAdd((int)material.texture1, CASC.Listfile.TryGetValue((int)material.texture1, out var fn) ? fn : "unknown/" + material.texture1.ToString() + ".blp");
+                                    listfileResults.TryAdd((int)material.texture1, Listfile.NameMap.TryGetValue((int)material.texture1, out var fn) ? fn : "unknown/" + material.texture1.ToString() + ".blp");
 
                                 if (material.texture2 != 0 && !listfileResults.ContainsKey((int)material.texture2))
-                                    listfileResults.TryAdd((int)material.texture2, CASC.Listfile.TryGetValue((int)material.texture2, out var fn) ? fn : "unknown/" + material.texture2.ToString() + ".blp");
+                                    listfileResults.TryAdd((int)material.texture2, Listfile.NameMap.TryGetValue((int)material.texture2, out var fn) ? fn : "unknown/" + material.texture2.ToString() + ".blp");
 
                                 if (material.texture3 != 0 && !listfileResults.ContainsKey((int)material.texture3))
-                                    listfileResults.TryAdd((int)material.texture3, CASC.Listfile.TryGetValue((int)material.texture3, out var fn) ? fn : "unknown/" + material.texture3.ToString() + ".blp");
+                                    listfileResults.TryAdd((int)material.texture3, Listfile.NameMap.TryGetValue((int)material.texture3, out var fn) ? fn : "unknown/" + material.texture3.ToString() + ".blp");
 
                                 if ((uint)material.shader == 23)
                                 {
                                     if (material.color3 != 0)
-                                        listfileResults.TryAdd((int)material.color3, CASC.Listfile.TryGetValue((int)material.color3, out var fn) ? fn : "unknown/" + material.color3.ToString() + ".blp");
+                                        listfileResults.TryAdd((int)material.color3, Listfile.NameMap.TryGetValue((int)material.color3, out var fn) ? fn : "unknown/" + material.color3.ToString() + ".blp");
 
                                     if (material.flags3 != 0)
-                                        listfileResults.TryAdd((int)material.flags3, CASC.Listfile.TryGetValue((int)material.flags3, out var fn) ? fn : "unknown/" + material.flags3.ToString() + ".blp");
+                                        listfileResults.TryAdd((int)material.flags3, Listfile.NameMap.TryGetValue((int)material.flags3, out var fn) ? fn : "unknown/" + material.flags3.ToString() + ".blp");
 
                                     if (material.runtimeData0 != 0)
-                                        listfileResults.TryAdd((int)material.runtimeData0, CASC.Listfile.TryGetValue((int)material.runtimeData0, out var fn) ? fn : "unknown/" + material.runtimeData0.ToString() + ".blp");
+                                        listfileResults.TryAdd((int)material.runtimeData0, Listfile.NameMap.TryGetValue((int)material.runtimeData0, out var fn) ? fn : "unknown/" + material.runtimeData0.ToString() + ".blp");
 
                                     if (material.runtimeData1 != 0)
-                                        listfileResults.TryAdd((int)material.runtimeData1, CASC.Listfile.TryGetValue((int)material.runtimeData1, out var fn) ? fn : "unknown/" + material.runtimeData1.ToString() + ".blp");
+                                        listfileResults.TryAdd((int)material.runtimeData1, Listfile.NameMap.TryGetValue((int)material.runtimeData1, out var fn) ? fn : "unknown/" + material.runtimeData1.ToString() + ".blp");
 
                                     if (material.runtimeData2 != 0)
-                                        listfileResults.TryAdd((int)material.runtimeData2, CASC.Listfile.TryGetValue((int)material.runtimeData2, out var fn) ? fn : "unknown/" + material.runtimeData2.ToString() + ".blp");
+                                        listfileResults.TryAdd((int)material.runtimeData2, Listfile.NameMap.TryGetValue((int)material.runtimeData2, out var fn) ? fn : "unknown/" + material.runtimeData2.ToString() + ".blp");
 
                                     if (material.runtimeData3 != 0)
-                                        listfileResults.TryAdd((int)material.runtimeData3, CASC.Listfile.TryGetValue((int)material.runtimeData3, out var fn) ? fn : "unknown/" + material.runtimeData3.ToString() + ".blp");
+                                        listfileResults.TryAdd((int)material.runtimeData3, Listfile.NameMap.TryGetValue((int)material.runtimeData3, out var fn) ? fn : "unknown/" + material.runtimeData3.ToString() + ".blp");
                                 }
                             }
                         }
@@ -848,34 +848,34 @@ namespace wow.tools.local.Controllers
 
                             if (reader.model.textureFileDataIDs != null)
                                 foreach (var textureID in reader.model.textureFileDataIDs)
-                                    listfileResults.TryAdd((int)textureID, CASC.Listfile.TryGetValue((int)textureID, out var fn) ? fn : "unknown/" + textureID.ToString() + ".blp");
+                                    listfileResults.TryAdd((int)textureID, Listfile.NameMap.TryGetValue((int)textureID, out var fn) ? fn : "unknown/" + textureID.ToString() + ".blp");
 
 
                             if (reader.model.animFileDataIDs != null)
                             {
                                 foreach (var animFileID in reader.model.animFileDataIDs)
-                                    listfileResults.TryAdd((int)animFileID.fileDataID, CASC.Listfile.TryGetValue((int)animFileID.fileDataID, out var fn) ? fn : "unknown/" + animFileID.fileDataID.ToString() + ".anim");
+                                    listfileResults.TryAdd((int)animFileID.fileDataID, Listfile.NameMap.TryGetValue((int)animFileID.fileDataID, out var fn) ? fn : "unknown/" + animFileID.fileDataID.ToString() + ".anim");
                             }
 
                             if (reader.model.skinFileDataIDs != null)
                                 foreach (var skinFileID in reader.model.skinFileDataIDs)
-                                    listfileResults.TryAdd((int)skinFileID, CASC.Listfile.TryGetValue((int)skinFileID, out var fn) ? fn : "unknown/" + skinFileID.ToString() + ".skin");
+                                    listfileResults.TryAdd((int)skinFileID, Listfile.NameMap.TryGetValue((int)skinFileID, out var fn) ? fn : "unknown/" + skinFileID.ToString() + ".skin");
 
                             if (reader.model.boneFileDataIDs != null)
                                 foreach (var boneFileID in reader.model.boneFileDataIDs)
-                                    listfileResults.TryAdd((int)boneFileID, CASC.Listfile.TryGetValue((int)boneFileID, out var fn) ? fn : "unknown/" + boneFileID.ToString() + ".bone");
+                                    listfileResults.TryAdd((int)boneFileID, Listfile.NameMap.TryGetValue((int)boneFileID, out var fn) ? fn : "unknown/" + boneFileID.ToString() + ".bone");
 
                             if (reader.model.recursiveParticleModelFileIDs != null)
                                 foreach (var rpID in reader.model.recursiveParticleModelFileIDs)
-                                    listfileResults.TryAdd((int)rpID, CASC.Listfile.TryGetValue((int)rpID, out var fn) ? fn : "unknown/" + rpID.ToString() + ".m2");
+                                    listfileResults.TryAdd((int)rpID, Listfile.NameMap.TryGetValue((int)rpID, out var fn) ? fn : "unknown/" + rpID.ToString() + ".m2");
 
                             if (reader.model.geometryParticleModelFileIDs != null)
                                 foreach (var gpID in reader.model.geometryParticleModelFileIDs)
-                                    listfileResults.TryAdd((int)gpID, CASC.Listfile.TryGetValue((int)gpID, out var fn) ? fn : "unknown/" + gpID.ToString() + ".m2");
+                                    listfileResults.TryAdd((int)gpID, Listfile.NameMap.TryGetValue((int)gpID, out var fn) ? fn : "unknown/" + gpID.ToString() + ".m2");
 
-                            listfileResults.TryAdd((int)reader.model.skelFileID, CASC.Listfile.TryGetValue((int)reader.model.skelFileID, out var sfn) ? sfn : "unknown/" + reader.model.skelFileID.ToString() + ".skel");
+                            listfileResults.TryAdd((int)reader.model.skelFileID, Listfile.NameMap.TryGetValue((int)reader.model.skelFileID, out var sfn) ? sfn : "unknown/" + reader.model.skelFileID.ToString() + ".skel");
 
-                            listfileResults.TryAdd((int)reader.model.physFileID, CASC.Listfile.TryGetValue((int)reader.model.physFileID, out var pfn) ? pfn : "unknown/" + reader.model.physFileID.ToString() + ".m2");
+                            listfileResults.TryAdd((int)reader.model.physFileID, Listfile.NameMap.TryGetValue((int)reader.model.physFileID, out var pfn) ? pfn : "unknown/" + reader.model.physFileID.ToString() + ".m2");
                         }
                         catch (Exception e)
                         {
@@ -901,8 +901,8 @@ namespace wow.tools.local.Controllers
 
                         if (string.IsNullOrEmpty(result.Value))
                         {
-                            if (CASC.Types.TryGetValue(result.Key, out var type))
-                                filePath = "unknown/" + result.Key.ToString() + "." + CASC.Types[result.Key];
+                            if (Listfile.Types.TryGetValue(result.Key, out var type))
+                                filePath = "unknown/" + result.Key.ToString() + "." + Listfile.Types[result.Key];
                             else
                                 filePath = "unknown/" + result.Key.ToString() + ".unk";
                         }
@@ -1013,13 +1013,13 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
-                var searchResults = DoSearch(CASC.GetAllListfileNames(), search);
+                var searchResults = DoSearch(Listfile.GetAllNames(), search);
                 foreach (var kvp in sortedMap.ToImmutableSortedDictionary())
                 {
                     if (!searchResults.ContainsKey(kvp.Key))
                         continue;
 
-                    if (CASC.Listfile.TryGetValue(kvp.Key, out var filename))
+                    if (Listfile.NameMap.TryGetValue(kvp.Key, out var filename))
                     {
                         if (hasher.ComputeHash(filename) != kvp.Value)
                         {

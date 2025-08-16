@@ -67,11 +67,11 @@ namespace wow.tools.local.Services
             {
                 foreach (var entry in manifest)
                 {
-                    if (!CASC.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".db2"))
-                        CASC.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".db2", entry.db2FileDataID);
+                    if (!Listfile.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".db2"))
+                        Listfile.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".db2", entry.db2FileDataID);
 
-                    if (!CASC.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".dbc"))
-                        CASC.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".dbc", entry.dbcFileDataID);
+                    if (!Listfile.DB2Map.ContainsKey("dbfilesclient/" + entry.tableName.ToLower() + ".dbc"))
+                        Listfile.DB2Map.Add("dbfilesclient/" + entry.tableName.ToLower() + ".dbc", entry.dbcFileDataID);
 
                     DB2Map.TryAdd(entry.tableName, entry);
                 }

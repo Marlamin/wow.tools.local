@@ -14,8 +14,8 @@ namespace wow.tools.local.Controllers
             var returnValues = new Dictionary<string, string>
             {
                 { "fileDataID", fileDataID.ToString() },
-                { "filename", CASC.Listfile.TryGetValue(fileDataID, out var filename) ? filename : "Unknown" },
-                { "type", CASC.Types.TryGetValue(fileDataID, out var type) ? type : "Unknown" }
+                { "filename", Listfile.NameMap.TryGetValue(fileDataID, out var filename) ? filename : "Unknown" },
+                { "type", Listfile.Types.TryGetValue(fileDataID, out var type) ? type : "Unknown" }
             };
             return returnValues;
         }

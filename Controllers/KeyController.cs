@@ -193,7 +193,7 @@ namespace wow.tools.local.Controllers
             var output = "<table class='table table-striped table-bordered'>";
 
             var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
-            var files = CASC.Listfile.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
+            var files = Listfile.NameMap.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
 
             output += "<tr><td style='width: 200px;'>Lookup</td><td>" + converted.ToString("X16") + " (" + converted + ")</td></tr>";
             output += "<tr><td style='width: 200px;'>Status</td><td>" + (WTLKeyService.HasKey(converted) ? "Available" : "Unavailable") + "</td></tr>";
@@ -238,7 +238,7 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
-                if (CASC.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
+                if (Listfile.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
                 {
                     output += "<tr><td>" + file.Key + "</td><td>db2</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => Convert.ToHexString(x)).ToList()) + "</td><td>" + size + " bytes</td></tr>";
 
@@ -259,7 +259,7 @@ namespace wow.tools.local.Controllers
 
                     if (WTLKeyService.HasKey(converted))
                     {
-                        output += " <a href='/dbc/?dbc=" + Path.GetFileNameWithoutExtension(CASC.Listfile[filedataid]).ToLower() + "&build=" + CASC.BuildName + "#page=1&search=encrypted%3A" + converted.ToString("X16").PadLeft(16, '0') + "' target='_BLANK' class='text-success'> (view)</a>";
+                        output += " <a href='/dbc/?dbc=" + Path.GetFileNameWithoutExtension(Listfile.NameMap[filedataid]).ToLower() + "&build=" + CASC.BuildName + "#page=1&search=encrypted%3A" + converted.ToString("X16").PadLeft(16, '0') + "' target='_BLANK' class='text-success'> (view)</a>";
                     }
 
                     output += "</td></tr>";
@@ -269,7 +269,7 @@ namespace wow.tools.local.Controllers
 
             foreach (var file in files)
             {
-                if (CASC.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
+                if (Listfile.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
                     continue;
 
                 var filedataid = file.Key;

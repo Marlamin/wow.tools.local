@@ -91,7 +91,7 @@ namespace wow.tools.local.Controllers
             var skipCount = 0;
             var noNameCount = 0;
 
-            var creatureVOFiles = CASC.Listfile.Where(f => f.Value.StartsWith("sound/creature/", StringComparison.InvariantCultureIgnoreCase)).ToDictionary(x => x.Key, x => x.Value);
+            var creatureVOFiles = Listfile.NameMap.Where(f => f.Value.StartsWith("sound/creature/", StringComparison.InvariantCultureIgnoreCase)).ToDictionary(x => x.Key, x => x.Value);
             foreach (var creatureVOFile in creatureVOFiles)
             {
                 var extractedName = creatureVOFile.Value.Split("/")[2].Replace("_", " ");
@@ -169,7 +169,7 @@ namespace wow.tools.local.Controllers
                 else
                 {
                     fileFilter = fileFilter.ToLowerInvariant();
-                    voSoundKitView = voSoundKitView.Where(x => soundKitIDToFDID[x].Any(y => CASC.Listfile.TryGetValue((int)y, out var filename) && filename.Contains(fileFilter, StringComparison.InvariantCultureIgnoreCase))).ToList();
+                    voSoundKitView = voSoundKitView.Where(x => soundKitIDToFDID[x].Any(y => Listfile.NameMap.TryGetValue((int)y, out var filename) && filename.Contains(fileFilter, StringComparison.InvariantCultureIgnoreCase))).ToList();
                     result.recordsFiltered = voSoundKitView.Count;
                 }
             }
@@ -217,7 +217,7 @@ namespace wow.tools.local.Controllers
                     voFiles.Add(new VOFile()
                     {
                         fileDataID = voFileDataID,
-                        name = CASC.Listfile.TryGetValue((int)voFileDataID, out var voFilename) ? voFilename : "",
+                        name = Listfile.NameMap.TryGetValue((int)voFileDataID, out var voFilename) ? voFilename : "",
                         available = isAvailable,
                         creatureName = SQLiteDB.getCreatureNameByFileDataID((int)voFileDataID),
                         addedIn = SQLiteDB.GetFirstVersionNumberByFileDataID((int)voFileDataID)

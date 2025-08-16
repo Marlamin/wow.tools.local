@@ -41,8 +41,8 @@ namespace wow.tools.local.Controllers
             if (string.IsNullOrEmpty(filename))
             {
                 filename = fileDataID.ToString();
-                if (CASC.Types.ContainsKey((int)fileDataID))
-                    filename += "." + CASC.Types[(int)fileDataID];
+                if (Listfile.Types.ContainsKey((int)fileDataID))
+                    filename += "." + Listfile.Types[(int)fileDataID];
             }
 
             var file = CASC.GetFileByID(fileDataID, build);
@@ -274,7 +274,7 @@ namespace wow.tools.local.Controllers
         public bool UpdateListfile()
         {
             BuildDiffCache.Invalidate();
-            CASC.LoadListfile(true);
+            Listfile.Load(true);
             return true;
         }
 
@@ -282,7 +282,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool ExportListfile()
         {
-            CASC.ExportListfile();
+            Listfile.Export();
             return true;
         }
 
@@ -335,14 +335,14 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            List<int> unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
+            List<int> unknownFiles = CASC.AvailableFDIDs.Except(Listfile.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
 
             if (knownUnknowns.Count > 0)
             {
                 foreach (var knownUnknown in knownUnknowns)
-                    CASC.SetFileType(knownUnknown.Key, knownUnknown.Value);
+                    Listfile.SetFileType(knownUnknown.Key, knownUnknown.Value);
 
-                unknownFiles = CASC.AvailableFDIDs.Except(CASC.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
+                unknownFiles = CASC.AvailableFDIDs.Except(Listfile.Types.Where(x => x.Value != "unk").Select(x => x.Key)).ToList();
             }
 
             try
@@ -362,11 +362,11 @@ namespace wow.tools.local.Controllers
                     if (fdid == 5569152 || fdid == 5916032 || fdid == 6022679) // M3, hopefully these get separate out at some point in ModelFileData through a flag or something
                         continue;
 
-                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                    if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "m2");
                         unknownFiles.Remove(fdid);
-                        CASC.SetFileType(fdid, "m2");
+                        Listfile.SetFileType(fdid, "m2");
                     }
                 }
             }
@@ -381,11 +381,11 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic tfdEntry in tfdStorage.Values)
                 {
                     var fdid = (int)tfdEntry.FileDataID;
-                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                    if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "blp");
                         unknownFiles.Remove(fdid);
-                        CASC.SetFileType(fdid, "blp");
+                        Listfile.SetFileType(fdid, "blp");
                     }
                 }
             }
@@ -400,11 +400,11 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic mfdEntry in mfdStorage.Values)
                 {
                     var fdid = (int)mfdEntry.ID;
-                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                    if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "avi");
                         unknownFiles.Remove(fdid);
-                        CASC.SetFileType(fdid, "avi");
+                        Listfile.SetFileType(fdid, "avi");
                     }
                 }
             }
@@ -421,18 +421,18 @@ namespace wow.tools.local.Controllers
                     var audioFDID = (int)movieEntry.AudioFileDataID;
                     if (audioFDID != 0)
                     {
-                        if (!CASC.Types.TryGetValue(audioFDID, out string? value) || value == "unk")
+                        if (!Listfile.Types.TryGetValue(audioFDID, out string? value) || value == "unk")
                         {
                             knownUnknowns.TryAdd(audioFDID, "mp3");
                             unknownFiles.Remove(audioFDID);
-                            CASC.SetFileType(audioFDID, "mp3");
+                            Listfile.SetFileType(audioFDID, "mp3");
                         }
                     }
 
                     var subtitleFDID = (int)movieEntry.SubtitleFileDataID;
                     if (subtitleFDID != 0)
                     {
-                        if (!CASC.Types.TryGetValue(subtitleFDID, out string? value) || value == "unk")
+                        if (!Listfile.Types.TryGetValue(subtitleFDID, out string? value) || value == "unk")
                         {
                             var format = (int)movieEntry.SubtitleFileFormat;
                             var subtitleType = "srt";
@@ -448,7 +448,7 @@ namespace wow.tools.local.Controllers
 
                             knownUnknowns.TryAdd(subtitleFDID, subtitleType);
                             unknownFiles.Remove(subtitleFDID);
-                            CASC.SetFileType(subtitleFDID, subtitleType);
+                            Listfile.SetFileType(subtitleFDID, subtitleType);
                         }
                     }
                 }
@@ -466,11 +466,11 @@ namespace wow.tools.local.Controllers
                     foreach (dynamic mp3Entry in mp3Storage.Values)
                     {
                         var fdid = (int)mp3Entry.ID;
-                        if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                        if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                         {
                             knownUnknowns.TryAdd(fdid, "mp3");
                             unknownFiles.Remove(fdid);
-                            CASC.SetFileType(fdid, "mp3");
+                            Listfile.SetFileType(fdid, "mp3");
                         }
                     }
                 }
@@ -670,7 +670,7 @@ namespace wow.tools.local.Controllers
 
                         lock (typeLock)
                         {
-                            CASC.SetFileType(unknownFile, type);
+                            Listfile.SetFileType(unknownFile, type);
                             knownUnknowns.TryAdd(unknownFile, type);
                         }
                     }
@@ -697,11 +697,11 @@ namespace wow.tools.local.Controllers
                 foreach (dynamic skEntry in skStorage.Values)
                 {
                     var fdid = (int)skEntry.FileDataID;
-                    if (!CASC.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                    if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "ogg");
                         unknownFiles.Remove(fdid);
-                        CASC.SetFileType(fdid, "ogg");
+                        Listfile.SetFileType(fdid, "ogg");
                     }
                 }
             }
@@ -730,7 +730,7 @@ namespace wow.tools.local.Controllers
                 });
             }
 
-            var allListfileNames = CASC.GetAllListfileNames();
+            var allListfileNames = Listfile.GetAllNames();
 
             Func<KeyValuePair<int, string>, DiffEntry> toDiffEntry(string action)
             {
@@ -744,7 +744,7 @@ namespace wow.tools.local.Controllers
                         filename = file,
                         id = entry.Key.ToString(),
                         md5 = entry.Value.ToLower(),
-                        type = CASC.Types.TryGetValue(entry.Key, out string? type) ? type : (!string.IsNullOrEmpty(filename) ? Path.GetExtension(file).Replace(".", "").ToLower() : "unk"),
+                        type = Listfile.Types.TryGetValue(entry.Key, out string? type) ? type : (!string.IsNullOrEmpty(filename) ? Path.GetExtension(file).Replace(".", "").ToLower() : "unk"),
                         encryptedStatus = CASC.EncryptionStatuses.TryGetValue(entry.Key, out CASC.EncryptionStatus encStatus) ? encStatus.ToString() : ""
                     };
                 };
@@ -770,12 +770,12 @@ namespace wow.tools.local.Controllers
 
                 // DB2 files are special, we need to ignore the string in header (if current build, obviously)
                 var type = "unk";
-                if (CASC.Types.TryGetValue(entry, out string? value))
+                if (Listfile.Types.TryGetValue(entry, out string? value))
                     type = value;
 
                 if (type == "db2")
                 {
-                    if (CASC.Listfile.TryGetValue(entry, out var filename))
+                    if (Listfile.NameMap.TryGetValue(entry, out var filename))
                     {
                         var basename = Path.GetFileNameWithoutExtension(filename);
 
@@ -860,7 +860,7 @@ namespace wow.tools.local.Controllers
             var filedataids = CASC.GetSameFiles(chash).Order();
             foreach (var filedataid in filedataids)
             {
-                html += "<tr><td>" + filedataid + "</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
+                html += "<tr><td>" + filedataid + "</td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
             }
             html += "</table>";
 
@@ -878,7 +878,7 @@ namespace wow.tools.local.Controllers
             // Yes, generating HTML here is ugly but that's how the old system worked and I can't be arsed to redo it.
             var html = "<div style='float: right'><a class='btn btn-sm btn-primary' id='fileRelinkButton' onClick='relinkFile(" + filedataid + ")'>Recrawl file links</a></div><table style='clear: both' class='table table-striped'><thead><tr><th style='width:400px'></th><th></th></tr></thead>";
             html += "<tr><td>FileDataID</td><td>" + filedataid + "</td></tr>";
-            html += "<tr><td>Filename</td><td>" + (CASC.Listfile.TryGetValue(filedataid, out var filename) ? filename : "unknown/" + filedataid + ".unk") + "</td></tr>";
+            html += "<tr><td>Filename</td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "unknown/" + filedataid + ".unk") + "</td></tr>";
             html += "<tr><td>Lookup</td>";
 
             if (CASC.LookupMap.TryGetValue(filedataid, out var lookup))
@@ -886,7 +886,7 @@ namespace wow.tools.local.Controllers
                 var hasher = new Jenkins96();
                 html += "<td>" + lookup.ToString("X16");
 
-                if (CASC.Listfile.TryGetValue(filedataid, out var lookupFilename) && lookupFilename != "")
+                if (Listfile.NameMap.TryGetValue(filedataid, out var lookupFilename) && lookupFilename != "")
                 {
                     if (hasher.ComputeHash(lookupFilename) == lookup)
                     {
@@ -909,7 +909,7 @@ namespace wow.tools.local.Controllers
                 html += "<td>N/A</td></tr>";
             }
 
-            html += "<tr><td>Type</td><td>" + (CASC.Types.TryGetValue(filedataid, out string? value) ? value : "unk") + "</td></tr>";
+            html += "<tr><td>Type</td><td>" + (Listfile.Types.TryGetValue(filedataid, out string? value) ? value : "unk") + "</td></tr>";
 
             if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
             {
@@ -983,8 +983,8 @@ namespace wow.tools.local.Controllers
                 try
                 {
                     if (
-                        CASC.Types.TryGetValue(filedataid, out string? fileType) && fileType.Equals("db2", StringComparison.CurrentCultureIgnoreCase) &&
-                        CASC.Listfile.TryGetValue(filedataid, out var db2filename) && db2filename != ""
+                        Listfile.Types.TryGetValue(filedataid, out string? fileType) && fileType.Equals("db2", StringComparison.CurrentCultureIgnoreCase) &&
+                        Listfile.NameMap.TryGetValue(filedataid, out var db2filename) && db2filename != ""
                         )
                     {
                         var storage = await dbcManager.GetOrLoad(Path.GetFileNameWithoutExtension(db2filename), CASC.BuildName);
@@ -998,14 +998,14 @@ namespace wow.tools.local.Controllers
 
                 foreach (var key in usedKeyInfo.OrderBy(x => x.ID))
                 {
-                    html += "<tr><td>" + (WTLKeyService.HasKey(key.lookup) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "'>" + key.lookup.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + key.ID + "</td><td>" + key.FirstSeen + "</td><td>" + key.Description + " <small><i>(" + key.totalFiles  +" total files)</i></small></td></tr>";
+                    html += "<tr><td>" + (WTLKeyService.HasKey(key.lookup) ? "<i style='color: green' class='fa fa-unlock'></i>" : "<i style='color: red' class='fa fa-lock'></i>") + "</td><td><a style='font-family: monospace;' target='_BLANK' href='/files/#search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "'>" + key.lookup.ToString("X16").PadLeft(16, '0') + "</a></td><td>" + key.ID + "</td><td>" + key.FirstSeen + "</td><td>" + key.Description + " <small><i>(" + key.totalFiles + " total files)</i></small></td></tr>";
 
                     if (db2EncryptionMetaData.TryGetValue(key.lookup, out var encryptedIDs))
                     {
                         html += "<tr><td colspan='4'>&nbsp;</td><td style='padding-left: 20px;'><b>" + encryptedIDs.Length;
                         if (WTLKeyService.HasKey(key.lookup))
                         {
-                            html += " <a href='/dbc/?dbc=" + Path.GetFileNameWithoutExtension(CASC.Listfile[filedataid]).ToLower() + "&build=" + CASC.BuildName + "#page=1&search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "' target='_BLANK' class='text-success'>available</a>";
+                            html += " <a href='/dbc/?dbc=" + Path.GetFileNameWithoutExtension(Listfile.NameMap[filedataid]).ToLower() + "&build=" + CASC.BuildName + "#page=1&search=encrypted%3A" + key.lookup.ToString("X16").PadLeft(16, '0') + "' target='_BLANK' class='text-success'>available</a>";
                         }
                         else
                         {
@@ -1035,7 +1035,7 @@ namespace wow.tools.local.Controllers
                 {
                     if (CASC.CHashToFDID.TryGetValue(fileVersion.contentHash, out var fdidsWithChash) && fdidsWithChash.Contains(filedataid))
                     {
-                        var dlFilename = CASC.Listfile.TryGetValue(filedataid, out var listfileName) ? Path.GetFileName(listfileName) : filedataid + ".unk";
+                        var dlFilename = Listfile.NameMap.TryGetValue(filedataid, out var listfileName) ? Path.GetFileName(listfileName) : filedataid + ".unk";
                         html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><a href='/casc/fdid?fileDataID=" + filedataid + "&filename=" + HttpUtility.UrlEncode(dlFilename) + "' target='_BLANK' download>Download</a></td></tr>";
                     }
                     else
@@ -1067,12 +1067,12 @@ namespace wow.tools.local.Controllers
                 html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
                 foreach (var linkedFile in linkedParentFiles)
                 {
-                    html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (CASC.Listfile.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (CASC.Types.ContainsKey((int)linkedFile.fileDataID) ? CASC.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
+                    html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                 }
                 html += "</table></td></tr></table>";
             }
 
-            if (CASC.Types.TryGetValue(filedataid, out string? type) && (type == "m2" || type == "wmo"))
+            if (Listfile.Types.TryGetValue(filedataid, out string? type) && (type == "m2" || type == "wmo"))
             {
                 if (!Linker.existingParents.Contains(filedataid))
                 {
@@ -1125,7 +1125,7 @@ namespace wow.tools.local.Controllers
                     html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
                     foreach (var linkedFile in linkedChildFiles)
                     {
-                        html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (CASC.Listfile.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (CASC.Types.ContainsKey((int)linkedFile.fileDataID) ? CASC.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
+                        html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                     }
                     html += "</table></td></tr></table>";
                 }
@@ -1161,7 +1161,7 @@ namespace wow.tools.local.Controllers
             html += "<tr><td colspan='2'><table class='table table-sm'>";
             html += "<tr><th>ID</th><th>Filename</th></tr>";
 
-            var listfileAsKeys = CASC.Listfile.Keys.ToList();
+            var listfileAsKeys = Listfile.NameMap.Keys.ToList();
             listfileAsKeys.Sort();
             var fileDataIDPosition = listfileAsKeys.IndexOf(filedataid);
 
@@ -1172,7 +1172,7 @@ namespace wow.tools.local.Controllers
                     continue;
 
                 var fdid = listfileAsKeys[idx];
-                if (CASC.Listfile.TryGetValue(fdid, out var listfileName))
+                if (Listfile.NameMap.TryGetValue(fdid, out var listfileName))
                     if (fdid == filedataid)
                         html += "<tr><td style='color: red'><b>" + fdid + "</b></td><td style='color: red'><b>" + listfileName + "</b></td></tr>";
                     else
@@ -1214,7 +1214,7 @@ namespace wow.tools.local.Controllers
               };
             ";
 
-            if (!CASC.Types.TryGetValue(fileDataID, out var fileType))
+            if (!Listfile.Types.TryGetValue(fileDataID, out var fileType))
                 fileType = "unk";
 
             var hasActiveTab = false;
@@ -1300,7 +1300,7 @@ namespace wow.tools.local.Controllers
             {
                 var validFileToJSON = true;
 
-                if (!CASC.Listfile.TryGetValue(fileDataID, out var filename))
+                if (!Listfile.NameMap.TryGetValue(fileDataID, out var filename))
                     filename = "";
 
                 if (fileType == "wdt" && !string.IsNullOrEmpty(filename))
@@ -1444,7 +1444,7 @@ namespace wow.tools.local.Controllers
             if (!Directory.Exists("temp/diffs/" + from))
                 Directory.CreateDirectory("temp/diffs/" + from);
 
-            if (!CASC.Types.TryGetValue(fileDataID, out var fileType))
+            if (!Listfile.Types.TryGetValue(fileDataID, out var fileType))
                 fileType = "txt";
 
             var oldFile = CASC.GetFileByID((uint)fileDataID, from);
@@ -1499,7 +1499,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string RelinkFile(uint fileDataID)
         {
-            if (CASC.Types.TryGetValue((int)fileDataID, out var fileType))
+            if (Listfile.Types.TryGetValue((int)fileDataID, out var fileType))
             {
                 if (fileType == "m2")
                     Linker.LinkM2(fileDataID, true);
@@ -1573,8 +1573,8 @@ namespace wow.tools.local.Controllers
         public void ClearFileTypes()
         {
             System.IO.File.Delete("cachedUnknowns.txt");
-            CASC.Types.Clear();
-            CASC.TypeMap.Clear();
+            Listfile.Types.Clear();
+            Listfile.TypeMap.Clear();
         }
 
         [Route("checkFiles")]
@@ -1586,7 +1586,7 @@ namespace wow.tools.local.Controllers
                 rawContent = await reader.ReadToEndAsync();
 
             var filenames = rawContent.Split("\n").ToList();
-            var unknownFDIDs = CASC.Listfile.Where(x => x.Value == "").Select(x => x.Key).ToList();
+            var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
             var reverseLookup = CASC.LookupMap.ToDictionary(x => x.Value, x => x.Key);
             var hasher = new Jenkins96();
             var results = new List<string>();
@@ -1606,7 +1606,7 @@ namespace wow.tools.local.Controllers
         public string CheckFilesFromFile(string file = "")
         {
             var filenames = System.IO.File.ReadAllLines(file);
-            var unknownFDIDs = CASC.Listfile.Where(x => x.Value == "").Select(x => x.Key).ToList();
+            var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
             var reverseLookup = CASC.LookupMap.ToDictionary(x => x.Value, x => x.Key);
             var hasher = new Jenkins96();
             var results = new List<string>();
@@ -1625,14 +1625,14 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool FileCheck(string search)
         {
-            return CASC.Listfile.Where(x => x.Value.Equals(search, StringComparison.CurrentCultureIgnoreCase)).Any();
+            return Listfile.NameMap.Where(x => x.Value.Equals(search, StringComparison.CurrentCultureIgnoreCase)).Any();
         }
 
         [Route("directoryAC")]
         [HttpGet]
         public List<string> DirectoryAC(string search)
         {
-            return CASC.Listfile.Values
+            return Listfile.NameMap.Values
                 .Where(x => !string.IsNullOrEmpty(x) && x.StartsWith(search, StringComparison.CurrentCultureIgnoreCase) && (x.ToLower().EndsWith(".m2") || x.ToLower().EndsWith(".wmo")))
                 .Select(x => x.Replace('\\', '/'))
                 .DistinctBy(x => x.ToLower()).OrderByDescending(x => x).Take(20).ToList();
@@ -1646,7 +1646,7 @@ namespace wow.tools.local.Controllers
 
             var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat" };
 
-            if (!(CASC.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
+            if (!(Listfile.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
                 return "Unsupported file type or file not found";
             }
@@ -1737,7 +1737,7 @@ namespace wow.tools.local.Controllers
                     //var extractDir = Path.Combine("extract", "bls", fileDataID.ToString());
                     //var baseName = fileDataID.ToString();
 
-                    //if (CASC.Listfile.TryGetValue((int)fileDataID, out var shaderFileName) && !string.IsNullOrEmpty(shaderFileName))
+                    //if (Listfile.NameMap.TryGetValue((int)fileDataID, out var shaderFileName) && !string.IsNullOrEmpty(shaderFileName))
                     //{
                     //    baseName = fileDataID.ToString() + " (" + shaderFileName.Replace("shaders/", "").Replace(".bls", "").Replace("/", "-") + ")";
                     //    extractDir = Path.Combine("extract", "bls", baseName);

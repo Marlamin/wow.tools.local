@@ -48,7 +48,7 @@ namespace wow.tools.local.Controllers
         static void InitListfile()
         {
             var FullListfile = new Dictionary<int, string>();
-            foreach (var line in CASC.GetListfileLines())
+            foreach (var line in Listfile.GetLines())
             {
                 if (string.IsNullOrEmpty(line))
                     continue;
@@ -59,7 +59,7 @@ namespace wow.tools.local.Controllers
                 FullListfile.Add(fdid, splitLine[1]);
             }
 
-            foreach (var entry in CASC.Types)
+            foreach (var entry in Listfile.Types)
             {
                 if (FullListfile.ContainsKey(entry.Key))
                     continue;
@@ -97,7 +97,7 @@ namespace wow.tools.local.Controllers
         [Route("singleFile")]
         public string SingleFile(int id, string name)
         {
-            CASC.Listfile[id] = name;
+            Listfile.NameMap[id] = name;
             Namer.placeholderNames.Remove(id);
             Namer.ForceRename.Add((uint)id);
             Namer.AddNewFile((uint)id, name, true, true);
@@ -117,11 +117,11 @@ namespace wow.tools.local.Controllers
                     string.IsNullOrEmpty(name)
                 )
                 {
-                    CASC.PlaceholderFiles.Add(id);
+                    Listfile.PlaceholderFiles.Add(id);
                 }
                 else
                 {
-                    CASC.PlaceholderFiles.Remove(id);
+                    Listfile.PlaceholderFiles.Remove(id);
                 }
             }
             else if (name.ToLower().EndsWith(".wmo"))
@@ -139,7 +139,7 @@ namespace wow.tools.local.Controllers
             var result = Namer.NameSingleVO(id, name);
 
             if (!string.IsNullOrWhiteSpace(result))
-                CASC.Listfile[id] = result;
+                Listfile.NameMap[id] = result;
 
             return result;
         }
