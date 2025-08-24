@@ -332,9 +332,9 @@
                                     // apply the diff html information
                                     switch (diff.op) {
                                         case "Added":
-                                            return '<ins class="diff-added">' + columnRender(row.row, field, diff.currentvalue, currentDBC, newBuild, resp2[0], fkCols) + '</ins>';
+                                            return '<ins class="diff-added">' + columnRender(row.row, field, diff.currentvalue, currentDBC, newBuild, resp2[0], fkCols, 0, conditionalFKs) + '</ins>';
                                         case "Removed":
-                                            return '<del class="diff-removed">' + columnRender(row.row, field, diff.previousvalue, currentDBC, newBuild, resp2[0], fkCols) + '</del>';
+                                            return '<del class="diff-removed">' + columnRender(row.row, field, diff.previousvalue, currentDBC, newBuild, resp2[0], fkCols, 0, conditionalFKs) + '</del>';
                                         case "Replaced":
                                             {
                                                 if (!isNaN(diff.previousvalue) && !isNaN(diff.currentvalue)) {
@@ -392,13 +392,6 @@
                                     $(ele).addClass(row.op.toLowerCase()); // apply the formatting class
                                 }
                             },
-                    });
-                    $.ajax({
-                        "url": dataURL,
-                        "success": function (json) {
-                            
-                        },
-                        "dataType": "json"
                     });
                 });
             }
