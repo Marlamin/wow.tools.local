@@ -188,26 +188,15 @@ function dec2hex(str, big = false){
     }
 }
 
-function BGRA2RGBA(color){
-    var hex = dec2hex(color).padStart(6, '0');
+// Based on Dorovon's color conversion
+function BGRA2RGBA(bgraColor) {
+    let color = parseInt(bgraColor, 10);
 
-    for (var bytes = [], c = 0; c < hex.length; c += 2)
-    {
-        bytes.push(parseInt(hex.substr(c, 2), 16));
+    if (color < 0) {
+        color += 0x100000000;
     }
 
-    for (let i = 0; i < 4; i++){
-        if (bytes[i] == undefined){
-            bytes[i] = 0;
-        }
-    }
-
-    let b = bytes[2];
-    let g = bytes[1];
-    let r = bytes[0];
-    let a = 255;
-
-    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+    return "#" + color.toString(16).padStart(8, "0").slice(2, 8);
 }
 
 function getFlagDescriptions(db, field, value, targetFlags = 0){
