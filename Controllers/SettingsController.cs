@@ -10,22 +10,22 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public List<WTLSetting> List()
         {
-            return SettingsManager.Settings.Values.ToList();
+            return SettingsManager.GetPersistentSettings();
         }
 
         [Route("save")]
         [HttpPost]
         public IActionResult Save([FromForm] Dictionary<string, string> newSettings)
         {
-            foreach (var setting in SettingsManager.Settings)
+            foreach (var setting in SettingsManager.GetPersistentSettings())
             {
                 if (newSettings.TryGetValue(setting.Key, out var newSetting) && newSetting != "null" && !string.IsNullOrEmpty(newSetting))
                 {
                     if(SettingsManager.ValidateSetting(setting.Key, newSetting).Item1)
-                        setting.Value.Value = newSetting;
+                        setting.Value = newSetting;
                 }
                 else
-                    setting.Value.Value = setting.Value.DefaultValue;
+                    setting.Value = setting.DefaultValue;
             }
 
             // Save the updated settings to the config file

@@ -12,6 +12,7 @@ namespace wow.tools.local
         public required string Type { get; init; } // e.g. "string", "bool", "int", etc.
         public required string DefaultValue { get; init; } // default value for the setting
         public required string Value { get; set; }
+        public bool Ephemeral { get; set; } // ephemeral settings shouldn't persist between sessions
     };
 
 
@@ -34,7 +35,9 @@ namespace wow.tools.local
             {"preferHighResTextures", new WTLSetting { Key = "preferHighResTextures", Value = "false", Description = "Whether to prefer high-res textures when available (Classic only).", Type = "bool", DefaultValue = "false" }},
             {"useTACTSharp", new WTLSetting { Key = "useTACTSharp", Value = "false", Description = "Whether to use TACTSharp for TACT operations. Uses CASCLib if disabled.", Type = "bool", DefaultValue = "true" }},
             {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDN hosts to use for downloading files, separated by commas.", Type = "string", DefaultValue = string.Empty }},
-        };
+            {"buildConfigFile", new WTLSetting { Key = "buildConfigFile", Value = string.Empty, Description = "Path to a build config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
+			{"cdnConfigFile", new WTLSetting { Key = "cdnConfigFile", Value = string.Empty, Description = "Path to a CDN config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }}
+		};
 
         private static CASCLib.LocaleFlags cascLocale;
         private static RootInstance.LocaleFlags tactLocale;
@@ -50,9 +53,11 @@ namespace wow.tools.local
         public static string CDNFolder { get => Settings["cdnFolder"].Value; set => Settings["cdnFolder"].Value = value; }
         public static string WoWProduct { get => Settings["wowProduct"].Value; set => Settings["wowProduct"].Value = value; }
         public static string Region { get => Settings["region"].Value; set => Settings["region"].Value = value; }
+        public static string BuildConfigFile { get => Settings["buildConfigFile"].Value; set => Settings["buildConfigFile"].Value = value; }
+        public static string CDNConfigFile { get => Settings["cdnConfigFile"].Value; set => Settings["cdnConfigFile"].Value = value; }
 
-        // Bools
-        public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
+		// Bools
+		public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
         public static bool PreferHighResTextures { get => bool.Parse(Settings["preferHighResTextures"].Value); set => Settings["preferHighResTextures"].Value = value.ToString().ToLower(); }
         public static bool UseTACTSharp { get => bool.Parse(Settings["useTACTSharp"].Value); set => Settings["useTACTSharp"].Value = value.ToString().ToLower(); }
 
@@ -136,8 +141,8 @@ namespace wow.tools.local
             var configPath = Path.Combine(Environment.CurrentDirectory, "config.json");
             dynamic newConfigJson = new System.Dynamic.ExpandoObject();
             newConfigJson.config = new Dictionary<string, string>();
-            foreach (var setting in Settings)
-                newConfigJson.config[setting.Key] = setting.Value.Value;
+            foreach (var setting in GetPersistentSettings())
+                newConfigJson.config[setting.Key] = setting.Value;
 
             string json = System.Text.Json.JsonSerializer.Serialize(newConfigJson, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(configPath, json);
@@ -251,7 +256,7 @@ namespace wow.tools.local
                         _value = args[_nextIndex];
                         i++; // then skip the next item
                     }
-                    HandleFlag(_flag, _value);
+					HandleFlag(_flag, _value);
                     continue;
                 }
             }
@@ -345,7 +350,17 @@ namespace wow.tools.local
                         return (true, string.Empty);
                     else
                         return (false, "Value must be a boolean (true/false)");
-            }
+                case "buildConfigFile":
+                    if (File.Exists(value))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Specified build config file does not exist");
+				case "cdnConfigFile":
+					if (File.Exists(value))
+						return (true, string.Empty);
+					else
+						return (false, "Specified CDN config file does not exist");
+			}
 
             return (true, "Not checked");
         }
@@ -387,6 +402,12 @@ namespace wow.tools.local
 
                 WoWFolder = wowPath;
             }
+        }
+
+        public static List<WTLSetting> GetPersistentSettings()
+        {
+            // don't include ephemeral settings in the persistent settings
+            return Settings.Values.Where(x => !x.Ephemeral).ToList();
         }
     }
 }

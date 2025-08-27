@@ -82,13 +82,23 @@ namespace wow.tools.local.Services
             if (!string.IsNullOrEmpty(product))
                 buildInstance.Settings.Product = product;
 
-            if (File.Exists("fakebuildconfig"))
-                buildInstance.Settings.BuildConfig = "fakebuildconfig";
+            string? overrideBuildConfig = null;
+            if ((File.Exists(SettingsManager.BuildConfigFile) && (overrideBuildConfig = SettingsManager.BuildConfigFile) != null) ||
+                (File.Exists("fakebuildconfig") && (overrideBuildConfig = "fakebuildconfig") != null))
+            {
+                Console.WriteLine("Using override build config: " + overrideBuildConfig);
+                buildInstance.Settings.BuildConfig = overrideBuildConfig;
+            }
 
-            if (File.Exists("fakecdnconfig"))
-                buildInstance.Settings.CDNConfig = "fakecdnconfig";
+			string? overrideCDNConfig = null;
+			if ((File.Exists(SettingsManager.CDNConfigFile) && (overrideCDNConfig = SettingsManager.CDNConfigFile) != null) ||
+				(File.Exists("fakecdnconfig") && (overrideCDNConfig = "fakecdnconfig") != null))
+			{
+				Console.WriteLine("Using override CDN config: " + overrideCDNConfig);
+				buildInstance.Settings.CDNConfig = overrideCDNConfig;
+			}
 
-            buildInstance.Settings.Locale = SettingsManager.TACTLocale;
+			buildInstance.Settings.Locale = SettingsManager.TACTLocale;
             buildInstance.Settings.Region = SettingsManager.Region;
 
             if (SettingsManager.PreferHighResTextures)
