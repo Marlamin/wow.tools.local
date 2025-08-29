@@ -437,8 +437,7 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
         returnVar = "<span style='cursor: help; border-bottom: 1px dotted;' data-tooltip='wex' data-build= '" + build + "' data-id='" + columnValue + "'>" + columnValue + "</span>";
     }
 
-    if ("relationToColumns" in json && columnName in json["relationsToColumns"] &&
-        columnWithTable != "spell.ID") {
+    if ("relationsToColumns" in json && columnName in json["relationsToColumns"] && columnWithTable != "spell.ID") {
         returnVar = " <a data-bs-toggle='modal' href='' style='cursor: help; border-bottom: 1px solid;' data-bs-target='#foreignKeySearchModal' onClick='fkDBSearch(\"" + tableName + "\", \"" + columnName + "\", \"" + columnValue + "\")'>" + columnValue + "</a>";
     }
 
