@@ -327,6 +327,9 @@ namespace wow.tools.local.Services
             if (buildToVersion.ContainsKey(buildNumber))
                 return;
 
+            if(buildConfig == "fakebuildconfig")
+                return; // ignore fake build configs
+
             buildToVersion.Add(buildNumber, version);
 
             using (var cmd = dbConn.CreateCommand())
