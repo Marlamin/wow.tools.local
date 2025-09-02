@@ -1696,7 +1696,22 @@ namespace wow.tools.local.Controllers
                     return JsonConvert.SerializeObject(wmo, Formatting.Indented, new StringEnumConverter());
                 case "adt":
                     var adtReader = new ADTReader();
-                    adtReader.LoadADT(MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing, fileDataID, 0, 0, false);
+
+                    uint obj0FDID = 0;
+                    uint tex0FDID = 0;
+
+                    if(Listfile.NameMap.TryGetValue((int)fileDataID, out var adtName))
+                    {
+                        obj0FDID = Listfile.NameMap.Select(x => (Key: x.Key, Value: x.Value))
+                            .Where(x => !string.IsNullOrEmpty(x.Value) && x.Value.EndsWith("_obj0.adt") && x.Value.StartsWith(adtName.Replace(".adt", "")))
+                            .Select(x => (uint)x.Key).FirstOrDefault();
+
+                        tex0FDID = Listfile.NameMap.Select(x => (Key: x.Key, Value: x.Value))
+                            .Where(x => !string.IsNullOrEmpty(x.Value) && x.Value.EndsWith("_tex0.adt") && x.Value.StartsWith(adtName.Replace(".adt", "")))
+                            .Select(x => (uint)x.Key).FirstOrDefault();
+                    }
+
+                    adtReader.LoadADT(MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing, fileDataID, obj0FDID, tex0FDID, true);
                     for (var i = 0; i < adtReader.adtfile.chunks.Length; i++)
                     {
                         adtReader.adtfile.chunks[i].vertices = new WoWFormatLib.Structs.ADT.MCVT();
