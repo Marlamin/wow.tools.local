@@ -223,7 +223,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             mimeType = "audio/ogg";
         }
         html += "<audio autoplay=\"\" controls=\"\"><source src=\"" + url + "\" type=\"" + mimeType + "\"></audio>";
-    } else if (type == "m2" || type == "wmo" || type == "bls" || type == "gfat" || type == "m3") {
+    } else if (type == "m2" || type == "wmo" || type == "bls" || type == "gfat" || type == "m3" || type == "adt") {
         html += "<ul class=\"nav nav-tabs\" role=\"tablist\">";
         if (type == "m2" || type == "wmo" || type == "m3") {
             if (type == "m2" || type == "wmo") {
@@ -235,7 +235,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
                 html += "<li class=\"nav-item\"><a class=\"nav-link \" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
 
             }
-        } else if (type == "bls" || type == "gfat") {
+        } else if (type == "bls" || type == "gfat" || type == "adt") {
             html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
         }
 
@@ -262,7 +262,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             html += "<div class=\"tab-pane\" id=\"json\" role=\"tabpanel\" aria-labelledby=\"json-tab\">";
             html += "<pre style='max-height: 80vh' id='jsonHolder'></pre>";
             html += "</div>";
-        } else if (type == "bls" || type == "gfat") {
+        } else if (type == "bls" || type == "gfat" || type == "adt") {
             html += "<div class=\"tab-pane active\" id=\"json\" role=\"tabpanel\" aria-labelledby=\"json-tab\">";
             html += "<pre style='max-height: 80vh' id='jsonHolder'></pre>";
             html += "</div>";
