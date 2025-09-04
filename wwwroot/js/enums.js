@@ -920,6 +920,7 @@ const spellEffectName = {
     315: 'LEARN_TRANSMOG_APPEARANCE_FROM_ITEM_MOD_APPEARANCE_GROUP',
     316: 'KILL_CREDIT_LABEL_1',
     317: 'KILL_CREDIT_LABEL_2',
+    324: 'LEARN_DECOR',
     // 318: Damage with dynamic flight spells?
     // 333: Talking head?
     // 337: DRIVE related
@@ -6298,7 +6299,8 @@ conditionalFKs.set("spelleffect.EffectMiscValue[0]",
         ['spelleffect.Effect=134','creature::ID'],
         ['spelleffect.Effect=195','spell::ID'],
         ['spelleffect.Effect=269','itembonuslistgroup::ID'],
-        ['spelleffect.Effect=279','garrtalent::ID'],
+        ['spelleffect.Effect=279', 'garrtalent::ID'],
+        ["spelleffect.Effect=324", "housedecor::ID"]
     ]
 );
 
