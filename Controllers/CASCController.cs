@@ -164,22 +164,22 @@ namespace wow.tools.local.Controllers
 
             if (remote)
             {
-                var ribbitClient = new Ribbit.Protocol.Client("us.version.battle.net", 1119);
-                RibbitCache["v1/summary"] = ribbitClient.Request("v1/summary").ToString();
+                var httpClient = new HttpClient();
+                RibbitCache["v2/summary"] = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/v2/summary").Result;
 
                 List<(string buildConfig, string cdnConfig)> availableRemoteBuilds = new();
 
-                var builds = new Ribbit.Parsing.BPSV(RibbitCache["v1/summary"]);
+                var builds = new Ribbit.Parsing.BPSV(RibbitCache["v2/summary"]);
                 foreach (var product in builds.data)
                 {
                     // Skip products with no versions
                     if (product[2] != "" || !product[0].StartsWith("wow"))
                         continue;
 
-                    var endPoint = "v1/products/" + product[0] + "/versions";
+                    var endPoint = "v2/products/" + product[0] + "/versions";
                     if (!RibbitCache.TryGetValue(endPoint, out var cachedResult))
                     {
-                        cachedResult = ribbitClient.Request(endPoint).ToString();
+                        cachedResult = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/" + endPoint).Result;
                         RibbitCache[endPoint] = cachedResult;
                     }
 
