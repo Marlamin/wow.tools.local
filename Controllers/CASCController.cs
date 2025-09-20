@@ -211,7 +211,7 @@ namespace wow.tools.local.Controllers
                     result.data = result.data.OrderByDescending(x => x[1]).ToList();
                 }
 
-                if (CASC.IsOnline && !availableRemoteBuilds.Any(x => x.buildConfig == CASC.buildInstance!.Settings.BuildConfig && x.cdnConfig == CASC.buildInstance!.Settings.CDNConfig))
+                if (CASC.IsOnline && CASC.IsTACTSharpInit && !availableRemoteBuilds.Any(x => x.buildConfig == CASC.buildInstance!.Settings.BuildConfig && x.cdnConfig == CASC.buildInstance!.Settings.CDNConfig))
                 {
                     var isActive = true;
 
