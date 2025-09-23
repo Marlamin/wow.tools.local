@@ -927,13 +927,13 @@ namespace wow.tools.local.Controllers
 
                     html += "</td></tr>";
 
-                    html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out long size) ? size + " bytes" : "N/A") + " (for preferred version)</td></tr>";
+                    html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out var size) ? size + " bytes" : "N/A") + " (for preferred version)</td></tr>";
                 }
                 else
                 {
                     var cKey = Convert.ToHexStringLower(cKeyBytes);
                     html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
-                    html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out long size) ? size + " bytes" : "N/A") + "</td></tr>";
+                    html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out var size) ? size + " bytes" : "N/A") + "</td></tr>";
                 }
 
             }

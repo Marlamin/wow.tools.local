@@ -214,7 +214,7 @@ namespace wow.tools.local.Controllers
             {
                 var filedataid = file.Key;
 
-                long size = 0;
+                uint size = 0;
                 List<byte[]> cKeys = [];
                 if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
                 {
@@ -273,7 +273,7 @@ namespace wow.tools.local.Controllers
                     continue;
 
                 var filedataid = file.Key;
-                long size = 0;
+                uint size = 0;
                 List<byte[]> cKeys = [];
                 if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
                 {

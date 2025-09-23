@@ -31,7 +31,7 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<int, byte[]> FDIDToCHash = [];
         public static readonly Dictionary<int, HashSet<string>> FDIDToCHashSet = [];
         public static readonly Dictionary<int, List<byte[]>> FDIDToExtraCHashes = [];
-        public static readonly Dictionary<string, long> CHashToSize = [];
+        public static readonly Dictionary<string, uint> CHashToSize = [];
         public static Dictionary<int, List<Version>> VersionHistory = [];
         public static List<AvailableBuild> AvailableBuilds = [];
         public static List<int> OtherLocaleOnlyFiles = [];
@@ -419,7 +419,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                 if (eKeys != false)
                 {
                     lock (chashLock)
-                        CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (long)eKeys.DecodedFileSize);
+                        CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (uint)eKeys.DecodedFileSize);
 
                     var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
                     var matches = eKeyRegex().Matches(eSpec.eSpec);
@@ -1102,7 +1102,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                     {
                         if (cascHandler.Encoding.GetEntry(chash.FromHexString().ToMD5(), out var eKey))
                         {
-                            CHashToSize.Add(chash, eKey.Size);
+                            CHashToSize.Add(chash, (uint)eKey.Size);
                         }
                     }
                 }
@@ -1161,7 +1161,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                         var eKeys = buildInstance.Encoding!.FindContentKey(Convert.FromHexString(chash));
                         if (eKeys)
                             lock (CHashLock)
-                                CHashToSize.Add(chash, (long)eKeys.DecodedFileSize);
+                                CHashToSize.Add(chash, (uint)eKeys.DecodedFileSize);
                     });
                 }
                 else
