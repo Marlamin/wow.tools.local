@@ -6869,6 +6869,8 @@ let colorFields = new Array();
 colorFields.push("chrcustomizationchoice.Color");
 colorFields.push("chrcustomizationchoice.SwatchColor[0]");
 colorFields.push("chrcustomizationchoice.SwatchColor[1]");
+colorFields.push("dyecolor.ColorA");
+colorFields.push("dyecolor.ColorB");
 colorFields.push("lightdata.DirectColor");
 colorFields.push("lightdata.AmbientColor");
 colorFields.push("lightdata.SkyTopColor");

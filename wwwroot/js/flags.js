@@ -334,6 +334,18 @@ const holidayFlags = {
     0x40: 'BEGIN_EVENT_ONLY_ON_STAGE_CHANGE'
 }
 
+const houseDecorFlags = {
+    0x1: 'Exterior',
+    0x2: 'Interior',
+    0x4: 'Unlimited',
+    0x8: 'NonRemovable',
+    0x10: 'AllowOnPedestal',
+    0x20: 'CreateAsGameObjectProxy',
+    0x40: 'Deprecated',
+    0x80: 'HiddenInCatalog',
+    0x100: 'PreventRemovalFromHouseChest'
+}
+
 const lfgFlags = {
     0x1: 'XREALM',
     0x2: 'GLOBAL',
@@ -2794,6 +2806,7 @@ window.flagMap.set("garrsite.Flags", garrSiteFlags);
 window.flagMap.set("gemproperties.Type", socketColors);
 window.flagMap.set("globalstrings.Flags", globalstringsFlags);
 window.flagMap.set("holidays.Flags", holidayFlags);
+window.flagMap.set("housedecor.Flags", houseDecorFlags);
 window.flagMap.set("itembonuslistgroupentry.Flags", itemBonusListGroupEntryFlags);
 window.flagMap.set("itemdisplayinfo.Flags", itemDisplayInfoFlags);
 window.flagMap.set("itemset.SetFlags", itemSetSetFlags);
