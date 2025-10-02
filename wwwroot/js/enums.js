@@ -35,6 +35,7 @@ const mapTypes = {
     4: 'Arena Battlefield',
     5: 'Scenario',
     7: 'Housing',
+    8: 'Neighborhood',
 }
 
 // 585
