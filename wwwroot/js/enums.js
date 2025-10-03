@@ -5918,6 +5918,11 @@ const roomComponentType = {
     6: "Doorway",
 }
 
+const roomComponentConnectionType = {
+    0: "None",
+    1: "All",
+}
+
 // Regular enums
 let enumMap = new Map();
 enumMap.set("animationdata.ID", animationNames);
@@ -6081,6 +6086,7 @@ enumMap.set("lfgdungeons.TypeID", lfgType);
 enumMap.set("lfgdungeons.Subtype", lfgSubType);
 enumMap.set("profession.ProfessionEnumValue", profession);
 enumMap.set("roomcomponent.Type", roomComponentType);
+enumMap.set("roomcomponent.ConnectionType", roomComponentConnectionType);
 
 /* Race IDs */
 enumMap.set("chrracexchrmodel.ChrRacesID", tempChrRaceIDEnum);
