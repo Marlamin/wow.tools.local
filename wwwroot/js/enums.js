@@ -5908,6 +5908,16 @@ const itemDisplayType =
     15: "Holdable"
 };
 
+const roomComponentType = {
+    0: "None",
+    1: "Wall",
+    2: "Floor",
+    3: "Ceiling",
+    4: "Stairs",
+    5: "Pillar",
+    6: "Doorway",
+}
+
 // Regular enums
 let enumMap = new Map();
 enumMap.set("animationdata.ID", animationNames);
@@ -6070,6 +6080,7 @@ enumMap.set("characterloadout.Purpose", characterLoadoutPurpose);
 enumMap.set("lfgdungeons.TypeID", lfgType);
 enumMap.set("lfgdungeons.Subtype", lfgSubType);
 enumMap.set("profession.ProfessionEnumValue", profession);
+enumMap.set("roomcomponent.Type", roomComponentType);
 
 /* Race IDs */
 enumMap.set("chrracexchrmodel.ChrRacesID", tempChrRaceIDEnum);
