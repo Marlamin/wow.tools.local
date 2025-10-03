@@ -346,6 +346,13 @@ const houseDecorFlags = {
     0x100: 'PreventRemovalFromHouseChest'
 }
 
+const houseRoomFlags = {
+    0x1: 'BaseRoom',
+    0x2: 'HasStairs',
+    0x4: 'UnlockedByDefault',
+    0x8: 'HasCustomGeometry',
+}
+
 const lfgFlags = {
     0x1: 'XREALM',
     0x2: 'GLOBAL',
@@ -2807,6 +2814,7 @@ window.flagMap.set("gemproperties.Type", socketColors);
 window.flagMap.set("globalstrings.Flags", globalstringsFlags);
 window.flagMap.set("holidays.Flags", holidayFlags);
 window.flagMap.set("housedecor.Flags", houseDecorFlags);
+window.flagMap.set("houseroom.Flags", houseRoomFlags);
 window.flagMap.set("itembonuslistgroupentry.Flags", itemBonusListGroupEntryFlags);
 window.flagMap.set("itemdisplayinfo.Flags", itemDisplayInfoFlags);
 window.flagMap.set("itemset.SetFlags", itemSetSetFlags);
