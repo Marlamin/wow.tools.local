@@ -6086,6 +6086,7 @@ enumMap.set("lfgdungeons.TypeID", lfgType);
 enumMap.set("lfgdungeons.Subtype", lfgSubType);
 enumMap.set("profession.ProfessionEnumValue", profession);
 enumMap.set("roomcomponent.Type", roomComponentType);
+enumMap.set("roomcomponenttexture.RoomComponentType", roomComponentType);
 enumMap.set("roomcomponent.ConnectionType", roomComponentConnectionType);
 
 /* Race IDs */
