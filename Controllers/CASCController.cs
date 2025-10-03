@@ -1426,6 +1426,14 @@ namespace wow.tools.local.Controllers
             if (file == null)
                 return NotFound();
 
+            // check encrypted
+            var first4 = new byte[4];
+            file.ReadExactly(first4, 0, 4);
+            if (first4[0] == 0 && first4[1] == 0 && first4[2] == 0 && first4[3] == 0)
+                return NotFound();
+
+            file.Position = 0;
+
             var blp = new BLPSharp.BLPFile(file);
             var pixels = blp.GetPixels(0, out var w, out var h);
             var image = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(pixels, w, h);
