@@ -22,7 +22,7 @@ Optionally, you may also start WTL from the command line, providing arguments to
 - `-wowFolder` - Path to your WoW installation
 - `-product` - Product to load
 - `-dbcFolder` - Path to your DBCs folder
-- `-dbdFolder` - Path to your WoWDBDefs folder
+- `-definitionDir` - Path to your WoWDBDefs folder
 - `-listFileURL` - URL to fetch the Listfile
 - `-tactKeyURL` - URL to fetch TactKeys
 - `-region` - Region
