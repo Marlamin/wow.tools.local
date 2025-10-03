@@ -95,12 +95,7 @@ namespace wow.tools.local
             string configPath = Path.Combine(cwd, "config.json");
             bool hasConfig = File.Exists(configPath);
             if (!hasConfig && File.Exists(Path.Combine(appDir, "config.json")))
-            {
                 Environment.CurrentDirectory = appDir; // set the current directory to the app's directory if config.json is there
-                cwd = Directory.GetCurrentDirectory();
-                configPath = Path.Combine(Environment.CurrentDirectory, "config.json");
-                hasConfig = true;
-            }
 
             if (hasConfig)
             {
