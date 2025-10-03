@@ -219,6 +219,7 @@
                             <div class="col-md-12">
                                 <h4>M2 naming prefixes</h4>
                                 <div class="row">
+                                    <!--
                                     <div class="col-md-4">
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/10XP_')">10 Generic</button> <br />
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Highlands/10HGL_Highlands_')">10 Highlands</button> <br />
@@ -228,6 +229,7 @@
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dungeon/10DU_Dungeon_')">10 Dungeon</button> <br />
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Tuskarr/10TS_Tuskarr_')">10 Tuskarr</button> <br />
                                     </div>
+                                    -->
                                     <div class="col-md-4">
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Volcanic/10CAN_Volcanic_')">10 Volcanic</button> <br />
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Djaradin/10DJ_Djaradin_')">10 Djaradin</button> <br />
@@ -249,7 +251,15 @@
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Ethereal/11ET_Ethereal_')">11 Ethereal</button> <br />
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Broker/11BO_Brokers_')">11 Brokers</button> <br />
                                     </div>
-                                </div>
+                                    <div class="col-md-4">
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/12XP_')">12 Generic</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/PlayerHousing/12PH_')">12 Housing</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/BloodElf/12BE_BloodElf_')">12 BloodElf</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Troll/12TR_Troll_')">12 Troll</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Void/12VD_Void_')">12 Void</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/WildElf/12WE_WildElf_')">12 WildElf</button> <br />
+                                    </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -356,7 +366,6 @@
             fakeLink.setAttribute("download", "WTL-suggestions.txt");
             fakeLink.click();
         }
-
         function clearNames() {
             fetch('/naming/clear', {
                 method: 'GET'
@@ -366,7 +375,7 @@
 
         (function () {
             var page = 0;
-            var searchString = "type:m2,isplaceholder,added:11.1.7.61491|11.2.0.61476";
+            var searchString = "type:m2,isplaceholder,added:11.2.5.63286|current";
             var sortCol = 0;
             var sortDesc = "asc";
 
