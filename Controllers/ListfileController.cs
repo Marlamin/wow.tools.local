@@ -25,163 +25,11 @@ namespace wow.tools.local.Controllers
         private static Dictionary<int, List<uint>>? CMDMap;
         private static readonly Lock dbcLock = new Lock();
 
-        public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
+        private void ensureSoundKitMapInitialized()
         {
-            search = search.Trim();
-
-            if (search.StartsWith("type:"))
+            lock (dbcLock)
             {
-                var cleaned = search.Replace("type:", "").ToLowerInvariant();
-
-                if (cleaned == "model")
-                {
-                    var m2AndWMO = new HashSet<int>(Listfile.TypeMap["m2"].Concat(Listfile.TypeMap["wmo"]));
-                    return resultsIn.Where(p => m2AndWMO.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-                }
-                else
-                {
-                    if (Listfile.TypeMap.TryGetValue(cleaned, out var fdids))
-                        return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-                }
-
-
-                return [];
-            }
-            else if (search.StartsWith("added:"))
-            {
-                var builds = search.Replace("added:", "").Split("|");
-                if (builds.Length != 2)
-                    return [];
-
-                if (builds[1] == "current" || builds[1] == "now")
-                    builds[1] = CASC.BuildName;
-
-                var newFiles = new HashSet<int>();
-                if (SQLiteDB.newFilesBetweenVersion.ContainsKey(builds[0] + "|" + builds[1]))
-                    newFiles = SQLiteDB.newFilesBetweenVersion[builds[0] + "|" + builds[1]];
-                else
-                    newFiles = SQLiteDB.getNewFilesBetweenVersions(builds[0], builds[1]);
-
-                return resultsIn.Where(p => newFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search.StartsWith("in:"))
-            {
-                var build = search.Replace("in:", "");
-                var presentFiles = SQLiteDB.getFilesInVersion(build);
-
-                return resultsIn.Where(p => presentFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search == "unnamed")
-            {
-                return resultsIn.Where(p => p.Value.Length == 0).ToDictionary();
-            }
-            else if (search == "isplaceholder")
-            {
-                return resultsIn.Where(p => Listfile.PlaceholderFiles.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search == "encrypted")
-            {
-                var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Keys);
-                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search.StartsWith("encrypted:"))
-            {
-                var cleaned = search.Trim().Replace("encrypted:", "");
-                if (!ulong.TryParse(cleaned, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var converted))
-                    return [];
-
-                var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
-                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search == "knownkey")
-            {
-                return resultsIn.Where(p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedKnownKey || CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search == "unknownkey")
-            {
-                return resultsIn.Where(p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey || CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search.StartsWith("range:"))
-            {
-                string[] fdidRange = search.Trim().Replace("range:", "").Split("-");
-
-                if (fdidRange.Length != 2 || !int.TryParse(fdidRange[0], out var fdidLower) || !int.TryParse(fdidRange[1], out var fdidUpper))
-                    return [];
-
-                var fdids = new HashSet<int>(Listfile.NameMap.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
-                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search.StartsWith("skitid:") || search.StartsWith("skit:"))
-            {
-                lock (dbcLock)
-                {
-                    if (SoundKitMap == null)
-                    {
-                        try
-                        {
-                            var soundKitEntryDB = dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName).Result;
-                            if (!soundKitEntryDB.AvailableColumns.Contains("SoundKitID") || !soundKitEntryDB.AvailableColumns.Contains("FileDataID"))
-                                throw new Exception("Missing required columns in SoundKitEntry");
-
-                            if (soundKitEntryDB != null)
-                            {
-                                SoundKitMap = new Dictionary<int, List<uint>>();
-                                foreach (var row in soundKitEntryDB.Values)
-                                {
-                                    var soundKitID = row.Field<uint>("SoundKitID");
-                                    var fileDataID = row.Field<int>("FileDataID");
-                                    if (SoundKitMap.TryGetValue(fileDataID, out List<uint>? soundKitIDs))
-                                        soundKitIDs.Add(soundKitID);
-                                    else
-                                        SoundKitMap[fileDataID] = new List<uint> { soundKitID };
-                                }
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
-                        }
-                    }
-                }
-
-                if (!uint.TryParse(search.Trim().Replace("skit:", ""), out var skitID))
-                    return resultsIn;
-
-                return resultsIn.Where(x => SoundKitMap!.ContainsKey(x.Key) && SoundKitMap[x.Key].Contains(skitID)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search.StartsWith("chash:"))
-            {
-                if (!CASC.CHashToFDID.TryGetValue(search.Trim().Replace("chash:", "").ToUpperInvariant(), out var resultFDIDs))
-                    return [];
-
-                return resultsIn.Where(x => resultFDIDs.Contains(x.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search == "haslookup")
-            {
-                var fdids = new HashSet<int>(CASC.LookupMap.Keys);
-                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else if (search == "otherlocaleonly")
-            {
-                var fdids = new HashSet<int>(CASC.OtherLocaleOnlyFiles);
-                return resultsIn.Where(p => fdids.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
-            }
-            else
-            {
-                // Simple search
-                var searchLower = search.ToLowerInvariant();
-                return resultsIn.Where(x => x.Value.Contains(searchLower, StringComparison.CurrentCultureIgnoreCase) || x.Key.ToString().Equals(searchLower, StringComparison.CurrentCultureIgnoreCase) || x.Key.ToString().Contains(searchLower, StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Key, x => x.Value);
-            }
-        }
-
-        // Files page uses this, not modelviewer
-        [Route("files")]
-        [HttpGet]
-        public DataTablesResult FileDataTables(int draw, int start, int length)
-        {
-            if (SoundKitMap == null)
-            {
-                lock (dbcLock)
+                if (SoundKitMap == null)
                 {
                     try
                     {
@@ -208,8 +56,143 @@ namespace wow.tools.local.Controllers
                         Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
                     }
                 }
-
             }
+        }
+
+        private Func<KeyValuePair<int, string>, bool> MakeFilter(string search)
+        {
+            if (search.StartsWith("!") && search.Length > 1)
+            {
+                var sub = MakeFilter(search.Substring("!".Length));
+                return p => !sub(p);
+            }
+            else if (search.StartsWith("type:"))
+            {
+                var cleaned = search.Substring("type:".Length);
+                if (cleaned == "model")
+                {
+                    var m2AndWMO = new HashSet<int>(Listfile.TypeMap["m2"].Concat(Listfile.TypeMap["wmo"]));
+                    return p => m2AndWMO.Contains(p.Key);
+                }
+                else if (Listfile.TypeMap.TryGetValue(cleaned, out var fdids))
+                {
+                    return p => fdids.Contains(p.Key);
+                }
+            }
+            else if (search.StartsWith("added:"))
+            {
+                var builds = search.Substring("added:".Length).Split("|");
+                if (builds.Length == 2)
+                {
+                    if (builds[1] == "current" || builds[1] == "now")
+                        builds[1] = CASC.BuildName;
+
+                    var newFiles = new HashSet<int>();
+                    if (SQLiteDB.newFilesBetweenVersion.ContainsKey(builds[0] + "|" + builds[1]))
+                        newFiles = SQLiteDB.newFilesBetweenVersion[builds[0] + "|" + builds[1]];
+                    else
+                        newFiles = SQLiteDB.getNewFilesBetweenVersions(builds[0], builds[1]);
+
+                    return p => newFiles.Contains(p.Key);
+                }
+            }
+            else if (search.StartsWith("in:"))
+            {
+                var build = search.Substring("in:".Length);
+                var presentFiles = SQLiteDB.getFilesInVersion(build);
+                return p => presentFiles.Contains(p.Key);
+            }
+            else if (search == "unnamed")
+            {
+                return p => p.Value.Length == 0;
+            }
+            else if (search == "isplaceholder")
+            {
+                return p => Listfile.PlaceholderFiles.Contains(p.Key);
+            }
+            else if (search == "encrypted")
+            {
+                var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Keys);
+                return p => fdids.Contains(p.Key);
+            }
+            else if (search.StartsWith("encrypted:"))
+            {
+                var args = search.Substring("encrypted:".Length);
+                if (ulong.TryParse(args, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var converted))
+                {
+                    var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
+                    return p => fdids.Contains(p.Key);
+                }
+            }
+            else if (search == "knownkey")
+            {
+                return p => CASC.EncryptionStatuses.ContainsKey(p.Key) &&
+                              (CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedKnownKey ||
+                               CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed);
+            }
+            else if (search == "unknownkey")
+            {
+                return p => CASC.EncryptionStatuses.ContainsKey(p.Key) &&
+                              (CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey ||
+                               CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed);
+            }
+            else if (search.StartsWith("range:"))
+            {
+                string[] fdidRange = search.Substring("range:".Length).Split("-");
+
+                if (fdidRange.Length == 2 && int.TryParse(fdidRange[0], out var fdidLower) && int.TryParse(fdidRange[1], out var fdidUpper))
+                {
+                    var fdids = new HashSet<int>(Listfile.NameMap.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
+                    return p => fdids.Contains(p.Key);
+                }
+            }
+            else if (search.StartsWith("skitid:") || search.StartsWith("skit:"))
+            {
+                ensureSoundKitMapInitialized();
+
+                if (uint.TryParse(search.Substring(search.IndexOf(":")), out var skitID))
+                {
+                    return x => SoundKitMap!.ContainsKey(x.Key) && SoundKitMap[x.Key].Contains(skitID);
+                }
+            }
+            else if (search.StartsWith("chash:"))
+            {
+                if (CASC.CHashToFDID.TryGetValue(search.Substring("chash:".Length).ToUpperInvariant(), out var resultFDIDs))
+                {
+                    return x => resultFDIDs.Contains(x.Key);
+                }
+            }
+            else if (search == "haslookup")
+            {
+                var fdids = new HashSet<int>(CASC.LookupMap.Keys);
+                return p => fdids.Contains(p.Key);
+            }
+            else if (search == "otherlocaleonly")
+            {
+                var fdids = new HashSet<int>(CASC.OtherLocaleOnlyFiles);
+                return p => fdids.Contains(p.Key);
+            }
+
+            return x => x.Value.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+                        x.Key.ToString().Contains(search, StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
+        {
+            IEnumerable<KeyValuePair<int, string>> results = resultsIn;
+            foreach (var filter in search.ToLowerInvariant().Split(',', StringSplitOptions.TrimEntries))
+            {
+                results = results.Where(MakeFilter(filter));
+            }
+            return results.ToDictionary();
+        }
+
+        // Files page uses this, not modelviewer
+        [Route("files")]
+        [HttpGet]
+        public DataTablesResult FileDataTables(int draw, int start, int length)
+        {
+            ensureSoundKitMapInitialized();
 
             if (MFDMap == null)
             {
@@ -318,20 +301,7 @@ namespace wow.tools.local.Controllers
             var listfileResults = new Dictionary<int, string>(Listfile.NameMap);
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
-                var searchStr = search.ToString().ToLower();
-                if (searchStr.Contains(','))
-                {
-                    var filters = searchStr.Split(',');
-                    foreach (var filter in filters)
-                    {
-                        listfileResults = DoSearch(listfileResults, filter);
-                    }
-                }
-                else
-                {
-                    listfileResults = DoSearch(listfileResults, search!);
-                }
-
+                listfileResults = DoSearch(listfileResults, search.ToString());
             }
 
             result.recordsFiltered = listfileResults.Count;
@@ -619,19 +589,7 @@ namespace wow.tools.local.Controllers
             var listfileResults = new Dictionary<int, string>(Listfile.NameMap);
             if (!string.IsNullOrEmpty(search))
             {
-                var searchStr = search.ToString().ToLower();
-                if (searchStr.Contains(','))
-                {
-                    var filters = searchStr.Split(',');
-                    foreach (var filter in filters)
-                    {
-                        listfileResults = DoSearch(listfileResults, filter);
-                    }
-                }
-                else
-                {
-                    listfileResults = DoSearch(listfileResults, search);
-                }
+                listfileResults = DoSearch(listfileResults, search.ToString());
             }
 
             foreach (var result in listfileResults)
