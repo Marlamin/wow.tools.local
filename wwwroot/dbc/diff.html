@@ -51,12 +51,11 @@
             <label for="newbuild" class="" style="float: left; padding-left: 15px;"> New </label>
             <select id="newbuild" name="new" class="form-control form-control-sm buildFilter">
             </select>
-            <!--<div class="form-check" style="padding-left: 5px;">
-                <input type="checkbox" class="form-check-input" id="useHotfixes" name="useHotfixes">
-                <label class="form-check-label" for="useHotfixes">Use hotfixes?</label>
-            </div>-->
+            <label class="form-check-label" for="useHotfixes">Use hotfixes?</label>&nbsp;
+            <input type="checkbox" class="form-check-input" id="useHotfixes" name="useHotfixes">
             <input style="margin-bottom: 5px; margin-right: 5px" type="submit" id="browseButton" class="form-control form-control-sm btn btn-sm btn-primary" value="Diff">
         </form>
+        <br />
         <a style='display: none; vertical-align: top;' id='toDBCButton' class='btn btn-secondary btn-sm' href='' target="_parent"><i class='fa fa-table'></i> Open DBC</a>
         <a style='display: none; vertical-align: top;' id='toCompareButton' class='btn btn-secondary btn-sm' href='' target="_parent"><i class='fa fa-columns'></i> Open to Compare</a>
         <div id='tableContainer'></div>
@@ -127,6 +126,7 @@
             }
             const oldBuild = urlParams.get('old');
             const newBuild = urlParams.get('new');
+            const useHotfixes = urlParams.get('useHotfixes');
 
             let apiURL = "/listfile/db2s";
 
@@ -204,9 +204,9 @@
 
             if (currentDBC != undefined && oldBuild != undefined && newBuild != undefined) {
                 var dataURL = "/dbc/diff?name=" + currentDBC + "&build1=" + oldBuild + "&build2=" + newBuild;
-                if ($("#useHotfixes").is(":checked")) {
+                if (useHotfixes != undefined && useHotfixes == "on")
                     dataURL += "&useHotfixesFor2=true";
-                }
+
                 var header1URL = "/dbc/header/" + currentDBC + "/?build=" + oldBuild;
                 var header2URL = "/dbc/header/" + currentDBC + "/?build=" + newBuild;
 
