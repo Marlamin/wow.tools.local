@@ -25,6 +25,11 @@ namespace wow.tools.local.Controllers
         private static Dictionary<int, List<uint>>? CMDMap;
         private static readonly Lock dbcLock = new Lock();
 
+        private readonly int ListfileSearchCacheMax = 10;
+        private static List<KeyValuePair<string, Dictionary<int, string>>> ListfileSearchCache = new();
+        public static int ListfileSearchCacheIsForListefileLoadID = -1;
+        private static readonly Lock ListfileSearchCacheLock = new();
+
         private void ensureSoundKitMapInitialized()
         {
             lock (dbcLock)
@@ -187,6 +192,41 @@ namespace wow.tools.local.Controllers
             return results.ToDictionary();
         }
 
+        public Dictionary<int, string> GetFilteredListfileNameMap(string search)
+        {
+            lock(Listfile.LoadLock)
+            {
+                lock(ListfileSearchCacheLock)
+                {
+                    if (ListfileSearchCacheIsForListefileLoadID != Listfile.LoadID)
+                    {
+                        ListfileSearchCache.Clear();
+                        ListfileSearchCacheIsForListefileLoadID = Listfile.LoadID;
+                    }
+
+                    foreach (var cacheEntry in ListfileSearchCache)
+                    {
+                        if (cacheEntry.Key == search)
+                        {
+                            return cacheEntry.Value;
+                        }
+                    }
+                }
+
+                var result = DoSearch(Listfile.NameMap, search);
+
+                lock(ListfileSearchCacheLock) {
+                    ListfileSearchCache.Add(new(search, result));
+                    while (ListfileSearchCache.Count > ListfileSearchCacheMax)
+                    {
+                      ListfileSearchCache.RemoveAt(0);
+                    }
+                }
+
+                return result;
+            }
+        }
+
         // Files page uses this, not modelviewer
         [Route("files")]
         [HttpGet]
@@ -298,10 +338,14 @@ namespace wow.tools.local.Controllers
                 data = []
             };
 
-            var listfileResults = new Dictionary<int, string>(Listfile.NameMap);
+            Dictionary<int, string> listfileResults;
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
-                listfileResults = DoSearch(listfileResults, search.ToString());
+                listfileResults = GetFilteredListfileNameMap(search.ToString());
+            }
+            else
+            {
+                listfileResults = new Dictionary<int, string>(Listfile.NameMap);
             }
 
             result.recordsFiltered = listfileResults.Count;
@@ -586,11 +630,7 @@ namespace wow.tools.local.Controllers
         {
             if (string.IsNullOrEmpty(search))
                 return false;
-            var listfileResults = new Dictionary<int, string>(Listfile.NameMap);
-            if (!string.IsNullOrEmpty(search))
-            {
-                listfileResults = DoSearch(listfileResults, search.ToString());
-            }
+            var listfileResults = GetFilteredListfileNameMap(search.ToString());
 
             foreach (var result in listfileResults)
             {

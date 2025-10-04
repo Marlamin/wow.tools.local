@@ -8,6 +8,8 @@ namespace wow.tools.local.Services
         public static readonly HashSet<int> PlaceholderFiles = [];
         public static readonly Dictionary<int, string> Types = [];
         public static readonly Dictionary<string, HashSet<int>> TypeMap = [];
+        public static int LoadID = 0;
+        public static readonly Lock LoadLock = new Lock();
         private static readonly HttpClient WebClient = new();
 
         public static string[] GetLines(bool forceRedownload = false)
@@ -103,67 +105,71 @@ namespace wow.tools.local.Services
         }
         public static bool Load(bool forceRedownload = false)
         {
-            NameMap.Clear();
-            DB2Map.Clear();
-            Types.Clear();
-            PlaceholderFiles.Clear();
-            CASC.AvailableFDIDs.ForEach(x => Listfile.NameMap.TryAdd(x, ""));
+            lock (LoadLock) {
+                NameMap.Clear();
+                DB2Map.Clear();
+                Types.Clear();
+                PlaceholderFiles.Clear();
+                CASC.AvailableFDIDs.ForEach(x => Listfile.NameMap.TryAdd(x, ""));
 
-            var listfileLines = GetLines(forceRedownload);
+                var listfileLines = GetLines(forceRedownload);
 
-            if (File.Exists("custom-listfile.csv"))
-                listfileLines = listfileLines.Concat(File.ReadAllLines("custom-listfile.csv")).ToArray();
+                if (File.Exists("custom-listfile.csv"))
+                    listfileLines = listfileLines.Concat(File.ReadAllLines("custom-listfile.csv")).ToArray();
 
-            foreach (var line in listfileLines)
-            {
-                if (string.IsNullOrEmpty(line))
-                    continue;
-
-                var splitLine = line.Split(";");
-                var fdid = int.Parse(splitLine[0]);
-
-                if (SettingsManager.ShowAllFiles == false && !NameMap.ContainsKey(fdid))
-                    continue;
-
-                var filename = splitLine[1];
-
-                var ext = Path.GetExtension(filename).Replace(".", "").ToLower();
-
-                if (!TypeMap.ContainsKey(ext))
-                    TypeMap.Add(ext, []);
-
-                NameMap[fdid] = filename;
-
-                // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
-                if (ext != "wmo")
+                foreach (var line in listfileLines)
                 {
-                    Types.TryAdd(fdid, ext);
-                    TypeMap[ext].Add(fdid);
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    var fdid = int.Parse(splitLine[0]);
+
+                    if (SettingsManager.ShowAllFiles == false && !NameMap.ContainsKey(fdid))
+                        continue;
+
+                    var filename = splitLine[1];
+
+                    var ext = Path.GetExtension(filename).Replace(".", "").ToLower();
+
+                    if (!TypeMap.ContainsKey(ext))
+                        TypeMap.Add(ext, []);
+
+                    NameMap[fdid] = filename;
+
+                    // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
+                    if (ext != "wmo")
+                    {
+                        Types.TryAdd(fdid, ext);
+                        TypeMap[ext].Add(fdid);
+                    }
+
+                    var filenameLower = filename.ToLower();
+
+                    if (ext == "db2")
+                        DB2Map.Add(filenameLower, fdid);
+
+                    if (
+                        filenameLower.StartsWith("models", StringComparison.Ordinal) ||
+                        filenameLower.StartsWith("unkmaps", StringComparison.Ordinal) ||
+                        filenameLower.Contains("autogen-names", StringComparison.Ordinal) ||
+                        filenameLower.Contains(fdid.ToString(), StringComparison.Ordinal) ||
+                        filenameLower.Contains("unk_exp", StringComparison.Ordinal) ||
+                        filenameLower.Contains("tileset/unused", StringComparison.Ordinal) ||
+                        string.IsNullOrEmpty(filename)
+                        )
+                    {
+                        PlaceholderFiles.Add(fdid);
+                    }
                 }
 
-                var filenameLower = filename.ToLower();
+                Console.WriteLine("Finished loading listfile: " + NameMap.Count + " named files for this build");
 
-                if (ext == "db2")
-                    DB2Map.Add(filenameLower, fdid);
+                // Load DBD manifest for additional DB2s
+                DBDManifest.Load();
 
-                if (
-                    filenameLower.StartsWith("models", StringComparison.Ordinal) ||
-                    filenameLower.StartsWith("unkmaps", StringComparison.Ordinal) ||
-                    filenameLower.Contains("autogen-names", StringComparison.Ordinal) ||
-                    filenameLower.Contains(fdid.ToString(), StringComparison.Ordinal) ||
-                    filenameLower.Contains("unk_exp", StringComparison.Ordinal) ||
-                    filenameLower.Contains("tileset/unused", StringComparison.Ordinal) ||
-                    string.IsNullOrEmpty(filename)
-                    )
-                {
-                    PlaceholderFiles.Add(fdid);
-                }
+                LoadID++;
             }
-
-            Console.WriteLine("Finished loading listfile: " + NameMap.Count + " named files for this build");
-
-            // Load DBD manifest for additional DB2s
-            DBDManifest.Load();
 
             return true;
         }
