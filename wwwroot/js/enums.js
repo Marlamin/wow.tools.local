@@ -2535,6 +2535,7 @@ const itemClassEnum = {
     17: 'Battle Pets',
     18: 'WoW Token',
     19: 'Profession',
+    20: 'Housing'
 }
 
 let itemSubClass = [];
@@ -6889,8 +6890,8 @@ let colorFields = new Array();
 colorFields.push("chrcustomizationchoice.Color");
 colorFields.push("chrcustomizationchoice.SwatchColor[0]");
 colorFields.push("chrcustomizationchoice.SwatchColor[1]");
-colorFields.push("dyecolor.ColorA");
-colorFields.push("dyecolor.ColorB");
+colorFields.push("dyecolor.SwatchColorStart");
+colorFields.push("dyecolor.SwatchColorEnd");
 colorFields.push("lightdata.DirectColor");
 colorFields.push("lightdata.AmbientColor");
 colorFields.push("lightdata.SkyTopColor");
