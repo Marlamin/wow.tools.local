@@ -98,6 +98,8 @@ namespace wow.tools.local.Controllers
         public string SingleFile(int id, string name)
         {
             Listfile.NameMap[id] = name;
+            Listfile.LoadID++;
+
             Namer.placeholderNames.Remove(id);
             Namer.ForceRename.Add((uint)id);
             Namer.AddNewFile((uint)id, name, true, true);

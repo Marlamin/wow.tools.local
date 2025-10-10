@@ -123,6 +123,7 @@
                                 <tr><td>M2 models</td><td>Generates automatic (largely placeholder) names for M2 models and related files. <br /><b style="color: red">Note:</b> Will take several minutes!</td></tr>
                                 <tr><td>Map</td><td>Map-based naming of WDT, WDL, ADT, minimaps and maptextures. <br /><b style="color: red">Note:</b> Will take several minutes!</td></tr>
                                 <tr><td>Music</td><td>Music referenced from SceneScripts, ZoneMusic.db2 and ZoneIntroMusicTable.db2.</td></tr>
+                                <tr><td>Player Housing</td><td>Names player housing related models and WMOs.</td></tr>
                                 <tr><td>SoundKits</td><td>Name sound files based on various sources.</td></tr>
                                 <tr><td>Spell textures</td><td>Very specific spell textures (chain effects and blendsets).</td></tr>
                                 <tr><td>Terrain Cube Maps</td><td>Cube maps used for reflections of terrain, also names liquid textures.</td></tr>
@@ -158,6 +159,7 @@
                                 <option value="M2" selected>M2 models</option>
                                 <option value="Map" selected>Map</option>
                                 <option value="Music" selected>Music</option>
+                                <option value="PlayerHousing" selected>Player Housing</option>
                                 <option value="SoundKits" selected>SoundKits</option>
                                 <option value="SpellTex" selected>Spell textures</option>
                                 <option value="TerrainCubeMaps" selected>Terrain Cube Maps and liquids</option>
@@ -250,7 +252,7 @@
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Goblin/11GO_Goblin_')">11 Goblin</button> <br />
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Ethereal/11ET_Ethereal_')">11 Ethereal</button> <br />
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Broker/11BO_Brokers_')">11 Brokers</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/WildElf/11WE_WildElf_')">11 WildElf</button> <br />
+                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/WildElves/11WE_WildElves_')">11 WildElves</button> <br />
                                     </div>
                                     <div class="col-md-4">
                                         <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/12XP_')">12 Root</button> <br />
@@ -363,6 +365,8 @@
                 submitButton.disabled = false;
                 submitButton.classList.remove("disabled");
                 submitButton.value = "Engage!";
+
+                fetch("/listfile/clearCache", { method: 'GET' });
             });
         }
 
@@ -381,7 +385,7 @@
 
         (function () {
             var page = 0;
-            var searchString = "type:m2,isplaceholder,added:11.2.5.63286|current";
+            var searchString = "type:m2,added:11.2.5.63286|current";
             var sortCol = 0;
             var sortDesc = "asc";
 
