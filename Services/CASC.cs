@@ -1161,7 +1161,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                         var eKeys = buildInstance.Encoding!.FindContentKey(Convert.FromHexString(chash));
                         if (eKeys)
                             lock (CHashLock)
-                                CHashToSize.Add(chash, (uint)eKeys.DecodedFileSize);
+                                CHashToSize.TryAdd(chash, (uint)eKeys.DecodedFileSize);
                     });
                 }
                 else
