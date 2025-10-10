@@ -1,7 +1,6 @@
 ﻿using CASCLib;
 using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Immutable;
 using System.Globalization;
 using wow.tools.local.Services;
@@ -194,9 +193,9 @@ namespace wow.tools.local.Controllers
 
         public Dictionary<int, string> GetFilteredListfileNameMap(string search)
         {
-            lock(Listfile.LoadLock)
+            lock (Listfile.LoadLock)
             {
-                lock(ListfileSearchCacheLock)
+                lock (ListfileSearchCacheLock)
                 {
                     if (ListfileSearchCacheIsForListefileLoadID != Listfile.LoadID)
                     {
@@ -215,11 +214,12 @@ namespace wow.tools.local.Controllers
 
                 var result = DoSearch(Listfile.NameMap, search);
 
-                lock(ListfileSearchCacheLock) {
+                lock (ListfileSearchCacheLock)
+                {
                     ListfileSearchCache.Add(new(search, result));
                     while (ListfileSearchCache.Count > ListfileSearchCacheMax)
                     {
-                      ListfileSearchCache.RemoveAt(0);
+                        ListfileSearchCache.RemoveAt(0);
                     }
                 }
 
@@ -1031,6 +1031,16 @@ namespace wow.tools.local.Controllers
                     }
                 }
             }
+            return true;
+        }
+
+        [Route("clearCache")]
+        [HttpGet]
+        public bool ClearListfileCache()
+        {
+            lock (ListfileSearchCacheLock)
+                ListfileSearchCache.Clear();
+
             return true;
         }
     }
