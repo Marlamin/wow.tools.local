@@ -637,7 +637,7 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
             if (File.Exists("cachedLookups.txt"))
                 LookupMap = File.ReadAllLines("cachedLookups.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => ulong.Parse(x[1]));
 
-            AvailableFDIDs.ForEach(x => Listfile.NameMap.TryAdd(x, ""));
+            Listfile.EnsureFDIDsPresent(AvailableFDIDs);
 
             bool listfileRes;
 

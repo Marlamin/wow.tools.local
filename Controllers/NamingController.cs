@@ -97,8 +97,16 @@ namespace wow.tools.local.Controllers
         [Route("singleFile")]
         public string SingleFile(int id, string name)
         {
-            Listfile.NameMap[id] = name;
-            Listfile.LoadID++;
+            bool isPlaceholderName = name.ToLower().EndsWith(".m2") && (
+                    name.StartsWith("models") ||
+                    name.StartsWith("unkmaps") ||
+                    name.Contains("autogen-names") ||
+                    name.Contains(id.ToString()) ||
+                    name.Contains("unk_exp") ||
+                    name.Contains("tileset/unused") ||
+                    string.IsNullOrEmpty(name)); // bug: name never empty or null here
+
+            Listfile.ManualNameOverride(id, name, isPlaceholderName);
 
             Namer.placeholderNames.Remove(id);
             Namer.ForceRename.Add((uint)id);
@@ -108,23 +116,6 @@ namespace wow.tools.local.Controllers
             {
                 Namer.NameM2s([(uint)id], false);
                 Namer.NameCreatureDisplayInfo((uint)id);
-
-                if (
-                    name.StartsWith("models") ||
-                    name.StartsWith("unkmaps") ||
-                    name.Contains("autogen-names") ||
-                    name.Contains(id.ToString()) ||
-                    name.Contains("unk_exp") ||
-                    name.Contains("tileset/unused") ||
-                    string.IsNullOrEmpty(name)
-                )
-                {
-                    Listfile.PlaceholderFiles.Add(id);
-                }
-                else
-                {
-                    Listfile.PlaceholderFiles.Remove(id);
-                }
             }
             else if (name.ToLower().EndsWith(".wmo"))
             {
@@ -141,7 +132,7 @@ namespace wow.tools.local.Controllers
             var result = Namer.NameSingleVO(id, name);
 
             if (!string.IsNullOrWhiteSpace(result))
-                Listfile.NameMap[id] = result;
+                Listfile.ManualNameOverride(id, result, false);
 
             return result;
         }
