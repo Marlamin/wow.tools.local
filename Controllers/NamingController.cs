@@ -97,14 +97,14 @@ namespace wow.tools.local.Controllers
         [Route("singleFile")]
         public string SingleFile(int id, string name)
         {
-            bool isPlaceholderName = name.ToLower().EndsWith(".m2") && (
+            bool isPlaceholderNameM2 = name.ToLower().EndsWith(".m2") && (
                     name.StartsWith("models") ||
                     name.StartsWith("unkmaps") ||
                     name.Contains("autogen-names") ||
                     name.Contains(id.ToString()) ||
                     name.Contains("unk_exp") ||
-                    name.Contains("tileset/unused") ||
-                    string.IsNullOrEmpty(name)); // bug: name never empty or null here
+                    name.Contains("tileset/unused")); // bug: name never empty or null here
+            bool isPlaceholderName = string.IsNullOrEmpty(name) || isPlaceholderNameM2;
 
             Listfile.ManualNameOverride(id, name, isPlaceholderName);
 
