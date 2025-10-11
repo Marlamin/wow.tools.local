@@ -222,5 +222,28 @@ namespace wow.tools.local.Services
                 }
             }
         }
+
+        public static void EnsureFDIDsPresent(List<int> fdids)
+        {
+            lock (LoadLock) {
+                fdids.ForEach(x => NameMap.TryAdd(x, ""));
+                LoadID++;
+            }
+        }
+        public static void ManualNameOverride(int id, string name, bool isPlaceholderName)
+        {
+            lock (LoadLock) {
+                NameMap[id] = name;
+                if (isPlaceholderName)
+                {
+                    PlaceholderFiles.Add(id);
+                }
+                else
+                {
+                    PlaceholderFiles.Remove(id);
+                }
+                LoadID++;
+            }
+        }
     }
 }
