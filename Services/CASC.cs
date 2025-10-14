@@ -90,15 +90,15 @@ namespace wow.tools.local.Services
                 buildInstance.Settings.BuildConfig = overrideBuildConfig;
             }
 
-			string? overrideCDNConfig = null;
-			if ((File.Exists(SettingsManager.CDNConfigFile) && (overrideCDNConfig = SettingsManager.CDNConfigFile) != null) ||
-				(File.Exists("fakecdnconfig") && (overrideCDNConfig = "fakecdnconfig") != null))
-			{
-				Console.WriteLine("Using override CDN config: " + overrideCDNConfig);
-				buildInstance.Settings.CDNConfig = overrideCDNConfig;
-			}
+            string? overrideCDNConfig = null;
+            if ((File.Exists(SettingsManager.CDNConfigFile) && (overrideCDNConfig = SettingsManager.CDNConfigFile) != null) ||
+                (File.Exists("fakecdnconfig") && (overrideCDNConfig = "fakecdnconfig") != null))
+            {
+                Console.WriteLine("Using override CDN config: " + overrideCDNConfig);
+                buildInstance.Settings.CDNConfig = overrideCDNConfig;
+            }
 
-			buildInstance.Settings.Locale = SettingsManager.TACTLocale;
+            buildInstance.Settings.Locale = SettingsManager.TACTLocale;
             buildInstance.Settings.Region = SettingsManager.Region;
 
             if (SettingsManager.PreferHighResTextures)
@@ -109,6 +109,7 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Switching builds, resetting configs..");
                 buildInstance.Settings.BuildConfig = null;
                 buildInstance.Settings.CDNConfig = null;
+                buildInstance.ResetCDN();
             }
 
             buildInstance.Settings.RootMode = RootInstance.LoadMode.Full;
@@ -142,6 +143,9 @@ namespace wow.tools.local.Services
 
                     if (buildInstance.Settings.CDNConfig == null)
                         buildInstance.Settings.CDNConfig = build.CDNConfig;
+
+                    if (!string.IsNullOrEmpty(build.Armadillo))
+                        buildInstance.cdn.ArmadilloKeyName = build.Armadillo;
                 }
             }
             else
@@ -172,6 +176,9 @@ namespace wow.tools.local.Services
 
                         if (buildInstance.Settings.CDNConfig == null)
                             buildInstance.Settings.CDNConfig = splitLine[2];
+
+                        if (splitLine.Length >= 7 && !string.IsNullOrEmpty(splitLine[6]))
+                            buildInstance.Settings.ProductConfig = splitLine[6];
                     }
                 }
             }
@@ -180,7 +187,6 @@ namespace wow.tools.local.Services
             if (SettingsManager.WoWProduct == "wowdev")
             {
                 buildInstance.cdn.ProductDirectory = "tpr/wowdev";
-                buildInstance.Settings.TryCDN = false;
             }
             else
             {
@@ -198,7 +204,11 @@ namespace wow.tools.local.Services
                 if (buildInstance.Settings.BuildConfig == null || buildInstance.Settings.CDNConfig == null)
                     throw new Exception("BuildConfig or CDNConfig is null");
 
-                buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
+                if (!string.IsNullOrEmpty(buildInstance.Settings.ProductConfig))
+                    buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig, buildInstance.Settings.ProductConfig);
+                else
+                    buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
+
                 if (buildInstance.BuildConfig == null || buildInstance.CDNConfig == null)
                     throw new Exception("Failed to load configs");
             }
