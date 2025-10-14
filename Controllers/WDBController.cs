@@ -48,7 +48,7 @@ namespace wow.tools.local.Controllers
         public DataTablesResult QuestTable(int draw, int start, int length)
         {
             //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.5.63534");
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", "12.0.0.63534");
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
 
             var result = new DataTablesResult()
             {
@@ -83,7 +83,7 @@ namespace wow.tools.local.Controllers
         public string Quest(int id)
         {
             //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.5.63534");
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", "12.0.0.63534");
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
 
             if (id == 0)
                 return JsonSerializer.Serialize(questWDB.entries);
