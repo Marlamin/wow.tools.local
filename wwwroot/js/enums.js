@@ -3077,7 +3077,19 @@ const globalCurveType = {
     7: 'CR Bonus for DODGE',
     8: 'CR Bonus for BLOCK',
     9: 'CR Bonus for PARRY',
-    11: 'CR Bonus for VERSATILITY_DAMAGE_TAKEN'
+    11: 'CR Bonus for VERSATILITY_DAMAGE_TAKEN',
+    13: 'Content Tuning PvP Item Level Health Scaling',
+    14: 'Content Tuning PvP Level Damage Scaling',
+    15: 'Content Tuning PvP Item Level Damage Scaling',
+    18: 'Armor Item Level Diminishing',
+    21: 'Challenge Mode Health',
+    22: 'Challenge Mode Damage',
+    23: 'Mythic+ End Of Run Gear Sequence Level',
+    26: 'Spell Area Effect Warning Radius',
+    38: 'Housing - Interior Decor Budget',
+    39: 'Housing - Exterior Decor Budget?',
+    40: 'Housing - Room Placement Budget',
+    41: 'Housing - Fixture Budget',
 }
 
 const socketColorEnum = {
