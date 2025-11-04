@@ -360,10 +360,18 @@ namespace wow.tools.local.Services
                         continue;
 
                     var preferredEntry = rootEntries.FirstOrDefault(subentry =>
-subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.enUS)));
+                        !subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) &&
+                        (subentry.localeFlags.HasFlag((RootInstance.LocaleFlags)buildInstance.Settings.Locale) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW)));
 
                     if (preferredEntry.fileDataID == 0)
-                        preferredEntry = rootEntries.First();
+                    {
+                        var nonLow = rootEntries.FirstOrDefault(subentry => !subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence));
+
+                        if (nonLow.fileDataID != 0)
+                            preferredEntry = nonLow;
+                        else
+                            preferredEntry = rootEntries.First();
+                    }
 
                     manifestLines.Add(fdid + ";" + Convert.ToHexString(preferredEntry.md5.AsSpan()));
                 }
@@ -960,10 +968,29 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                         return null;
 
                     var preferredEntry = rootEntries.FirstOrDefault(subentry =>
-subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag((RootInstance.LocaleFlags)tactLocale)) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW));
+                        !subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) &&
+                        (subentry.localeFlags.HasFlag((RootInstance.LocaleFlags)buildInstance.Settings.Locale) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW)));
 
                     if (preferredEntry.fileDataID == 0)
-                        preferredEntry = rootEntries.First();
+                    {
+                        var nonLow = rootEntries.FirstOrDefault(subentry => !subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence));
+
+                        if (nonLow.fileDataID != 0)
+                            preferredEntry = nonLow;
+                        else
+                            preferredEntry = rootEntries.First();
+                    }
+
+                    /*
+                    Console.WriteLine(filedataid);
+                    foreach (var entry in rootEntries)
+                    {
+                        if(Convert.ToHexString(entry.md5) == Convert.ToHexString(preferredEntry.md5))
+                            Console.WriteLine(" [X] " + entry.fileDataID + " " + Convert.ToHexString(entry.md5) + " " + entry.contentFlags + " " + entry.localeFlags);
+                        else
+                            Console.WriteLine(" [ ] " + entry.fileDataID + " " + Convert.ToHexString(entry.md5) + " " + entry.contentFlags + " " + entry.localeFlags);
+                    }
+                    */
 
                     var fileEKeys = buildInstance.Encoding!.FindContentKey(preferredEntry.md5);
                     if (fileEKeys == false)
@@ -1124,10 +1151,19 @@ subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false &&
                         if (rootEntries.Count == 0)
                             return;
 
-                        var preferredEntry = rootEntries.FirstOrDefault(subentry => subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) == false && (subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW) || subentry.localeFlags.HasFlag(buildInstance.Settings.Locale)));
+                        var preferredEntry = rootEntries.FirstOrDefault(subentry =>
+                            !subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) &&
+                            (subentry.localeFlags.HasFlag((RootInstance.LocaleFlags)buildInstance.Settings.Locale) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW)));
 
                         if (preferredEntry.fileDataID == 0)
-                            preferredEntry = rootEntries.First();
+                        {
+                            var nonLow = rootEntries.FirstOrDefault(subentry => !subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence));
+
+                            if (nonLow.fileDataID != 0)
+                                preferredEntry = nonLow;
+                            else
+                                preferredEntry = rootEntries.First();
+                        }
 
                         var ckey = Convert.ToHexString(preferredEntry.md5.AsSpan());
 
