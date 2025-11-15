@@ -5928,7 +5928,14 @@ const roomComponentType = {
     3: "Ceiling",
     4: "Stairs",
     5: "Pillar",
-    6: "Doorway",
+    6: "DoorwayWall",
+    7: "Doorway"
+}
+
+const roomComponentOptionType = {
+    0: "Cosmetic",
+    1: "DoorwayWall",
+    2: "Doorway"
 }
 
 const roomComponentConnectionType = {
@@ -6101,6 +6108,7 @@ enumMap.set("profession.ProfessionEnumValue", profession);
 enumMap.set("roomcomponent.Type", roomComponentType);
 enumMap.set("roomcomponenttexture.RoomComponentType", roomComponentType);
 enumMap.set("roomcomponent.ConnectionType", roomComponentConnectionType);
+enumMap.set("roomcomponentoption.Type", roomComponentOptionType);
 
 /* Race IDs */
 enumMap.set("chrracexchrmodel.ChrRacesID", tempChrRaceIDEnum);
