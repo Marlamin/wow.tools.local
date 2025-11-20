@@ -299,6 +299,10 @@
             window.location.reload();
         }
 
+        function setPageDB2Title(tableName) {
+            document.title = "WoW.tools - DBC - " + tableName;
+        }
+
         async function updateDefs() {
             var button = document.getElementById("updateDefsButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
@@ -556,6 +560,7 @@
                         option.text = file;
                         if (option.value.toLowerCase() == currentParams["dbc"]) {
                             option.selected = true;
+                            setPageDB2Title(option.value);
                         }
                         fileFilter.appendChild(option);
                     });
@@ -1099,8 +1104,6 @@
                     });
 
                     $('#dbtable').on('draw.dt', function () {
-                        window.history.pushState('dbc', 'WoW.Tools | Database browser', buildURL(currentParams));
-
                         let currentPage = $('#dbtable').DataTable().page() + 1;
                         let hashPart = "page=" + currentPage;
 
@@ -1119,6 +1122,7 @@
                             hashPart += "&colFilter[" + i + "]=" + encodeURIComponent(colSearch);
                         }
 
+                        window.history.pushState('dbc', document.title, buildURL(currentParams) + "#" + hashPart);
                         window.location.hash = hashPart;
                     });
                 });
@@ -1193,6 +1197,7 @@
                     currentParams["dbc"] = $(this).val().toLowerCase();
                     if (document.getElementById("buildFilter")) {
                         clearState = true;
+                        setPageDB2Title($(this).val());
                         refreshVersions();
                         loadTable();
                         updateDBDButton();
