@@ -585,6 +585,9 @@
                 var sortCol = sort[0][0];
                 var sortDir = sort[0][1];
 
+                if (sortDir == "" || sortDir == null)
+                    sortDir = "asc";
+
                 var build = $('#files').DataTable().ajax.url().split("buildConfig=")[1];
 
                 var url = "search=" + currentSearch + "&page=" + currentPage + "&sort=" + sortCol + "&desc=" + sortDir;
