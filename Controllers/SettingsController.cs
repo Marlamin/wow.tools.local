@@ -47,5 +47,12 @@ namespace wow.tools.local.Controllers
                 return BadRequest(message);
             }
         }
+
+        [Route("get")]
+        [HttpGet]
+        public string Get([FromQuery] string key)
+        {
+            return SettingsManager.Settings.TryGetValue(key, out var value) ? value.Value.ToString() : "";
+        }
     }
 }

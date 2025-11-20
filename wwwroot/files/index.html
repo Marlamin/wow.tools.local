@@ -321,7 +321,10 @@
             loadSettings();
         }
 
-        (function () {
+        (async function () {
+            const response = await fetch("/settings/get?key=defaultFilesSearch");
+            Settings.defaultSearch = await response.text();
+
             loadSettings();
 
             var searchHash = location.hash.substr(1),
@@ -329,6 +332,8 @@
 
             if (searchString != undefined && searchString.length > 0) {
                 searchString = decodeURIComponent(searchString);
+            } else {
+                searchString = Settings.defaultSearch;
             }
 
             var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;

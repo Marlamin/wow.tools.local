@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using TACTSharp;
 
 namespace wow.tools.local
@@ -36,8 +34,9 @@ namespace wow.tools.local
             {"useTACTSharp", new WTLSetting { Key = "useTACTSharp", Value = "false", Description = "Whether to use TACTSharp for TACT operations. Uses CASCLib if disabled.", Type = "bool", DefaultValue = "true" }},
             {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDN hosts to use for downloading files, separated by commas.", Type = "string", DefaultValue = string.Empty }},
             {"buildConfigFile", new WTLSetting { Key = "buildConfigFile", Value = string.Empty, Description = "Path to a build config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
-			{"cdnConfigFile", new WTLSetting { Key = "cdnConfigFile", Value = string.Empty, Description = "Path to a CDN config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }}
-		};
+            {"cdnConfigFile", new WTLSetting { Key = "cdnConfigFile", Value = string.Empty, Description = "Path to a CDN config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
+            {"defaultFilesSearch", new WTLSetting { Key = "defaultFilesSearch", Value = string.Empty, Description = "Default search query for files page.", Type = "string", DefaultValue = string.Empty } },
+        };
 
         private static CASCLib.LocaleFlags cascLocale;
         private static RootInstance.LocaleFlags tactLocale;
@@ -55,9 +54,10 @@ namespace wow.tools.local
         public static string Region { get => Settings["region"].Value; set => Settings["region"].Value = value; }
         public static string BuildConfigFile { get => Settings["buildConfigFile"].Value; set => Settings["buildConfigFile"].Value = value; }
         public static string CDNConfigFile { get => Settings["cdnConfigFile"].Value; set => Settings["cdnConfigFile"].Value = value; }
+        public static string DefaultFilesSearch { get => Settings["defaultFilesSearch"].Value; set => Settings["defaultFilesSearch"].Value = value; }
 
-		// Bools
-		public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
+        // Bools
+        public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
         public static bool PreferHighResTextures { get => bool.Parse(Settings["preferHighResTextures"].Value); set => Settings["preferHighResTextures"].Value = value.ToString().ToLower(); }
         public static bool UseTACTSharp { get => bool.Parse(Settings["useTACTSharp"].Value); set => Settings["useTACTSharp"].Value = value.ToString().ToLower(); }
 
@@ -120,7 +120,7 @@ namespace wow.tools.local
                     if (setting.Key == "wowFolder")
                     {
                         DetectWoWFolder();
-                        if(!ValidateWowFolder(WoWFolder))
+                        if (!ValidateWowFolder(WoWFolder))
                             WoWFolder = string.Empty; // reset if the detected folder is invalid
                     }
                 }
@@ -256,7 +256,7 @@ namespace wow.tools.local
                         _value = args[_nextIndex];
                         i++; // then skip the next item
                     }
-					HandleFlag(_flag, _value);
+                    HandleFlag(_flag, _value);
                     continue;
                 }
             }
@@ -267,7 +267,7 @@ namespace wow.tools.local
             ProcessFlags(args);
 
             // since this runs after LoadSettings() AND the command line arguments are parsed, I'm comfortable throwing this folder check here.
-            if(!ValidateWowFolder(WoWFolder))
+            if (!ValidateWowFolder(WoWFolder))
                 WoWFolder = string.Empty; // reset if the detected folder is invalid
         }
 
@@ -304,7 +304,7 @@ namespace wow.tools.local
                     else
                         return (false, "Invalid region. Available regions: eu, us, kr, cn, tw");
                 case "definitionDir":
-                    if(string.IsNullOrEmpty(value))
+                    if (string.IsNullOrEmpty(value))
                         return (true, string.Empty);
                     else if (Directory.Exists(value) && File.Exists(Path.Combine(value, "Map.dbd")))
                         return (true, string.Empty);
@@ -314,10 +314,10 @@ namespace wow.tools.local
                     if (Uri.TryCreate(value, UriKind.Absolute, out var listfileURIResult) && (listfileURIResult.Scheme == Uri.UriSchemeHttp || listfileURIResult.Scheme == Uri.UriSchemeHttps) && value.EndsWith(".csv"))
                         return (true, string.Empty);
                     else
-                        if(Directory.Exists(value) && File.Exists(Path.Combine(value, "placeholder.csv")))
-                            return (true, string.Empty);
-                        else
-                            return (false, "Invalid listfile URL (must be a valid link and end in .csv) or invalid path to parts (directory must contain placeholder.csv)");
+                        if (Directory.Exists(value) && File.Exists(Path.Combine(value, "placeholder.csv")))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Invalid listfile URL (must be a valid link and end in .csv) or invalid path to parts (directory must contain placeholder.csv)");
                 case "tactKeyURL":
                     if (Uri.TryCreate(value, UriKind.Absolute, out var tcURIResult) && (tcURIResult.Scheme == Uri.UriSchemeHttp || tcURIResult.Scheme == Uri.UriSchemeHttps) && (value.EndsWith(".txt") || value.EndsWith(".csv")))
                         return (true, string.Empty);
@@ -355,12 +355,14 @@ namespace wow.tools.local
                         return (true, string.Empty);
                     else
                         return (false, "Specified build config file does not exist");
-				case "cdnConfigFile":
-					if (File.Exists(value))
-						return (true, string.Empty);
-					else
-						return (false, "Specified CDN config file does not exist");
-			}
+                case "cdnConfigFile":
+                    if (File.Exists(value))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Specified CDN config file does not exist");
+                case "defaultFilesSearch":
+                    return (true, string.Empty);
+            }
 
             return (true, "Not checked");
         }
