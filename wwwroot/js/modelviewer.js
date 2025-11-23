@@ -233,7 +233,6 @@ window.createscene = async function () {
     Settings.buildName = await response.text();
     Current.buildName = Settings.buildName;
 
-
     Module["canvas"] = document.getElementById("wowcanvas");
 
     var url = "/casc/fname?filename=";
@@ -262,15 +261,28 @@ window.createscene = async function () {
 
     // Add input elements to texture form:
     const textureForm = document.getElementById("textureForm");
+    const textureRow = document.getElementById("textureRow");
     const sscTextureForm = document.getElementById("sscTextureForm");
     const sscTextureListSelect = document.getElementById("sscTextureListSelect");
-    
+
+    for (let i = 0; i < 2; i++) {
+        const textureCol = document.createElement('div');
+        textureCol.id = "textureCol" + i;
+        textureCol.classList.add("col-md-6");
+        textureRow.appendChild(textureCol);
+    }
+
     for (let i = 0; i < NUM_TEXTURE_SLOTS; i++)
     {
       const textureInputDiv = document.createElement('div');
       const textureInput = document.createElement('input');
-      const textureInputLabel = document.createElement('label');
-      
+
+        let targetCol = 0;
+        if (i > (NUM_TEXTURE_SLOTS / 2)) {
+            targetCol = 1;
+        }
+
+        const textureCol = document.getElementById("textureCol" + targetCol);
       textureInputDiv.classList.add("textureInputDiv");
       
       textureInput.type = "text";
@@ -305,13 +317,12 @@ window.createscene = async function () {
         case 24:
             labelSuffix = " (item #4)";
             break;
-      }
-      textureInputLabel.htmlFor = "tex" + i;
-      textureInputLabel.innerHTML = "Texture #" + i + labelSuffix;
+        }
+
+        textureInput.placeholder = "Texture #" + i + labelSuffix;
       
       textureInputDiv.appendChild(textureInput);
-      textureInputDiv.appendChild(textureInputLabel);
-      textureForm.appendChild(textureInputDiv);
+      textureCol.appendChild(textureInputDiv);
       
       const sscTextureInputDiv = document.createElement('div');
       const sscTextureInput = document.createElement('input');
@@ -328,7 +339,6 @@ window.createscene = async function () {
       sscTextureInputLabel.classList.add("sscInputLabel");
       sscTextureInputLabel.classList.add("sscTextureInputLabel");
       sscTextureInputDiv.id = "sscTexDiv" + i;
-      sscTextureInputDiv.appendChild(sscTextureInputLabel);
       sscTextureInputDiv.appendChild(sscTextureInput);
       sscTextureForm.appendChild(sscTextureInputDiv);
     }
@@ -1228,8 +1238,12 @@ function setModelTextures(typedArray){
     // Takes an array with values for all texture slots
 
     for (let i = 0; i < typedArray.length; i++) {
-        if (document.getElementById('tex' + i)){
-            document.getElementById('tex' + i).value = typedArray[i];
+        let texElement = document.getElementById('tex' + i);
+        if (texElement) {
+            if (typedArray[i] != 0)
+                texElement.value = typedArray[i];
+            else if (texElement.value != "")
+                texElement.value = "";
         }
     }
 
