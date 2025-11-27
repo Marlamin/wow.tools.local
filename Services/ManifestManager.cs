@@ -68,14 +68,10 @@
 
             var entries = new List<(uint FileDataID, byte[] MD5)>();
 
-            if (IsNewFormatEnabled)
+            if (IsNewFormatEnabled && File.Exists(Path.Combine(SettingsManager.ManifestFolder, version + ".wtlm")))
             {
-                var path = Path.Combine(SettingsManager.ManifestFolder, version + ".wtlm");
-                if (!File.Exists(path))
-                    throw new FileNotFoundException("Manifest file not found for version " + version);
-
                 using var fs = new FileStream(
-                    path,
+                    Path.Combine(SettingsManager.ManifestFolder, version + ".wtlm"),
                     FileMode.Open,
                     FileAccess.Read,
                     FileShare.Read,
