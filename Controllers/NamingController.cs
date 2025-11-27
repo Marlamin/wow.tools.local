@@ -166,17 +166,13 @@ namespace wow.tools.local.Controllers
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x!)).ToArray();
 
             var buildMap = new Dictionary<uint, string>();
-            if (Directory.Exists(SettingsManager.ManifestFolder))
+            foreach (var version in ManifestManager.GetManifestVersions())
             {
-                foreach (var file in Directory.GetFiles(SettingsManager.ManifestFolder, "*.txt"))
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(file);
-                    var splitFilename = fileName.Split('.');
-                    if (splitFilename.Length != 4)
-                        continue;
+                var splitFilename = version.Split('.');
+                if (splitFilename.Length != 4)
+                    continue;
 
-                    buildMap.Add(uint.Parse(splitFilename[3]), fileName);
-                }
+                buildMap.Add(uint.Parse(splitFilename[3]), version);
             }
 
             foreach (var selectedNamer in checkboxes)

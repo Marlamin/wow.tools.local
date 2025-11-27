@@ -254,8 +254,6 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Error inserting build into database: " + e.Message);
             }
 
-            var manifestFolder = SettingsManager.ManifestFolder;
-
             IsTACTSharpInit = true;
 
             WTLKeyService.LoadKeys();
@@ -349,10 +347,11 @@ namespace wow.tools.local.Services
             AvailableFDIDs.Clear();
             AvailableFDIDs.AddRange(buildInstance.Root.GetAvailableFDIDs().Select(x => (int)x));
 
-            Directory.CreateDirectory(manifestFolder);
-            if (!File.Exists(Path.Combine(manifestFolder, BuildName + ".txt")))
+            Directory.CreateDirectory(SettingsManager.ManifestFolder);
+
+            if (!ManifestManager.ExistsForVersion(BuildName))
             {
-                var manifestLines = new List<string>();
+                var manifestEntries = new List<(uint FileDataID, byte[] MD5)>();
                 foreach (var fdid in buildInstance.Root.GetAvailableFDIDs())
                 {
                     var rootEntries = buildInstance.Root.GetEntriesByFDID(fdid);
@@ -373,12 +372,10 @@ namespace wow.tools.local.Services
                             preferredEntry = rootEntries.First();
                     }
 
-                    manifestLines.Add(fdid + ";" + Convert.ToHexString(preferredEntry.md5.AsSpan()));
+                    manifestEntries.Add((preferredEntry.fileDataID, preferredEntry.md5.AsSpan().ToArray()));
                 }
 
-                manifestLines.Sort();
-
-                File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
+                ManifestManager.Write(BuildName, manifestEntries);
 
                 SQLiteDB.ImportBuildIntoFileHistory(BuildName);
 
@@ -575,10 +572,8 @@ namespace wow.tools.local.Services
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
 
             cascHandler.Root.SetFlags(locale, false, SettingsManager.PreferHighResTextures);
-            var manifestFolder = SettingsManager.ManifestFolder;
 
-            if (!Directory.Exists(manifestFolder))
-                Directory.CreateDirectory(manifestFolder);
+            Directory.CreateDirectory(SettingsManager.ManifestFolder);
 
             InstallEntries = cascHandler.Install.GetEntries().ToList();
 
@@ -596,9 +591,9 @@ namespace wow.tools.local.Services
             if (cascHandler.Root is WowTVFSRootHandler wtrh)
             {
                 AvailableFDIDs.AddRange(wtrh.RootEntries.Keys);
-                if (!File.Exists(Path.Combine(manifestFolder, BuildName + ".txt")))
+                if (!ManifestManager.ExistsForVersion(BuildName))
                 {
-                    var manifestLines = new List<string>();
+                    var manifestEntries = new List<(uint FileDataID, byte[] MD5)>();
                     foreach (var entry in wtrh.RootEntries)
                     {
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
@@ -607,12 +602,10 @@ namespace wow.tools.local.Services
                         if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
                             preferredEntry = entry.Value.First();
 
-                        manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
+                        manifestEntries.Add(((uint)entry.Key, Convert.FromHexString(preferredEntry.cKey.ToHexString())));
                     }
 
-                    manifestLines.Sort();
-
-                    File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
+                    ManifestManager.Write(BuildName, manifestEntries);
 
                     SQLiteDB.ImportBuildIntoFileHistory(BuildName);
 
@@ -623,9 +616,9 @@ namespace wow.tools.local.Services
             else if (cascHandler.Root is WowRootHandler wrh)
             {
                 AvailableFDIDs.AddRange(wrh.RootEntries.Keys);
-                if (!File.Exists(Path.Combine(manifestFolder, BuildName + ".txt")))
+                if (!ManifestManager.ExistsForVersion(BuildName))
                 {
-                    var manifestLines = new List<string>();
+                    var manifestEntries = new List<(uint FileDataID, byte[] MD5)>();
                     foreach (var entry in wrh.RootEntries)
                     {
                         var preferredEntry = entry.Value.FirstOrDefault(subentry =>
@@ -634,12 +627,10 @@ namespace wow.tools.local.Services
                         if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
                             preferredEntry = entry.Value.First();
 
-                        manifestLines.Add(entry.Key + ";" + preferredEntry.cKey.ToHexString());
+                        manifestEntries.Add(((uint)entry.Key, Convert.FromHexString(preferredEntry.cKey.ToHexString())));
                     }
 
-                    manifestLines.Sort();
-
-                    File.WriteAllLines(Path.Combine(manifestFolder, BuildName + ".txt"), manifestLines);
+                    ManifestManager.Write(BuildName, manifestEntries);
 
                     SQLiteDB.ImportBuildIntoFileHistory(BuildName);
 
@@ -1239,11 +1230,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             if (File.Exists("versionHistory.json"))
                 File.Delete("versionHistory.json");
 
-            var sortedManifestList = new List<string>();
-            foreach (var manifest in Directory.GetFiles(SettingsManager.ManifestFolder, "*.txt"))
-            {
-                sortedManifestList.Add(manifest);
-            }
+            var sortedManifestList = ManifestManager.GetManifestVersions();
 
             // sort by build
             sortedManifestList.Sort((x, y) => int.Parse(Path.GetFileNameWithoutExtension(x).Split(".")[3]).CompareTo(int.Parse(Path.GetFileNameWithoutExtension(y).Split(".")[3])));

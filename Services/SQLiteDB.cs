@@ -1006,22 +1006,16 @@ namespace wow.tools.local.Services
             insertCmd.Transaction = transaction;
             insertCmd.Prepare();
 
-            var manifestPath = Path.Combine(SettingsManager.ManifestFolder, buildName + ".txt");
-            if (!File.Exists(manifestPath))
+            if (!ManifestManager.ExistsForVersion(buildName))
             {
                 Console.WriteLine("Manifest file for build {0} not found, can't import", buildName);
                 return;
             }
 
-            foreach (var line in File.ReadAllLines(manifestPath))
+            foreach (var entry in ManifestManager.GetEntriesForVersion(buildName))
             {
-                var splitLine = line.Split(";");
-                if (splitLine.Length != 2)
-                    continue;
-
-                var fileDataID = int.Parse(splitLine[0]);
-                var fileHash = splitLine[1];
-
+                var fileDataID = (int)entry.FileDataID;
+                var fileHash = Convert.ToHexString(entry.MD5);
                 var fileVersions = GetFileVersions(fileDataID);
 
                 // Don't insert if hash for this file is already known

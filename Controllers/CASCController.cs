@@ -152,7 +152,7 @@ namespace wow.tools.local.Controllers
                     if (isActive && CASC.IsTACTSharpInit)
                         isActive = availableBuild.BuildConfig == CASC.buildInstance!.Settings.BuildConfig && availableBuild.CDNConfig == CASC.buildInstance!.Settings.CDNConfig;
 
-                    var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.ManifestFolder, patch + "." + build + ".txt"));
+                    var hasManifest = ManifestManager.ExistsForBuild(patch, build);
                     var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
                     result.data.Add([patch, build, availableBuild.Product, availableBuild.Folder, availableBuild.BuildConfig, availableBuild.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
                 }
@@ -199,7 +199,7 @@ namespace wow.tools.local.Controllers
                         if (isActive && CASC.IsTACTSharpInit)
                             isActive = splitLine[1] == CASC.buildInstance!.Settings.BuildConfig && splitLine[2] == CASC.buildInstance!.Settings.CDNConfig;
 
-                        var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.ManifestFolder, patch + "." + build + ".txt"));
+                        var hasManifest = ManifestManager.ExistsForBuild(patch, build);
                         var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
 
                         availableRemoteBuilds.Add((splitLine[1], splitLine[2]));
@@ -219,7 +219,7 @@ namespace wow.tools.local.Controllers
                     var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
                     var build = splitVersion[3];
 
-                    var hasManifest = System.IO.File.Exists(Path.Combine(SettingsManager.ManifestFolder, patch + "." + build + ".txt"));
+                    var hasManifest = ManifestManager.ExistsForBuild(patch, build);
                     var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
 
                     result.data.Add([patch, build, "unknown", CASC.buildInstance!.Settings.BuildConfig, CASC.buildInstance!.Settings.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
@@ -306,13 +306,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public List<string> ListManifests()
         {
-            var cachedManifests = new List<string>();
-            if (Directory.Exists(SettingsManager.ManifestFolder))
-            {
-                foreach (var file in Directory.GetFiles(SettingsManager.ManifestFolder, "*.txt"))
-                    cachedManifests.Add(Path.GetFileNameWithoutExtension(file));
-            }
-            return [.. cachedManifests.OrderByDescending(x => int.Parse(x.Split(".")[3]))];
+            return [.. ManifestManager.GetManifestVersions().OrderByDescending(x => int.Parse(x.Split(".")[3]))];
         }
 
         [Route("analyzeUnknown")]
@@ -749,18 +743,21 @@ namespace wow.tools.local.Controllers
                 };
             }
 
-            var rootFromEntries = (await System.IO.File.ReadAllLinesAsync(Path.Combine(SettingsManager.ManifestFolder, from + ".txt"))).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
-            var rootToEntries = (await System.IO.File.ReadAllLinesAsync(Path.Combine(SettingsManager.ManifestFolder, to + ".txt"))).Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => x[1]);
+            var rootFromEntries = await ManifestManager.GetEntriesForVersionAsync(from);
+            var rootToEntries = await ManifestManager.GetEntriesForVersionAsync(to);
 
-            var fromEntries = rootFromEntries.Keys.ToHashSet();
-            var toEntries = rootToEntries.Keys.ToHashSet();
+            var rootFromDict = rootFromEntries.ToDictionary(x => (int)x.FileDataID, x => Convert.ToHexString(x.MD5));
+            var rootToDict = rootToEntries.ToDictionary(x => (int)x.FileDataID, x => Convert.ToHexString(x.MD5));
+
+            var fromEntries = rootFromDict.Keys.ToHashSet();
+            var toEntries = rootToDict.Keys.ToHashSet();
 
             var commonEntries = fromEntries.Intersect(toEntries);
             var removedEntries = fromEntries.Except(commonEntries);
             var addedEntries = toEntries.Except(commonEntries);
 
-            var addedFiles = addedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootToEntries[entry]));
-            var removedFiles = removedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootFromEntries[entry]));
+            var addedFiles = addedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootToDict[entry]));
+            var removedFiles = removedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootFromDict[entry]));
             var modifiedFiles = new List<KeyValuePair<int, string>>();
 
             var modifiedLock = new Lock();
@@ -802,7 +799,7 @@ namespace wow.tools.local.Controllers
 
                                 if (!remainingFromBytes.SequenceEqual(remainingToBytes))
                                     lock (modifiedLock)
-                                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, rootToEntries[entry]));
+                                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, rootToDict[entry]));
 
                                 return;
                             }
@@ -814,8 +811,8 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
-                var originalFile = rootFromEntries[entry];
-                var patchedFile = rootToEntries[entry];
+                var originalFile = rootFromDict[entry];
+                var patchedFile = rootToDict[entry];
 
                 if (originalFile != patchedFile)
                     lock (modifiedLock)
@@ -1572,6 +1569,14 @@ namespace wow.tools.local.Controllers
         public string ImportBuildIntoFileHistory(string build)
         {
             SQLiteDB.ImportBuildIntoFileHistory(build);
+            return "";
+        }
+
+        [Route("convertManifests")]
+        [HttpGet]
+        public string ConvertManifests()
+        {
+            ManifestManager.ConvertAllTxtToWtlm();
             return "";
         }
 
