@@ -759,20 +759,14 @@ namespace wow.tools.local.Services
 
             var buildFiles = new HashSet<int>();
 
-            if (!File.Exists(Path.Combine("manifests", build + ".txt")))
+            if (!ManifestManager.ExistsForVersion(build))
             {
                 Console.WriteLine("Manifest file for build {0} not found, can't generate list of files", build);
                 return buildFiles;
             }
 
-            foreach (var line in File.ReadAllLines(Path.Combine("manifests", build + ".txt")))
-            {
-                var splitLine = line.Split(";");
-                if (splitLine.Length != 2)
-                    continue;
-
-                buildFiles.Add(int.Parse(splitLine[0]));
-            }
+            foreach (var entry in ManifestManager.GetEntriesForVersion(build))
+                buildFiles.Add((int)entry.FileDataID);
 
             return buildFiles;
         }
@@ -805,37 +799,25 @@ namespace wow.tools.local.Services
             //    reader.Close();
             var newFiles = new HashSet<int>();
 
-            if (!File.Exists(Path.Combine("manifests", oldBuild + ".txt")))
+            if (!ManifestManager.ExistsForVersion(oldBuild))
             {
                 Console.WriteLine("Manifest file for build {0} not found, can't compare", oldBuild);
                 return newFiles;
             }
 
-            if (!File.Exists(Path.Combine("manifests", newBuild + ".txt")))
+            if (!ManifestManager.ExistsForVersion(newBuild))
             {
                 Console.WriteLine("Manifest file for build {0} not found, can't compare", newBuild);
                 return newFiles;
             }
 
             var oldBuildFiles = new List<int>();
-            foreach (var line in File.ReadAllLines(Path.Combine("manifests", oldBuild + ".txt")))
-            {
-                var splitLine = line.Split(";");
-                if (splitLine.Length != 2)
-                    continue;
-
-                oldBuildFiles.Add(int.Parse(splitLine[0]));
-            }
+            foreach (var entry in ManifestManager.GetEntriesForVersion(oldBuild))
+                oldBuildFiles.Add((int)entry.FileDataID);
 
             var newBuildFiles = new List<int>();
-            foreach (var line in File.ReadAllLines(Path.Combine("manifests", newBuild + ".txt")))
-            {
-                var splitLine = line.Split(";");
-                if (splitLine.Length != 2)
-                    continue;
-
-                newBuildFiles.Add(int.Parse(splitLine[0]));
-            }
+            foreach (var entry in ManifestManager.GetEntriesForVersion(newBuild))
+                newBuildFiles.Add((int)entry.FileDataID);
 
             newFiles = newBuildFiles.Except(oldBuildFiles).ToHashSet();
 

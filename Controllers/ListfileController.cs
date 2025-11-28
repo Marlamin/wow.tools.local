@@ -692,21 +692,15 @@ namespace wow.tools.local.Controllers
 
             if (!string.IsNullOrEmpty(exceptInBuild))
             {
-                if (!System.IO.File.Exists(Path.Combine("manifests", exceptInBuild + ".txt")))
+                if (!ManifestManager.ExistsForVersion(exceptInBuild))
                 {
                     Console.WriteLine("Manifest file for build {0} not found", exceptInBuild);
                 }
                 else
                 {
-                    var oldBuildFiles = new List<int>();
-                    foreach (var line in System.IO.File.ReadAllLines(Path.Combine("manifests", exceptInBuild + ".txt")))
+                    foreach (var entry in ManifestManager.GetEntriesForVersion(exceptInBuild))
                     {
-                        var splitLine = line.Split(";");
-                        if (splitLine.Length != 2)
-                            continue;
-
-                        var fdid = int.Parse(splitLine[0]);
-                        skipFDIDs.Add(fdid);
+                        skipFDIDs.Add((int)entry.FileDataID);
                     }
                 }
             }
