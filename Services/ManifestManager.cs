@@ -144,7 +144,7 @@
                     Write(fileName, entries);
 
                     Console.WriteLine("Converted manifest " + fileName + " to .wtlm format.");
-                    //File.Delete(file);
+                    File.Delete(file);
                 }
             }
         }
