@@ -1,9 +1,9 @@
-﻿using CASCLib;
+﻿using AsyncKeyedLock;
+using CASCLib;
 using DBCD;
-using DBCD.Providers;
 using DBCD.IO;
+using DBCD.Providers;
 using Microsoft.Extensions.Caching.Memory;
-using System.Collections.Concurrent;
 using wow.tools.Services;
 
 namespace wow.tools.local.Services
@@ -14,7 +14,7 @@ namespace wow.tools.local.Services
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
 
         private MemoryCache Cache = new(new MemoryCacheOptions() { SizeLimit = 250 });
-        private readonly ConcurrentDictionary<(string, string, bool, LocaleFlags), SemaphoreSlim> Locks = [];
+        private readonly AsyncKeyedLocker<(string, string, bool, LocaleFlags)> Locks = new();
 
         public async Task<IDBCDStorage> GetOrLoad(string name, string build)
         {
@@ -36,11 +36,7 @@ namespace wow.tools.local.Services
             if (Cache.TryGetValue((name, build, useHotfixes, locale), out var cachedDBC))
                 return (DBCD.IDBCDStorage)cachedDBC!;
 
-            SemaphoreSlim mylock = Locks.GetOrAdd((name, build, useHotfixes, locale), k => new SemaphoreSlim(1, 1));
-
-            await mylock.WaitAsync();
-
-            try
+            using (await Locks.LockAsync((name, build, useHotfixes, locale)))
             {
                 if (!Cache.TryGetValue((name, build, useHotfixes, locale), out cachedDBC))
                 {
@@ -49,10 +45,6 @@ namespace wow.tools.local.Services
                     cachedDBC = LoadDBC(name, build, useHotfixes, locale);
                     Cache.Set((name, build, useHotfixes, locale), cachedDBC, new MemoryCacheEntryOptions().SetSize(1));
                 }
-            }
-            finally
-            {
-                mylock.Release();
             }
 
             return (DBCD.IDBCDStorage)cachedDBC!;
