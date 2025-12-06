@@ -339,6 +339,7 @@ window.createscene = async function () {
       sscTextureInputLabel.classList.add("sscInputLabel");
       sscTextureInputLabel.classList.add("sscTextureInputLabel");
       sscTextureInputDiv.id = "sscTexDiv" + i;
+      sscTextureInputDiv.appendChild(sscTextureInputLabel);
       sscTextureInputDiv.appendChild(sscTextureInput);
       sscTextureForm.appendChild(sscTextureInputDiv);
     }
