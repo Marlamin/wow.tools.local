@@ -77,9 +77,21 @@ function themeClick(theme) {
 }
 
 async function updateTitle() {
+    var title = "";
+
     if (Math.floor(Math.random() * 21) == 20) {
-        document.getElementById("nocog").innerHTML = "<img src='/img/w.svg' alt='Logo W'><img src='/img/w.svg' alt='Logo W'><span>.tools <small><i>butt local</i></small></span>";
+        title += "butt";
+    } else {
+        title += "but";
     }
+
+    if (window.location.hostname === "localhost") {
+        title += " local";
+    } else {
+        title += " not local";
+    }
+
+    document.getElementById("nocog").innerHTML = "<img src='/img/w.svg' alt='Logo W'><img src='/img/w.svg' alt='Logo W'><span>.tools <small><i>" + title + "</i></small></span>";
 }
 
 async function checkForUpdates(force = false) {
