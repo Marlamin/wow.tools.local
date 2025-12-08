@@ -72,6 +72,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public void ClearCache()
         {
+            if (SettingsManager.ReadOnly)
+                return;
+
             voSoundKitIDs.Clear();
             soundKitIDToFDID.Clear();
             fdidToSoundKitID.Clear();
@@ -83,6 +86,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public void StartBackfill()
         {
+            if (SettingsManager.ReadOnly)
+                return;
+
             var uniqueCreatureNames = creatureNames.Values.Distinct().ToList();
             var uniqueCreatureNamesLower = uniqueCreatureNames.Select(x => x.ToLowerInvariant()).ToList();
 
@@ -239,6 +245,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool updateCreatureName(uint fileDataID, string name)
         {
+            if (SettingsManager.ReadOnly)
+                return false;
+
             return SQLiteDB.SetCreatureNameForFDID((int)fileDataID, name);
         }
 

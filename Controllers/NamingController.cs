@@ -16,6 +16,9 @@ namespace wow.tools.local.Controllers
 
         public NamingController(IDBCManager dbcManager, IDBDProvider dbdProvider, IDBCProvider dbcProvider)
         {
+            if (SettingsManager.ReadOnly)
+                return;
+
             this.dbcManager = (DBCManager)dbcManager;
 
             if (!Namer.isInitialized || Namer.build != CASC.BuildName)
@@ -82,6 +85,9 @@ namespace wow.tools.local.Controllers
         [Route("ssDebug")]
         public string SSDebug(uint pid)
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             return Namer.GetSceneScriptDebug(pid);
         }
 
@@ -89,6 +95,9 @@ namespace wow.tools.local.Controllers
         [Route("ssCompileDebug")]
         public string SSCompileDebug(uint pid)
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             var compiledPackage = Namer.GetSceneScriptCompiledDebug(pid);
             return JsonConvert.SerializeObject(compiledPackage, Formatting.Indented);
         }
@@ -97,6 +106,9 @@ namespace wow.tools.local.Controllers
         [Route("singleFile")]
         public string SingleFile(int id, string name)
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             bool isPlaceholderNameM2 = name.ToLower().EndsWith(".m2") && (
                     name.StartsWith("models") ||
                     name.StartsWith("unkmaps") ||
@@ -129,6 +141,9 @@ namespace wow.tools.local.Controllers
         [Route("singleVO")]
         public string SingleVO(int id, string name)
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             var result = Namer.NameSingleVO(id, name);
 
             if (!string.IsNullOrWhiteSpace(result))
@@ -141,6 +156,9 @@ namespace wow.tools.local.Controllers
         [Route("clear")]
         public void Clear()
         {
+            if (SettingsManager.ReadOnly)
+                return;
+
             Namer.ClearNewFiles();
             InitListfile();
         }
@@ -156,6 +174,9 @@ namespace wow.tools.local.Controllers
         [Route("start")]
         public string Start()
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             var form = Request.Form;
 
             var checkboxes = form["namers"];

@@ -628,8 +628,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public async Task<bool> ExtractFiles(string search)
         {
-            if (string.IsNullOrEmpty(search))
+            if (string.IsNullOrEmpty(search) || SettingsManager.ReadOnly)
                 return false;
+
             var listfileResults = GetFilteredListfileNameMap(search.ToString());
 
             foreach (var result in listfileResults)
@@ -671,7 +672,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public async Task<bool> ExtractFileList(string listfile, bool related = false, string exceptInBuild = "")
         {
-            if (string.IsNullOrEmpty(listfile))
+            if (string.IsNullOrEmpty(listfile) || SettingsManager.ReadOnly)
                 return false;
 
             var listfileResults = new Dictionary<int, string>();
@@ -921,6 +922,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool DumpLookups()
         {
+            if (SettingsManager.ReadOnly)
+                return false;
+
             var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "lookups.txt");
             using (var sw = new StreamWriter(lookupPath))
             {
@@ -966,6 +970,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool DumpUnkLookups(string search = "")
         {
+            if (SettingsManager.ReadOnly)
+                return false;
+
             if (string.IsNullOrEmpty(SettingsManager.ExtractionDir))
                 throw new Exception("Extraction dir not set in config, please set it and try again");
 

@@ -36,6 +36,7 @@ namespace wow.tools.local
             {"buildConfigFile", new WTLSetting { Key = "buildConfigFile", Value = string.Empty, Description = "Path to a build config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"cdnConfigFile", new WTLSetting { Key = "cdnConfigFile", Value = string.Empty, Description = "Path to a CDN config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"defaultFilesSearch", new WTLSetting { Key = "defaultFilesSearch", Value = string.Empty, Description = "Default search query for files page.", Type = "string", DefaultValue = string.Empty } },
+            {"readOnly", new WTLSetting { Key = "readOnly", Value = "false", Description = "Whether to operate in read-only mode. Disables various functionality.", Type = "bool", DefaultValue = "false" }},
         };
 
         private static CASCLib.LocaleFlags cascLocale;
@@ -60,6 +61,7 @@ namespace wow.tools.local
         public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
         public static bool PreferHighResTextures { get => bool.Parse(Settings["preferHighResTextures"].Value); set => Settings["preferHighResTextures"].Value = value.ToString().ToLower(); }
         public static bool UseTACTSharp { get => bool.Parse(Settings["useTACTSharp"].Value); set => Settings["useTACTSharp"].Value = value.ToString().ToLower(); }
+        public static bool ReadOnly { get => bool.Parse(Settings["readOnly"].Value); set => Settings["readOnly"].Value = value.ToString().ToLower(); }
 
         // Enums
         public static RootInstance.LocaleFlags TACTLocale { get => tactLocale; set => tactLocale = value; }
@@ -346,6 +348,7 @@ namespace wow.tools.local
                 case "showAllFiles":
                 case "useTACTSharp":
                 case "preferHighResTextures":
+                case "readOnly":
                     if (bool.TryParse(value, out _))
                         return (true, string.Empty);
                     else

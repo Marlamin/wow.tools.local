@@ -47,16 +47,20 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public DataTablesResult QuestTable(int draw, int start, int length)
         {
-            //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.5.63534");
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
-
             var result = new DataTablesResult()
             {
                 draw = draw,
-                recordsTotal = questWDB.entries.Count,
-                recordsFiltered = questWDB.entries.Count,
                 data = []
             };
+
+            if (SettingsManager.ReadOnly)
+                return result;
+
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.7.64743");
+            //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
+           
+            result.recordsFiltered = questWDB.entries.Count;
+            result.recordsTotal = questWDB.entries.Count;
 
             if (length == -1)
             {
@@ -82,8 +86,11 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string Quest(int id)
         {
-            //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.5.63534");
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
+            if (SettingsManager.ReadOnly)
+                return "";
+
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.7.64743");
+            //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
 
             if (id == 0)
                 return JsonSerializer.Serialize(questWDB.entries);

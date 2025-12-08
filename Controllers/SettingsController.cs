@@ -17,6 +17,9 @@ namespace wow.tools.local.Controllers
         [HttpPost]
         public IActionResult Save([FromForm] Dictionary<string, string> newSettings)
         {
+            if (SettingsManager.ReadOnly)
+                return Forbid();
+
             foreach (var setting in SettingsManager.GetPersistentSettings())
             {
                 if (newSettings.TryGetValue(setting.Key, out var newSetting) && newSetting != "null" && !string.IsNullOrEmpty(newSetting))
@@ -37,6 +40,9 @@ namespace wow.tools.local.Controllers
         [HttpPost]
         public IActionResult Check([FromForm] string key, [FromForm] string? value)
         {
+            if (SettingsManager.ReadOnly)
+                return Forbid();
+
             var (isValid, message) = SettingsManager.ValidateSetting(key, value);
             if (isValid)
             {

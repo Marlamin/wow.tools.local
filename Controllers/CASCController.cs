@@ -236,6 +236,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool SwitchProduct(string product, bool isOnline = false)
         {
+            if (SettingsManager.ReadOnly)
+                return false;
+
             if (SettingsManager.UseTACTSharp)
                 CASC.InitTACT(isOnline ? "" : SettingsManager.WoWFolder, product);
             else
@@ -256,7 +259,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool SwitchConfigs(string buildconfig, string cdnconfig)
         {
-            if (!SettingsManager.UseTACTSharp)
+            if (!SettingsManager.UseTACTSharp || SettingsManager.ReadOnly)
                 return false;
 
             CASC.InitTACT(string.Empty, "wow", buildconfig, cdnconfig);
@@ -273,6 +276,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool UpdateListfile()
         {
+            if (SettingsManager.ReadOnly)
+                return false;
+
             BuildDiffCache.Invalidate();
             Listfile.Load(true);
             return true;
@@ -282,6 +288,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool ExportListfile()
         {
+            if (SettingsManager.ReadOnly)
+                return false;
+
             Listfile.Export();
             return true;
         }
@@ -290,6 +299,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool UpdateTACTKeys()
         {
+            if (SettingsManager.ReadOnly)
+                return false;
+
             WTLKeyService.LoadKeys(true);
             return true;
         }
@@ -298,6 +310,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool ExportTACTKeys()
         {
+            if (SettingsManager.ReadOnly)
+                return false;
+
             WTLKeyService.ExportTACTKeys();
             return true;
         }
@@ -1503,6 +1518,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string RelinkFile(uint fileDataID)
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             if (Listfile.Types.TryGetValue((int)fileDataID, out var fileType))
             {
                 if (fileType == "m2")
@@ -1518,6 +1536,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string StartLinking()
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             Linker.Link();
             return "";
         }
@@ -1526,6 +1547,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string ClearLinks()
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             SQLiteDB.ClearLinks();
             Linker.existingParents.Clear();
             return "";
@@ -1535,6 +1559,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string ClearFileHistory()
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             SQLiteDB.ClearHistory();
             CASC.VersionHistory.Clear();
             return "";
@@ -1544,6 +1571,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string GenerateFileHistory()
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             CASC.GenerateFileHistory();
             return "";
         }
@@ -1560,6 +1590,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string ImportAllFileHistory()
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             CASC.ImportAllFileHistory();
             return "";
         }
@@ -1568,6 +1601,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string ImportBuildIntoFileHistory(string build)
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             SQLiteDB.ImportBuildIntoFileHistory(build);
             return "";
         }
@@ -1576,6 +1612,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string ConvertManifests()
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             ManifestManager.ConvertAllTxtToWtlm();
             return "";
         }
@@ -1584,6 +1623,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public void ClearFileTypes()
         {
+            if (SettingsManager.ReadOnly)
+                return;
+
             System.IO.File.Delete("cachedUnknowns.txt");
             Listfile.Types.Clear();
             Listfile.TypeMap.Clear();
@@ -1617,6 +1659,9 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public string CheckFilesFromFile(string file = "")
         {
+            if (SettingsManager.ReadOnly)
+                return "";
+
             var filenames = System.IO.File.ReadAllLines(file);
             var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
             var reverseLookup = CASC.LookupMap.ToDictionary(x => x.Value, x => x.Key);
@@ -1713,7 +1758,7 @@ namespace wow.tools.local.Controllers
                     uint obj0FDID = 0;
                     uint tex0FDID = 0;
 
-                    if(Listfile.NameMap.TryGetValue((int)fileDataID, out var adtName))
+                    if (Listfile.NameMap.TryGetValue((int)fileDataID, out var adtName))
                     {
                         obj0FDID = Listfile.NameMap.Select(x => (Key: x.Key, Value: x.Value))
                             .Where(x => !string.IsNullOrEmpty(x.Value) && x.Value.EndsWith("_obj0.adt") && x.Value.StartsWith(adtName.Replace(".adt", "")))
