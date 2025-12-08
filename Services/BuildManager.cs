@@ -59,6 +59,7 @@ namespace wow.tools.local.Services
             buildInstance.Settings.Locale = SettingsManager.TACTLocale;
             buildInstance.Settings.Region = SettingsManager.Region;
             buildInstance.Settings.RootMode = RootInstance.LoadMode.Normal;
+            buildInstance.Settings.CDNDir = SettingsManager.CDNFolder;
 
             if (SettingsManager.AdditionalCDNs.Length > 0 && !string.IsNullOrEmpty(SettingsManager.AdditionalCDNs[0]))
                 buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.AdditionalCDNs);
