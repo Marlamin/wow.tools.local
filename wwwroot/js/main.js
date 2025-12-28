@@ -76,10 +76,17 @@ function themeClick(theme) {
     setTheme(theme)
 }
 
+function shouldShowButts() {
+    var max = 100;
+    var min = 1;
+    var luckyNumber = 42;
+    return Math.floor(Math.random() * max) + min == luckyNumber;
+}
+
 async function updateTitle() {
     var title = "";
 
-    if (Math.floor(Math.random() * 21) == 20) {
+    if (shouldShowButts()) {
         title += "butt";
     } else {
         title += "but";
