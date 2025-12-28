@@ -1296,8 +1296,10 @@ const spellAttributes14 = {
 };
 
 const spellAttributes15 = {
-
-}
+    0x1000000: 'Cast never secret',
+    0x4000000: 'Aura never secret',
+    0x80000000: 'Cooldown never secret'
+};
 
 // 151, part 0/4
 const itemStaticFlags0 = {
@@ -2138,6 +2140,7 @@ const powerTypeFlags = {
     0x00001000: 'Set to Max on level up',
     0x00002000: 'Set to Max on initial login',
     0x00004000: 'Allow Cost Mods For Players',
+    0x10000: 'Never secret'
 };
 
 // 331
