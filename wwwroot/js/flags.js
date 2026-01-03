@@ -2140,7 +2140,7 @@ const powerTypeFlags = {
     0x00001000: 'Set to Max on level up',
     0x00002000: 'Set to Max on initial login',
     0x00004000: 'Allow Cost Mods For Players',
-    0x10000: 'Never secret'
+    0x00010000: 'Never secret'
 };
 
 // 331
