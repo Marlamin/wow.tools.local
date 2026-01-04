@@ -16,3 +16,6 @@
 [submodule "TACTSharp"]
 	path = TACTSharp
 	url = https://github.com/Marlamin/TACTSharp
+[submodule "wow-filetags"]
+	path = wow-filetags
+	url = https://github.com/wowdev/wow-filetags

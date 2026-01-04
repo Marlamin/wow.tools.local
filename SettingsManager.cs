@@ -36,6 +36,7 @@ namespace wow.tools.local
             {"buildConfigFile", new WTLSetting { Key = "buildConfigFile", Value = string.Empty, Description = "Path to a build config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"cdnConfigFile", new WTLSetting { Key = "cdnConfigFile", Value = string.Empty, Description = "Path to a CDN config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"defaultFilesSearch", new WTLSetting { Key = "defaultFilesSearch", Value = string.Empty, Description = "Default search query for files page.", Type = "string", DefaultValue = string.Empty } },
+            {"tagRepo", new WTLSetting { Key = "tagRepo", Value = string.Empty, Description = "Path to the wow-filetags repository.", Type = "string", DefaultValue = string.Empty } },
             {"readOnly", new WTLSetting { Key = "readOnly", Value = "false", Description = "Whether to operate in read-only mode. Disables various functionality.", Type = "bool", DefaultValue = "false" }},
         };
 
@@ -56,6 +57,7 @@ namespace wow.tools.local
         public static string BuildConfigFile { get => Settings["buildConfigFile"].Value; set => Settings["buildConfigFile"].Value = value; }
         public static string CDNConfigFile { get => Settings["cdnConfigFile"].Value; set => Settings["cdnConfigFile"].Value = value; }
         public static string DefaultFilesSearch { get => Settings["defaultFilesSearch"].Value; set => Settings["defaultFilesSearch"].Value = value; }
+        public static string TagRepo { get => Settings["tagRepo"].Value; set => Settings["tagRepo"].Value = value; }
 
         // Bools
         public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
@@ -365,6 +367,13 @@ namespace wow.tools.local
                         return (false, "Specified CDN config file does not exist");
                 case "defaultFilesSearch":
                     return (true, string.Empty);
+                case "tagRepo":
+                    if (string.IsNullOrEmpty(value))
+                        return (true, string.Empty);
+                    else if (Directory.Exists(value) && File.Exists(Path.Combine(value, "meta", "tags.csv")))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Invalid path to wow-filetags repo directory (must contain a meta/tags.csv)");
             }
 
             return (true, "Not checked");
