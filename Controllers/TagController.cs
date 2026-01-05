@@ -70,10 +70,12 @@ namespace wow.tools.local.Controllers
             if(type == "Preset")
             {
                 var optionIndex = 0;
+                var optionKeys = new List<string>();
                 var hasOptions = Request.Form.ContainsKey("presetOption[0]");
                 while (hasOptions)
                 {
                     var presetOption = Request.Form["presetOption[" + optionIndex + "]"]!;
+                    optionKeys.Add(presetOption);
 
                     var presetDescription = "";
                     if(Request.Form.TryGetValue("presetDescription[" + optionIndex + "]", out var presetDescriptionRaw))
@@ -88,6 +90,12 @@ namespace wow.tools.local.Controllers
 
                     hasOptions = Request.Form.ContainsKey("presetOption[" + optionIndex + "]");
                 }
+
+                // Remove leftover tags
+                Services.TagService.GetTags().First(t => t.Key == key).Presets
+                    .Where(o => !optionKeys.Contains(o.Option))
+                    .ToList()
+                    .ForEach(o => Services.TagService.RemoveTagOption(key, o.Option));
             }
             return Ok(new { status = "success" });
         }
