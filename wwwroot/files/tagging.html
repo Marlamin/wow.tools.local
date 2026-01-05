@@ -295,8 +295,9 @@
             function addPresetFormRow(option, description, aliases) {
                 let numPresetRows = document.getElementsByClassName("presetRows").length;
 
-                let rowHTML = '<div class="row g-3 presetRows">';
-                rowHTML += '<div class="col-sm-3">';
+                var newRow = document.createElement("div");
+                newRow.classList = ["row g-3 presetRows"];
+                let rowHTML = '<div class="col-sm-3">';
                 rowHTML += '<input type="text" class="form-control" name="presetOption[' + numPresetRows + ']" placeholder="Option" aria-label="Option" value="' + option + '">';
                 rowHTML += '</div>';
                 rowHTML += '<div class="col-sm-6">';
@@ -305,9 +306,9 @@
                 rowHTML += '<div class="col-sm-3">';
                 rowHTML += '<input type="text" class="form-control" name="presetAliases[' + numPresetRows + ']" placeholder="Aliases (comma-separated)" aria-label="Aliases" value="' + aliases + '">';
                 rowHTML += '</div>';
-                rowHTML += '</div>';
 
-                presetForm.innerHTML += rowHTML;
+                newRow.innerHTML = rowHTML;
+                presetForm.appendChild(newRow);
             }
 
             manageTagForm.onsubmit = function (e) {

@@ -131,6 +131,13 @@ namespace wow.tools.local.Controllers
             return Ok(new { unsavedChanges = Services.TagService.HasUnsavedChanges() });
         }
 
+        [Route("needsDiskSaving")]
+        [HttpGet]
+        public IActionResult NeedsDiskSaving()
+        {
+            return Ok(new { needsDiskSaving = Services.TagService.RequiresSavingStep() });
+        }
+
         public struct DataTablesResult
         {
             public int draw { get; set; }

@@ -71,6 +71,11 @@ namespace wow.tools.local.Services
             TagRepo.RemoveTagFromFDID(fileDataID, tagKey, tagValue);
         }
 
+        public static bool RequiresSavingStep()
+        {
+            return TagRepo.RequiresSavingStep();
+        }
+
         public static bool HasUnsavedChanges()
         {
             return TagRepo.HasUnsavedChanges();
