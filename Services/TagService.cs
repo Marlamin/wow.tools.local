@@ -1,5 +1,4 @@
-﻿using WoWNamingLib.Utils;
-using WoWTagLib.DataSources;
+﻿using WoWTagLib.DataSources;
 using WoWTagLib.Types;
 
 namespace wow.tools.local.Services
@@ -39,6 +38,16 @@ namespace wow.tools.local.Services
             {
                 return new List<WTLTag>();
             }
+        }
+
+        public static List<int> GetFileDataIDsByTag(string tagKey)
+        {
+            return TagRepo.GetFileDataIDsByTag(tagKey).Select(x => x.FileDataID).ToList();
+        }
+
+        public static List<int> GetFileDataIDsByTagAndValue(string tagKey, string tagValue)
+        {
+            return TagRepo.GetFileDataIDsByTagAndValue(tagKey, tagValue).Select(x => x.FileDataID).ToList();
         }
 
         public static void AddOrUpdateTag(string name, string key, string description, string type, string category, bool allowMultiple)

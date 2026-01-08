@@ -176,6 +176,21 @@ namespace wow.tools.local.Controllers
                 var fdids = new HashSet<int>(CASC.OtherLocaleOnlyFiles);
                 return p => fdids.Contains(p.Key);
             }
+            else if (search.StartsWith("tag:"))
+            {
+                var tag = search.Substring("tag:".Length);
+                if (tag.Contains('='))
+                {
+                    var split = tag.Split('=', 2);
+                    var fdids = new HashSet<int>(TagService.GetFileDataIDsByTagAndValue(split[0], split[1]));
+                    return p => fdids.Contains(p.Key);
+                }
+                else
+                {
+                    var fdids = new HashSet<int>(TagService.GetFileDataIDsByTag(tag));
+                    return p => fdids.Contains(p.Key);
+                }
+            }
 
             return x => x.Value.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
                         x.Key.ToString().Contains(search, StringComparison.CurrentCultureIgnoreCase);
