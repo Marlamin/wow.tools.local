@@ -122,6 +122,16 @@
                             <div class="row mb-3">
                                 <div class="col-sm-11 offset-sm-1">
                                     <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="sourceCheck">
+                                        <label class="form-check-label" for="sourceCheck">
+                                            Allow overwriting of existing mappings by automated tools
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-11 offset-sm-1">
+                                    <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="allowMultipleCheck">
                                         <label class="form-check-label" for="allowMultipleCheck">
                                             Allow multiple values for this tag per file
@@ -149,7 +159,7 @@
                                     </div>
                                 </div>
                             </div>
-                      
+
                             <button type="submit" id="saveTagButton" class="btn btn-success">Save</button>
                             <button type="reset" id="cancelButton" class="btn btn-danger">Reset</button>
                         </form>
@@ -283,7 +293,9 @@
 
                             addPresetFormRow("", "", "");
                         }
+
                         document.getElementById("allowMultipleCheck").checked = tags[0].allowMultiple;
+                        document.getElementById("sourceCheck").checked = tags[0].source == 0;
 
                         refreshPresetForm();
                     })
@@ -326,6 +338,12 @@
                     data.append("allowMultiple", "True");
                 } else {
                     data.append("allowMultiple", "False");
+                }
+
+                if (document.getElementById("sourceCheck").checked) {
+                    data.append("source", "Auto");
+                } else {
+                    data.append("source", "Manual");
                 }
 
                 fetch('/tags/updateTag', {

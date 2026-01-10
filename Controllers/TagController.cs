@@ -63,9 +63,9 @@ namespace wow.tools.local.Controllers
 
         [Route("updateTag")]
         [HttpPost]
-        public IActionResult UpdateTag([FromForm]string name, [FromForm]string key, [FromForm]string description, [FromForm]string type, [FromForm]string category, [FromForm]bool allowMultiple)
+        public IActionResult UpdateTag([FromForm]string name, [FromForm]string key, [FromForm]string description, [FromForm]string type, [FromForm]string source, [FromForm]string category, [FromForm]bool allowMultiple)
         {
-            Services.TagService.AddOrUpdateTag(name, key, description, type, category, allowMultiple);
+            Services.TagService.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple);
 
             if(type == "Preset")
             {
@@ -110,9 +110,9 @@ namespace wow.tools.local.Controllers
 
         [Route("addTagToFDID")]
         [HttpPost]
-        public IActionResult AddTagToFDID(int fileDataID, string tagName, string tagSource, string tagValue)
+        public IActionResult AddTagToFDID(int fileDataID, string tagName, string tagValue)
         {
-            Services.TagService.AddTagToFDID(fileDataID, tagName, tagSource, tagValue);
+            Services.TagService.AddTagToFDID(fileDataID, tagName, tagValue);
             return Ok(new { status = "success" });
         }
 

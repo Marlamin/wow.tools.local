@@ -24,13 +24,13 @@ namespace wow.tools.local.Services
         public static List<WTLTag> GetTagsByFileDataID(int fdid)
         {
             var tagsByFDID = TagRepo.GetTagsByFileDataID(fdid);
-            if (tagsByFDID.Count() > 0)
+            if (tagsByFDID.Count > 0)
             {
                 // We have to do this because tuple types don't get output properly
                 var wtlTags = new List<WTLTag>();
                 foreach (var tag in tagsByFDID)
                 {
-                    wtlTags.Add(new WTLTag(tag.Tag, tag.TagSource.ToString(), tag.TagValue));
+                    wtlTags.Add(new WTLTag(tag.Tag, tag.TagValue));
                 }
                 return wtlTags;
             }
@@ -47,12 +47,12 @@ namespace wow.tools.local.Services
 
         public static List<int> GetFileDataIDsByTagAndValue(string tagKey, string tagValue)
         {
-            return TagRepo.GetFileDataIDsByTagAndValue(tagKey, tagValue).Select(x => x.FileDataID).ToList();
+            return TagRepo.GetFileDataIDsByTagAndValue(tagKey, tagValue);
         }
 
-        public static void AddOrUpdateTag(string name, string key, string description, string type, string category, bool allowMultiple)
+        public static void AddOrUpdateTag(string name, string key, string description, string type, string source, string category, bool allowMultiple)
         {
-            TagRepo.AddOrUpdateTag(name, key, description, type, category, allowMultiple);
+            TagRepo.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple);
         }
 
         public static void DeleteTag(string key)
@@ -70,9 +70,9 @@ namespace wow.tools.local.Services
             TagRepo.DeleteTagOption(tagKey, name);
         }
 
-        public static void AddTagToFDID(int fileDataID, string tagKey, string tagSource, string tagValue)
+        public static void AddTagToFDID(int fileDataID, string tagKey, string tagValue)
         {
-            TagRepo.AddTagToFDID(fileDataID, tagKey, tagSource, tagValue);
+            TagRepo.AddTagToFDID(fileDataID, tagKey, tagValue);
         }
 
         public static void RemoveTagFromFDID(int fileDataID, string tagKey, string tagValue)
@@ -101,5 +101,5 @@ namespace wow.tools.local.Services
         }
     }
 
-    public record WTLTag(string TagName, string Source, string TagValue);
+    public record WTLTag(string TagName, string TagValue);
 }
