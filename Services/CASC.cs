@@ -960,7 +960,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
                     var preferredEntry = rootEntries.FirstOrDefault(subentry =>
                         !subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) &&
-                        (subentry.localeFlags.HasFlag((RootInstance.LocaleFlags)buildInstance.Settings.Locale) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW)));
+                        (subentry.localeFlags.HasFlag(tactLocale) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW)));
 
                     if (preferredEntry.fileDataID == 0)
                     {
