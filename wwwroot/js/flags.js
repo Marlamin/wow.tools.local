@@ -147,7 +147,7 @@ const mapFlags3 = {
     //0x4: '',
     //0x8: '',
     //0x10: '',
-    //0x20: '',
+    0x200: 'Ignore addon instance restrictions',
     //0x40: '',
     //0x80: '',
     0x800: 'Warband Scene (maybe)'
