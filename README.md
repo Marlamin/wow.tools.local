@@ -10,6 +10,7 @@ The latest version can be downloaded [here](https://github.com/Marlamin/wow.tool
 If you want to use the File History and File Links features, be sure to download WTL.db from the latest GitHub release that has it to the directory with the `wow.tools.local.exe` executable before starting WTL for the first time.
 
 ## Configuration
+Note: The below can be partially ignored with the new settings page feature, but it may still be faster to at least set the wowFolder/wowProduct correctly.
 1. Open `config.json` in your favorite text editor.
 2. Set `wowFolder` to the directory your WoW is installed to using either \\ or / slashes. Using \ will break loading. Do NOT point it to a subdirectory like `_retail_` or anything like that, just the main "World of Warcraft" folder. You can also leave this empty, but this will stream all required files from the internet, which will be rather slow.
 3. Set `wowProduct` to the product you wish to load. For example, Mainline Retail WoW (the default) would be `wow`, Mainline PTR `wowt`, Mainline Beta `wow_beta`, Classic Retail would be `wow_classic`, etc. You can view a full list of product [here](https://wowdev.wiki/TACT#Products). If you have multiple products installed, you can also switch between them on the "Builds" page after starting, but keep in mind the product set here is always loaded first.  
