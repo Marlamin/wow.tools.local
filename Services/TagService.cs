@@ -50,9 +50,9 @@ namespace wow.tools.local.Services
             return TagRepo.GetFileDataIDsByTagAndValue(tagKey, tagValue);
         }
 
-        public static void AddOrUpdateTag(string name, string key, string description, string type, string source, string category, bool allowMultiple)
+        public static void AddOrUpdateTag(string name, string key, string description, string type, string source, string category, bool allowMultiple, string status)
         {
-            TagRepo.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple);
+            TagRepo.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple, status);
         }
 
         public static void DeleteTag(string key)

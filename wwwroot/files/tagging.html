@@ -120,6 +120,17 @@
                                 </div>
                             </div>
                             <div class="row mb-3">
+                                <label for="tagStatus" class="col-sm-1 col-form-label">Status</label>
+                                <div class="col-sm-11">
+                                    <select class="form-control" id="tagStatus" name="status">
+                                        <option value="0">Supported</option>
+                                        <option value="1">WIP</option>
+                                        <option value="2">Planned</option>
+                                        <option value="3">Deprecated</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
                                 <div class="col-sm-11 offset-sm-1">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="sourceCheck">
@@ -279,6 +290,7 @@
                         document.getElementById("tagKey").value = tags[0].key;
                         document.getElementById("tagDescription").value = tags[0].description;
                         document.getElementById("tagCategory").value = tags[0].category;
+                        document.getElementById("tagStatus").value = tags[0].status;
 
                         document.getElementById("presetCheck").checked = tags[0].type == 0;
                         if (tags[0].type == 0) {

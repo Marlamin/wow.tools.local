@@ -63,11 +63,20 @@ namespace wow.tools.local.Controllers
 
         [Route("updateTag")]
         [HttpPost]
-        public IActionResult UpdateTag([FromForm]string name, [FromForm]string key, [FromForm]string description, [FromForm]string type, [FromForm]string source, [FromForm]string category, [FromForm]bool allowMultiple)
+        public IActionResult UpdateTag([FromForm] string name, [FromForm] string key, [FromForm] string description, [FromForm] string type, [FromForm] string source, [FromForm] string category, [FromForm] bool allowMultiple, [FromForm] string status)
         {
-            Services.TagService.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple);
+            if (status == "0")
+                status = "supported";
+            else if (status == "1")
+                status = "wip";
+            else if (status == "2")
+                status = "planned";
+            else if (status == "3")
+                status = "deprecated";
 
-            if(type == "Preset")
+            Services.TagService.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple, status);
+
+            if (type == "Preset")
             {
                 var optionIndex = 0;
                 var optionKeys = new List<string>();
@@ -78,11 +87,11 @@ namespace wow.tools.local.Controllers
                     optionKeys.Add(presetOption);
 
                     var presetDescription = "";
-                    if(Request.Form.TryGetValue("presetDescription[" + optionIndex + "]", out var presetDescriptionRaw))
+                    if (Request.Form.TryGetValue("presetDescription[" + optionIndex + "]", out var presetDescriptionRaw))
                         presetDescription = presetDescriptionRaw.First();
 
                     var presetAliases = "";
-                    if(Request.Form.TryGetValue("presetAliases[" + optionIndex + "]", out var presetAliasesRaw))
+                    if (Request.Form.TryGetValue("presetAliases[" + optionIndex + "]", out var presetAliasesRaw))
                         presetAliases = presetAliasesRaw.First();
 
                     Services.TagService.AddOrUpdateTagOption(key, presetOption, presetDescription, presetAliases);
