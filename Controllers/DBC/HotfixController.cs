@@ -75,5 +75,13 @@ namespace wow.tools.local.Controllers
 
             return result;
         }
+
+        [Route("downloadLatest")]
+        [HttpGet]
+        public IActionResult DownloadLatest(string branch)
+        {
+            HotfixManager.DownloadLatest(branch);
+            return Ok();
+        }
     }
 }

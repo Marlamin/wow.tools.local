@@ -43,6 +43,15 @@
         <div class="btn-group" style="vertical-align: top">
             <a style='vertical-align: top;' id='reloadHotfixesButton' class='btn btn-danger btn-sm' onclick="reloadHotfixes();" href="#"><i class='fa fa-refresh'></i> Reload hotfix cache</a>
         </div>
+        <button type="button" class="btn btn-success btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class='fa fa-download'></i> Download cache (Raidbots)
+            <span class="visually-hidden">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="#" onclick="downloadHotfixes('retail');"><i class='fa fa-download'></i> Retail</a>
+            <a class="dropdown-item" href="#" onclick="downloadHotfixes('ptr');"><i class='fa fa-download'></i> PTR</a>
+            <a class="dropdown-item" href="#" onclick="downloadHotfixes('beta');"><i class='fa fa-download'></i> Beta</a>
+        </div>
         <table class='table' id='hotfixTable'>
             <thead>
                 <tr><th style="width: 70px;">PushID</th><th>Table name</th><th style='width: 90px;'>Rec ID</th><th>Build</th><th style='width: 135px;'>Valid?</th><th style='width: 220px;'>First seen <small>(updates on load)</small></th><th>&nbsp;</th></tr>
@@ -499,6 +508,11 @@
             window.location.reload();
         }
 
+        async function downloadHotfixes(branch) {
+            const response = await fetch("/dbc/hotfixes/downloadLatest?branch=" + branch);
+            console.log(await response.text());
+            window.location.reload();
+        }
     </script>
     <div class="modal" id="moreInfoModal" tabindex="-1" role="dialog" aria-labelledby="moreInfoModalLabel"
          aria-hidden="true">

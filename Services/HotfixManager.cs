@@ -77,6 +77,33 @@ namespace wow.tools.local.Services
             Console.WriteLine("Loaded " + knownParsedMD5s.Count + " known parsed DBCache hashes.");
         }
 
+        public static void DownloadLatest(string branch)
+        {
+            if (branch != "retail" && branch != "ptr" && branch != "beta")
+            {
+                Console.WriteLine("Invalid branch specified for hotfix download: " + branch);
+                return;
+            }
+
+            var url = $"https://storage.googleapis.com/raidbots-static/wow/{branch}/enUS/DBCache.bin";
+            using (var client = new HttpClient())
+            {
+                var response = client.GetAsync(url).Result;
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Failed to download latest DBCache.bin from " + url);
+                    return;
+                }
+
+                var data = response.Content.ReadAsByteArrayAsync().Result;
+                var savePath = Path.Combine("caches", "DBCache-Raidbots-" + branch + "-" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".bin");
+                Directory.CreateDirectory("caches");
+                File.WriteAllBytes(savePath, data);
+                
+                ParseCache(savePath);
+            }
+        }
+
         public static void LoadCaches()
         {
             // Cleanup old push IDs file if it exists
@@ -206,7 +233,7 @@ namespace wow.tools.local.Services
 
                 if (!knownPushIDs.Contains(newHotfix.pushID))
                 {
-                    if(knownPushIDRecordsInCache.Contains((newHotfix.pushID, newHotfix.recordID, newHotfix.tableHash)))
+                    if (knownPushIDRecordsInCache.Contains((newHotfix.pushID, newHotfix.recordID, newHotfix.tableHash)))
                     {
                         Console.WriteLine("Warning: Skipping hotfix with pushID " + newHotfix.pushID + " and recordID " + newHotfix.recordID + " as it was already seen in this push.");
                         continue;
