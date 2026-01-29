@@ -25,8 +25,6 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<int, EncryptionStatus> EncryptionStatuses = [];
         public static readonly Dictionary<int, List<ulong>> EncryptedFDIDs = [];
 
-        public static Dictionary<int, ulong> LookupMap = [];
-
         public static readonly Dictionary<string, List<int>> CHashToFDID = [];
         public static readonly Dictionary<int, byte[]> FDIDToCHash = [];
         public static readonly Dictionary<int, HashSet<string>> FDIDToCHashSet = [];
@@ -385,10 +383,8 @@ namespace wow.tools.local.Services
 
             EncryptedFDIDs.Clear();
             EncryptionStatuses.Clear();
-            LookupMap = [];
 
-            if (File.Exists("cachedLookups.txt"))
-                LookupMap = File.ReadAllLines("cachedLookups.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => ulong.Parse(x[1]));
+            Listfile.LoadLookups();
 
             #region Listfile
             bool listfileRes;
@@ -463,10 +459,10 @@ namespace wow.tools.local.Services
                 if (fileEntries.Count == 0)
                     continue;
 
-                LookupMap.TryAdd((int)fileEntries[0].fileDataID, entry);
+                Listfile.LookupMap.TryAdd((int)fileEntries[0].fileDataID, entry);
             }
 
-            File.WriteAllLines("cachedLookups.txt", LookupMap.Select(x => x.Key + ";" + x.Value));
+            File.WriteAllLines("cachedLookups.txt", Listfile.LookupMap.Select(x => x.Key + ";" + x.Value));
 
             Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");
             RefreshEncryptionStatus();
@@ -641,11 +637,8 @@ namespace wow.tools.local.Services
 
             EncryptedFDIDs.Clear();
             EncryptionStatuses.Clear();
-            LookupMap = [];
 
-            if (File.Exists("cachedLookups.txt"))
-                LookupMap = File.ReadAllLines("cachedLookups.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => ulong.Parse(x[1]));
-
+            Listfile.LoadLookups();
             Listfile.EnsureFDIDsPresent(AvailableFDIDs);
 
             bool listfileRes;
@@ -749,13 +742,13 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 // Lookups
                 foreach (var entry in ewrh.FileDataToLookup)
                 {
-                    if (!LookupMap.ContainsKey(entry.Key) && entry.Value != FileDataHash.ComputeHash(entry.Key))
+                    if (!Listfile.LookupMap.ContainsKey(entry.Key) && entry.Value != FileDataHash.ComputeHash(entry.Key))
                     {
-                        LookupMap.Add(entry.Key, entry.Value);
+                        Listfile.LookupMap.Add(entry.Key, entry.Value);
                     }
                 }
 
-                File.WriteAllLines("cachedLookups.txt", LookupMap.Select(x => x.Key + ";" + x.Value));
+                File.WriteAllLines("cachedLookups.txt", Listfile.LookupMap.Select(x => x.Key + ";" + x.Value));
             }
 
             Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");

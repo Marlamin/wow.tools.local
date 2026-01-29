@@ -49,6 +49,10 @@
                 <a id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Export listfile to exported-listfile.csv'><i class='fa fa-save'></i></a>
             </div>
             <div class="btn-group" role="group">
+                <a id='updateLookupsButton' class='btn btn-primary btn-sm' onclick="updateLookups();" href="#"><i class='fa fa-refresh'></i> Update lookups</a>
+                <a id='exportLookupsButton' class='btn btn-primary btn-sm' onclick="exportLookups();" href="#" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Export lookups to exported-lookups.csv'><i class='fa fa-save'></i></a>
+            </div>
+            <div class="btn-group" role="group">
                 <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
             </div>
             <div class="btn-group" role="group">
@@ -210,6 +214,16 @@
             button.innerHTML = beforeText;
         }
 
+        async function exportLookups() {
+            var button = document.getElementById("exportLookupsButton");
+            var beforeText = button.innerHTML;
+
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Exporting, please wait!";
+
+            await fetch("/casc/exportLookups");
+            button.innerHTML = beforeText;
+        }
+
         async function extractSearch() {
             var button = document.getElementById("extractSearchButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
@@ -229,6 +243,14 @@
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateListfile");
+            window.location.reload();
+        }
+
+        async function updateLookups() {
+            var button = document.getElementById("updateLookupsButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
+
+            await fetch("/casc/updateLookups");
             window.location.reload();
         }
 

@@ -295,6 +295,28 @@ namespace wow.tools.local.Controllers
             return true;
         }
 
+        [Route("updateLookups")]
+        [HttpGet]
+        public bool UpdateLookups()
+        {
+            if (SettingsManager.ReadOnly)
+                return false;
+
+            Listfile.LoadLookups(true);
+            return true;
+        }
+
+        [Route("exportLookups")]
+        [HttpGet]
+        public bool ExportLookups()
+        {
+            if (SettingsManager.ReadOnly)
+                return false;
+
+            Listfile.ExportLookups();
+            return true;
+        }
+
         [Route("updateTACTKeys")]
         [HttpGet]
         public bool UpdateTACTKeys()
@@ -892,7 +914,7 @@ namespace wow.tools.local.Controllers
             html += "<tr><td>Filename</td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "unknown/" + filedataid + ".unk") + "</td></tr>";
             html += "<tr><td>Lookup</td>";
 
-            if (CASC.LookupMap.TryGetValue(filedataid, out var lookup))
+            if (Listfile.LookupMap.TryGetValue(filedataid, out var lookup))
             {
                 var hasher = new Jenkins96();
                 html += "<td>" + lookup.ToString("X16");
@@ -1641,7 +1663,7 @@ namespace wow.tools.local.Controllers
 
             var filenames = rawContent.Split("\n").ToList();
             var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
-            var reverseLookup = CASC.LookupMap.ToDictionary(x => x.Value, x => x.Key);
+            var reverseLookup = Listfile.LookupMap.ToDictionary(x => x.Value, x => x.Key);
             var hasher = new Jenkins96();
             var results = new List<string>();
             foreach (var filename in filenames)
@@ -1664,7 +1686,7 @@ namespace wow.tools.local.Controllers
 
             var filenames = System.IO.File.ReadAllLines(file);
             var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
-            var reverseLookup = CASC.LookupMap.ToDictionary(x => x.Value, x => x.Key);
+            var reverseLookup = Listfile.LookupMap.ToDictionary(x => x.Value, x => x.Key);
             var hasher = new Jenkins96();
             var results = new List<string>();
             foreach (var filename in filenames)

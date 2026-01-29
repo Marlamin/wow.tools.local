@@ -1,5 +1,4 @@
-﻿
-namespace wow.tools.local.Services
+﻿namespace wow.tools.local.Services
 {
     public static class Listfile
     {
@@ -8,6 +7,8 @@ namespace wow.tools.local.Services
         public static readonly HashSet<int> PlaceholderFiles = [];
         public static readonly Dictionary<int, string> Types = [];
         public static readonly Dictionary<string, HashSet<int>> TypeMap = [];
+        public static readonly Dictionary<int, ulong> LookupMap = [];
+
         public static int LoadID = 0;
         public static readonly Lock LoadLock = new Lock();
         private static readonly HttpClient WebClient = new();
@@ -105,7 +106,8 @@ namespace wow.tools.local.Services
         }
         public static bool Load(bool forceRedownload = false)
         {
-            lock (LoadLock) {
+            lock (LoadLock)
+            {
                 NameMap.Clear();
                 DB2Map.Clear();
                 Types.Clear();
@@ -225,14 +227,16 @@ namespace wow.tools.local.Services
 
         public static void EnsureFDIDsPresent(List<int> fdids)
         {
-            lock (LoadLock) {
+            lock (LoadLock)
+            {
                 fdids.ForEach(x => NameMap.TryAdd(x, ""));
                 LoadID++;
             }
         }
         public static void ManualNameOverride(int id, string name, bool isPlaceholderName)
         {
-            lock (LoadLock) {
+            lock (LoadLock)
+            {
                 NameMap[id] = name;
                 if (isPlaceholderName)
                 {
@@ -244,6 +248,102 @@ namespace wow.tools.local.Services
                 }
                 LoadID++;
             }
+        }
+
+        public static void LoadLookups(bool forceRedownload = false)
+        {
+            var listfileMode = "downloaded";
+
+            if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
+                listfileMode = "parts";
+
+            LookupMap.Clear();
+
+            if (File.Exists("cachedLookups.txt"))
+            {
+                var cachedLookups = File.ReadAllLines("cachedLookups.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => ulong.Parse(x[1]));
+                foreach (var lookup in cachedLookups)
+                    LookupMap[lookup.Key] = lookup.Value;
+            }
+
+            if (listfileMode == "downloaded")
+            {
+                var download = forceRedownload;
+                bool shouldBackup = false;
+
+                var lookupName = "lookup.csv";
+
+                if (!File.Exists(lookupName))
+                {
+                    download = true;
+                }
+                else
+                {
+                    var info = new FileInfo(lookupName);
+                    if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
+                    {
+                        Console.WriteLine("Lookups outdated, redownloading...");
+                        download = true;
+                    }
+                    shouldBackup = true;
+                }
+
+                if (download)
+                {
+                    Console.WriteLine("Downloading lookups");
+
+                    if (shouldBackup)
+                    {
+                        if (File.Exists(lookupName + ".bak"))
+                            File.Delete(lookupName + ".bak");
+
+                        File.Move(lookupName, lookupName + ".bak");
+                        Console.WriteLine("Existing " + lookupName + " renamed to " + lookupName + ".bak");
+                    }
+
+                    using var s = WebClient.GetStreamAsync("https://github.com/wowdev/wow-listfile/releases/latest/download/lookup.csv").Result;
+                    using var fs = new FileStream(lookupName, FileMode.Create);
+                    s.CopyTo(fs);
+                }
+
+                if (!File.Exists(lookupName))
+                {
+                    throw new FileNotFoundException("Could not find " + lookupName);
+                }
+
+                //formatted like 5569038;86bdc3495d82c335
+                var lookupLines = File.ReadAllLines(lookupName);
+                foreach (var line in lookupLines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    LookupMap[int.Parse(splitLine[0])] = ulong.Parse(splitLine[1], System.Globalization.NumberStyles.HexNumber);
+                }
+            }
+            else if (listfileMode == "parts")
+            {
+                var lookupFile = Path.Combine(SettingsManager.ListfileURL, "..", "meta", "lookup.csv");
+                if (!File.Exists(lookupFile))
+                    throw new FileNotFoundException("Could not find " + lookupFile);
+
+                Console.WriteLine("Loading lookups from " + Path.GetFileNameWithoutExtension(lookupFile));
+                var lookupLines = File.ReadAllLines(lookupFile);
+                foreach (var line in lookupLines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    LookupMap[int.Parse(splitLine[0])] = ulong.Parse(splitLine[1], System.Globalization.NumberStyles.HexNumber);
+                }
+            }
+        }
+
+        public static void ExportLookups()
+        {
+            File.WriteAllLines("exported-lookups.csv", LookupMap.OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value.ToString("x16").ToLowerInvariant()).ToArray());
         }
     }
 }

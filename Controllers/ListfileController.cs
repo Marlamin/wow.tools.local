@@ -168,7 +168,7 @@ namespace wow.tools.local.Controllers
             }
             else if (search == "haslookup")
             {
-                var fdids = new HashSet<int>(CASC.LookupMap.Keys);
+                var fdids = new HashSet<int>(Listfile.LookupMap.Keys);
                 return p => fdids.Contains(p.Key);
             }
             else if (search == "otherlocaleonly")
@@ -394,7 +394,7 @@ namespace wow.tools.local.Controllers
             {
                 var lookupMatch = false;
 
-                if (CASC.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup))
+                if (Listfile.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup))
                 {
                     if (hasher.ComputeHash(listfileResult.Value) == lookup)
                         lookupMatch = true;
@@ -476,7 +476,7 @@ namespace wow.tools.local.Controllers
                     [
                         listfileResult.Key.ToString(), // ID
                         listfileResult.Value, // Filename
-                        CASC.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup) ? lookup.ToString("X16") : "", // Lookup
+                        Listfile.LookupMap.TryGetValue(listfileResult.Key, out ulong lookup) ? lookup.ToString("X16") : "", // Lookup
                         "", // Versions
                         Listfile.Types.TryGetValue(listfileResult.Key, out string? type) ? type : "unk", // Type
                         CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encStatus) ? encStatus.ToString() : "0"
@@ -943,7 +943,7 @@ namespace wow.tools.local.Controllers
             var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "lookups.txt");
             using (var sw = new StreamWriter(lookupPath))
             {
-                var sortedMap = CASC.LookupMap.ToDictionary();
+                var sortedMap = Listfile.LookupMap.ToDictionary();
 
                 // If our listfile setting points to a parts dir, merge in the existing meta lookup file
                 if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
@@ -997,7 +997,7 @@ namespace wow.tools.local.Controllers
             var hasher = new Jenkins96();
             using (var sw = new StreamWriter(lookupPath))
             {
-                var sortedMap = CASC.LookupMap.ToDictionary();
+                var sortedMap = Listfile.LookupMap.ToDictionary();
 
                 // If our listfile setting points to a parts dir, merge in the existing meta lookup file
                 if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
