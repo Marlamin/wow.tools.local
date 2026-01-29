@@ -56,9 +56,9 @@ namespace wow.tools.local.Controllers
             if (SettingsManager.ReadOnly)
                 return result;
 
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.7.64743");
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
             //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
-           
+
             result.recordsFiltered = questWDB.entries.Count;
             result.recordsTotal = questWDB.entries.Count;
 
@@ -89,13 +89,47 @@ namespace wow.tools.local.Controllers
             if (SettingsManager.ReadOnly)
                 return "";
 
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.7.64743");
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
             //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
 
             if (id == 0)
                 return JsonSerializer.Serialize(questWDB.entries);
             else
                 return JsonSerializer.Serialize(questWDB.entries.Where(x => x.Key == id));
+        }
+
+
+        [Route("creature")]
+        [HttpGet]
+        public string Creature(int id = 0, string format = "json")
+        {
+            if (SettingsManager.ReadOnly)
+                return "";
+
+            //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", "11.2.7.64743");
+            var creatureWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\creaturecache.wdb", CASC.BuildName);
+
+            if (format == "json")
+            {
+                if (id == 0)
+                    return JsonSerializer.Serialize(creatureWDB.entries);
+                else
+                    return JsonSerializer.Serialize(creatureWDB.entries.Where(x => x.Key == id));
+            }
+            else
+            {
+                var entries = creatureWDB.entries;
+                if (id != 0)
+                    entries = entries.Where(x => x.Key == id).ToDictionary(x => x.Key, x => x.Value);
+
+                var tsv = "";
+                foreach (var entry in entries.OrderBy(x => x.Key))
+                {
+                    tsv += entry.Key + "\t" + entry.Value["Name[0]"] + "\n";
+                }
+                return tsv;
+            }
+
         }
     }
 }
