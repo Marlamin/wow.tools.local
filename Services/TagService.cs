@@ -10,11 +10,13 @@ namespace wow.tools.local.Services
 
         static TagService()
         {
-            if (string.IsNullOrEmpty(SettingsManager.TagRepo))
+            if (string.IsNullOrEmpty(SettingsManager.TagRepo) || !Directory.Exists(SettingsManager.TagRepo))
             {
                 Enabled = false;
                 return;
             }
+
+            Enabled = true;
             
             // TODO: When releases are going we should just download the SQLite DB from there
             TagRepo = new Repository(SettingsManager.TagRepo);
