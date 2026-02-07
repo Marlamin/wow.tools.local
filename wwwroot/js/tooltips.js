@@ -126,6 +126,10 @@ function generateFKTooltip(targetFK, value, tooltip, build)
 {
     console.log("Generating foreign key tooltip for " + value);
 
+    let useHotfixes = false;
+    if (Settings != undefined && Settings.useHotfixes != undefined && Settings.useHotfixes)
+        useHotfixes = true;
+
     if (parseInt(build.split('.')[0]) > 6 && targetFK == "SoundEntries::ID")
         targetFK = "soundkit::ID";
 
@@ -142,7 +146,7 @@ function generateFKTooltip(targetFK, value, tooltip, build)
         col = "ID";
 
     Promise.all([
-        fetch("/dbc/peek/" + table + "?build=" + build + "&col=" + col + "&val=" + value),
+        fetch("/dbc/peek/" + table + "?build=" + build + "&col=" + col + "&val=" + value + "&useHotfixes=" + useHotfixes),
     ])
         .then(function (responses) {
             return Promise.all(responses.map(function (response) {

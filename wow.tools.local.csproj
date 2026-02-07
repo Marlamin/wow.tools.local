@@ -12,41 +12,49 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="caches\**" />
     <Compile Remove="cache\**" />
     <Compile Remove="CascLib\**" />
     <Compile Remove="DBCD\**" />
     <Compile Remove="dbcs\**" />
     <Compile Remove="DBDiffer\**" />
+    <Compile Remove="manifests\**" />
     <Compile Remove="TACTSharp\**" />
     <Compile Remove="temp\**" />
     <Compile Remove="wow-filetags\**" />
     <Compile Remove="WoWFormatLib\**" />
     <Compile Remove="WoWNamingLib\**" />
+    <Content Remove="caches\**" />
     <Content Remove="cache\**" />
     <Content Remove="CascLib\**" />
     <Content Remove="DBCD\**" />
     <Content Remove="dbcs\**" />
     <Content Remove="DBDiffer\**" />
+    <Content Remove="manifests\**" />
     <Content Remove="TACTSharp\**" />
     <Content Remove="temp\**" />
     <Content Remove="wow-filetags\**" />
     <Content Remove="WoWFormatLib\**" />
     <Content Remove="WoWNamingLib\**" />
+    <EmbeddedResource Remove="caches\**" />
     <EmbeddedResource Remove="cache\**" />
     <EmbeddedResource Remove="CascLib\**" />
     <EmbeddedResource Remove="DBCD\**" />
     <EmbeddedResource Remove="dbcs\**" />
     <EmbeddedResource Remove="DBDiffer\**" />
+    <EmbeddedResource Remove="manifests\**" />
     <EmbeddedResource Remove="TACTSharp\**" />
     <EmbeddedResource Remove="temp\**" />
     <EmbeddedResource Remove="wow-filetags\**" />
     <EmbeddedResource Remove="WoWFormatLib\**" />
     <EmbeddedResource Remove="WoWNamingLib\**" />
+    <None Remove="caches\**" />
     <None Remove="cache\**" />
     <None Remove="CascLib\**" />
     <None Remove="DBCD\**" />
     <None Remove="dbcs\**" />
     <None Remove="DBDiffer\**" />
+    <None Remove="manifests\**" />
     <None Remove="TACTSharp\**" />
     <None Remove="temp\**" />
     <None Remove="wow-filetags\**" />
@@ -85,6 +93,7 @@
     <None Remove="db2fdid.txt" />
     <None Remove="debug.log" />
     <None Remove="exported-listfile.csv" />
+    <None Remove="exported-lookups.csv" />
     <None Remove="exported-tactkeys.csv" />
     <None Remove="exported-unknown.csv" />
     <None Remove="groupNames.txt" />

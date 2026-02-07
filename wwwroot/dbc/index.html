@@ -259,7 +259,8 @@
             showDBDButton: false,
             showFKButton: false,
             lockedBuild: null,
-            localBuildName: ""
+            localBuildName: "",
+            useHotfixes: false
         };
 
         (async () => {
@@ -627,13 +628,18 @@
 
                     if (currentParams["build"] == "" || !validBuilds.includes(currentParams["build"])) {
                         // No build was selected, load table with the latest build
-                        console.log("No or invalid build selected, loading table with latest build");
-                        if (Settings.lockedBuild !== null) {
-                            currentParams["build"] = Settings.lockedBuild;
-                        } else {
-                            currentParams["build"] = data[0].item1;
-                        }
+                        console.log("No or invalid build selected for table " + currentDBC + ", loading table with latest build");
 
+                        if (currentDBC == "soundkitname") {
+                            console.log("SoundKitName bypass");
+                        } else {
+                            if (Settings.lockedBuild !== null) {
+                                currentParams["build"] = Settings.lockedBuild;
+                            } else {
+                                currentParams["build"] = data[0].item1;
+                            }
+                        }
+                     
                         loadTable();
                     }
 
@@ -921,6 +927,7 @@
             }
 
             if (currentParams["hotfixes"]) {
+                Settings.useHotfixes = true;
                 apiArgs += "&useHotfixes=true";
                 document.getElementById('downloadCSVButton').href = document.getElementById('downloadCSVButton').href.replace("&hotfixes=", "&useHotfixes=");
             }
@@ -1184,7 +1191,9 @@
             if (vars["hotfixes"] == "true") {
                 currentParams["hotfixes"] = true;
                 document.getElementById('hotfixToggle').checked = true;
+                Settings.useHotfixes = true;
             } else {
+                Settings.useHotfixes = false;
                 document.getElementById('hotfixToggle').checked = false;
             }
 
