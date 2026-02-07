@@ -33,6 +33,11 @@ namespace wow.tools.local.Controllers
                 else
                     Namer.SetProviders(dbcProvider, dbdProvider);
 
+                if(HotfixManager.hotfixReaders.Count == 0)
+                    HotfixManager.LoadCaches();
+
+                Namer.SetHotfixes(HotfixManager.hotfixReaders);
+
                 if (CASC.IsCASCLibInit)
                     Namer.SetCASC(ref CASC.cascHandler!, ref CASC.AvailableFDIDs);
                 else if (CASC.IsTACTSharpInit)
@@ -183,7 +188,7 @@ namespace wow.tools.local.Controllers
             var overrideVO = form.ContainsKey("overrideVO") && form["overrideVO"] == "on";
             Namer.AllowCaseRenames = form.ContainsKey("allowCaseRenames") && form["allowCaseRenames"] == "on";
 
-            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SoundKits", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "WWF", "ContentHashes" };
+            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x!)).ToArray();
 
             var buildMap = new Dictionary<uint, string>();
@@ -502,8 +507,8 @@ namespace wow.tools.local.Controllers
 
                             var buildName = Path.GetFileName(buildDir);
 
-                            // Skip expansions lower than DF
-                            if (short.Parse(buildName.Split(".")[0]) < 10)
+                            // Skip expansions lower than TWW
+                            if (short.Parse(buildName.Split(".")[0]) < 11)
                                 continue;
 
                             try
