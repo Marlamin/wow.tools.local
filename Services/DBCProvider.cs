@@ -196,6 +196,33 @@ namespace wow.tools.local.Services
                 }
             }
 
+            // -- HACK: If we're looking for SoundKitName, fall back to latest available version so we can apply hotfixes to it
+            if (tableName.Equals("soundkitname", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    Directory.CreateDirectory(Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient"));
+                    var db2File = Path.Combine(SettingsManager.DBCFolder, build, "dbfilesclient", "SoundKitName.db2");
+                    using (var client = new HttpClient())
+                    {
+                        var db2Req = client.GetAsync($"https://wago.tools/api/casc/1665033?download&version=8.3.0.32218").Result;
+                        if (db2Req.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            using (var fileStream = new FileStream(db2File, FileMode.Create, FileAccess.Write))
+                            {
+                                db2Req.Content.CopyToAsync(fileStream).Wait();
+                            }
+                        }
+                    }
+
+                    return StreamForTableName(tableName, "8.3.0.32218");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error during SoundKitName fallback: " + e.Message);
+                }
+            }
+
             throw new FileNotFoundException($"Unable to find {tableName} for {build}");
         }
     }
