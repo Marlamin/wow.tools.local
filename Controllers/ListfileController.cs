@@ -19,6 +19,7 @@ namespace wow.tools.local.Controllers
 
         private readonly Jenkins96 hasher = new();
         private static Dictionary<int, List<uint>>? SoundKitMap;
+        private static Dictionary<uint, List<int>>? SoundKitMapReverse;
         private static Dictionary<int, List<uint>>? MFDMap;
         private static Dictionary<int, List<uint>>? TFDMap;
         private static Dictionary<int, List<uint>>? CMDMap;
@@ -44,6 +45,7 @@ namespace wow.tools.local.Controllers
                         if (soundKitEntryDB != null)
                         {
                             SoundKitMap = new Dictionary<int, List<uint>>();
+                            SoundKitMapReverse = new Dictionary<uint, List<int>>();
                             foreach (var row in soundKitEntryDB.Values)
                             {
                                 var soundKitID = row.Field<uint>("SoundKitID");
@@ -52,6 +54,11 @@ namespace wow.tools.local.Controllers
                                     soundKitIDs.Add(soundKitID);
                                 else
                                     SoundKitMap[fileDataID] = new List<uint> { soundKitID };
+
+                                if(SoundKitMapReverse.TryGetValue(soundKitID, out List<int>? fileDataIDs))
+                                    fileDataIDs.Add((int)fileDataID);
+                                else
+                                    SoundKitMapReverse[soundKitID] = new List<int> { (int)fileDataID };
                             }
                         }
                     }
@@ -153,11 +160,8 @@ namespace wow.tools.local.Controllers
             else if (search.StartsWith("skitid:") || search.StartsWith("skit:"))
             {
                 ensureSoundKitMapInitialized();
-
-                if (uint.TryParse(search.Substring(search.IndexOf(":")), out var skitID))
-                {
-                    return x => SoundKitMap!.ContainsKey(x.Key) && SoundKitMap[x.Key].Contains(skitID);
-                }
+                if (uint.TryParse(search.Replace("skitid:", "").Replace("skit:", ""), out var skitID))
+                    return x => SoundKitMapReverse!.ContainsKey(skitID) && SoundKitMapReverse[skitID].Contains(x.Key);
             }
             else if (search.StartsWith("chash:"))
             {
