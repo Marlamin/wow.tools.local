@@ -641,7 +641,7 @@ namespace wow.tools.local.Controllers
 
         [Route("extractFiles")]
         [HttpGet]
-        public async Task<bool> ExtractFiles(string search)
+        public async Task<bool> ExtractFiles(string search, bool byID = false)
         {
             if (string.IsNullOrEmpty(search) || SettingsManager.ReadOnly)
                 return false;
@@ -657,13 +657,22 @@ namespace wow.tools.local.Controllers
                         if (file == null)
                             continue;
 
-                        var filePath = result.Value;
-                        if (string.IsNullOrEmpty(result.Value))
+                        string filePath;
+                        if (!byID)
                         {
-                            if (Listfile.Types.TryGetValue(result.Key, out var type))
-                                filePath = "unknown/" + result.Key.ToString() + "." + Listfile.Types[result.Key];
-                            else
-                                filePath = "unknown/" + result.Key.ToString() + ".unk";
+                            filePath = result.Value;
+                            if (string.IsNullOrEmpty(result.Value))
+                            {
+                                if (Listfile.Types.TryGetValue(result.Key, out var type))
+                                    filePath = "unknown/" + result.Key.ToString() + "." + Listfile.Types[result.Key];
+                                else
+                                    filePath = "unknown/" + result.Key.ToString() + ".unk";
+                            }
+                        }
+                        else
+                        {
+                            var fdidStr = result.Key.ToString();
+                            filePath = "file/" + fdidStr.Substring(fdidStr.Length - 2, 2) + "/" + fdidStr.Substring(fdidStr.Length - 4, 2) + "/" + fdidStr;
                         }
 
                         var path = Path.Combine(SettingsManager.ExtractionDir, filePath);
