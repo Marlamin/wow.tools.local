@@ -1,4 +1,8 @@
-﻿namespace wow.tools.local.Services
+﻿using System.Collections.Immutable;
+using System.Globalization;
+using TACTSharp;
+
+namespace wow.tools.local.Services
 {
     public static class Listfile
     {
@@ -343,7 +347,44 @@
 
         public static void ExportLookups()
         {
-            File.WriteAllLines("exported-lookups.csv", LookupMap.OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value.ToString("x16").ToLowerInvariant()).ToArray());
+            var hasher = new Jenkins96();
+            using (var sw = new StreamWriter("exported-lookups.csv"))
+            {
+                var sortedMap = Listfile.LookupMap.ToDictionary();
+
+                // If our listfile setting points to a parts dir, merge in the existing meta lookup file
+                if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
+                {
+                    var metaFile = Path.Combine(SettingsManager.ListfileURL, "..", "meta", "lookup.csv");
+
+                    if (System.IO.File.Exists(metaFile))
+                    {
+                        foreach (var line in System.IO.File.ReadAllLines(metaFile))
+                        {
+                            if (string.IsNullOrEmpty(line))
+                                continue;
+
+                            var split = line.Split(";");
+                            var fdid = int.Parse(split[0]);
+                            var lookup = ulong.Parse(split[1], NumberStyles.HexNumber);
+                            if (sortedMap.TryGetValue(fdid, out var currentLookup))
+                            {
+                                if (currentLookup != lookup)
+                                    Console.WriteLine("LOOKUP MISMATCH FOR FDID " + fdid + ": Exists as " + currentLookup.ToString("X16").ToLower() + " but tried to set to " + split[1]);
+                            }
+                            else
+                            {
+                                sortedMap.Add(fdid, lookup);
+                            }
+                        }
+                    }
+                }
+
+                foreach (var kvp in sortedMap.ToImmutableSortedDictionary())
+                {
+                    sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
+                }
+            }
         }
     }
 }
