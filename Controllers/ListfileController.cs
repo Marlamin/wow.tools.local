@@ -2,6 +2,7 @@
 using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -1007,6 +1008,8 @@ namespace wow.tools.local.Controllers
             if (!Directory.Exists(SettingsManager.ExtractionDir))
                 Directory.CreateDirectory(SettingsManager.ExtractionDir);
             var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "unk_listfile.txt");
+
+            System.IO.File.Delete(lookupPath);
             var hasher = new Jenkins96();
             using (var sw = new StreamWriter(lookupPath))
             {
@@ -1040,13 +1043,20 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
-                var searchResults = DoSearch(Listfile.GetAllNames(), search);
+                Dictionary<int, string> searchResults = [];
+
+                if (!string.IsNullOrEmpty(search))
+                    searchResults = DoSearch(Listfile.GetAllNames(), search);
+                else
+                    searchResults = Listfile.GetAllNames();
+
                 foreach (var kvp in sortedMap.ToImmutableSortedDictionary())
                 {
-                    if (!searchResults.ContainsKey(kvp.Key))
-                        continue;
+                    if(!string.IsNullOrEmpty(search))
+                        if (!searchResults.ContainsKey(kvp.Key))
+                            continue;
 
-                    if (Listfile.NameMap.TryGetValue(kvp.Key, out var filename))
+                    if (searchResults.TryGetValue(kvp.Key, out var filename))
                     {
                         if (hasher.ComputeHash(filename) != kvp.Value)
                         {
@@ -1054,7 +1064,7 @@ namespace wow.tools.local.Controllers
                             sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
                         }
                     }
-                    else if (CASC.AvailableFDIDs.Contains(kvp.Key))
+                    else
                     {
                         sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
                     }
