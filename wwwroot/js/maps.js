@@ -16,6 +16,7 @@ const Elements =
 	NextMap: document.getElementById('js-version-next'),
 	Sidebar: document.getElementById('js-sidebar'),
 	Map: document.getElementById('js-map'),
+	Notifications: document.getElementById('js-notifs'),
 	//TechBox: document.getElementById('js-techbox'),
 	//Layers: document.getElementById('js-layers'),
 	//FlightLayer: document.getElementById('js-flightlayer'),
@@ -292,13 +293,11 @@ function updateTechZoom() {
 	techBoxZoom.innerHTML = state.zoomFactor;
 }
 mapCanvas.addEventListener('mouseup', function (e) {
-	console.log('mouseup');
 	if (state.isPanning)
 		state.isPanning = false;
 });
 
 mapCanvas.addEventListener('mouseout', function (e) {
-	console.log('mouseout');
 	if (state.isPanning)
 		state.isPanning = false;
 });
@@ -309,7 +308,6 @@ mapCanvas.addEventListener('mousemove', function (event) {
 });
 
 mapCanvas.addEventListener('mousedown', function (event) {
-	console.log('mousedown');
 	if (!state.isPanning) {
 		state.isPanning = true;
 
@@ -347,8 +345,6 @@ mapCanvas.addEventListener('mousewheel', function (event) {
 	const newZoom = Math.max(1, Math.min(state.zoom, state.zoomFactor + delta));
 
 	if (newZoom !== state.zoomFactor) {
-		console.log("Zoom mouse position: " + event.clientX + ", " + event.clientY);
-
 		// Calculate zoom ratio (inverted because higher zoomFactor = smaller tiles)
 		const zoomRatio = state.zoomFactor / newZoom;
 
@@ -379,6 +375,7 @@ async function loadMapMask(mapID, directory, wdtFileDataID) {
 	state.mask = tiles;
 	if (tiles.every(fdid => fdid === 0)) {
 		d("No tiles found for map " + mapID + " in directory " + directory + " with wdtFileDataID " + wdtFileDataID);
+		notify("No tiles found for this map");
 		tiles.fill(1376431);
 	}
 	state.cache = new Array(CONSTANTS.MAP_SIZE_SQ);
@@ -386,6 +383,17 @@ async function loadMapMask(mapID, directory, wdtFileDataID) {
 	render();
 	
 	return tiles;
+}
+
+function notify(msg, level = "danger") {
+	let notif = document.createElement("div");
+	notif.classList.add("alert");
+	notif.classList.add("alert-" + level);
+	notif.textContent = msg;
+	Elements.Notifications.appendChild(notif);
+	setTimeout(() => {
+		notif.remove();
+	}, 2000);
 }
 
 function checkTileQueue() {
@@ -531,7 +539,6 @@ function setMapPosition(x, y){
 
 	updateTechCanvasPos();
 	updateTechZoom();
-	console.log("Setting map pos to " + state.offsetX + ", " + state.offsetY);
 	render();
 }
 
@@ -544,9 +551,6 @@ function mapPositionFromClientPoint(x, y) {
 	const tileX = viewOfsX / tileSize;
 	const tileY = viewOfsY / tileSize;
 
-	console.log("cx: " + x + ", cy: " + x + ", offsX: " + state.offsetX + ", offsY: " + state.offsetY + ", ts: " + tileSize);
-
-	console.log(pxPerCoord = (CONSTANTS.TILE_SIZE / tileSize));
 	const posX = CONSTANTS.MAP_COORD_BASE - (CONSTANTS.TILE_SIZE * tileX);
 	const posY = CONSTANTS.MAP_COORD_BASE - (CONSTANTS.TILE_SIZE * tileY);
 
