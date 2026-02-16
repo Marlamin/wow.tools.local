@@ -39,49 +39,44 @@
     <script src="/js/select2.min.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg" id="navbar"></nav>
     <link href="/css/maps.css" rel="stylesheet">
-    <div class="container-fluid">
-            <button id="js-sidebar-button" class="hamburger">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
+    <div>
+        <button id="js-home-button" onclick="window.location = '/'" title="Go back to WTL homepage"><i class="fa fa-home"></i></button>
+        <button id="js-sidebar-button" class="hamburger">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
 
-            <div id="js-sidebar" class="overlay sidebar">
-                <div>
-                    <select id="js-map-select" disabled></select>
-                </div>
-<!--                <div style='font-size: 12px; margin-top: 5px'>
-                    <b>Details for last click:</b><br>
-                    Coord: <span id="clickedCoord">No click. :(</span><br>
-                    Tile: <span id="clickedADT">No click. :(</span>
-                </div>-->
+        <div id="js-sidebar" class="overlay sidebar">
+            <div>
+                <select id="js-map-select" disabled></select>
             </div>
-
-            <div id="js-techbox" class="overlay techdetails">
-                Canvas pos: <span id="canvasPosX">0</span> x <span id="canvasPosY">0</span><br />
-                Mouse pos: <span id="mousePosX">0</span> x <span id="mousePosY">0</span><br />
-                WoW pos: <span id="wowPosX">0</span> x <span id="wowPosY">0</span> | <span id="adtPosX">0</span> x <span id="adtPosY">0</span><br />
-                Zoom: <span id="zoomLevel">0</span><br />
+            <div style='font-size: 12px; margin-top: 5px'>
+                <b>Details for last click:</b><br>
+                Coord: <span id="clickedCoord">No click. :(</span><br>
+                Tile: <span id="clickedADT">No click. :(</span>
             </div>
+        </div>
 
-            <button id="js-layers-button" class="layerbutton">
-                <i class="fa fa-map-marker fa-2x"></i>
-            </button>
+        <div id="js-techbox" class="overlay techdetails">
+            Canvas center: <span id="canvasPosX">0</span> x <span id="canvasPosY">0</span><br />
+            Mouse pos: <span id="mousePosX">0</span> x <span id="mousePosY">0</span><br />
+            WoW pos: <span id="wowPosX">0</span> <span id="wowPosY">0</span> | <span id="adtPosX">0</span>_<span id="adtPosY">0</span><br />
+            Zoom: <span id="zoomLevel">0</span><br />
+        </div>
 
-            <div id="js-layers" class="overlay layers closed">
-                <div style='font-size: 12px; margin-top: 5px'>WIP, still buggy!</div>
-                <div style='font-size: 12px; margin-top: 5px'><input type='checkbox' name='flightpoints' id='js-flightlayer'> <label for="js-flightlayer">Flight masters</label></div>
-                <div style='font-size: 12px;'><input type='checkbox' name='pois' id='js-poilayer'> <label for="js-poilayer">Points of interest</label></div>
-                <div style='font-size: 12px;'><input type='checkbox' name='adtgrid' id='js-adtgrid'> <label for="js-adtgrid">ADT grid</label></div>
-                <!-- <div style='font-size: 12px;'><input type='checkbox' name='worldmap' id='js-worldmap'> <label for="js-worldmap">World maps (large download!)</label></div> -->
-                <div style='font-size: 12px;'><input type='checkbox' name='mnam' id='js-mnam'> <label for="js-mnam">Map Anima (MNAM) data</label></div>
-            </div>
+        <button id="js-layers-button" class="layerbutton">
+            <i class="fa fa-map-marker fa-2x"></i>
+        </button>
 
-            <div id="js-notifs">
-            </div>
-            <canvas id="map-canvas" width="1920" height="1080"></canvas>
+        <div id="js-layers" class="overlay layers closed">
+            <div style='font-size: 12px;'><input type='checkbox' name='adtgrid' id='js-adtgrid'> <label for="js-adtgrid">ADT grid</label></div>
+        </div>
+
+        <div id="js-notifs">
+        </div>
+        <canvas id="map-canvas" width="1920" height="1080"></canvas>
     </div>
     <script type="text/javascript" src="/js/maps.js"></script>
 </body>

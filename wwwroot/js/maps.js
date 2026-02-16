@@ -7,30 +7,21 @@ const CONSTANTS = {
 	MAP_OFFSET: 17066,
 }
 
-
 const Elements =
 {
 	Maps: document.getElementById('js-map-select'),
-	Versions: document.getElementById('js-version-select'),
-	PrevMap: document.getElementById('js-version-prev'),
-	NextMap: document.getElementById('js-version-next'),
 	Sidebar: document.getElementById('js-sidebar'),
 	Map: document.getElementById('js-map'),
 	Notifications: document.getElementById('js-notifs'),
 	TechBox: document.getElementById('js-techbox'),
-	//Layers: document.getElementById('js-layers'),
-	//FlightLayer: document.getElementById('js-flightlayer'),
-	//POILayer: document.getElementById('js-poilayer'),
 	//ADTGrid: document.getElementById('js-adtgrid'),
-	//MNAM: document.getElementById('js-mnam')
 };
 
 const Current =
 {
-	BuildName: "",
 	Map: false,
-	InternalMap: false,
-	InternalMapID: false,
+	InternalMap: "Azeroth",
+	InternalMapID: 0,
 	Version: 0,
 	wdtFileDataID: 0
 };
@@ -47,7 +38,6 @@ const state = {
 	tileSize: 512,
 	mask: [],
 	zoom: 15,
-	ready: false,
 	map: 0 // Azeroth?
 };
 
@@ -67,10 +57,10 @@ const techBoxZoom = document.getElementById('zoomLevel');
 
 var d = function (text) { console.log(text); };
 
- //Sidebar button
+//Sidebar button
 document.getElementById('js-sidebar-button').addEventListener('click', function () {
 	Elements.Sidebar.classList.toggle('closed');
-    Elements.TechBox.classList.toggle('closed');
+	Elements.TechBox.classList.toggle('closed');
 	document.getElementById('js-sidebar-button').classList.toggle('closed');
 });
 
@@ -80,7 +70,6 @@ document.getElementById('js-sidebar-button').addEventListener('click', function 
 //});
 
 (async () => {
-	d("initializing");
 	resizeWindow = function () {
 		window.w = state.canvas.width = window.innerWidth;
 		return window.h = state.canvas.height = window.innerHeight;
@@ -91,16 +80,13 @@ document.getElementById('js-sidebar-button').addEventListener('click', function 
 	var maps = await InitializeMapList();
 	await InitializeMapOptions(maps);
 	await InitializeEvents();
-	loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
-	setDefaultPosition();
+	await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
 	render();
 })();
 
 async function InitializeMapList() {
-	d("requesting map list");
 	var response = await fetch('/map/list');
 	var json = await response.json();
-	d("got map list");
 	return json;
 }
 
@@ -123,8 +109,8 @@ async function InitializeMapOptions(maps) {
 		if (i === 0 || map.internal === decodeURIComponent(url[2])) {
 
 			Current.Map = map.id;
-			Current.InternalMap = map.internal;
-			Current.InternalMapID = map.internal_mapid;
+			Current.InternalMap = map.internalName;
+			Current.InternalMapID = map.id;
 			Current.wdtFileDataID = map.wdtFileDataID;
 			Current.Version = '' + parseInt(url[3], 10);
 			if (map.internal === decodeURIComponent(url[2])) {
@@ -134,12 +120,9 @@ async function InitializeMapOptions(maps) {
 	});
 
 	Elements.Maps.appendChild(fragment);
-
-	d('Initialized map ' + Current.Map + ' on version ' + Current.Version);
 }
 
 async function InitializeEvents() {
-	d("initializing events");
 	var select2El = $("#js-map-select").select2({ matcher: wowMapMatcher, disabled: false });
 	Elements.MapSelect2 = select2El;
 	$(Elements.Maps).on('change', function (event) {
@@ -150,86 +133,7 @@ async function InitializeEvents() {
 		loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
 	});
 
-	//Elements.FlightLayer.addEventListener('click', function () {
-	//	if (Elements.FlightLayer.checked) {
-	//		d('Enabled flight paths');
-	//		if (Current.InternalMapID == undefined) {
-	//			d("Unknown mapid, can't request fps");
-	//			return;
-	//		}
-	//		fpxhr.open('GET', '/maps/api.php?type=flightpaths&build=' + Versions[Current.Map][Current.Version].fullbuild + '&mapid=' + Current.InternalMapID);
-	//		fpxhr.responseType = 'json';
-	//		fpxhr.send();
-	//	} else {
-	//		d('Disabled flight paths');
-	//		LeafletMap.removeLayer(FlightPathLayer);
-	//		FlightPathLayer = new L.LayerGroup();
-	//	}
-	//});
-
-	//Elements.POILayer.addEventListener('click', function () {
-	//	if (Elements.POILayer.checked) {
-	//		d('Enabled POIs');
-	//		if (Current.InternalMapID == undefined) {
-	//			d("Unknown mapid, can't request POIs");
-	//			return;
-	//		}
-
-	//		var poixhr = new XMLHttpRequest();
-	//		poixhr.responseType = 'json';
-	//		poixhr.onreadystatechange = function () {
-	//			if (poixhr.readyState === 4) {
-	//				ProcessPOIResult(poixhr.response);
-	//			}
-	//		}
-
-	//		poixhr.open('GET', '/maps/api.php?type=pois&build=' + Versions[Current.Map][Current.Version].fullbuild + '&mapid=' + Current.InternalMapID, true);
-	//		poixhr.send();
-	//	} else {
-	//		d('Disabled POIs')
-	//		LeafletMap.removeLayer(POILayer);
-	//		POILayer = new L.LayerGroup();
-	//	}
-	//});
-
-	//Elements.ADTGrid.addEventListener('click', function () {
-	//	if (Elements.ADTGrid.checked) {
-	//		d('Enabled ADT grid');
-	//		ADTGridLayer = new L.LayerGroup();
-	//		ADTGridTextLayer = new L.LayerGroup();
-	//		for (var x = 0; x < 64; x++) {
-	//			for (var y = 0; y < 64; y++) {
-	//				var fromlat = WoWtoLatLng(maxSize - (x * adtSize), -maxSize);
-	//				var tolat = WoWtoLatLng(maxSize - (x * adtSize), maxSize);
-	//				ADTGridLayer.addLayer(new L.polyline([fromlat, tolat], { weight: 0.1, color: 'red' }));
-
-	//				var fromlat = WoWtoLatLng(maxSize, maxSize - (x * adtSize));
-	//				var tolat = WoWtoLatLng(-maxSize, maxSize - (x * adtSize));
-	//				ADTGridLayer.addLayer(new L.polyline([fromlat, tolat], { weight: 0.1, color: 'red' }));
-	//			}
-	//		}
-	//		refreshADTGrid();
-	//		ADTGridLayer.addTo(LeafletMap);
-	//	} else {
-	//		d('Disabled ADT grid')
-	//		LeafletMap.removeLayer(ADTGridLayer);
-	//		LeafletMap.removeLayer(ADTGridTextLayer);
-	//	}
-	//});
-
-	//LeafletMap.on('moveend zoomend dragend', function () {
-	//	SynchronizeTitleAndURL();
-	//	if (Elements.ADTGrid.checked) {
-	//		refreshADTGrid();
-	//	}
-	//});
-
-	//LeafletMap.on('click', function (e) {
-	//	ProcessOffsetClick(e, Versions[Current.Map][Current.Version].config.offset.min);
-	//});
-
 	Elements.Maps.disabled = false;
-	d("initialized events");
 	return true;
 }
 
@@ -283,9 +187,9 @@ function updateTechMousePos(x, y) {
 }
 
 function updateTechWoWPos(x, y) {
-	var wowPos = mapPositionFromClientPoint(x, y);
-	techBoxWoWPosX.innerHTML = Math.round(wowPos.posX, 3);
-	techBoxWoWPosY.innerHTML = Math.round(wowPos.posY, 3);
+	var wowPos = canvasPosToWoW(x, y);
+	techBoxWoWPosX.innerHTML = Math.round(wowPos.ingameX, 3);
+	techBoxWoWPosY.innerHTML = Math.round(wowPos.ingameY, 3);
 	techBoxWoWPosADTX.innerHTML = Math.round(wowPos.tileX, 3);
 	techBoxWoWPosADTY.innerHTML = Math.round(wowPos.tileY, 3);
 }
@@ -293,9 +197,14 @@ function updateTechWoWPos(x, y) {
 function updateTechZoom() {
 	techBoxZoom.innerHTML = state.zoomFactor;
 }
+
 mapCanvas.addEventListener('mouseup', function (e) {
 	if (state.isPanning)
 		state.isPanning = false;
+
+	const canvasPos = canvasPosToWoW(event.clientX, event.clientY);
+	document.getElementById("clickedCoord").textContent = Math.floor(canvasPos.ingameX) + ' ' + Math.floor(canvasPos.ingameY) + ' ' + 200 + ' ' + Current.InternalMapID;
+	document.getElementById("clickedADT").textContent = Current.InternalMap + '_' + canvasPos.tileX + '_' + canvasPos.tileY;
 });
 
 mapCanvas.addEventListener('mouseout', function (e) {
@@ -308,16 +217,34 @@ mapCanvas.addEventListener('mousemove', function (event) {
 	updateTechWoWPos(event.clientX, event.clientY);
 });
 
+function canvasPosToWoW(x, y) {
+	const tileSize = Math.floor(state.tileSize / state.zoomFactor);
+
+	const canvasX = x - state.offsetX;
+	const canvasY = y - state.offsetY;
+
+	const pixelX = Math.floor(canvasX * state.zoomFactor);
+	const pixelY = Math.floor(canvasY * state.zoomFactor);
+
+	const tileY = Math.floor(canvasY / tileSize);
+	const tileX = Math.floor(canvasX / tileSize);
+
+	var adtsToCenterX = ((canvasY / tileSize)) - 32;
+	var adtsToCenterY = ((canvasX / tileSize)) - 32;
+
+	var ingameX = -(adtsToCenterX * CONSTANTS.TILE_SIZE); // (╯°□°）╯︵ ┻━┻
+	var ingameY = -(adtsToCenterY * CONSTANTS.TILE_SIZE); // (╯°□°）╯︵ ┻━┻
+
+	return { pixelX, pixelY, tileX, tileY, ingameX, ingameY };
+}
+
 mapCanvas.addEventListener('mousedown', function (event) {
 	if (!state.isPanning) {
 		state.isPanning = true;
 
-		// Store the X/Y of the mouse event to calculate drag deltas.
 		this.mouseBaseX = event.clientX;
 		this.mouseBaseY = event.clientY;
 
-		// Store the current offsetX/offsetY used for relative panning
-		// as the user drags the component.
 		this.panBaseX = state.offsetX;
 		this.panBaseY = state.offsetY;
 
@@ -327,14 +254,11 @@ mapCanvas.addEventListener('mousedown', function (event) {
 
 mapCanvas.addEventListener('mousemove', function (event) {
 	if (state.isPanning) {
-		// Calculate the distance from our mousedown event.
 		const deltaX = this.mouseBaseX - event.clientX;
 		const deltaY = this.mouseBaseY - event.clientY;
 
-		// Update the offset based on our pan base.
 		state.offsetX = this.panBaseX - deltaX;
 		state.offsetY = this.panBaseY - deltaY;
-		// Offsets are not reactive, manually trigger an update.
 
 		updateTechCanvasPos();
 		render();
@@ -346,14 +270,11 @@ mapCanvas.addEventListener('mousewheel', function (event) {
 	const newZoom = Math.max(1, Math.min(state.zoom, state.zoomFactor + delta));
 
 	if (newZoom !== state.zoomFactor) {
-		// Calculate zoom ratio (inverted because higher zoomFactor = smaller tiles)
 		const zoomRatio = state.zoomFactor / newZoom;
 
-		// Adjust offsets to keep the mouse position fixed, this kinda mirrors what map.wow.tools does
 		state.offsetX = (state.offsetX - event.clientX) * zoomRatio + event.clientX;
 		state.offsetY = (state.offsetY - event.clientY) * zoomRatio + event.clientY;
 
-		// Pan the map to the cursor position.
 		state.zoomFactor = newZoom;
 		updateTechZoom();
 		initializeCache();
@@ -375,7 +296,6 @@ async function loadMapMask(mapID, directory, wdtFileDataID) {
 	const tiles = await response.json();
 	state.mask = tiles;
 	if (tiles.every(fdid => fdid === 0)) {
-		d("No tiles found for map " + mapID + " in directory " + directory + " with wdtFileDataID " + wdtFileDataID);
 		notify("No tiles found for this map");
 	}
 	state.cache = new Array(CONSTANTS.MAP_SIZE_SQ);
@@ -388,6 +308,7 @@ async function loadMapMask(mapID, directory, wdtFileDataID) {
 }
 
 function notify(msg, level = "danger") {
+	Elements.Notifications.innerHTML = "";
 	let notif = document.createElement("div");
 	notif.classList.add("alert");
 	notif.classList.add("alert-" + level);
@@ -410,8 +331,8 @@ function queueTile(x, y, index, tileSize) {
 	const node = { x, y, index, tileSize };
 	if (state.awaitingTile)
 		state.tileQueue.push(node);
-    else
-        loadTile(node);
+	else
+		loadTile(node);
 }
 
 async function loadTile(tile) {
@@ -434,16 +355,16 @@ function setDefaultPosition() {
 		const center = Math.floor(CONSTANTS.MAP_COORD_BASE / CONSTANTS.TILE_SIZE)
 		const centerIndex = state.mask[(center * CONSTANTS.MAP_SIZE) + center];
 
-		if (centerIndex === 0) {
-			const index = state.mask.findIndex(e => e > 1);
-
+		if (centerIndex !== 0) {
+			posX = ((center - 32) * CONSTANTS.TILE_SIZE) * -1;
+			posY = ((center - 32) * CONSTANTS.TILE_SIZE) * -1;
+		} else {
+			const index = state.mask.findIndex(e => e > 0);
 			if (index > -1) {
-				// Translate the index into chunk co-ordinates, expand those to in-game co-ordinates
-				// and then offset by half a chunk so that we are centered on the chunk.
-				const chunkX = index % CONSTANTS.MAP_SIZE;
-				const chunkY = Math.floor(index / CONSTANTS.MAP_SIZE);
-				posX = ((chunkX - 32) * CONSTANTS.TILE_SIZE) * -1;
-				posY = ((chunkY - 32) * CONSTANTS.TILE_SIZE) * -1;
+				const tileX = index % CONSTANTS.MAP_SIZE;
+				const tileY = Math.floor(index / CONSTANTS.MAP_SIZE);
+				posX = ((tileY - 32) * CONSTANTS.TILE_SIZE) * -1;
+				posY = ((tileX - 32) * CONSTANTS.TILE_SIZE) * -1;
 			}
 		}
 	}
@@ -451,75 +372,46 @@ function setDefaultPosition() {
 	setMapPosition(posX, posY);
 }
 
-function render() {
+async function render() {
 	if (state.map === null)
 		return;
 
-	// No canvas reference? Component likely dismounting.
+	if (state.mask.length === 0)
+		return;
+
 	const canvas = state.canvas;
 	if (!canvas)
 		return;
 
-	//resizeWindow();
-
-	if (state.mask.length === 0)
-		return;
-	// Update the internal canvas dimensions to match the element.
+	// We do this on purpose to clear the canvas, get rendering bugs on Chrome without
 	canvas.width = canvas.offsetWidth;
 	canvas.height = canvas.offsetHeight;
-	//console.log(canvas.width);
-	
-	//window.w = canvas.width = window.innerWidth;
-	//window.h = canvas.height = window.innerHeight;
 
-	// Viewport width/height defines what is visible to the user.
-	const viewportWidth = canvas.clientWidth;
-	const viewportHeight = canvas.clientHeight;
-
-	// Calculate which tiles will appear within the viewer.
+	const ctx = state.ctx;
 	const tileSize = Math.floor(state.tileSize / state.zoomFactor);
+	const viewportWidth = canvas.width;
+	const viewportHeight = canvas.height;
 
-	// Get local reference to the canvas context.
-	ctx = state.ctx;
-	// We need to use a local reference to the cache so that async callbacks
-	// for tile loading don't overwrite the most current cache if they resolve
-	// after a new map has been selected.
-	const cache = state.cache;
-	// Iterate over all possible tiles in a map and render as needed.
-	for (let x = 0; x < CONSTANTS.MAP_SIZE; x++) {
-		for (let y = 0; y < CONSTANTS.MAP_SIZE; y++) {
-			// drawX/drawY is the absolute position to draw this tile.
+	const minTileX = Math.max(0, Math.floor(-state.offsetX / tileSize));
+	const minTileY = Math.max(0, Math.floor(-state.offsetY / tileSize));
+	const maxTileX = Math.min(CONSTANTS.MAP_SIZE, Math.ceil((viewportWidth - state.offsetX) / tileSize) + 1);
+	const maxTileY = Math.min(CONSTANTS.MAP_SIZE, Math.ceil((viewportHeight - state.offsetY) / tileSize) + 1);
+
+	for (let x = minTileY; x < maxTileY; x++) {
+		for (let y = minTileX; y < maxTileX; y++) {
 			const drawX = (y * tileSize) + state.offsetX;
 			const drawY = (x * tileSize) + state.offsetY;
 
-			// Cache is a one-dimensional array, calculate the index as such.
 			const index = (x * CONSTANTS.MAP_SIZE) + y;
-			const cached = cache[index];
+			const cached = state.cache[index];
 
-			// This chunk is masked out, so skip rendering it.
-			if (state.mask && state.mask[index] === 0) {
+			if (state.mask && state.mask[index] === 0)
 				continue;
-			}
 
-			// Skip tiles that are not in (or around) the viewport.
-			if (drawX > (viewportWidth + tileSize) || drawY > (viewportHeight + tileSize) || drawX + tileSize < -tileSize || drawY + tileSize < -tileSize) {
-
-				// Clear out cache entries for tiles no longer in viewport.
-				//if (cached !== undefined) {
-				//	ctx.clearRect(drawX, drawY, tileSize, tileSize);
-				//	cache[index] = undefined;
-				//}
-
-				continue;
-			}
-			// No cache, request it (async) then skip.
 			if (cached === undefined) {
-				// Set the tile cache to 'true' so it is skipped while loading.
-				cache[index] = true;
-				// Add this tile to the loading queue.
+				state.cache[index] = true;
 				queueTile(x, y, index, tileSize);
 			} else if (cached instanceof ImageData) {
-				// If the tile is renderable, render it.
 				ctx.putImageData(cached, drawX, drawY);
 			}
 		}
@@ -527,14 +419,10 @@ function render() {
 }
 
 function setMapPosition(x, y){
-	// Translate to WoW co-ordinates.
-	const posX = y;
-	const posY = x;
-
 	const tileSize = Math.floor(state.tileSize / state.zoomFactor);
 
-	const ofsX = (((posX - CONSTANTS.MAP_COORD_BASE) / CONSTANTS.TILE_SIZE) * tileSize);
-	const ofsY = (((posY - CONSTANTS.MAP_COORD_BASE) / CONSTANTS.TILE_SIZE) * tileSize);
+	const ofsX = (((y - CONSTANTS.MAP_COORD_BASE) / CONSTANTS.TILE_SIZE) * tileSize);
+	const ofsY = (((x - CONSTANTS.MAP_COORD_BASE) / CONSTANTS.TILE_SIZE) * tileSize);
 
 	state.offsetX = ofsX + (state.canvas.clientWidth / 2);
 	state.offsetY = ofsY + (state.canvas.clientHeight / 2);
@@ -542,21 +430,6 @@ function setMapPosition(x, y){
 	updateTechCanvasPos();
 	updateTechZoom();
 	render();
-}
-
-function mapPositionFromClientPoint(x, y) {
-	const viewOfsX = (x - state.canvas.clientWidth) - state.offsetX;
-	const viewOfsY = (y - state.canvas.clientHeight) - state.offsetY;
-
-
-	const tileSize = Math.floor(state.tileSize / state.zoomFactor);
-	const tileX = viewOfsX / tileSize;
-	const tileY = viewOfsY / tileSize;
-
-	const posX = CONSTANTS.MAP_COORD_BASE - (CONSTANTS.TILE_SIZE * tileX);
-	const posY = CONSTANTS.MAP_COORD_BASE - (CONSTANTS.TILE_SIZE * tileY);
-
-	return { tileX: Math.floor(tileX), tileY: Math.floor(tileY), posX: posY, posY: posX };
 }
 
 function setZoomFactor(factor) {

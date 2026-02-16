@@ -1,14 +1,18 @@
-﻿/*.ui-map-viewer {
+﻿html, body {
+	margin: 0;
+	padding: 0;
 	width: 100%;
 	height: 100%;
 }
-*/
-/*canvas {
+
+#map-canvas {
 	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
 }
-*/
 
 .container-fluid{
 	padding: 0px;
@@ -29,19 +33,27 @@
 	margin: 0 10px;
 }
 
-/*body{
-	width: 100%;
-	height: 100%;
-	padding-bottom: 0px;
+#js-home-button {
+    position: absolute;
+    cursor: pointer;
+    top: 10px;
+    left: 10px;
+    width: 46px;
+    height: 46px;
+    border: 0;
+    background-color: rgba(255, 255, 255, 0.3);
+    transition: background-color 0.1s ease;
+    border-radius: 50%;
+    outline: none;
+    z-index: 2;
+	color: black;
 }
 
-.container-fluid {
-	width: 100%;
-	height: calc(100% - 57px);
-	padding: 0px;
-	margin: 0px;
-}*/
-/* old */
+#js-home-button:hover,
+#js-home-button:focus {
+	background-color: #64B5F6;
+}
+
 .layerbutton {
 	display: none;
 	position: absolute;
@@ -102,11 +114,11 @@
 }
 
 .sidebar {
-	top: 57px;
+	top: 60px;
 	left: 0;
 	width: 300px;
-	/* height: 110px; */
-	height: 50px;
+	height: 110px;
+	border-top-right-radius: 6px;
 	border-bottom-right-radius: 6px;
 	padding-left: 20px;
 	padding-right: 20px;
@@ -153,8 +165,7 @@
 }
 
 .techdetails {
-	/*top: 170px;*/
-	top: 120px;
+	top: 175px;
 	left: 0px;
 	width: 250px;
 	height: 100px;
