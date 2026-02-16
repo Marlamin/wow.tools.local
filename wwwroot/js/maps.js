@@ -530,6 +530,7 @@ function setMapPosition(x, y){
 	state.offsetY = ofsY + (state.canvas.clientHeight / 2);
 
 	updateTechCanvasPos();
+	updateTechZoom();
 	console.log("Setting map pos to " + state.offsetX + ", " + state.offsetY);
 	render();
 }
