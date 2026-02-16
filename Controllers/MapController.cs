@@ -25,7 +25,12 @@ namespace wow.tools.local.Controllers
         public FileContentResult Tile(uint fileDataID, int targetSize)
         {
             if (!CASC.FileExists(fileDataID))
-                fileDataID = 189076;
+            {
+                var emptyImage = new Image<Rgba32>(targetSize, targetSize);
+                var emptyPixels = new byte[targetSize * targetSize * 4];
+                emptyImage.CopyPixelDataTo(emptyPixels);
+                return new FileContentResult(emptyPixels, "application/octet-stream");
+            }
 
             var blp = new BLPSharp.BLPFile(CASC.GetFileByID(fileDataID));
             var pixels = blp.GetPixels(0, out var w, out var h);
