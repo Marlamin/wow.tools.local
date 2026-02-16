@@ -344,22 +344,23 @@ mapCanvas.addEventListener('mousewheel', function (event) {
 	const delta = event.deltaY > 0 ? 1 : -1;
 	const newZoom = Math.max(1, Math.min(state.zoom, state.zoomFactor + delta));
 
-	// Setting the new zoom factor even if it hasn't changed would have no effect due to
-	// the zoomFactor watcher being reactive, but we still check it here so that we only
-	// pan the map to the new zoom point if we're actually zooming.
 	if (newZoom !== state.zoomFactor) {
-		// Get the in-game position of the mouse cursor.
-		console.log("Start zoom");
 		console.log("Zoom mouse position: " + event.clientX + ", " + event.clientY);
 
-		const point = mapPositionFromClientPoint(event.clientX, event.clientY);
-		console.log("Zoom in-game position: " + mapPositionFromClientPoint(event.clientX, event.clientY));
+		// Calculate zoom ratio (inverted because higher zoomFactor = smaller tiles)
+		const zoomRatio = state.zoomFactor / newZoom;
 
-		// Set the new zoom factor. This will not trigger a re-render.
-		setZoomFactor(newZoom);
+		// Adjust offsets to keep the mouse position fixed, this kinda mirrors what map.wow.tools does
+		state.offsetX = (state.offsetX - event.clientX) * zoomRatio + event.clientX;
+		state.offsetY = (state.offsetY - event.clientY) * zoomRatio + event.clientY;
 
 		// Pan the map to the cursor position.
-		setMapPosition(point.posX, point.posY);
+		state.zoomFactor = newZoom;
+		updateTechZoom();
+		initializeCache();
+
+		updateTechCanvasPos();
+		render();
 	}
 	event.preventDefault();
 	return false;
