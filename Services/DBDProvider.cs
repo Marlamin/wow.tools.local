@@ -10,6 +10,7 @@ namespace wow.tools.Services
         private Dictionary<string, (string FilePath, Structs.DBDefinition Definition)> definitionLookup = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, List<string>> relationshipMap = [];
         public bool isUsingBDBD = false;
+        private static Lock bdbdLock = new Lock();
 
         public DBDProvider()
         {
@@ -19,45 +20,46 @@ namespace wow.tools.Services
 
         public static Stream GetBDBDStream(bool forceNew = false)
         {
-            var downloadBDBD = false;
-            var cacheLocation = Path.Combine("cache", "all.bdbd");
-            var fileInfo = new FileInfo(cacheLocation);
-
-            if (fileInfo.Exists)
+            lock (bdbdLock)
             {
-                if (DateTime.Now > fileInfo.LastWriteTime.AddDays(1))
-                    downloadBDBD = true;
-            }
-            else
-            {
-                downloadBDBD = true;
-            }
+                var downloadBDBD = false;
+                var cacheLocation = Path.Combine("cache", "all.bdbd");
+                var fileInfo = new FileInfo(cacheLocation);
 
-            if (forceNew)
-                downloadBDBD = true;
-
-            if (downloadBDBD)
-            {
-                if(!Directory.Exists("cache"))
-                    Directory.CreateDirectory("cache");
-
-                using (var client = new HttpClient())
+                if (fileInfo.Exists)
                 {
-                    client.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
-                    var response = client.GetAsync("https://github.com/wowdev/WoWDBDefs/releases/latest/download/all.bdbd").Result;
-                    if (response.IsSuccessStatusCode)
-                    {
-                        File.WriteAllBytes(cacheLocation, response.Content.ReadAsByteArrayAsync().Result);
-                    }
-                    else
-                        Console.WriteLine("Failed to download all.bdbd from GitHub: " + response.StatusCode.ToString());
+                    if (DateTime.Now > fileInfo.LastWriteTime.AddDays(1))
+                        downloadBDBD = true;
                 }
+                else
+                {
+                    downloadBDBD = true;
+                }
+
+                if (forceNew)
+                    downloadBDBD = true;
+
+                if (downloadBDBD)
+                {
+                    if (!Directory.Exists("cache"))
+                        Directory.CreateDirectory("cache");
+
+                    using (var client = new HttpClient())
+                    {
+                        client.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
+                        var response = client.GetAsync("https://github.com/wowdev/WoWDBDefs/releases/latest/download/all.bdbd").Result;
+                        if (response.IsSuccessStatusCode)
+                            File.WriteAllBytes(cacheLocation, response.Content.ReadAsByteArrayAsync().Result);
+                        else
+                            Console.WriteLine("Failed to download all.bdbd from GitHub: " + response.StatusCode.ToString());
+                    }
+                }
+
+                if (!File.Exists(cacheLocation))
+                    throw new Exception("all.bdbd not found");
+
+                return new FileStream(cacheLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
             }
-
-            if (!File.Exists(cacheLocation))
-                throw new Exception("all.bdbd not found");
-
-            return new FileStream(cacheLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
 
         public int LoadDefinitions(bool clearCache = false)
