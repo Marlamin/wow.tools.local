@@ -914,6 +914,12 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             }
         }
 
+        public static uint GetFileDataIDByName(string name)
+        {
+            // TODO: native CASCLib/TACTSharp functions instead of relying on listfile.
+            return (uint)Listfile.NameMap.Where(x => x.Value.Equals(name, StringComparison.CurrentCultureIgnoreCase)).Select(x => x.Key).FirstOrDefault();
+        }
+
         public static Stream? GetFileByID(uint filedataid, string? build = null, LocaleFlags locale = LocaleFlags.All_WoW)
         {
             if (string.IsNullOrEmpty(build))

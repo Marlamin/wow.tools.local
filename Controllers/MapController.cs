@@ -56,17 +56,23 @@ namespace wow.tools.local.Controllers
 
             var mapDB = await dbcManager.GetOrLoad("Map", CASC.BuildName);
 
-            if (!mapDB.AvailableColumns.Contains("ID") || !mapDB.AvailableColumns.Contains("Directory") || !mapDB.AvailableColumns.Contains("MapName_lang") || !mapDB.AvailableColumns.Contains("WdtFileDataID"))
+            if (!mapDB.AvailableColumns.Contains("ID") || !mapDB.AvailableColumns.Contains("Directory") || !mapDB.AvailableColumns.Contains("MapName_lang"))
                 throw new Exception("Unable to initialize map list, missing one of the required columns.");
 
             foreach (var entry in mapDB.Values)
             {
+                uint wdtFileDataID = 0;
+                if (mapDB.AvailableColumns.Contains("WdtFileDataID"))
+                    wdtFileDataID = uint.Parse(entry["WdtFileDataID"].ToString()!);
+                else
+                    wdtFileDataID = CASC.GetFileDataIDByName("world/maps/" + entry["Directory"].ToString()!.ToLower() + "/" + entry["Directory"].ToString()!.ToLower() + ".wdt");
+
                 list.Add(new MapInfo()
                 {
                     ID = entry["ID"].ToString()!,
                     internalName = entry["Directory"].ToString()!,
                     displayName = entry["MapName_lang"].ToString()!,
-                    wdtFileDataID = uint.Parse(entry["WdtFileDataID"].ToString()!)
+                    wdtFileDataID = wdtFileDataID
                 });
 
                 seenMaps.Add(entry["Directory"].ToString()!.ToLower());
