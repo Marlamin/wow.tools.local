@@ -49,7 +49,10 @@ var Current =
     availableGeosets: [],
     enabledGeosets: [],
     geosetsDone: false,
-    availableTextures: new Array(NUM_TEXTURE_SLOTS)
+    availableTextures: new Array(NUM_TEXTURE_SLOTS),
+    posX: 0,
+    posY: 0,
+    posZ: 0,
 }
 
 var DownloadQueue = [];
@@ -196,17 +199,19 @@ try {
     showError("WebAssembly support is required but not supported by your browser.");
 }
 
-var urlFileDataID = new URL(window.location).searchParams.get("filedataid");
+var searchParams = new URLSearchParams(window.location.search);
+
+var urlFileDataID = searchParams.get("filedataid");
 if (urlFileDataID){
     Current.fileDataID = urlFileDataID;
 }
 
-var urlType = new URL(window.location).searchParams.get("type");
+var urlType = searchParams.get("type");
 if (urlType){
     Current.type = urlType;
 }
 
-var urlEmbed = new URL(window.location).searchParams.get("embed");
+var urlEmbed = searchParams.get("embed");
 if (urlEmbed){
     Current.embedded = true;
     $("#navbar").hide();
@@ -215,7 +220,7 @@ if (urlEmbed){
     console.log("Running modelviewer in embedded mode!");
 }
 
-var urlClearColor = new URL(window.location).searchParams.get("clearColor");
+var urlClearColor = searchParams.get("clearColor");
 if (urlClearColor){
     var r = parseInt('0x' + urlClearColor.substring(0, 2)) / 255;
     var g = parseInt('0x' + urlClearColor.substring(2, 4)) / 255;
@@ -223,7 +228,19 @@ if (urlClearColor){
     Settings.clearColor = [r, g, b];
 }
 
-var urlDisplayID = new URL(window.location).searchParams.get("displayID");
+var posX = searchParams.get("x");
+if (posX)
+    Current.posX = posX;
+
+var posY = searchParams.get("y");
+if (posY)
+    Current.posY = posY;
+
+var posZ = searchParams.get("z");
+if (posZ)
+    Current.posZ = posZ;
+
+var urlDisplayID = searchParams.get("displayID");
 if (urlDisplayID){
     Current.displayID = urlDisplayID;
 }
@@ -654,6 +671,9 @@ function loadModel(type, filedataid){
                     $("#js-controls").hide();
                 } else if (Current.type == "wmo") {
                     Module._setSceneFileDataId(1, Current.fileDataID, -1);
+                    $("#js-controls").hide();
+                } else if (Current.type == "wdt") {
+                    Module._setMap(0, Current.fileDataID, Current.posX, Current.posY, Current.posZ)
                     $("#js-controls").hide();
                 } else if (Current.type == "m2") {
                     Module._setSceneFileDataId(0, Current.fileDataID, -1);

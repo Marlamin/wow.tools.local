@@ -205,6 +205,7 @@ mapCanvas.addEventListener('mouseup', function (e) {
 	const canvasPos = canvasPosToWoW(event.clientX, event.clientY);
 	document.getElementById("clickedCoord").textContent = Math.floor(canvasPos.ingameX) + ' ' + Math.floor(canvasPos.ingameY) + ' ' + 200 + ' ' + Current.InternalMapID;
 	document.getElementById("clickedADT").textContent = Current.InternalMap + '_' + canvasPos.tileX + '_' + canvasPos.tileY;
+	document.getElementById("modelviewerLink").href = "/mv/?type=wdt&filedataid=" + Current.wdtFileDataID + "&x=" + Math.floor(canvasPos.ingameX) + "&y=" + Math.floor(canvasPos.ingameY) + "&z=200";
 });
 
 mapCanvas.addEventListener('mouseout', function (e) {
