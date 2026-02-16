@@ -89,6 +89,8 @@ document.getElementById('js-sidebar-button').addEventListener('click', function 
 	var maps = await InitializeMapList();
 	await InitializeMapOptions(maps);
 	await InitializeEvents();
+	loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+	setDefaultPosition();
 	render();
 })();
 
