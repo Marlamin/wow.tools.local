@@ -979,6 +979,39 @@ namespace wow.tools.local.Services
         {
             Console.WriteLine("Importing build {0} into file history", buildName);
 
+            if (!ManifestManager.ExistsForVersion(buildName))
+            {
+                Console.WriteLine("Manifest file for build {0} not found, can't import", buildName);
+                return;
+            }
+
+            var manifestEntries = ManifestManager.GetEntriesForVersion(buildName).ToList();
+            var fileDataIDs = manifestEntries.Select(e => (int)e.FileDataID).ToHashSet();
+
+            var existingHashes = new Dictionary<int, HashSet<string>>();
+
+            lock (SQLiteLock)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    var fileIdList = string.Join(",", fileDataIDs);
+                    cmd.CommandText = $"SELECT fileDataID, chash FROM wow_rootfiles_chashes WHERE fileDataID IN ({fileIdList})";
+
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var fdid = reader.GetInt32(0);
+                        var chash = reader.GetString(1);
+
+                        if (!existingHashes.ContainsKey(fdid))
+                            existingHashes[fdid] = new HashSet<string>();
+
+                        existingHashes[fdid].Add(chash);
+                    }
+                    reader.Close();
+                }
+            }
+
             var transaction = dbConn.BeginTransaction();
 
             var insertCmd = new SqliteCommand("INSERT INTO wow_rootfiles_chashes VALUES (@filedataid, @build, @chash)", SQLiteDB.dbConn);
@@ -988,28 +1021,24 @@ namespace wow.tools.local.Services
             insertCmd.Transaction = transaction;
             insertCmd.Prepare();
 
-            if (!ManifestManager.ExistsForVersion(buildName))
-            {
-                Console.WriteLine("Manifest file for build {0} not found, can't import", buildName);
-                return;
-            }
-
-            foreach (var entry in ManifestManager.GetEntriesForVersion(buildName))
+            var count = 0;
+            foreach (var entry in manifestEntries)
             {
                 var fileDataID = (int)entry.FileDataID;
                 var fileHash = Convert.ToHexString(entry.MD5);
-                var fileVersions = GetFileVersions(fileDataID);
 
                 // Don't insert if hash for this file is already known
-                if (fileVersions.Any(x => x.contentHash == fileHash))
+                if (existingHashes.TryGetValue(fileDataID, out var hashes) && hashes.Contains(fileHash))
                     continue;
 
                 insertCmd.Parameters["@filedataid"].Value = fileDataID;
                 insertCmd.Parameters["@chash"].Value = fileHash;
                 insertCmd.ExecuteNonQuery();
+                count++;
             }
 
             transaction.Commit();
+            Console.WriteLine("Imported {0} new file versions for build {1}", count, buildName);
         }
 
         public static void ClearLinks()
