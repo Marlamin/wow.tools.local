@@ -17,7 +17,7 @@ const Elements =
 	Sidebar: document.getElementById('js-sidebar'),
 	Map: document.getElementById('js-map'),
 	Notifications: document.getElementById('js-notifs'),
-	//TechBox: document.getElementById('js-techbox'),
+	TechBox: document.getElementById('js-techbox'),
 	//Layers: document.getElementById('js-layers'),
 	//FlightLayer: document.getElementById('js-flightlayer'),
 	//POILayer: document.getElementById('js-poilayer'),
@@ -46,7 +46,7 @@ const state = {
 	isPanning: false,
 	tileSize: 512,
 	mask: [],
-	zoom: 7,
+	zoom: 15,
 	ready: false,
 	map: 0 // Azeroth?
 };
@@ -70,6 +70,7 @@ var d = function (text) { console.log(text); };
  //Sidebar button
 document.getElementById('js-sidebar-button').addEventListener('click', function () {
 	Elements.Sidebar.classList.toggle('closed');
+    Elements.TechBox.classList.toggle('closed');
 	document.getElementById('js-sidebar-button').classList.toggle('closed');
 });
 
@@ -139,9 +140,9 @@ async function InitializeMapOptions(maps) {
 
 async function InitializeEvents() {
 	d("initializing events");
-	//var select2El = $("#js-map-select").select2({ matcher: wowMapMatcher, disabled: false });
-	//Elements.MapSelect2 = select2El;
-	Elements.Maps.addEventListener('change', function (event) {
+	var select2El = $("#js-map-select").select2({ matcher: wowMapMatcher, disabled: false });
+	Elements.MapSelect2 = select2El;
+	$(Elements.Maps).on('change', function (event) {
 		Current.Map = this.value;
 		Current.InternalMap = this.options[this.selectedIndex].dataset.internal;
 		Current.InternalMapID = this.options[this.selectedIndex].dataset.imapid;
@@ -376,9 +377,10 @@ async function loadMapMask(mapID, directory, wdtFileDataID) {
 	if (tiles.every(fdid => fdid === 0)) {
 		d("No tiles found for map " + mapID + " in directory " + directory + " with wdtFileDataID " + wdtFileDataID);
 		notify("No tiles found for this map");
-		tiles.fill(1376431);
 	}
 	state.cache = new Array(CONSTANTS.MAP_SIZE_SQ);
+	state.zoomFactor = 2;
+
 	setDefaultPosition();
 	render();
 	
