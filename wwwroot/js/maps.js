@@ -37,7 +37,7 @@ const state = {
 	isPanning: false,
 	tileSize: 512,
 	mask: [],
-	zoom: 15,
+	zoom: 25,
 	map: 0 // Azeroth?
 };
 
