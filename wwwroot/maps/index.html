@@ -66,12 +66,17 @@
             Zoom: <span id="zoomLevel">0</span><br />
         </div>
 
-        <button id="js-layers-button" class="layerbutton">
+        <button id="js-layers-button" class="layerbutton closed">
             <i class="fa fa-map-marker fa-2x"></i>
         </button>
 
         <div id="js-layers" class="overlay layers closed">
-            <div style='font-size: 12px;'><input type='checkbox' name='adtgrid' id='js-adtgrid'> <label for="js-adtgrid">ADT grid</label></div>
+            <select id="js-layer-select">
+                <option value="0">Minimaps</option>
+                <option value="1">Maptextures</option>
+                <option value="2">Normals</option>
+            </select>
+            <!--<div style='font-size: 12px;'><input type='checkbox' name='adtgrid' id='js-adtgrid'> <label for="js-adtgrid">ADT grid</label></div>-->
         </div>
 
         <div id="js-notifs">

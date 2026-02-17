@@ -34,18 +34,18 @@
 }
 
 #js-home-button {
-    position: absolute;
-    cursor: pointer;
-    top: 10px;
-    left: 10px;
-    width: 46px;
-    height: 46px;
-    border: 0;
-    background-color: rgba(255, 255, 255, 0.3);
-    transition: background-color 0.1s ease;
-    border-radius: 50%;
-    outline: none;
-    z-index: 2;
+	position: absolute;
+	cursor: pointer;
+	top: 10px;
+	left: 10px;
+	width: 46px;
+	height: 46px;
+	border: 0;
+	background-color: rgba(255, 255, 255, 0.3);
+	transition: background-color 0.1s ease;
+	border-radius: 50%;
+	outline: none;
+	z-index: 2;
 	color: black;
 }
 
@@ -55,11 +55,10 @@
 }
 
 .layerbutton {
-	display: none;
 	position: absolute;
 	cursor: pointer;
 	top: 70px;
-	right: 10px;
+	right: 260px;
 	width: 46px;
 	height: 46px;
 	border: 0;
@@ -73,6 +72,10 @@
 .layerbutton:hover,
 .layerbutton:focus {
 	background-color: #64B5F6;
+}
+
+.layerbutton.closed {
+	right: 10px;
 }
 
 .hamburger {
@@ -193,7 +196,8 @@
 	top: 57px;
 	right: 0px;
 	width: 250px;
-	height: 175px;
+	height: 55px;
+	border-top-left-radius: 6px;
 	border-bottom-left-radius: 6px;
 	padding-left: 20px;
 	padding-right: 20px;
@@ -230,9 +234,9 @@
 }
 
 #js-notifs {
-    position: absolute;
-    top: 100px;
-    right: 10px;
-    z-index: 3;
+	position: absolute;
+	top: 10px;
+	right: 410px;
+	z-index: 3;
 	width: 500px;
 }

@@ -14,6 +14,8 @@ const Elements =
 	Map: document.getElementById('js-map'),
 	Notifications: document.getElementById('js-notifs'),
 	TechBox: document.getElementById('js-techbox'),
+	Layers: document.getElementById('js-layers'),
+	LayerSelect: document.getElementById('js-layer-select'),
 	//ADTGrid: document.getElementById('js-adtgrid'),
 };
 
@@ -37,6 +39,7 @@ const state = {
 	isPanning: false,
 	tileSize: 512,
 	mask: [],
+	layer: 0,
 	zoom: 25,
 	map: 0 // Azeroth?
 };
@@ -65,9 +68,10 @@ document.getElementById('js-sidebar-button').addEventListener('click', function 
 });
 
 // Layer button
-//document.getElementById('js-layers-button').addEventListener('click', function () {
-//	Elements.Layers.classList.toggle('closed');
-//});
+document.getElementById('js-layers-button').addEventListener('click', function () {
+	Elements.Layers.classList.toggle('closed');
+	document.getElementById('js-layers-button').classList.toggle('closed');
+});
 
 (async () => {
 	resizeWindow = function () {
@@ -82,6 +86,7 @@ document.getElementById('js-sidebar-button').addEventListener('click', function 
 	await InitializeEvents();
 	await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
 	render();
+	setDefaultPosition();
 })();
 
 async function InitializeMapList() {
@@ -125,18 +130,24 @@ async function InitializeMapOptions(maps) {
 async function InitializeEvents() {
 	var select2El = $("#js-map-select").select2({ matcher: wowMapMatcher, disabled: false });
 	Elements.MapSelect2 = select2El;
-	$(Elements.Maps).on('change', function (event) {
+	$(Elements.Maps).on('change', async function (event) {
 		Current.Map = this.value;
 		Current.InternalMap = this.options[this.selectedIndex].dataset.internal;
 		Current.InternalMapID = this.options[this.selectedIndex].dataset.imapid;
 		Current.wdtFileDataID = this.options[this.selectedIndex].dataset.wdtfiledataid;
+
+		await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+		setDefaultPosition();
+	});
+
+	Elements.LayerSelect.addEventListener('change', function (event) {
+		state.layer = this.value;
 		loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
 	});
 
 	Elements.Maps.disabled = false;
 	return true;
 }
-
 function wowMapMatcher(params, data) {
 	// If there are no search terms, return all of the data
 	if ($.trim(params.term) === '') {
@@ -293,7 +304,7 @@ async function initializeCache() {
 }
 
 async function loadMapMask(mapID, directory, wdtFileDataID) {
-	const response = await fetch("/map/wdtMask?mapID=" + mapID + "&directory=" + directory + "&wdtFileDataID=" + wdtFileDataID);
+	const response = await fetch("/map/wdtMask?mapID=" + mapID + "&directory=" + directory + "&wdtFileDataID=" + wdtFileDataID +"&layer=" + state.layer);
 	const tiles = await response.json();
 	state.mask = tiles;
 	if (tiles.every(fdid => fdid === 0)) {
@@ -302,7 +313,6 @@ async function loadMapMask(mapID, directory, wdtFileDataID) {
 	state.cache = new Array(CONSTANTS.MAP_SIZE_SQ);
 	state.zoomFactor = 2;
 
-	setDefaultPosition();
 	render();
 	
 	return tiles;

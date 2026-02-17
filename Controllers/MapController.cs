@@ -10,7 +10,7 @@ namespace wow.tools.local.Controllers
     public class MapController(IDBCManager dbcManager) : Controller
     {
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
-        private readonly Dictionary<string, List<int>> mapMaskCache = [];
+        private readonly Dictionary<(string, int), List<int>> mapMaskCache = new Dictionary<(string, int), List<int>>();
 
         public struct MapInfo
         {
@@ -33,7 +33,18 @@ namespace wow.tools.local.Controllers
             }
 
             var blp = new BLPSharp.BLPFile(CASC.GetFileByID(fileDataID));
-            var pixels = blp.GetPixels(0, out var w, out var h);
+
+            int bestMipLevel = 0;
+            for (int i = 0; i < blp.MipMapCount; i++)
+            {
+                var mipPixels = blp.GetPixels(i, out var mipW, out var mipH);
+                if (mipW >= targetSize && mipH >= targetSize)
+                    bestMipLevel = i;
+                else
+                    break;
+            }
+
+            var pixels = blp.GetPixels(bestMipLevel, out var w, out var h);
             var image = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(pixels, w, h);
             var sortedImage = image.CloneAs<Rgba32>();
             var pixelBytes = new byte[targetSize * targetSize * 4];
@@ -44,7 +55,7 @@ namespace wow.tools.local.Controllers
             }
             else
             {
-                // Minimaps dont have mipmaps, so resize :(
+                // Minimaps dont have mipmaps, so resize :( (maptextures do, so we support mips above anyways)
                 sortedImage.Mutate(x => x.Resize(new Size(targetSize, targetSize)));
                 sortedImage.CopyPixelDataTo(pixelBytes);
             }
@@ -104,13 +115,22 @@ namespace wow.tools.local.Controllers
 
         [Route("wdtMask")]
         [HttpGet]
-        public List<int> GetWDTMask(string mapID, string directory, uint wdtFileDataID)
+        public List<int> GetWDTMask(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
         {
-            //  if (mapMaskCache.ContainsKey(mapID))
-            //      return mapMaskCache[mapID];
+            if (mapMaskCache.ContainsKey((mapID, layer)))
+                return mapMaskCache[(mapID, layer)];
 
             var mask = new List<int>();
-            var allMinimaps = Listfile.NameMap.Where(x => x.Value.StartsWith("world/minimaps/" + directory.ToLower(), StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Value, x => x.Key);
+            Dictionary<string, int> allFiles;
+
+            if (layer == 0)
+                allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/minimaps/" + directory.ToLower(), StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Value, x => x.Key);
+            else if (layer == 1)
+                allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.CurrentCultureIgnoreCase) && !x.Value.EndsWith("_n.blp", StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Value, x => x.Key);
+            else if (layer == 2)
+                allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.CurrentCultureIgnoreCase) && x.Value.EndsWith("_n.blp", StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Value, x => x.Key);
+            else
+                throw new Exception("Unknown layer type");
 
             if (wdtFileDataID == 0)
             {
@@ -119,10 +139,28 @@ namespace wow.tools.local.Controllers
                 {
                     for (byte y = 0; y < 64; y++)
                     {
-                        if (allMinimaps.TryGetValue("world/minimaps/" + directory + "/map" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp", out var fdid))
-                            mask.Add(fdid);
-                        else
-                            mask.Add(0);
+                        if (layer == 0)
+                        {
+                            if (allFiles.TryGetValue("world/minimaps/" + directory + "/map" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp", out var fdid))
+                                mask.Add(fdid);
+                            else
+                                mask.Add(0);
+                        }
+                        else if (layer == 1)
+                        {
+                            if (allFiles.TryGetValue("world/maptextures/" + directory + "/" + directory + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp", out var fdid))
+                                mask.Add(fdid);
+                            else
+                                mask.Add(0);
+
+                        }
+                        else if (layer == 2)
+                        {
+                            if (allFiles.TryGetValue("world/maptextures/" + directory + "/" + directory + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + "_n.blp", out var fdid))
+                                mask.Add(fdid);
+                            else
+                                mask.Add(0);
+                        }
                     }
                 }
 
@@ -155,23 +193,59 @@ namespace wow.tools.local.Controllers
                             {
                                 for (byte y = 0; y < 64; y++)
                                 {
-                                    bin.ReadBytes(28);
+                                    bin.ReadBytes(20);
+                                    var mapTextureFDID = bin.ReadUInt32();
+                                    var mapTextureNFDID = bin.ReadUInt32();
                                     var minimapFDID = bin.ReadUInt32();
 
-                                    if (minimapFDID != 0)
+                                    if (layer == 0)
                                     {
-                                        mask.Add((int)minimapFDID);
-                                    }
-                                    else
-                                    {
-                                        var minimapName = "world/minimaps/" + directory.ToLower() + "/map" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp";
-                                        if (allMinimaps.TryGetValue(minimapName, out var fdid))
-                                            mask.Add(fdid);
+                                        if (minimapFDID != 0)
+                                        {
+                                            mask.Add((int)minimapFDID);
+                                        }
                                         else
-                                            mask.Add(0);
+                                        {
+                                            var minimapName = "world/minimaps/" + directory.ToLower() + "/map" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp";
+                                            if (allFiles.TryGetValue(minimapName, out var fdid))
+                                                mask.Add(fdid);
+                                            else
+                                                mask.Add(0);
+                                        }
+                                    }
+                                    else if (layer == 1)
+                                    {
+                                        if (mapTextureFDID != 0)
+                                        {
+                                            mask.Add((int)mapTextureFDID);
+                                        }
+                                        else
+                                        {
+                                            var mapTextureName = "world/maptextures/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp";
+                                            if (allFiles.TryGetValue(mapTextureName, out var fdid))
+                                                mask.Add(fdid);
+                                            else
+                                                mask.Add(0);
+                                        }
+                                    }
+                                    else if (layer == 2)
+                                    {
+                                        if (mapTextureNFDID != 0)
+                                        {
+                                            mask.Add((int)mapTextureNFDID);
+                                        }
+                                        else
+                                        {
+                                            var mapTextureNName = "world/maptextures/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + "_n.blp";
+                                            if (allFiles.TryGetValue(mapTextureNName, out var fdid))
+                                                mask.Add(fdid);
+                                            else
+                                                mask.Add(0);
+                                        }
                                     }
                                 }
                             }
+
                             break;
                         default:
                             Console.WriteLine(string.Format("Found unknown header at offset {1} \"{0}\" while we should've already read them all!", chunkName.ToString("X"), position.ToString()));
@@ -179,7 +253,7 @@ namespace wow.tools.local.Controllers
                     }
                 }
             }
-            mapMaskCache.Add(mapID, mask);
+            mapMaskCache.Add((mapID, layer), mask);
             return mask;
         }
     }
