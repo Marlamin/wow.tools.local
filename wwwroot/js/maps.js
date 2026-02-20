@@ -85,6 +85,7 @@ document.getElementById('js-layers-button').addEventListener('click', function (
 	await InitializeMapOptions(maps);
 	await InitializeEvents();
 	await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+	state.zoomFactor = 2;
 	render();
 	setDefaultPosition();
 })();
@@ -137,12 +138,15 @@ async function InitializeEvents() {
 		Current.wdtFileDataID = this.options[this.selectedIndex].dataset.wdtfiledataid;
 
 		await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+		state.zoomFactor = 2;
+		await render();
 		setDefaultPosition();
 	});
 
-	Elements.LayerSelect.addEventListener('change', function (event) {
+	Elements.LayerSelect.addEventListener('change', async function (event) {
 		state.layer = this.value;
-		loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+		await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+		await render();
 	});
 
 	Elements.Maps.disabled = false;
@@ -311,10 +315,10 @@ async function loadMapMask(mapID, directory, wdtFileDataID) {
 		notify("No tiles found for this map");
 	}
 	state.cache = new Array(CONSTANTS.MAP_SIZE_SQ);
-	state.zoomFactor = 2;
 
-	render();
-	
+	document.getElementById("clickedCoord").textContent = "No click. :(";
+	document.getElementById("clickedADT").textContent = "No click. :(";
+
 	return tiles;
 }
 
