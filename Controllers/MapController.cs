@@ -83,6 +83,9 @@ namespace wow.tools.local.Controllers
                 else
                     wdtFileDataID = CASC.GetFileDataIDByName("world/maps/" + entry["Directory"].ToString()!.ToLower() + "/" + entry["Directory"].ToString()!.ToLower() + ".wdt");
 
+                if(!CASC.FileExists(wdtFileDataID))
+                    continue;
+
                 list.Add(new MapInfo()
                 {
                     ID = entry["ID"].ToString()!,
@@ -94,20 +97,25 @@ namespace wow.tools.local.Controllers
                 seenMaps.Add(entry["Directory"].ToString()!.ToLower());
             }
 
-            var allMinimaps = Listfile.NameMap.Values.Where(x => x.StartsWith("world/minimaps", StringComparison.CurrentCultureIgnoreCase) && !x.StartsWith("world/minimaps/wmo", StringComparison.CurrentCultureIgnoreCase)).Select(x => Path.GetDirectoryName(x)!.Replace("world\\minimaps\\", "")).Distinct();
-            Console.WriteLine();
-            foreach (var minimap in allMinimaps)
+            var allMinimaps = Listfile.NameMap.Where(x => x.Value.StartsWith("world/minimaps", StringComparison.CurrentCultureIgnoreCase) && !x.Value.StartsWith("world/minimaps/wmo", StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Key, x => x.Value);
+            foreach (var minimapFile in allMinimaps)
             {
-                if (seenMaps.Contains(minimap) || minimap.Contains('\\'))
+                if(!CASC.FileExists((uint)minimapFile.Key))
+                    continue;
+
+                var mapName = Path.GetDirectoryName(minimapFile.Value)!.Replace("world\\minimaps\\", "");
+                if (seenMaps.Contains(mapName) || mapName.Contains('\\'))
                     continue;
 
                 list.Add(new MapInfo()
                 {
-                    ID = minimap,
-                    internalName = minimap,
-                    displayName = minimap,
+                    ID = mapName,
+                    internalName = mapName,
+                    displayName = mapName,
                     wdtFileDataID = 0
                 });
+
+                seenMaps.Add(mapName);
             }
 
             return list;
