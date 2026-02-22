@@ -1,19 +1,21 @@
-$("#files").on('click', '.fileTableDL', function(e){
-    if (e.altKey || e.shiftKey){
-        showButtons();
-        addFileToDownloadQueue(this.href);
-        event.preventDefault();
+document.getElementById("files")?.addEventListener('click', function(e){
+    if (e.target.classList.contains('fileTableDL')){
+        if (e.altKey || e.shiftKey){
+            showButtons();
+            addFileToDownloadQueue(e.target.href);
+            e.preventDefault();
+        }
     }
 });
 
-$("#multipleFileAddAll").on('click', function(e){
+document.getElementById("multipleFileAddAll")?.addEventListener('click', function(e){
     queueAllFiles();
-    event.preventDefault();
+    e.preventDefault();
 });
 
-$("#multipleFileResetButton").on('click', function(e){
+document.getElementById("multipleFileResetButton")?.addEventListener('click', function(e){
     resetQueue();
-    event.preventDefault();
+    e.preventDefault();
 });
 
 document.addEventListener("DOMContentLoaded", function(event) {
@@ -26,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 function togglePreviewPane(){
 
     var visibility = document.getElementById("files_preview").style.display;
-    if ($("#files_preview").is(":visible")){
+    if (document.getElementById("files_preview").style.display !== "none"){
         // Refresh table to rewrite the preview links
         $('#files').DataTable().draw(false);
 
@@ -48,7 +50,7 @@ function togglePreviewPane(){
         document.getElementById("files_preview").style.display = "block";
 
         // Resize table
-        if ($("#files_tree").is(":visible")){
+        if (document.getElementById("files_tree").style.display !== "none"){
             document.getElementById("files_wrapper").style.width = "45%";
         } else {
             document.getElementById("files_wrapper").style.width = "55%";
@@ -92,80 +94,40 @@ function addFileToDownloadQueue(file){
 }
 
 function showButtons(){
-    $("#multipleFileDLButton").show();
-    $("#multipleFileAddAll").show();
-    $("#multipleFileResetButton").show();
+    document.getElementById("multipleFileDLButton").style.display = "block";
+    document.getElementById("multipleFileAddAll").style.display = "block";
+    document.getElementById("multipleFileResetButton").style.display = "block";
 }
 
 function updateButton(){
     var fdids = localStorage.getItem('queue[fdids]').split(',');
-    $("#multipleFileDLButton").text('Download selected files (' + fdids.length + ')');
-    $("#multipleFileDLButton").attr('href', '/casc/zip/fdids?ids=' + localStorage.getItem('queue[fdids]') + '&filename=selection.zip');
+    document.getElementById("multipleFileDLButton").textContent = 'Download selected files (' + fdids.length + ')';
+    document.getElementById("multipleFileDLButton").setAttribute('href', '/casc/zip/fdids?ids=' + localStorage.getItem('queue[fdids]') + '&filename=selection.zip');
 }
 
 function resetQueue(){
     localStorage.removeItem('queue[buildconfig]');
     localStorage.removeItem('queue[cdnconfig]');
     localStorage.removeItem('queue[fdids]');
-    $("#multipleFileDLButton").popover('hide');
-    $("#multipleFileDLButton").hide();
-    $("#multipleFileAddAll").hide();
-    $("#multipleFileResetButton").hide();
+    document.getElementById("multipleFileDLButton").style.display = "none";
+    document.getElementById("multipleFileAddAll").style.display = "none";
+    document.getElementById("multipleFileResetButton").style.display = "none";
 }
 
 function queueAllFiles(){
-    $(".fileTableDL").each(function(){
-        addFileToDownloadQueue(this.href);
+    document.querySelectorAll(".fileTableDL").forEach(function(element){
+        addFileToDownloadQueue(element.href);
     });
 }
-
-function showDifferentBuildWarning(){
-    $("#multipleFileDLButton").popover({
-        title: 'Warning',
-        placement: 'bottom',
-        content: '<p>You have files from different builds selected, this is currently not supported. Files will be retrieved from only the first build you selected.</p>',
-        html: true
-    });
-    $("#multipleFileDLButton").popover('show');
-}
-
-function applyBuildFilter(build){
-    if (build == undefined){
-        build = "";
-    }
-    $.ajax("/files/scripts/api.php?switchbuild=" + build)
-        .always(function() {
-            $('#files').DataTable().ajax.reload();
-        });
-
-    updateBuildFilterButton();
-}
-
-function buildFilterClick(){
-    if (window.rootFiltering){
-        window.rootFiltering = false;
-        applyBuildFilter();
-    } else {
-        window.rootFiltering = true;
-        applyBuildFilter($("#buildFilter").val());
-    }
-}
-
-function updateBuildFilterButton(){
-    if (window.rootFiltering){
-        $("#buildFilterButton").hide();
-        $("#clearBuildFilterButton").show();
-    } else {
-        $("#buildFilterButton").show();
-        $("#clearBuildFilterButton").hide();
-    }
-}
-
 function fillModal(fileDataID){
-    $("#moreInfoModalContent").load("/casc/moreInfo?filedataid=" + fileDataID, function () {
-       // document.getElementById('editableFilename').addEventListener("dblclick", makeEditable);
-       // document.getElementById('editableFilename').addEventListener("blur", finishEditing);
-    });
+    document.getElementById("moreInfoModalContent").innerHTML = "";
+    fetch("/casc/moreInfo?filedataid=" + fileDataID)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("moreInfoModalContent").innerHTML = html;
+            // document.getElementById('editableFilename').addEventListener("dblclick", makeEditable);
+            // document.getElementById('editableFilename').addEventListener("blur", finishEditing);
+        });
 }
 
 function relinkFile(fileDataID) {
@@ -296,57 +258,54 @@ function fillPreviewModal(buildconfig, filedataid, type) {
         html += "<pre style='max-height: 80vh'><script type='text/plain' style='display: block' id='codeHolder'></script></pre>";
     }
 
-    if ($("#files_preview").is(":visible")){
-        $("#files_preview").html(html);
+    if (document.getElementById("files_preview").style.display !== "none") {
+        document.getElementById("files_preview").innerHTML = html;
         return false;
     } else {
-        $( "#previewModalContent" ).html(html);
+        document.getElementById("previewModalContent").innerHTML = html;
     }
 }
-
-function fillPreviewModalByContenthash(buildconfig, filedataid, contenthash){
-    if ($("#files_preview").is(":visible")){
-        $( "#files_preview" ).load( "/files/scripts/preview_api.php?buildconfig=" + buildconfig + "&filedataid=" + filedataid + "&contenthash=" + contenthash);
-    } else {
-        $( "#previewModalContent" ).load( "/files/scripts/preview_api.php?buildconfig=" + buildconfig + "&filedataid=" + filedataid + "&contenthash=" + contenthash);
-    }
-}
-
 function fillDiffModal(from, to, filedataid){
-    $( "#previewModalContent" ).load( "/casc/diffFile?from=" + from + "&to=" + to + "&filedataid=" + filedataid);
+    fetch("/casc/diffFile?from=" + from + "&to=" + to + "&filedataid=" + filedataid)
+        .then(response => response.text())
+        .then(html => {
+            const container = document.getElementById("previewModalContent");
+            container.innerHTML = "";
+            const fragment = document.createRange().createContextualFragment(html);
+            container.appendChild(fragment);
+        });
 }
 
 function fillDBCDiffModal(from, to, dbc) {
-    $("#previewModalContent" ).html( "<iframe src=\"/dbc/diff.html?embed=1&dbc=" + dbc + "&old=" + from + "&new=" + to + "\" style='width: 100%; height: 80vh'></iframe>");
+    document.getElementById("previewModalContent").innerHTML = "<iframe src=\"/dbc/diff.html?embed=1&dbc=" + dbc + "&old=" + from + "&new=" + to + "\" style='width: 100%; height: 80vh'></iframe>";
 }
 
 function fillChashModal(contenthash){
-    $("#chashModalContent").load("/casc/samehashes?chash=" + contenthash);
+    fetch("/casc/samehashes?chash=" + contenthash)
+        .then(response => response.text())
+        .then(html => {
+            const container = document.getElementById("chashModalContent");
+            container.innerHTML = "";
+            const fragment = document.createRange().createContextualFragment(html);
+            container.appendChild(fragment);
+        });
+
     document.getElementById('chashModalLabel').innerText = "Content hash lookup for hash " + contenthash;
 }
 
-function fillSkitModal(skitid){
-    $( "#moreInfoModalContent" ).load( "/files/sounds.php?embed=1&skitid=" + skitid );
-}
-
-$("html").on('hidden.bs.modal', '#moreInfoModal', function(e) {
-    console.log("Clearing modal");
-    $( "#moreInfoModalContent" ).html( '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>' );
+$("html").on('hidden.bs.modal', '#moreInfoModal', function (e) {
+    document.getElementById("moreInfoModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
 })
 
 $("html").on('hidden.bs.modal', '#previewModal', function(e) {
-    console.log("Clearing modal");
-    $( "#previewModalContent" ).html( '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>' );
+    document.getElementById("previewModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
 })
 
 $("html").on('hidden.bs.modal', '#chashModal', function(e) {
-    console.log("Clearing modal");
-    $( "#chashModalContent" ).html( '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>' );
+    document.getElementById("chashModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
 })
 
 $(function () {
-    $('[data-bs-toggle="popover"]').popover();
-
     let vars = {};
     window.location.hash.replace(/([^=&]+)=([^&]*)/gi, function(m, key, value) {
         if (key.includes('#')) {
@@ -361,28 +320,28 @@ $(function () {
         if(vars['search'].includes('fdid:')){
             let targetFDID = vars['search'].split(':')[1];
             fillModal(targetFDID);
-            $("#moreInfoModal").modal('show');
+            document.getElementById("moreInfoModal").style.display = "block";
         }
     }
 })
 
 function toggleTree(forceHide = false){
-    if ($("#files_tree").is(":visible") || forceHide){
-        $("#files_tree").hide();
-        $("#files_treeFilter").hide();
+    if (document.getElementById("files_tree").style.display !== "none" || forceHide){
+        document.getElementById("files_tree").style.display = "none";
+        document.getElementById("files_treeFilter").style.display = "none";
         document.getElementById('files_treetoggle').classList.add("collapsed");
         document.getElementById('files_buttons').classList.remove("tree");
         document.getElementById('files_buttons').classList.add("notree");
-        $("#files_tree").html("<div id='tree'></div>");
-        $("#files_treetoggle").html("&gt;");
+        document.getElementById("files_tree").innerHTML = "<div id='tree'></div>";
+        document.getElementById("files_treetoggle").innerHTML = "&gt;";
     } else {
         treeClick(document.getElementById("tree"));
         document.getElementById('files_treetoggle').classList.remove("collapsed");
         document.getElementById('files_buttons').classList.remove("notree");
         document.getElementById('files_buttons').classList.add("tree");
-        $("#files_treeFilter").show();
-        $("#files_tree").show();
-        $("#files_treetoggle").html("&lt;");
+        document.getElementById("files_treeFilter").style.display = "block";
+        document.getElementById("files_tree").style.display = "block";
+        document.getElementById("files_treetoggle").innerHTML = "&lt;";
     }
 }
 

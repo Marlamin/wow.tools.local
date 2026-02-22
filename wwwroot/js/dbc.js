@@ -126,7 +126,6 @@ function openFKModal(value, location, build){
                     fkTableHTML += "<tr><td style='width: 300px;'>" + key + "</td><td>" + val;
                 }
 
-
                 const columnWithTable = db.toLowerCase() + "." + key;
 
                 if (enumMap.has(columnWithTable)) {
