@@ -106,6 +106,10 @@ async function InitializeMapOptions(maps) {
 		option.dataset.internal = map.internalName;
 		option.dataset.imapid = map.id;
 		option.dataset.wdtfiledataid = map.wdtFileDataID;
+		option.setAttribute('data-custom-properties', JSON.stringify({
+			internal: map.internalName,
+			imapid: map.id
+		}));
 		option.value = map.id;
 		option.textContent = map.displayName;
 
@@ -129,9 +133,18 @@ async function InitializeMapOptions(maps) {
 }
 
 async function InitializeEvents() {
-	var select2El = $("#js-map-select").select2({ matcher: wowMapMatcher, disabled: false });
-	Elements.MapSelect2 = select2El;
-	$(Elements.Maps).on('change', async function (event) {
+	const choices = new Choices(Elements.Maps, {
+		searchEnabled: true,
+		searchChoices: true,
+		searchFields: ['label', 'value', 'customProperties.internal', 'customProperties.imapid'],
+		searchResultLimit: 50,
+		shouldSort: false,
+		itemSelectText: '',
+	});
+
+	Elements.ChoicesInstance = choices;
+
+	Elements.Maps.addEventListener('change', async function (event) {
 		Current.Map = this.value;
 		Current.InternalMap = this.options[this.selectedIndex].dataset.internal;
 		Current.InternalMapID = this.options[this.selectedIndex].dataset.imapid;
@@ -149,47 +162,9 @@ async function InitializeEvents() {
 		await render();
 	});
 
-	Elements.Maps.disabled = false;
+	choices.enable();
 	return true;
 }
-function wowMapMatcher(params, data) {
-	// If there are no search terms, return all of the data
-	if ($.trim(params.term) === '') {
-		return data;
-	}
-
-	// Do not display the item if there is no 'text' property
-	if (typeof data.text === 'undefined') {
-		return null;
-	}
-
-	if (data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1) {
-		var modifiedData = $.extend({}, data, true);
-		modifiedData.text += ' (text match)';
-		return modifiedData;
-	}
-
-	if (data.element.dataset.internal.toLowerCase().indexOf(params.term.toLowerCase()) > -1) {
-		var modifiedData = $.extend({}, data, true);
-		modifiedData.text += ' (internal match)';
-		return modifiedData;
-	}
-
-	if (data.element.dataset.internal.toLowerCase().indexOf(params.term.toLowerCase()) > -1) {
-		var modifiedData = $.extend({}, data, true);
-		modifiedData.text += ' (internal match)';
-		return modifiedData;
-	}
-
-	if (data.element.dataset.imapid != null && data.element.dataset.imapid == params.term) {
-		var modifiedData = $.extend({}, data, true);
-		modifiedData.text += ' (mapid match)';
-		return modifiedData;
-	}
-
-	return null;
-}
-
 /* VIEWER */
 function updateTechCanvasPos() {
 	techBoxCanvasPosX.innerHTML = Math.round(state.offsetX);
