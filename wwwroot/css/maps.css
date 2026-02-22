@@ -243,30 +243,3 @@
 	z-index: 3;
 	width: 500px;
 }
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--choices-primary-color: #64B5F6;
-		--choices-item-color: #f8f9fa;
-		--choices-bg-color: #343a40;
-		--choices-bg-color-dropdown: #343a40;
-		--choices-keyline-color: #495057;
-		--choices-bg-color-disabled: #495057;
-		--choices-item-disabled-color: #6c757d;
-		--choices-disabled-color: #6c757d;
-		--choices-highlighted-color: #495057;
-	}
-}
-
-.choices__list {
-	z-index: 9999;
-}
-
-.choices__list--dropdown {
-	z-index: 9999 !important;
-	position: absolute;
-}
-
-.choices__list--multiple {
-	z-index: 9999;
-}

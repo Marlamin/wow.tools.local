@@ -82,7 +82,8 @@ namespace wow.tools.local.Services
           
             foreach (var rowList in result)
             {
-                token?.ThrowIfCancellationRequested();
+                if(token?.IsCancellationRequested == true)
+                    yield break;
                 
                 // if searching we need to futher filter the returned records for SearchValue
                 var matches = !Searching;

@@ -15,7 +15,17 @@
 	margin-bottom: 5px;
 }
 
-.buildFilter{
+#dbcform .choices {
+	float: left;
+	width: 270px;
+	display: inline-block;
+	margin-left: 5px;
+	margin-bottom: 5px;
+	height: 39px;
+	padding: 0px;
+}
+
+.buildFilter {
 	float: left;
 	width: 160px;
 	height: 39px;
