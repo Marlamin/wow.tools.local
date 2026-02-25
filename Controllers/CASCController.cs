@@ -550,7 +550,7 @@ namespace wow.tools.local.Controllers
                                 switch (wwfMagic)
                                 {
                                     case 0x932C64B4: // WWFParticulateGroup
-                                        type = "wwf";
+                                        type = "pvdata";
                                         break;
                                 }
                             }
