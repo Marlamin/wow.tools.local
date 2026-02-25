@@ -102,11 +102,15 @@ async function updateTitle() {
 }
 
 async function checkForUpdates(force = false) {
+    const currentVersionResponse = await fetch("/casc/getVersion");
+    const currentVersion = await currentVersionResponse.text();
+
     const lastUpdateCheck = localStorage.getItem("lastUpdate");
     if (lastUpdateCheck != null && !force) {
         const json = JSON.parse(lastUpdateCheck);
         if (json.lastCheck > Date.now() - 24 * 60 * 60 * 1000) {
-            newUpdateAvailable(false);
+            let updateAvailable = json.latestVersion != currentVersion;
+            newUpdateAvailable(updateAvailable);
             return;
         }
     }
@@ -115,9 +119,6 @@ async function checkForUpdates(force = false) {
     const latestRelease = await latestReleaseResponse.json();
     const latestReleaseTag = latestRelease.tag_name + ".0";
 
-    const currentVersionResponse = await fetch("/casc/getVersion");
-    const currentVersion = await currentVersionResponse.text();
-    
     var updateData = new Object();
     updateData.updateAvailable = true;
     updateData.latestVersion = latestReleaseTag;
@@ -134,9 +135,11 @@ async function checkForUpdates(force = false) {
 function newUpdateAvailable(isUpdateAvailable) {
     var navBar = document.getElementsByTagName("nav");
     var updateDiv = document.createElement("div");
+    const lastUpdateCheck = localStorage.getItem("lastUpdate");
+
     updateDiv.id = 'updateDiv';
     if (isUpdateAvailable) {
-        updateDiv.innerHTML = "<i class='fa fa-exclamation-circle' style='color: red'></i> <a href='https://github.com/marlamin/wow.tools.local/releases' target='_BLANK'>An update to version " + JSON.parse(document.cookie).latestVersion + " is available!</a> <a href='#' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
+        updateDiv.innerHTML = "<i class='fa fa-exclamation-circle' style='color: red'></i> <a href='https://github.com/marlamin/wow.tools.local/releases' target='_BLANK'>An update to version " + JSON.parse(lastUpdateCheck).latestVersion + " is available!</a> <a href='#' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
     } else {
         updateDiv.innerHTML = "<i class='fa fa-check-circle' style='color: green;'></i> Up to date. <a style='cursor: pointer' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
     }
