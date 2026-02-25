@@ -372,6 +372,12 @@
 
             var build = searchHash.substr(searchHash.indexOf('build=')).split('&')[0].split('=')[1];
 
+            var lsFileLength = localStorage.getItem("filesPageLength");
+            if (lsFileLength) {
+                var pageLength = parseInt(lsFileLength);
+            } else {
+                var pageLength = 25;
+            }
 
             var table = $('#files').DataTable({
                 "processing": true,
@@ -386,12 +392,12 @@
                         }
                     }
                 },
-                "pageLength": 25,
+                "pageLength": pageLength,
                 "language": {
                     "search": "Search: _INPUT_ <a style='margin-top: -5px;' class='btn btn-outline-primary btn-sm' data-bs-toggle='modal' data-bs-target='#helpModal'><i class='fa fa-question'></i></a> <a role='button' style='margin-top: -5px;' id='togglePreviewWindow' onClick='togglePreviewPane()' class='btn btn-danger btn-sm' style='color: white' data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Click this to toggle between showing previews on the right of the table, or in a separate popup.'><i class='fa fa-columns'></i></a> <a id='copyToClipBoardButton' class='btn btn-success btn-sm' onclick='copyResultsToClipboard();' data-bs-trigger='hover' data-bs-container='body' data-bs-html='false' data-bs-placement='left' data-bs-toggle='popover' data-bs-content='Copy table to clipboard' style='margin-top: -5px;'><i class='fa fa-copy'></i></a>",
                     "info": "Showing _START_ to _END_ of _TOTAL_ files",
                 },
-                "displayStart": page * 25,
+                "displayStart": page * pageLength,
                 "autoWidth": false,
                 "lengthMenu": [
                     [10, 25, 50, 100, 1000, -1],
@@ -633,6 +639,10 @@
                     $(".selected").removeClass("selected");
                     $(this).parent().addClass('selected');
                 }
+            });
+
+            $('#files').on('length.dt', function (e, settings, len) {
+                localStorage.setItem("filesPageLength", len);
             });
         }());
 

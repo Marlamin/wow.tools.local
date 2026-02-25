@@ -1065,6 +1065,13 @@
                         clearState = false;
                     }
 
+                    var lsDBCLength = localStorage.getItem("dbcPageLength");
+                    if (lsDBCLength) {
+                        var pageLength = parseInt(lsDBCLength);
+                    } else {
+                        var pageLength = 25;
+                    }
+
                     var table = $('#dbtable').DataTable({
                         "processing": true,
                         "serverSide": true,
@@ -1084,8 +1091,8 @@
                                 return result;
                             }
                         },
-                        "pageLength": 25,
-                        "displayStart": page * 25,
+                        "pageLength": pageLength,
+                        "displayStart": page * pageLength,
                         "autoWidth": true,
                         "lengthMenu": [
                             [10, 25, 50, 100, 1000],
@@ -1148,6 +1155,10 @@
 
                         window.history.pushState('dbc', document.title, buildURL(currentParams) + "#" + hashPart);
                         window.location.hash = hashPart;
+                    });
+
+                    $('#dbtable').on('length.dt', function (e, settings, len) {
+                        localStorage.setItem("dbcPageLength", len);
                     });
                 });
         }
