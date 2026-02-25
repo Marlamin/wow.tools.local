@@ -79,10 +79,8 @@
         }
 
         var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2", "xml", "lua", "txt", "srt"];
-        
+
         $(document).ready(function () {
-           // var encrypted = <?= json_encode($encrypted) ?>;
-           // var encryptedbutnot = <?= json_encode($encryptedbutnot) ?>;
             const urlParams = new URLSearchParams(window.location.search);
             const from = urlParams.get('from');
             const to = urlParams.get('to');
@@ -91,6 +89,14 @@
             fromBuildNameSpan.innerHTML = from;
             const toBuildNameSpan = document.getElementById("toBuildName");
             toBuildNameSpan.innerHTML = to;
+
+            const lsDiffPageLength = localStorage.getItem("diffPageLength");
+            if (lsDiffPageLength) {
+                var pageLength = parseInt(lsDiffPageLength);
+            } else {
+                var pageLength = 25;
+            }
+
             var table = $('#buildtable').DataTable({
                 ajax: '/casc/diff?from=' + from + '&to=' + to,
                 columns: [{
@@ -106,7 +112,7 @@
                     data: 'type'
                 }
                 ],
-                pageLength: 25,
+                pageLength: pageLength,
                 autoWidth: false,
                 layout: {
                     bottomEnd: 'inputPaging'
@@ -157,13 +163,13 @@
                                 //        content = "N/A";
                                 //        break;
                                 //}
-                                
+
                                 if (previewTypes.includes(full.type)) {
                                     content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a>";
                                 } else {
                                     content = "<i class='fa fa-ban' style='opacity: 0.3'></i>";
                                 }
-                                
+
                                 if (full.md5 == "de6135861a6cacfe176830f18f597c3e") {
                                     content += " <span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' data-bs-placement='top' style='color: ;' data-bs-content='<b>Placeholder audio</b><br> This file has no audio yet'><span class='fa-stack'><i class='fa fa-volume-off fa-stack-1x'></i><i class='fa fa-ban fa-stack-1x text-danger'></i></span></i></a></span>";
                                 }
@@ -274,6 +280,10 @@
                 "drawCallback": function () {
                     $('[data-bs-toggle="popover"]').popover();
                 }
+            });
+
+            table.on('length.dt', function (e, settings, len) {
+                localStorage.setItem("diffPageLength", len);
             });
 
             window.table = table;
