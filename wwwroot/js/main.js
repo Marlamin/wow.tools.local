@@ -41,18 +41,24 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
 })
 
 /* multiple modal scroll fix */
-$(function() {
-    $('.modal').on("hidden.bs.modal", function (e) {
-        if ($('.modal:visible').length) {
-            $('body').addClass('modal-open');
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('hidden.bs.modal', function (e) {
+        if (e.target.classList.contains('modal')) {
+            const visibleModals = document.querySelectorAll('.modal.show');
+            if (visibleModals.length > 0) {
+                document.body.classList.add('modal-open');
+            }
         }
     });
 
-    $("#navbar").load("/header.html", function () {
-        updateTitle();
-        checkForUpdates();
-        setTheme(getPreferredTheme())
-    });
+    fetch("/header.html")
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("navbar").innerHTML = html;
+            updateTitle();
+            checkForUpdates();
+            setTheme(getPreferredTheme());
+        });
 
     $(document).on('init.dt', function (e, settings) {
         const pageInput = document.querySelector(".dt-paging-input input");

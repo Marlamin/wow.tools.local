@@ -90,7 +90,7 @@
         </div>
         <br />
         <h3>Admin</h3>
-        <p>Only <a href='#' onClick='$("#adminStuff").toggle()'>show</a> and use this section if you know what you are doing.</p>
+        <p>Only <a href='#' onClick='document.getElementById("adminStuff").style.display = document.getElementById("adminStuff").style.display === "none" ? "block" : "none"'>show</a> and use this section if you know what you are doing.</p>
         <p style="display: none" id="adminStuff">
             <b>File types</b><br />
             <a class="btn btn-danger btn-sm" target="_blank" href="/casc/clearFileTypes">Clear file types</a> <a class="btn btn-primary btn-sm" target="_blank" href="/casc/analyzeUnknown">Analyze file types</a><br />

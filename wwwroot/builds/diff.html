@@ -80,7 +80,7 @@
 
         var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2", "xml", "lua", "txt", "srt"];
 
-        $(document).ready(function () {
+        document.addEventListener("DOMContentLoaded", function () {
             const urlParams = new URLSearchParams(window.location.search);
             const from = urlParams.get('from');
             const to = urlParams.get('to');
@@ -282,15 +282,15 @@
                 }
             });
 
+            window.table = table;
+
             table.on('length.dt', function (e, settings, len) {
                 localStorage.setItem("diffPageLength", len);
             });
 
-            window.table = table;
-
             table.on('xhr', function () {
                 var json = table.ajax.json();
-                $("#summary").html(" <span class='badge bg-" + actionToBadge("added") + "'>" + json['added'] + " added</span> <span class='badge bg-" + actionToBadge("modified") + "'>" + json['modified'] + " modified</span> <span class='badge bg-" + actionToBadge("removed") + "'>" + json['removed'] + " removed</span>");
+                document.getElementById("summary").innerHTML = " <span class='badge bg-" + actionToBadge("added") + "'>" + json['added'] + " added</span> <span class='badge bg-" + actionToBadge("modified") + "'>" + json['modified'] + " modified</span> <span class='badge bg-" + actionToBadge("removed") + "'>" + json['removed'] + " removed</span>";
             });
         });
     </script>

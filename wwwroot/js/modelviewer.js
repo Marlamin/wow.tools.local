@@ -10,7 +10,11 @@ var Module = {
 };
 
 function showError(error){
-    $("#errors").append("<div class='error alert alert-danger'>" + error +"</div>")
+    const errorsDiv = document.getElementById("errors");
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error alert alert-danger';
+    errorDiv.innerHTML = error;
+    errorsDiv.appendChild(errorDiv);
 }
 
 window.onerror = function(message, source, lineno, colno, error) {

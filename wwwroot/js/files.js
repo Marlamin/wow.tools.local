@@ -293,19 +293,17 @@ function fillChashModal(contenthash){
     document.getElementById('chashModalLabel').innerText = "Content hash lookup for hash " + contenthash;
 }
 
-$("html").on('hidden.bs.modal', '#moreInfoModal', function (e) {
-    document.getElementById("moreInfoModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
-})
+document.addEventListener('hidden.bs.modal', function(e) {
+    if (e.target.id === 'moreInfoModal') {
+        document.getElementById("moreInfoModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
+    } else if (e.target.id === 'previewModal') {
+        document.getElementById("previewModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
+    } else if (e.target.id === 'chashModal') {
+        document.getElementById("chashModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
+    }
+});
 
-$("html").on('hidden.bs.modal', '#previewModal', function(e) {
-    document.getElementById("previewModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
-})
-
-$("html").on('hidden.bs.modal', '#chashModal', function(e) {
-    document.getElementById("chashModalContent").innerHTML = '<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>';
-})
-
-$(function () {
+document.addEventListener('DOMContentLoaded', function () {
     let vars = {};
     window.location.hash.replace(/([^=&]+)=([^&]*)/gi, function(m, key, value) {
         if (key.includes('#')) {
@@ -323,7 +321,7 @@ $(function () {
             document.getElementById("moreInfoModal").style.display = "block";
         }
     }
-})
+});
 
 function toggleTree(forceHide = false){
     if (document.getElementById("files_tree").style.display !== "none" || forceHide){
@@ -380,8 +378,8 @@ function treeClick(event, returnAfterClear = true){
         }
     }
 
-    $(".selected").removeClass("selected");
-    $(parentElement).addClass('selected');
+    document.querySelectorAll(".selected").forEach(el => el.classList.remove("selected"));
+    parentElement.classList.add('selected');
 
     // If children exist, delete children and collapse folder.
     if (parentElement.querySelector('.treeEntry') != null){
@@ -430,7 +428,10 @@ function treeClick(event, returnAfterClear = true){
                 parentElement.append(newElement);
             });
 
-            $(".treeEntry").first().css("margin-top", "40px");
+            const firstTreeEntry = document.querySelector(".treeEntry");
+            if (firstTreeEntry) {
+                firstTreeEntry.style.marginTop = "40px";
+            }
         });
 }
 
