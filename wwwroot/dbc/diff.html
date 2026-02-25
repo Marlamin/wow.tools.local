@@ -227,9 +227,17 @@
                         tableHeaders += "<th>" + val + "</th>";
                     });
 
+
+                    var lsDBCDiffLength = localStorage.getItem("dbcDiffPageLength");
+                    if (lsDBCDiffLength) {
+                        var pageLength = parseInt(lsDBCDiffLength);
+                    } else {
+                        var pageLength = 25;
+                    }
+
                     tableContainer.innerHTML = '<table id="dbtable" class="table table-striped table-bordered" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>';
-                    $('#dbtable').DataTable({
-                        "pageLength": 25,
+                    var diffTable = $('#dbtable').DataTable({
+                        "pageLength": pageLength,
                         "ordering": false,
                         "bFilter": false,
                         "lengthMenu": [[10, 25, 50, 100, 1000], [10, 25, 50, 100, 1000]],
@@ -387,6 +395,10 @@
                                     $(ele).addClass(row.op.toLowerCase()); // apply the formatting class
                                 }
                             },
+                    });
+
+                    diffTable.on('length.dt', function (e, settings, len) {
+                        localStorage.setItem("dbcDiffPageLength", len);
                     });
                 });
             }
