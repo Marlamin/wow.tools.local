@@ -291,20 +291,18 @@ footer p{
 	}
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--choices-primary-color: #64B5F6;
-		--choices-item-color: #f8f9fa;
-		--choices-bg-color: #212529;
-		--choices-bg-color-dropdown: #343a40;
-		--choices-keyline-color: #495057;
-		--choices-bg-color-disabled: #495057;
-		--choices-item-disabled-color: #6c757d;
-		--choices-disabled-color: #6c757d;
-		--choices-highlighted-color: #495057;
-		--choices-input-height: 39px;
-		--choices-inner-padding: 1px 0px 0px 0px;
-	}
+:root {
+	--choices-primary-color: #64B5F6;
+	--choices-item-color: #f8f9fa;
+	--choices-bg-color: #212529;
+	--choices-bg-color-dropdown: #343a40;
+	--choices-keyline-color: #495057;
+	--choices-bg-color-disabled: #495057;
+	--choices-item-disabled-color: #6c757d;
+	--choices-disabled-color: #6c757d;
+	--choices-highlighted-color: #495057;
+	--choices-input-height: 39px;
+	--choices-inner-padding: 1px 0px 0px 0px;
 }
 
 .choices__list {
