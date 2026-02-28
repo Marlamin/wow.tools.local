@@ -60,6 +60,8 @@
     <None Remove="wow-filetags\**" />
     <None Remove="WoWFormatLib\**" />
     <None Remove="WoWNamingLib\**" />
+    <Content Remove="config.json" />
+    <None Include="config.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -69,7 +71,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="config.json" />
     <Content Remove="knownPushIDs.json" />
     <Content Remove="versionHistory.json" />
     <Content Remove="wwwroot\db\broadcasttext.html" />
