@@ -1902,6 +1902,13 @@ namespace wow.tools.local.Controllers
                 {
                     for (int i = 0; i < stream.Length; i++)
                     {
+                        // Cut off at 1MB
+                        if(i > 1024 * 1024)
+                        {
+                            hex.AppendLine().Append("... (file too large to display fully)");
+                            break;
+                        }
+
                         if (i % 16 == 0)
                         {
                             if (i != 0)
@@ -1929,7 +1936,7 @@ namespace wow.tools.local.Controllers
                         hex.Append("  ").Append(ascii);
                     }
                 }
-                return hex.ToString();
+                return HttpUtility.HtmlEncode(hex.ToString());
             }
         }
 

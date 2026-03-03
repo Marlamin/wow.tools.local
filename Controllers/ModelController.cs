@@ -50,7 +50,7 @@ namespace wow.tools.local.Controllers
                     returnString += "<td><b>Group</b></td>";
                     returnString += "<td>Flags: " + group.flags + "</td>";
 
-                    if(wmo.groupInfo2 != null)
+                    if (wmo.groupInfo2 != null)
                     {
                         returnString += "<td>Flags2: " + wmo.groupInfo2[i].flags2 + "</td>";
                         returnString += "<td>'lodIndex' " + wmo.groupInfo2[i].lodIndex + "</td>";
@@ -125,6 +125,15 @@ namespace wow.tools.local.Controllers
                 }
                 returnString += "</table>";
             }
+            else if (type == "m2")
+            {
+                returnString += "Model filetype not supported yet.";
+            }
+            else if (type == "m3")
+            {
+                returnString += "Model filetype not supported yet.";
+            }
+
             return returnString;
         }
 

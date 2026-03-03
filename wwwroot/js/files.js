@@ -105,7 +105,7 @@ function queueAllFiles(){
     });
 }
 function fillModal(fileDataID){
-    document.getElementById("moreInfoModalContent").innerHTML = "";
+    document.getElementById("moreInfoModalContent").innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading, please wait...';
     fetch("/casc/moreInfo?filedataid=" + fileDataID)
         .then(response => response.text())
         .then(html => {
@@ -157,96 +157,146 @@ function finishEditing(){
 function fillPreviewModal(buildconfig, filedataid, type) {
     var html = "";
     var url = "/casc/fdid?fileDataID=" + filedataid + "&filename=preview";
-    if (type == "blp") {
-        html += "<canvas id='mapCanvas' width='1' height='1'></canvas>";
-        renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true);
-    } else if (type == "mp3" || type == "ogg") {
-        var mimeType = "";
-        if (type == "mp3") {
-            mimeType = "audio/mpeg";
-        } else if (type == "ogg") {
-            mimeType = "audio/ogg";
-        }
-        html += "<audio autoplay=\"\" controls=\"\"><source src=\"" + url + "\" type=\"" + mimeType + "\"></audio>";
-    } else if (type == "m2" || type == "wmo" || type == "bls" || type == "gfat" || type == "m3" || type == "adt") {
-        html += "<ul class=\"nav nav-tabs\" role=\"tablist\">";
-        if (type == "m2" || type == "wmo" || type == "m3") {
+
+
+    // Preview tab: visual preview of files, e.g. modelviewer, audio player, textures, code, text, etc
+    var previewTabExts = ["blp", "mp3", "ogg", "m2", "wmo", "m3", "lua", "html", "txt", "srt", "xml", "toc", "hlsl"];
+    var hasPreviewTab = previewTabExts.includes(type); 
+
+    // JSON preview of file, for files where this is relevant (e.g. models, wmos, adts, bls, gfats, etc)
+    var jsonTabExts = ["m2", "wmo", "m3", "bls", "gfat", "adt"];
+    var hasJSONTab = jsonTabExts.includes(type);
+
+    // Additional info about file further expanded on parsed information, e.g. model info, texture info, etc
+    var infoTabExts = ["m2", "wmo", "m3"];
+    var hasInfoTab = infoTabExts.includes(type);
+
+    // Hex preview of file (TODO: For large files, maybe load ranges on demand?)
+    var hasHexTab = true;
+
+    html += "<ul class='nav nav-tabs' role='tablist'>";
+
+    var activeTab = "";
+
+    if (hasPreviewTab) {
+        if (!activeTab) activeTab = "preview";
+        html += "<li class='nav-item'><a class='nav-link" + (activeTab === "preview" ? " active" : "") + "' id='preview-tab' data-bs-toggle='tab' href='#preview' role='tab' aria-controls='preview' aria-selected='true'>Preview</a></li>";
+    }
+
+    if (hasInfoTab) {
+        if (!activeTab) activeTab = "info";
+        html += "<li class='nav-item'><a class='nav-link" + (activeTab === "info" ? " active" : "") + "' id='info-tab' data-bs-toggle='tab' href='#info' role='tab' aria-controls='info' aria-selected='false'>Info</a></li>";
+    }
+
+    if (hasJSONTab) {
+        if (!activeTab) activeTab = "json";
+        html += "<li class='nav-item'><a class='nav-link" + (activeTab === "json" ? " active" : "") + "' id='json-tab' data-bs-toggle='tab' href='#json' role='tab' aria-controls='json' aria-selected='false'>JSON</a></li>";
+    }
+
+    if (hasHexTab) {
+        if (!activeTab) activeTab = "hex";
+        html += "<li class='nav-item'><a class='nav-link" + (activeTab === "hex" ? " active" : "") + "' id='hex-tab' data-bs-toggle='tab' href='#hex' role='tab' aria-controls='hex' aria-selected='false'>Raw data</a></li>";
+    }
+
+    html += "</ul>";
+    html += "<div class='tab-content'>";
+
+    // Preview tab
+    if (hasPreviewTab) {
+        html += "<div class='tab-pane show" + (activeTab === "preview" ? " active" : "") + "' id='preview' role='tabpanel' aria-labelledby='preview-tab'>";
+
+        if (type == "blp") {
+            html += "<canvas id='mapCanvas' width='1' height='1'></canvas>";
+            renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true);
+        } else if (type == "mp3" || type == "ogg") {
+            var mimeType = "";
+            if (type == "mp3") {
+                mimeType = "audio/mpeg";
+            } else if (type == "ogg") {
+                mimeType = "audio/ogg";
+            }
+            html += "<audio autoplay=\"\" controls=\"\"><source src=\"" + url + "\" type=\"" + mimeType + "\"></audio>";
+        } else if (type == "m2" || type == "wmo" || type == "m3") {
             if (type == "m2" || type == "wmo") {
-                html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"modelviewer-tab\" data-bs-toggle=\"tab\" href=\"#modelviewer\" role=\"tab\" aria-controls=\"modelviewer\" aria-selected=\"true\">Modelviewer</a></li>";
-                html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"modelinfo-tab\" data-bs-toggle=\"tab\" href=\"#modelinfo\" role=\"tab\" aria-controls=\"modelinfo\" aria-selected=\"false\">Model info</a></li>";
-                html += "<li class=\"nav-item\"><a class=\"nav-link\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
+                html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
+                if (type == "m2") {
+                    html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
+                } else if (type == "wmo") {
+                    html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
+                }
             } else if (type == "m3") {
-                html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"modelviewer-tab\" data-bs-toggle=\"tab\" href=\"#modelviewer\" role=\"tab\" aria-controls=\"modelviewer\" aria-selected=\"true\">Modelviewer</a></li>";
-                html += "<li class=\"nav-item\"><a class=\"nav-link \" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
-
+                html += "<p>Note: The M3 modelviewer is a work in progress, any textures you see have been manually mapped.</p>";
+                html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/m3.html?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
+                html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/m3.html?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
             }
-        } else if (type == "bls" || type == "gfat" || type == "adt") {
-            html += "<li class=\"nav-item\"><a class=\"nav-link active\" id=\"json-tab\" data-bs-toggle=\"tab\" href=\"#json\" role=\"tab\" aria-controls=\"json\" aria-selected=\"false\">JSON</a></li>";
+        } else if (type == "lua" || type == "txt" || type == "srt" || type == "toc" || type == "hlsl") {
+            html += "<pre style='max-height: 80vh'><code id='codeHolder'></code></pre>";
+            fetch(url).then((response) => response.text()).then((text) => {
+                document.getElementById('codeHolder').innerHTML = text;
+            });
+        } else if (type == "xml") {
+            html += "<pre style='max-height: 80vh'><script type='text/plain' style='display: block' id='codeHolder'></script></pre>";
+            fetch(url).then((response) => response.text()).then((text) => {
+                document.getElementById('codeHolder').innerHTML = text;
+            });
         }
 
-        html += "</ul>";
-        html += "<div class=\"tab-content\">";
-        if (type == "m2" || type == "wmo") {
-            html += "<div class=\"tab-pane show active\" id=\"modelviewer\" role=\"tabpanel\" aria-labelledby=\"modelviewer-tab\">";
-            html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
-            if (type == "m2") {
-                html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
-            } else if (type == "wmo") {
-                html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
-            }
-            html += "</div>";
-        } else if (type == "m3") {
-            html += "<p>Note: The M3 modelviewer is a work in progress, any textures you see have been manually mapped.</p>";
-            html += "<div class=\"tab-pane show active\" id=\"modelviewer\" role=\"tabpanel\" aria-labelledby=\"modelviewer-tab\">";
-            html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/m3.html?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
-            html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/m3.html?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
-            html += "</div>";
-        }
+        html += "</div>";
+    }
 
-        if (type == "m2" || type == "wmo" || type == "m3") {
-            html += "<div class=\"tab-pane\" id=\"json\" role=\"tabpanel\" aria-labelledby=\"json-tab\">";
-            html += "<pre style='max-height: 80vh' id='jsonHolder'></pre>";
-            html += "</div>";
-        } else if (type == "bls" || type == "gfat" || type == "adt") {
-            html += "<div class=\"tab-pane active\" id=\"json\" role=\"tabpanel\" aria-labelledby=\"json-tab\">";
-            html += "<pre style='max-height: 80vh' id='jsonHolder'></pre>";
-            html += "</div>";
-        }
-      
-        if (type == "m2" || type == "wmo" || type == "m3") {
-            html += "<div class=\"tab-pane\" id=\"modelinfo\" role=\"tabpanel\" aria-labelledby=\"modelinfo-tab\">";
-            html += "<div id='modelinfoHolder'></div>";
-            html += "</div>";
-        }
+    // Info tab
+    if (hasInfoTab) {
+        html += "<div class='tab-pane show" + (activeTab === "info" ? " active" : "") + "' id='info' role='tabpanel' aria-labelledby='info-tab'>";
+        html += "<div id='infoHolder'></div>";
+        html += "</div>";
+        fetch("/model/info?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
+            document.getElementById('infoHolder').innerHTML = text;
+        });
+    }
+
+    // JSON tab
+    if (hasJSONTab) {
+        html += "<div class='tab-pane show" + (activeTab === "json" ? " active" : "") + "' id='json' role='tabpanel' aria-labelledby='json-tab'>";
+        html += "<pre style='max-height: 80vh' id='jsonHolder'></pre>";
         html += "</div>";
 
         fetch("/casc/json?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
             document.getElementById('jsonHolder').innerHTML = text;
         });
-
-        if (type == "wmo" || type == "m2" || type == "m3") {
-            fetch("/model/info?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
-                document.getElementById('modelinfoHolder').innerHTML = text;
-            });
-        }
-    } else if (type == "lua" || type == "txt" || type == "srt" || type == "toc" || type == "hlsl") {
-        fetch(url).then((response) => response.text()).then((text) => {
-            document.getElementById('codeHolder').innerHTML = text;
-        });
-        html += "<pre style='max-height: 80vh'><code id='codeHolder'></code></pre>";
-    } else if (type == "xml") {
-                fetch(url).then((response) => response.text()).then((text) => {
-            document.getElementById('codeHolder').innerHTML = text;
-        });
-        html += "<pre style='max-height: 80vh'><script type='text/plain' style='display: block' id='codeHolder'></script></pre>";
     }
+
+    // Hex tab
+    if (hasHexTab) {
+        html += "<div class='tab-pane show" + (activeTab === "hex" ? " active" : "") + "' id='hex' role='tabpanel' aria-labelledby='hex-tab'>";
+        html += "<pre style='max-height: 80vh'><code id='hexHolder'>Loading, please wait...</code></pre>";
+
+        // Only load this on click if hex tab is active
+        if (activeTab === "hex") {
+            loadHex(filedataid);
+        }
+
+        html += "</div>";
+    }
+
+    html += "</div>";
 
     if (document.getElementById("files_preview").style.display !== "none") {
         document.getElementById("files_preview").innerHTML = html;
-        return false;
     } else {
         document.getElementById("previewModalContent").innerHTML = html;
     }
+
+    if (hasHexTab) {
+        document.getElementById('hex-tab').addEventListener('click', function (e) {
+            loadHex(filedataid);
+        });
+    }
+}
+
+function loadHex(filedataid) {
+    fetch("/casc/hex?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
+        document.getElementById('hexHolder').innerHTML = text;
+    });
 }
 function fillDiffModal(from, to, filedataid){
     fetch("/casc/diffFile?from=" + from + "&to=" + to + "&filedataid=" + filedataid)
