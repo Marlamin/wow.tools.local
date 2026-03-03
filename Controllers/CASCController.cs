@@ -1723,7 +1723,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat" };
+            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat", "wdt" };
 
             if (!(Listfile.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {

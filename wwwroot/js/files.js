@@ -164,7 +164,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
     var hasPreviewTab = previewTabExts.includes(type); 
 
     // JSON preview of file, for files where this is relevant (e.g. models, wmos, adts, bls, gfats, etc)
-    var jsonTabExts = ["m2", "wmo", "m3", "bls", "gfat", "adt"];
+    var jsonTabExts = ["m2", "wmo", "m3", "bls", "gfat", "adt", "wdt"];
     var hasJSONTab = jsonTabExts.includes(type);
 
     // Additional info about file further expanded on parsed information, e.g. model info, texture info, etc
