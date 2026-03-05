@@ -1723,7 +1723,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat", "wdt" };
+            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat", "wdt", "wdl" };
 
             if (!(Listfile.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
@@ -1763,6 +1763,10 @@ namespace wow.tools.local.Controllers
                     var wdtReader = new WDTReader();
                     wdtReader.LoadWDT(fileDataID);
                     return JsonConvert.SerializeObject(wdtReader.wdtfile, Formatting.Indented);
+                case "wdl":
+                    var wdlReader = new WDLReader();
+                    wdlReader.LoadWDL(fileDataID);
+                    return JsonConvert.SerializeObject(wdlReader.wdlfile, Formatting.Indented);
                 case "wmo":
                     var wmoReader = new WMOReader();
                     var wmo = wmoReader.LoadWMO(fileDataID);
