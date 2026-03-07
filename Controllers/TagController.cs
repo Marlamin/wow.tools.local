@@ -34,9 +34,9 @@ namespace wow.tools.local.Controllers
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 allTags = allTags.Where(tag =>
-                    tag.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    tag.Name.Contains(search!, StringComparison.OrdinalIgnoreCase) ||
                     tag.Key.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                    tag.Category.Contains(search, StringComparison.OrdinalIgnoreCase)
+                    tag.Category.Contains(search!, StringComparison.OrdinalIgnoreCase)
                 ).ToList();
             }
 
