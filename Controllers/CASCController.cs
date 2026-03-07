@@ -169,9 +169,13 @@ namespace wow.tools.local.Controllers
 
                 List<(string buildConfig, string cdnConfig)> availableRemoteBuilds = new();
 
-                var builds = new Ribbit.Parsing.BPSV(RibbitCache["v2/summary"]);
-                foreach (var product in builds.data)
+                foreach (var summaryLine in RibbitCache["v2/summary"].Split("\n"))
                 {
+                    if(summaryLine.StartsWith('#') || summaryLine.StartsWith("Product") || string.IsNullOrWhiteSpace(summaryLine))
+                        continue;
+
+                    var product = summaryLine.Split('|');
+
                     // Skip products with no versions
                     if (product[2] != "" || !product[0].StartsWith("wow"))
                         continue;
