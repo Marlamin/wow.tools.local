@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace wow.tools.local.Services
+﻿namespace wow.tools.local.Services
 {
     public struct HotfixEntry
     {

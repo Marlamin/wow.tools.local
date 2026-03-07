@@ -319,9 +319,9 @@ namespace wow.tools.local
                         return (true, string.Empty);
                     else
                         if (Directory.Exists(value) && File.Exists(Path.Combine(value, "placeholder.csv")))
-                        return (true, string.Empty);
-                    else
-                        return (false, "Invalid listfile URL (must be a valid link and end in .csv) or invalid path to parts (directory must contain placeholder.csv)");
+                            return (true, string.Empty);
+                        else
+                            return (false, "Invalid listfile URL (must be a valid link and end in .csv) or invalid path to parts (directory must contain placeholder.csv)");
                 case "tactKeyURL":
                     if (Uri.TryCreate(value, UriKind.Absolute, out var tcURIResult) && (tcURIResult.Scheme == Uri.UriSchemeHttp || tcURIResult.Scheme == Uri.UriSchemeHttps) && (value.EndsWith(".txt") || value.EndsWith(".csv")))
                         return (true, string.Empty);

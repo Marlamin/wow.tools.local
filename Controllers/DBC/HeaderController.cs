@@ -1,12 +1,7 @@
 ﻿using DBCD;
 using DBCD.Providers;
-using wow.tools.local.Services;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using wow.tools.local;
+using wow.tools.local.Services;
 using wow.tools.Services;
 
 namespace wow.tools.local.Controllers.DBC

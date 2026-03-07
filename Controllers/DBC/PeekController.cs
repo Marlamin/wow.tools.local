@@ -29,7 +29,7 @@ namespace wow.tools.local.Controllers.DBC
         [HttpGet("{name}")]
         public async Task<PeekResult> Get(string name, string build, string col, int val, bool useHotfixes = false, string pushIDs = "")
         {
-            if(build == "?")
+            if (build == "?")
                 build = CASC.BuildName;
 
             Console.WriteLine("Serving peek row for " + name + "::" + col + " (" + build + ", hotfixes: " + useHotfixes + ") value " + val);
@@ -67,7 +67,8 @@ namespace wow.tools.local.Controllers.DBC
             try
             {
                 storage = await dbcManager.GetOrLoad(name, build, useHotfixes, LocaleFlags.All_WoW, pushIDList);
-            } catch (FileNotFoundException)
+            }
+            catch (FileNotFoundException)
             {
                 result.values.Add("Error", "Invalid or missing DBC \"" + name + "\"");
                 return result;

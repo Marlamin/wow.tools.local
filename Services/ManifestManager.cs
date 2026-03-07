@@ -191,7 +191,7 @@
                     count++;
                 }
 
-                
+
                 bw.Flush();         // Not doing this caused bad things to happen
                 fs.Position = 8;    // Go back to count pos
                 bw.Write(count);

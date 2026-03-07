@@ -2,7 +2,6 @@
 using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -56,7 +55,7 @@ namespace wow.tools.local.Controllers
                                 else
                                     SoundKitMap[fileDataID] = new List<uint> { soundKitID };
 
-                                if(SoundKitMapReverse.TryGetValue(soundKitID, out List<int>? fileDataIDs))
+                                if (SoundKitMapReverse.TryGetValue(soundKitID, out List<int>? fileDataIDs))
                                     fileDataIDs.Add((int)fileDataID);
                                 else
                                     SoundKitMapReverse[soundKitID] = new List<int> { (int)fileDataID };
@@ -1052,7 +1051,7 @@ namespace wow.tools.local.Controllers
 
                 foreach (var kvp in sortedMap.ToImmutableSortedDictionary())
                 {
-                    if(!string.IsNullOrEmpty(search))
+                    if (!string.IsNullOrEmpty(search))
                         if (!searchResults.ContainsKey(kvp.Key))
                             continue;
 

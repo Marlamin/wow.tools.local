@@ -171,7 +171,7 @@ namespace wow.tools.local.Controllers
 
                 foreach (var summaryLine in RibbitCache["v2/summary"].Split("\n"))
                 {
-                    if(summaryLine.StartsWith('#') || summaryLine.StartsWith("Product") || string.IsNullOrWhiteSpace(summaryLine))
+                    if (summaryLine.StartsWith('#') || summaryLine.StartsWith("Product") || string.IsNullOrWhiteSpace(summaryLine))
                         continue;
 
                     var product = summaryLine.Split('|');
@@ -1911,7 +1911,7 @@ namespace wow.tools.local.Controllers
                     for (int i = 0; i < stream.Length; i++)
                     {
                         // Cut off at 1MB
-                        if(i > 1024 * 1024)
+                        if (i > 1024 * 1024)
                         {
                             hex.AppendLine().Append("... (file too large to display fully)");
                             break;

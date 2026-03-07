@@ -33,7 +33,7 @@ namespace wow.tools.local.Controllers
                 else
                     Namer.SetProviders(dbcProvider, dbdProvider);
 
-                if(HotfixManager.hotfixReaders.Count == 0)
+                if (HotfixManager.hotfixReaders.Count == 0)
                     HotfixManager.LoadCaches();
 
                 Namer.SetHotfixes(HotfixManager.hotfixReaders);
@@ -370,7 +370,7 @@ namespace wow.tools.local.Controllers
                         try
                         {
                             var creatureXDIDB = dbcManager.GetOrLoad("CreatureXDisplayInfo", CASC.BuildName).Result;
-                            if(creatureXDIDB.AvailableColumns.Contains("CreatureDisplayInfoID") && creatureXDIDB.AvailableColumns.Contains("CreatureID"))
+                            if (creatureXDIDB.AvailableColumns.Contains("CreatureDisplayInfoID") && creatureXDIDB.AvailableColumns.Contains("CreatureID"))
                             {
                                 foreach (var creatureXDisplayInfo in creatureXDIDB.Values)
                                 {
@@ -474,7 +474,7 @@ namespace wow.tools.local.Controllers
                                 }
                             }
                         }
-                       
+
                         if (!string.IsNullOrEmpty(form["creatureCacheWDBFilename"]) && System.IO.File.Exists(form["creatureCacheWDBFilename"]))
                         {
                             var creatureCache = WDBReader.Read(form["creatureCacheWDBFilename"], CASC.BuildName);
@@ -515,7 +515,7 @@ namespace wow.tools.local.Controllers
                             {
                                 var broadcastTextDB = dbcManager.GetOrLoad("BroadcastText", buildName, true).Result;
 
-                                if(broadcastTextDB.AvailableColumns.Contains("Text_lang") && broadcastTextDB.AvailableColumns.Contains("Text1_lang") && broadcastTextDB.AvailableColumns.Contains("SoundKitID"))
+                                if (broadcastTextDB.AvailableColumns.Contains("Text_lang") && broadcastTextDB.AvailableColumns.Contains("Text1_lang") && broadcastTextDB.AvailableColumns.Contains("SoundKitID"))
                                 {
                                     foreach (var broadcastText in broadcastTextDB.Values)
                                     {

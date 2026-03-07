@@ -83,7 +83,7 @@ namespace wow.tools.local.Controllers
                 else
                     wdtFileDataID = CASC.GetFileDataIDByName("world/maps/" + entry["Directory"].ToString()!.ToLower() + "/" + entry["Directory"].ToString()!.ToLower() + ".wdt");
 
-                if(!CASC.FileExists(wdtFileDataID))
+                if (!CASC.FileExists(wdtFileDataID))
                     continue;
 
                 list.Add(new MapInfo()
@@ -100,7 +100,7 @@ namespace wow.tools.local.Controllers
             var allMinimaps = Listfile.NameMap.Where(x => x.Value.StartsWith("world/minimaps", StringComparison.CurrentCultureIgnoreCase) && !x.Value.StartsWith("world/minimaps/wmo", StringComparison.CurrentCultureIgnoreCase)).ToDictionary(x => x.Key, x => x.Value);
             foreach (var minimapFile in allMinimaps)
             {
-                if(!CASC.FileExists((uint)minimapFile.Key))
+                if (!CASC.FileExists((uint)minimapFile.Key))
                     continue;
 
                 var mapName = Path.GetDirectoryName(minimapFile.Value)!.Replace("world\\minimaps\\", "");

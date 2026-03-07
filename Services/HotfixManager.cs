@@ -99,7 +99,7 @@ namespace wow.tools.local.Services
                 var savePath = Path.Combine("caches", "DBCache-Raidbots-" + branch + "-" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".bin");
                 Directory.CreateDirectory("caches");
                 File.WriteAllBytes(savePath, data);
-                
+
                 ParseCache(savePath);
             }
         }

@@ -17,7 +17,7 @@ namespace wow.tools.local.Services
             }
 
             Enabled = true;
-            
+
             // TODO: When releases are going we should just download the SQLite DB from there
             TagRepo = new Repository(SettingsManager.TagRepo);
         }
@@ -54,7 +54,7 @@ namespace wow.tools.local.Services
 
         public static List<int> GetFileDataIDsByTag(string tagKey)
         {
-            if(!Enabled)
+            if (!Enabled)
                 return new List<int>();
 
             return TagRepo.GetFileDataIDsByTag(tagKey).Select(x => x.FileDataID).ToList();
@@ -62,7 +62,7 @@ namespace wow.tools.local.Services
 
         public static List<int> GetFileDataIDsByTagAndValue(string tagKey, string tagValue)
         {
-            if(!Enabled)
+            if (!Enabled)
                 return new List<int>();
 
             return TagRepo.GetFileDataIDsByTagAndValue(tagKey, tagValue);
@@ -70,7 +70,7 @@ namespace wow.tools.local.Services
 
         public static void AddOrUpdateTag(string name, string key, string description, string type, string source, string category, bool allowMultiple, string status)
         {
-            if(!Enabled)
+            if (!Enabled)
                 return;
 
             TagRepo.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple, status);
@@ -78,7 +78,7 @@ namespace wow.tools.local.Services
 
         public static void DeleteTag(string key)
         {
-            if(!Enabled)
+            if (!Enabled)
                 return;
 
             TagRepo.DeleteTag(key);
@@ -86,7 +86,7 @@ namespace wow.tools.local.Services
 
         public static void AddOrUpdateTagOption(string tagKey, string name, string description, string aliases)
         {
-            if(!Enabled)
+            if (!Enabled)
                 return;
 
             TagRepo.AddOrUpdateTagOption(tagKey, name, description, aliases);
@@ -94,7 +94,7 @@ namespace wow.tools.local.Services
 
         public static void RemoveTagOption(string tagKey, string name)
         {
-            if(!Enabled)
+            if (!Enabled)
                 return;
 
             TagRepo.DeleteTagOption(tagKey, name);
@@ -102,7 +102,7 @@ namespace wow.tools.local.Services
 
         public static void AddTagToFDID(int fileDataID, string tagKey, string tagValue)
         {
-            if(!Enabled)
+            if (!Enabled)
                 return;
 
             TagRepo.AddTagToFDID(fileDataID, tagKey, tagValue);
@@ -110,7 +110,7 @@ namespace wow.tools.local.Services
 
         public static void RemoveTagFromFDID(int fileDataID, string tagKey, string tagValue)
         {
-            if(!Enabled)
+            if (!Enabled)
                 return;
 
             TagRepo.RemoveTagFromFDID(fileDataID, tagKey, tagValue);
@@ -118,7 +118,7 @@ namespace wow.tools.local.Services
 
         public static bool RequiresSavingStep()
         {
-            if(!Enabled)
+            if (!Enabled)
                 return false;
 
             return TagRepo.RequiresSavingStep();
@@ -126,7 +126,7 @@ namespace wow.tools.local.Services
 
         public static bool HasUnsavedChanges()
         {
-            if(!Enabled)
+            if (!Enabled)
                 return false;
 
             return TagRepo.HasUnsavedChanges();

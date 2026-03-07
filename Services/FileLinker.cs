@@ -41,7 +41,7 @@ namespace wow.tools.local.Services
                 reader.Close();
             }
 
-            if(!FileProvider.HasProvider(CASC.BuildName))
+            if (!FileProvider.HasProvider(CASC.BuildName))
             {
                 if (CASC.IsCASCLibInit)
                 {
@@ -528,7 +528,7 @@ namespace wow.tools.local.Services
                 Console.WriteLine("Unable to get WDT files, make sure types have been detected at least once.");
                 return;
             }
-        
+
             foreach (var wdtid in wdtids)
             {
                 LinkWDT(wdtid, fullrun);

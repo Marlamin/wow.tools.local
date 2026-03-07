@@ -74,17 +74,17 @@ namespace wow.tools.local.Services
                 Searching = false;
             }
 
-            if(rowIDFilter.Count > 0)
+            if (rowIDFilter.Count > 0)
                 records = records.Where(x => rowIDFilter.Contains(x.ID));
 
             // apply converter
             var result = records.Select(ConverterFunc!);
-          
+
             foreach (var rowList in result)
             {
-                if(token?.IsCancellationRequested == true)
+                if (token?.IsCancellationRequested == true)
                     yield break;
-                
+
                 // if searching we need to futher filter the returned records for SearchValue
                 var matches = !Searching;
                 for (var i = 0; !matches && i < rowList.Length; i++)
@@ -102,7 +102,7 @@ namespace wow.tools.local.Services
         private void Initialise()
         {
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
-            
+
             var param = Expression.Parameter(typeof(DBCDRow), "row");
             var properties = new List<Expression>();
             var filters = new Dictionary<Expression, Predicate<object>>(); // [DBCDRow.Property, Predicate]

@@ -14,7 +14,7 @@ namespace wow.tools.local.Services
             {
                 Console.WriteLine("DBD directory not set, using remote manifest (cached up to a day)");
 
-                if(!Directory.Exists("cache"))
+                if (!Directory.Exists("cache"))
                     Directory.CreateDirectory("cache");
 
                 var downloadManifest = false;
@@ -23,7 +23,7 @@ namespace wow.tools.local.Services
 
                 if (fileInfo.Exists)
                 {
-                    if(DateTime.Now > fileInfo.LastWriteTime.AddDays(1))
+                    if (DateTime.Now > fileInfo.LastWriteTime.AddDays(1))
                         downloadManifest = true;
                     else
                         manifestLocation = cacheLocation;
@@ -33,7 +33,7 @@ namespace wow.tools.local.Services
                     downloadManifest = true;
                 }
 
-                if(forceNew)
+                if (forceNew)
                     downloadManifest = true;
 
                 if (downloadManifest)
@@ -53,7 +53,7 @@ namespace wow.tools.local.Services
                 }
             }
 
-            if(!File.Exists(manifestLocation))
+            if (!File.Exists(manifestLocation))
             {
                 Console.WriteLine("Manifest.json not found, hotfixes and some other features might misbehave.");
                 return;
@@ -63,7 +63,7 @@ namespace wow.tools.local.Services
 
             DB2Map.Clear();
 
-            if(manifest != null)
+            if (manifest != null)
             {
                 foreach (var entry in manifest)
                 {

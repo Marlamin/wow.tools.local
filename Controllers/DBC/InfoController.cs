@@ -178,7 +178,7 @@ namespace wow.tools.local.Controllers
                         db2Info.Add("N/A"); // totalFields, not in <WDB5
                         db2Info.Add("N/A"); // sectionCount, not in <WDC2
                     }
-                    else if(magic == "WDB2" || magic == "WDB3")
+                    else if (magic == "WDB2" || magic == "WDB3")
                     {
                         db2Info.Add(bin.ReadUInt32().ToString()); // recordCount
                         db2Info.Add(bin.ReadUInt32().ToString()); // fieldCount
@@ -195,7 +195,8 @@ namespace wow.tools.local.Controllers
                         db2Info.Add("N/A"); // idIndex, not in <WDB4
                         db2Info.Add("N/A"); // totalFields, not in <WDB5
                         db2Info.Add("N/A"); // sectionCount, not in <WDC2
-                    }else if(magic == "WDBC")
+                    }
+                    else if (magic == "WDBC")
                     {
                         db2Info.Add(bin.ReadUInt32().ToString()); // recordCount
                         db2Info.Add(bin.ReadUInt32().ToString()); // fieldCount

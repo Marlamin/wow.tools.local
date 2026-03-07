@@ -24,7 +24,7 @@ namespace wow.tools.local.Controllers
             {
                 if (newSettings.TryGetValue(setting.Key, out var newSetting) && newSetting != "null" && !string.IsNullOrEmpty(newSetting))
                 {
-                    if(SettingsManager.ValidateSetting(setting.Key, newSetting).Item1)
+                    if (SettingsManager.ValidateSetting(setting.Key, newSetting).Item1)
                         setting.Value = newSetting;
                 }
                 else

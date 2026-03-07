@@ -66,10 +66,10 @@ namespace wow.tools.Services
         {
             definitionLookup.Clear();
 
-            if(string.IsNullOrEmpty(SettingsManager.DefinitionDir) || !Directory.Exists(SettingsManager.DefinitionDir))
+            if (string.IsNullOrEmpty(SettingsManager.DefinitionDir) || !Directory.Exists(SettingsManager.DefinitionDir))
             {
                 Console.WriteLine("Loading definitions from BDBD file");
-                using(var fs = GetBDBDStream(clearCache))
+                using (var fs = GetBDBDStream(clearCache))
                 {
                     var bdbd = BDBDReader.Read(fs);
                     foreach (var entry in bdbd)
@@ -128,7 +128,7 @@ namespace wow.tools.Services
 
         public Stream StreamForTableName(string tableName, string build)
         {
-            if(isUsingBDBD)
+            if (isUsingBDBD)
                 throw new Exception("DBD definitions were loaded from BDBD, we should never be using this function");
 
             tableName = Path.GetFileNameWithoutExtension(tableName);
@@ -185,12 +185,12 @@ namespace wow.tools.Services
 
             var buildList = new List<string>();
 
-            foreach(var definition in tableDefinition.Definition.versionDefinitions)
+            foreach (var definition in tableDefinition.Definition.versionDefinitions)
             {
-                foreach(var build in definition.builds)
+                foreach (var build in definition.builds)
                     buildList.Add(build.ToString());
 
-                foreach(var buildRange in definition.buildRanges)
+                foreach (var buildRange in definition.buildRanges)
                 {
                     buildList.Add(buildRange.minBuild.ToString());
                     buildList.Add(buildRange.maxBuild.ToString());

@@ -1,5 +1,4 @@
 ﻿using DBCD.Providers;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
 using wow.tools.local.Services;
 using wow.tools.Services;
@@ -31,7 +30,7 @@ namespace wow.tools.local
             {
                 endpoints.MapControllers();
             });
-            
+
             app.UseDefaultFiles();
 
             var extensionProvider = new FileExtensionContentTypeProvider();
