@@ -88,3 +88,4 @@ Outside of some glue and all the parts pretty much taken directly from WoW.tools
 - [Deamon's WebWowViewerCpp](https://github.com/Deamon87/WebWowViewerCpp) (Emscripten version) which also powers the WoW.tools modelviewer. Does the actual model rendering.
 - [WoWDBDefs](https://github.com/wowdev/WoWDBDefs) definitions required to read WoW's DB2 tables.
 - [WoWFormatLib](https://github.com/Marlamin/WoWFormatLib) used to parse WoW files with WoW-specific formats.
+- [wow.export](https://github.com/Kruithne/wow.export/) for expansion icons.

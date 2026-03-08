@@ -24,6 +24,7 @@
     <Compile Remove="wow-filetags\**" />
     <Compile Remove="WoWFormatLib\**" />
     <Compile Remove="WoWNamingLib\**" />
+    <Compile Remove="WoWTools.SpellDescParser\**" />
     <Content Remove="caches\**" />
     <Content Remove="cache\**" />
     <Content Remove="CascLib\**" />
@@ -36,6 +37,7 @@
     <Content Remove="wow-filetags\**" />
     <Content Remove="WoWFormatLib\**" />
     <Content Remove="WoWNamingLib\**" />
+    <Content Remove="WoWTools.SpellDescParser\**" />
     <EmbeddedResource Remove="caches\**" />
     <EmbeddedResource Remove="cache\**" />
     <EmbeddedResource Remove="CascLib\**" />
@@ -48,6 +50,7 @@
     <EmbeddedResource Remove="wow-filetags\**" />
     <EmbeddedResource Remove="WoWFormatLib\**" />
     <EmbeddedResource Remove="WoWNamingLib\**" />
+    <EmbeddedResource Remove="WoWTools.SpellDescParser\**" />
     <None Remove="caches\**" />
     <None Remove="cache\**" />
     <None Remove="CascLib\**" />
@@ -60,6 +63,7 @@
     <None Remove="wow-filetags\**" />
     <None Remove="WoWFormatLib\**" />
     <None Remove="WoWNamingLib\**" />
+    <None Remove="WoWTools.SpellDescParser\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -127,6 +131,7 @@
     <ProjectReference Include="wow-filetags\tools\C#\wow-filetags\WoWTagLib\WoWTagLib.csproj" />
     <ProjectReference Include="WoWFormatLib\WoWFormatLib\WoWFormatLib.csproj" />
     <ProjectReference Include="WoWNamingLib\WoWNamingLib\WoWNamingLib.csproj" />
+    <ProjectReference Include="WoWTools.SpellDescParser\WoWTools.SpellDescParser\WoWTools.SpellDescParser.csproj" />
   </ItemGroup>
   
   <ItemGroup>

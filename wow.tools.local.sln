@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wow.tools.local", "wow.tools.local.csproj", "{7FBFEC01-2D6F-4227-A246-4078FADAD607}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TACTSharp", "TACTSharp\TACTSharp\TACTSharp.csproj", "{5C2453A0-9A0E-4E0F-82D4-0DC9F9F45343}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWTagLib", "wow-filetags\tools\C#\wow-filetags\WoWTagLib\WoWTagLib.csproj", "{83C30760-5BEF-8D41-154A-FDE9B0E84DC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WoWTools.SpellDescParser", "WoWTools.SpellDescParser\WoWTools.SpellDescParser\WoWTools.SpellDescParser.csproj", "{AFD1491F-444D-AAD0-3718-6B862DCC950C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{83C30760-5BEF-8D41-154A-FDE9B0E84DC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83C30760-5BEF-8D41-154A-FDE9B0E84DC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{83C30760-5BEF-8D41-154A-FDE9B0E84DC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFD1491F-444D-AAD0-3718-6B862DCC950C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFD1491F-444D-AAD0-3718-6B862DCC950C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFD1491F-444D-AAD0-3718-6B862DCC950C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFD1491F-444D-AAD0-3718-6B862DCC950C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

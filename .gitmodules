@@ -19,3 +19,6 @@
 [submodule "wow-filetags"]
 	path = wow-filetags
 	url = https://github.com/wowdev/wow-filetags
+[submodule "WoWTools.SpellDescParser"]
+	path = WoWTools.SpellDescParser
+	url = https://github.com/Marlamin/WoWTools.SpellDescParser

@@ -37,9 +37,9 @@ function tooltip2(el, event){
         tooltipDiv.id = "wtTooltip";
         tooltipDiv.classList.add('wt-tooltip');
 
-        //if (tooltipType == "spell" || tooltipType == "item"){
-        //    tooltipDiv.querySelector(".tooltip-icon").style.display = 'block';
-        //}
+        if (tooltipType == "spell" || tooltipType == "item"){
+            tooltipDiv.querySelector(".tooltip-icon").style.display = 'block';
+        }
         needsRefresh = true;
         document.body.appendChild(tooltipDiv);
     } else {
@@ -52,9 +52,9 @@ function tooltip2(el, event){
             tooltipDiv.dataset.type = tooltipType;
             tooltipDiv.dataset.id = tooltipTargetValue;
 
-            //if (tooltipType == "spell" || tooltipType == "item"){
-            //    tooltipDiv.querySelector(".tooltip-icon").style.display = 'block';
-            //}
+            if (tooltipType == "spell" || tooltipType == "item"){
+                tooltipDiv.querySelector(".tooltip-icon").style.display = 'block';
+            }
 
             needsRefresh = true;
         }
@@ -77,15 +77,15 @@ function tooltip2(el, event){
             // TODO: Global site fallback build?
         }
 
-        //if (tooltipType == 'spell'){
-        //    generateSpellTooltip(tooltipTargetValue, tooltipDiv, localBuild);
-        //} else if (tooltipType == 'item'){
-        //    generateItemTooltip(tooltipTargetValue, tooltipDiv, localBuild);
+        if (tooltipType == 'spell'){
+            generateSpellTooltip(tooltipTargetValue, tooltipDiv);
+        } else if (tooltipType == 'item'){
+            generateItemTooltip(tooltipTargetValue, tooltipDiv);
         //} else if (tooltipType == 'creature'){
         //    generateCreatureTooltip(tooltipTargetValue, tooltipDiv);
         //} else if (tooltipType == 'quest'){
         //    generateQuestTooltip(tooltipTargetValue, tooltipDiv);
-        if (tooltipType == 'fk') {
+        } else if (tooltipType == 'fk') {
             if (el.dataset.fk == "FileData::ID") {
                 generateFileTooltip(tooltipTargetValue, tooltipDiv);
             } else {
@@ -122,6 +122,164 @@ function hideTooltip2(){
     return true;
 }
 
+function generateItemTooltip(id, tooltip) {
+    console.log("Generating item tooltip for " + id);
+
+    const tooltipIcon = tooltip.querySelector(".tooltip-icon");
+    const tooltipDesc = tooltip.querySelector(".tooltip-desc");
+
+    Promise.all([
+        fetch("/dbc/tooltip/item/" + id),
+    ])
+        .then(function (responses) {
+            return Promise.all(responses.map(function (response) {
+                if (tooltipDesc == undefined) {
+                    console.log("Tooltip closed before rendering finished, nevermind");
+                    return;
+                }
+                return response.json();
+            })).catch(function (error) {
+                console.log("An error occurred retrieving data to generate the tooltip: " + error);
+                tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
+            });
+        }).then(function (data) {
+            if (tooltipDesc == undefined) {
+                console.log("Tooltip closed before rendering finished, nevermind");
+                return;
+            }
+
+            const calcData = data[0]; // Calculated on server
+
+            let tooltipTable = "<table class='tooltip-table'><tr><td><h2 class='q" + calcData["overallQualityID"] + "'>" + calcData["name"] + "</h2></td><td class='right'><img style='max-height: 24px;' src='/img/exp/" + calcData["expansionID"] + ".webp'></td></tr>";
+            if (calcData["itemLevel"] != 0) tooltipTable += "<tr><td class='yellow'>Item Level " + calcData["itemLevel"] + "</td></tr>";
+
+            tooltipTable += "<tr><td>" + inventoryTypeEnum[calcData["inventoryType"]] + "</td><td class='right'>" + itemSubClass[calcData['classID']][calcData['subClassID']] + "</td></tr>";
+
+            if (calcData["classID"] == 2 && calcData["hasSparse"] == true) {
+                tooltipTable += "<tr><td><span class='mindmg'>" + calcData["minDamage"] + "</span> - <span class='maxdmg'>" + calcData["maxDamage"] + "</span> Damage</td><td class='right'>Speed <span class='speed'>" + calcData["speed"] + "</span></td></tr>";
+                tooltipTable += "<tr><td>(<span class='dps'>" + calcData["dps"] + "</span> damage per second)</td></tr>";
+            }
+
+            if (calcData["itemEffects"] != undefined) {
+                for (let i = 0; i < calcData["itemEffects"].length; i++) {
+                    let itemEffect = calcData["itemEffects"][i];
+                    tooltipTable += "<tr><td colspan='2'>" + itemEffectTriggerType[itemEffect["triggerType"]] + ": ";
+                     if(itemEffect["spell"]["name"] != ""){
+                     	tooltipTable += " <b>" + itemEffect["spell"]["name"] + "</b>";
+                     }
+
+                    if (itemEffect["spell"]["description"] != null) {
+                        tooltipTable += "<span id='spelldesc-" + itemEffect["spell"]["spellID"] + "'>" + itemEffect["spell"]["description"] + "</span>";
+                        fetch("/dbc/tooltip/spell/" + itemEffect["spell"]["spellID"] + "?itemID=" + id)
+                            .then(function (spellResponse) {
+                                return spellResponse.json();
+                            }).then(function (data) {
+                                var spellDescHolder = document.getElementById("spelldesc-" + data["spellID"]);
+                                if (data["description"] != null) {
+                                    if (spellDescHolder) {
+                                        spellDescHolder.innerHTML = data["description"].replace("\n", "<br><br>");
+                                    }
+                                } else {
+                                    if (spellDescHolder) {
+                                        spellDescHolder.innerHTML = "No description for spell " + data["spellID"];
+                                    }
+                                }
+                            }).catch(function (error) {
+                                console.log("An error occurred retrieving data to generate spell description: " + error);
+                            });
+
+                    } else {
+                        tooltipTable += " SpellID #" + itemEffect["spell"]["spellID"];
+                    }
+
+                    tooltipTable += "</td></tr>";
+                }
+            }
+
+            let hasStats = false;
+            if (calcData["hasSparse"] == true && calcData["stats"] != null && calcData["stats"].length > 0) {
+                hasStats = true;
+                for (let statIndex = 0; statIndex < calcData["stats"].length; statIndex++) {
+                    var stat = calcData["stats"][statIndex];
+
+                    if (stat["isCombatRating"]) {
+                        tooltipTable += "<tr><td class='q2'>+" + stat["value"] + " " + itemPrettyStatType[stat["statTypeID"]] + "</td></tr>";
+                    } else {
+                        tooltipTable += "<tr><td>+" + stat["value"] + " " + itemPrettyStatType[stat["statTypeID"]] + "</td></tr>";
+                    }
+                }
+            }
+
+            if (calcData["requiredLevel"] > 1) { tooltipTable += "<tr><td>Requires Level " + calcData["requiredLevel"] + "</td></tr>"; }
+
+            if (calcData["flavorText"] != null && calcData["flavorText"] != "") {
+                tooltipTable += "<tr><td class='yellow'>\"" + calcData["flavorText"] + "\"</td></tr>";
+            }
+
+            if (hasStats) {
+                tooltipTable += "<tr><td class='yellow'><i>Still WIP, stats might be inaccurate.</i></td></tr>";
+            }
+
+            tooltipTable += "</table>";
+
+            tooltipDesc.innerHTML = tooltipTable;
+
+            if (calcData["iconFileDataID"] != 0) {
+                tooltipIcon.innerHTML = '<img src="/casc/blp2png?filedataid=' + calcData["iconFileDataID"] + '">';
+            }
+
+            repositionTooltip(tooltip);
+        }).catch(function (error) {
+            console.log("An error occurred retrieving data to generate the tooltip: " + error);
+            console.log(error);
+            tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
+        });
+}
+
+function generateSpellTooltip(id, tooltip) {
+    console.log("Generating spell tooltip for " + id);
+
+    const tooltipIcon = tooltip.querySelector(".tooltip-icon");
+    const tooltipDesc = tooltip.querySelector(".tooltip-desc");
+
+    Promise.all([
+        fetch("/dbc/tooltip/spell/" + id),
+    ])
+        .then(function (responses) {
+            return Promise.all(responses.map(function (response) {
+                if (tooltipDesc == undefined) {
+                    console.log("Tooltip closed before rendering finished, nevermind");
+                    return;
+                }
+                return response.json();
+            })).catch(function (error) {
+                console.log("An error occurred retrieving data to generate the tooltip: " + error);
+                tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
+            });
+        }).then(function (data) {
+            if (tooltipDesc == undefined) {
+                console.log("Tooltip closed before rendering finished, nevermind");
+                return;
+            }
+
+            const calcData = data[0];
+
+            if (calcData["name"] == null) {
+                calcData["name"] = "Unknown spell";
+                calcData["description"] = "It is possible this spell was added through hotfixes or is entirely unavailable in the client.";
+            }
+
+            tooltipDesc.innerHTML = "<h2>" + calcData["name"] + "</h2>";
+            if (calcData["description"] != null) {
+                tooltipDesc.innerHTML += "<p class='yellow'>" + calcData["description"].replace("\n", "<br><br>");
+            }
+            tooltipIcon.innerHTML = '<img src="/casc/blp2png?filedataid=' + calcData["iconFileDataID"] + '">';
+        }).catch(function (error) {
+            console.log("An error occurred retrieving data to generate the tooltip: " + error);
+            tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
+        });
+}
+
 function generateFKTooltip(targetFK, value, tooltip, build)
 {
     console.log("Generating foreign key tooltip for " + value);
@@ -135,7 +293,7 @@ function generateFKTooltip(targetFK, value, tooltip, build)
 
     const collapsedFKs = ["playercondition::id", "holidays::id", "spellchaineffects::id", "spellvisual::id", "soundkitadvanced::id"];
 
-    const tooltipIcon = tooltip.querySelector(".tooltip-icon img");
+    const tooltipIcon = tooltip.querySelector(".tooltip-icon");
     const tooltipDesc = tooltip.querySelector(".tooltip-desc");
 
     const explodedTargetFK = targetFK.split("::");

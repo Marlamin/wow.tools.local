@@ -2549,7 +2549,9 @@ itemSubClass[0] = {
     6: 'Item Enhancement (OBSOLETE)',
     7: 'Bandage',
     8: 'Other',
-    9: 'Vantus Rune'
+    9: 'Vantus Rune',
+    10: 'Utility Curio',
+    11: 'Combat Curio'
 }
 
 itemSubClass[1] = {
@@ -2750,19 +2752,29 @@ itemSubClass[18] = {
 }
 
 itemSubClass[19] = {
-	0: 'Blacksmithing',
-	1: 'Leatherworking',
-	2: 'Alchemy',
-	3: 'Herbalism',
-	4: 'Cooking',
-	5: 'Mining',
-	6: 'Tailoring',
-	7: 'Engineering',
-	8: 'Enchanting',
-	9: 'Fishing',
-	10: 'Skinning',
-	11: 'Jewelcrafting',
-	12: 'Inscription',
+    0: 'Blacksmithing',
+    1: 'Leatherworking',
+    2: 'Alchemy',
+    3: 'Herbalism',
+    4: 'Cooking',
+    5: 'Mining',
+    6: 'Tailoring',
+    7: 'Engineering',
+    8: 'Enchanting',
+    9: 'Fishing',
+    10: 'Skinning',
+    11: 'Jewelcrafting',
+    12: 'Inscription',
+    13: 'Archaeology',
+}
+
+itemSubClass[20] = {
+    0: 'Decor',
+    1: 'Housing Dye',
+    2: 'Room',
+    3: 'Room Customization',
+    4: 'Exterior Customization',
+    5: 'Service Item'
 }
 
 const uiMapSystem = {
