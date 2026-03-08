@@ -276,6 +276,13 @@ namespace wow.tools.local.Services
                         targetIndex = 0;
                     break;
                 case InventoryType.Relic:
+                // TODO: Figure out correct values for the below types?
+                case InventoryType.ProfessionTool:
+                case InventoryType.ProfessionGear:
+                case InventoryType.EquippableSpelOffensive:
+                case InventoryType.EquippableSpellUtility:
+                case InventoryType.EquippableSpellDefensive:
+                case InventoryType.EquippableSpellWeapon:
                     targetIndex = 4;
                     break;
                 default:

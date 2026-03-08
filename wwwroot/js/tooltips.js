@@ -169,15 +169,17 @@ function generateItemTooltip(id, tooltip) {
                      }
 
                     if (itemEffect["spell"]["description"] != null) {
-                        tooltipTable += "<span id='spelldesc-" + itemEffect["spell"]["spellID"] + "'>" + itemEffect["spell"]["description"] + "</span>";
+                        tooltipTable += "<span id='spelldesc-" + itemEffect["spell"]["spellID"] + "'><br>" + itemEffect["spell"]["description"] + "</span>";
                         fetch("/dbc/tooltip/spell/" + itemEffect["spell"]["spellID"] + "?itemID=" + id)
                             .then(function (spellResponse) {
                                 return spellResponse.json();
                             }).then(function (data) {
+
+                                console.log(data);
                                 var spellDescHolder = document.getElementById("spelldesc-" + data["spellID"]);
                                 if (data["description"] != null) {
                                     if (spellDescHolder) {
-                                        spellDescHolder.innerHTML = data["description"].replace("\n", "<br><br>");
+                                        spellDescHolder.innerHTML = "<br>" + data["description"].replace("\n", "<br><br>");
                                     }
                                 } else {
                                     if (spellDescHolder) {
