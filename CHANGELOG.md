@@ -5,6 +5,7 @@
 - Added JSON previews for WDT and WDL files.
 - Added persistent settings to table page lengths between sessions for DB2 browsing, DB2 diffs and file browsing.
 - Fixed dark mode not applying to the new Choices dropdowns if the browser wasn't in dark mode.
+- Fixed parented files not showing up under non-M2/WMO files in the more info modal.
 - Removed Ribbit v1 support in CascLib and dropped Ribbit.NET (removes a few dependencies).
 - Removed unused dependencies.
 - More JQuery removal and JS cleanup.

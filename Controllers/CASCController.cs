@@ -1152,20 +1152,20 @@ namespace wow.tools.local.Controllers
                         html += "</table></td></tr>";
                     }
                 }
+            }
 
-                var linkedChildFiles = SQLiteDB.GetFilesByParent(filedataid);
+            var linkedChildFiles = SQLiteDB.GetFilesByParent(filedataid);
 
-                if (linkedChildFiles.Count > 0)
+            if (linkedChildFiles.Count > 0)
+            {
+                html += "<tr><td colspan='2'><b>Files this file links to</b></td></tr>";
+                html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
+                html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
+                foreach (var linkedFile in linkedChildFiles)
                 {
-                    html += "<tr><td colspan='2'><b>Files this file links to</b></td></tr>";
-                    html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
-                    html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
-                    foreach (var linkedFile in linkedChildFiles)
-                    {
-                        html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
-                    }
-                    html += "</table></td></tr></table>";
+                    html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                 }
+                html += "</table></td></tr></table>";
             }
 
 
