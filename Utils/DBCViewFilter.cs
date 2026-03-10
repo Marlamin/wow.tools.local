@@ -20,6 +20,7 @@ namespace wow.tools.local.Utils
         private int SortBySiteCol;
 
         private static readonly MethodInfo ObjectToString = typeof(object).GetMethod("ToString")!;
+        private static readonly MethodInfo DBCDRowFieldMethod = typeof(DBCDRow).GetMethod(nameof(DBCDRow.Field))!;
 
         private Func<DBCDRow, bool>? FilterFunc;
         private Func<DBCDRow, object>? SortFunc;
@@ -115,7 +116,8 @@ namespace wow.tools.local.Utils
                 if (firstItem == null)
                     continue;
 
-                var field = firstItem[Storage.AvailableColumns[i]];
+                var fieldName = Storage.AvailableColumns[i];
+                var field = firstItem[fieldName];
                 var size = 1;
                 var isArray = false;
 
@@ -127,7 +129,7 @@ namespace wow.tools.local.Utils
 
                 for (var j = 0; j < size; j++)
                 {
-                    var property = GetProperty(param, Storage.AvailableColumns[i], isArray, j);
+                    var property = GetProperty(param, fieldName, isArray, j);
 
                     if (SortBySiteCol == siteColIndex)
                     {
@@ -142,30 +144,38 @@ namespace wow.tools.local.Utils
                     // cast to string and apply any custom string formatting i.e. HtmlEncode and StringToCSVCell
 
                     // if dbcd gets enum
-                    //var fieldName = Storage.AvailableColumns[i];
-                    //var enumFieldName = isArray ? $"{fieldName}[{j}]" : fieldName;
-                    //var isEnumOrFlag = Storage.EnumTypes != null && (Storage.EnumTypes.ContainsKey(enumFieldName) || (isArray && Storage.EnumTypes.ContainsKey(fieldName)));
-
                     Expression formattedProperty;
-                    /*
-                    if (isEnumOrFlag)
+                    var constructedFieldName = $"{fieldName}{(isArray ? $"[{j}]" : "")}";
+                    if (Storage.IsEnumOrFlagField(constructedFieldName))
                     {
-                        // TODO: converting to a long for now, idk if there's a better way to do this. maybe getting type through reflection and then doing a convert of that type specifically?
-                        var convertMethod = typeof(Convert).GetMethod(nameof(Convert.ToInt64), new[] { typeof(object) })!;
-                        var numericValue = Expression.Call(convertMethod, property);
+                        // Resolve enum key (array fields may map per-index or fall back to the field name)
+                        var enumKey = Storage.EnumTypes.ContainsKey(constructedFieldName) ? constructedFieldName : fieldName;
+                        var enumType = Storage.EnumTypes[enumKey];
+                        var underlyingType = Enum.GetUnderlyingType(enumType);
 
-                        // call tostring on the long, type.emptytypes goes here because we need the tostring version that has no parameters
-                        formattedProperty = Expression.Call(numericValue, typeof(long).GetMethod(nameof(ToString), Type.EmptyTypes)!);
+                        // Build expression: row.Field<underlyingType>(fieldName)  or  row.Field<underlyingType[]>(fieldName)[j]
+                        Expression numericValue;
+                        if (isArray)
+                        {
+                            var arrayType = underlyingType.MakeArrayType();
+                            var arrayCall = Expression.Call(param, DBCDRowFieldMethod.MakeGenericMethod(arrayType), Expression.Constant(fieldName));
+                            numericValue = Expression.ArrayIndex(arrayCall, Expression.Constant(j));
+                        }
+                        else
+                        {
+                            numericValue = Expression.Call(param, DBCDRowFieldMethod.MakeGenericMethod(underlyingType), Expression.Constant(fieldName));
+                        }
+
+                        formattedProperty = Expression.Call(numericValue, underlyingType.GetMethod("ToString", Type.EmptyTypes)!);
                     }
                     else
                     {
-                    */
-                    formattedProperty = Expression.Call(property, ObjectToString);
-                    if (StringFormatter != null && (field.GetType() == typeof(string) || field.GetType() == typeof(string[])))
-                    {
-                        formattedProperty = Expression.Call(StringFormatter.Method, formattedProperty);
+                        formattedProperty = Expression.Call(property, ObjectToString);
+                        if (StringFormatter != null && (field is string || field.GetType() == typeof(string[])))
+                        {
+                            formattedProperty = Expression.Call(StringFormatter.Method, formattedProperty);
+                        }
                     }
-                    //}
 
                     properties.Add(formattedProperty);
                     siteColIndex++;

@@ -475,70 +475,55 @@ function generateFlagsTooltip(table, col, value, tooltip, overrideflag) {
         return;
     }
 
-    let targetFlags;
+    let targetFlags = flagMap.get(table.toLowerCase() + '.' + col);
+    if (overrideflag != null) {
+        targetFlags = JSON.parse(overrideflag);
+    }
 
-    fetch("/dbc/flag/get?tableName=" + table + "&columnName=" + col)
-        .then(response => response.json())
-        .then(data => {
-            const flagMapEntry = {};
-            data.entries.forEach(function (entry) {
-                if (entry.builds.length > 0 || entry.buildRanges.length > 0)
-                    return;
+    if (targetFlags == null) {
+        tooltipDesc.innerHTML = "No defined flags found for this field (" + table + "::" + col + ").";
+        return;
+    }
 
-                flagMapEntry[entry.value] = entry.name;
-            });
+    if (value == "-1") {
+        tooltipDesc.innerHTML = "-1 usually means all flags are enabled.";
+        return;
+    }
 
-            flagMap.set(table.toLowerCase() + '.' + col, flagMapEntry);
-        }).finally(() => {
-            targetFlags = flagMap.get(table.toLowerCase() + '.' + col);
-            if (overrideflag != null)
-                targetFlags = JSON.parse(overrideflag);
-
-            if (targetFlags == 0) {
-                tooltipDesc.innerHTML = "No defined flags found for this field (" + table + "::" + col + ").";
-                return;
+    const usedFlags = [];
+    for (let i = 0; i < 32; i++) {
+        let toCheck = BigInt(1) << BigInt(i);
+        if (BigInt(value) & toCheck) {
+            let targetFlag = targetFlags.at(i);
+            if (targetFlag !== undefined && targetFlag.value) {
+                usedFlags.push(['0x' + "" + dec2hex(toCheck, true), targetFlag.name]);
+            } else {
+                usedFlags.push(['0x' + "" + dec2hex(toCheck, true), ""]);
             }
+        }
+    }
 
-            if (value == "-1") {
-                tooltipDesc.innerHTML = "-1 usually means all flags are enabled.";
-                return;
-            }
+    let tooltipContents = "<table class='tooltip-table'>";
 
-            const usedFlags = [];
-            for (let i = 0; i < 32; i++) {
-                let toCheck = BigInt(1) << BigInt(i);
-                if (BigInt(value) & toCheck) {
-                    if (targetFlags !== undefined && targetFlags[toCheck]) {
-                        usedFlags.push(['0x' + "" + dec2hex(toCheck, true), targetFlags[toCheck]]);
-                    } else {
-                        usedFlags.push(['0x' + "" + dec2hex(toCheck, true), ""]);
-                    }
-                }
-            }
+    for (let i = 0; i < usedFlags.length; i++) {
+        tooltipContents += "<tr><td><b>" + usedFlags[i][0] + "</b></td>";
+        if (usedFlags[i][1] == "") {
+            tooltipContents += "<td style='opacity: 0.6;'><i>Unknown flag</i></td>";
+        } else {
+            tooltipContents += "<td>" + usedFlags[i][1] + "</td>";
+        }
+        tooltipContents += "</tr>";
+    }
 
-            let tooltipContents = "<table class='tooltip-table'>";
+    tooltipContents += "</table>";
 
-            for (let i = 0; i < usedFlags.length; i++) {
-                tooltipContents += "<tr><td><b>" + usedFlags[i][0] + "</b></td>";
-                if (usedFlags[i][1] == "") {
-                    tooltipContents += "<td style='opacity: 0.6;'><i>Unknown flag</i></td>";
-                } else {
-                    tooltipContents += "<td>" + usedFlags[i][1] + "</td>";
-                }
-                tooltipContents += "</tr>";
-            }
-
-            tooltipContents += "</table>";
-
-            tooltipDesc.innerHTML = tooltipContents;
-        });
+    tooltipDesc.innerHTML = tooltipContents;
 }
 
 function repositionTooltip(tooltip){
     const tooltipRect = tooltip.getBoundingClientRect();
     if (tooltipRect.bottom > window.innerHeight){
         tooltip.style.top =  (window.innerHeight - (tooltipRect.bottom - tooltipRect.top) - 5) + "px";
-
     }
 }
 

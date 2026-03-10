@@ -200,7 +200,7 @@ function BGRA2RGBA(bgraColor) {
 
 function getFlagDescriptions(db, field, value, targetFlags = 0){
     let usedFlags = Array();
-    if (targetFlags == 0){
+    if (targetFlags == 0) {
         // eslint-disable-next-line no-undef
         targetFlags = flagMap.get(db.toLowerCase() + '.' + field);
     }
@@ -209,8 +209,9 @@ function getFlagDescriptions(db, field, value, targetFlags = 0){
         return [value];
     }
 
-    if (value == "-1")
+    if (value == "-1") {
         return ["All"];
+    }
 
     for (let i = 0; i < 32; i++){
         let toCheck = BigInt(1) << BigInt(i);
@@ -240,24 +241,6 @@ function fancyFlagTable(flagArrs){
     return tableHtml;
 }
 
-function getEnum(db, field, value){
-    // eslint-disable-next-line no-undef
-    const targetEnum = enumMap.get(db.toLowerCase() + '.' + field);
-    return getEnumVal(targetEnum, value);
-}
-
-function getEnumVal(targetEnum, value){
-    if (targetEnum[value] !== undefined){
-        if (Array.isArray(targetEnum[value])){
-            return targetEnum[value][0];
-        } else {
-            return targetEnum[value];
-        }
-    } else {
-        return "Unk";
-    }
-}
-
 function parseLogic(l) { var i=0;var r = ""
     if (l & (1 << (16 + i))) r+='!'; r+='#'+i
     for (++i; i < 4; ++i) {
@@ -283,7 +266,7 @@ function parseDate(date){
         minute = -1;
 
     console.log("minute", minute);
-    
+
     let hour = (date >> 6) & 0x1F;
     if (hour == 31)
         hour = -1;
@@ -293,7 +276,7 @@ function parseDate(date){
     let dotw = (date >> 11) & 0x7;
     if (dotw == 7)
         dotw = -1;
-    
+
     console.log("day of the week", dotw);
 
     let dotm = (date >> 14) & 0x3F;
@@ -302,13 +285,13 @@ function parseDate(date){
     } else {
         dotm += 1;
     }
-    
+
     console.log("day of the month", dotm);
 
     let month = (date >> 20) & 0xF;
     if (month == 15){
         month = -1;
-    } else { 
+    } else {
         month += 1;
     }
 
@@ -441,8 +424,7 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
     }
 
     if (enumMap.has(columnWithTable)) {
-        var enumVal = getEnum(tableName.toLowerCase(),
-            columnName, columnValue);
+        var enumVal = getEnum(tableName.toLowerCase(), columnName, columnValue);
         if (columnValue == '0' && enumVal == "Unk") {
             // returnVar += columnValue;
         } else {
@@ -453,21 +435,18 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
     if (conditionalEnums.has(columnWithTable)) {
         let conditionalEnum = conditionalEnums.get(columnWithTable);
         conditionalEnum.forEach(function (conditionalEnumEntry) {
-            let condition = conditionalEnumEntry[0].split(
-                '=');
+            let condition = conditionalEnumEntry[0].split('=');
             let conditionTarget = condition[0].split('.');
             let conditionValue = condition[1];
             let resultEnum = conditionalEnumEntry[1];
 
             let colTarget = headers.indexOf(conditionTarget[1]);
-            
+
             // Col target found?
             if (colTarget > -1) {
                 if (row[colTarget] == conditionValue) {
-                    var enumVal = getEnumVal(resultEnum,
-                        columnValue);
-                    if (columnValue == '0' && enumVal ==
-                        "Unk") {
+                    var enumVal = getEnumVal(resultEnum, columnValue);
+                    if (columnValue == '0' && enumVal == "Unk") {
                         returnVar = columnValue;
                     } else {
                         returnVar = columnValue +
@@ -481,8 +460,7 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
     if (conditionalFlags.has(columnWithTable)) {
         let conditionalFlag = conditionalFlags.get(columnWithTable);
         conditionalFlag.forEach(function (conditionalFlagEntry) {
-            let condition = conditionalFlagEntry[0].split(
-                '=');
+            let condition = conditionalFlagEntry[0].split('=');
             let conditionTarget = condition[0].split('.');
             let conditionValue = condition[1];
             let resultFlag = conditionalFlagEntry[1];
@@ -498,8 +476,7 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
     }
 
     if (colorFields.includes(columnWithTable)) {
-        returnVar =
-            "<div style='display: inline-block; border: 2px solid black; height: 19px; width: 19px; background-color: " + BGRA2RGBA(columnValue) + "'>&nbsp;</div> " + columnValue;
+        returnVar = "<div style='display: inline-block; border: 2px solid black; height: 19px; width: 19px; background-color: " + BGRA2RGBA(columnValue) + "'>&nbsp;</div> " + columnValue;
     }
 
     if (dateFields.includes(columnWithTable)) {

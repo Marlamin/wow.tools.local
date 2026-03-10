@@ -16,7 +16,9 @@ namespace wow.tools.local.Providers
             if (string.IsNullOrEmpty(SettingsManager.DefinitionDir) || !Directory.Exists(SettingsManager.DefinitionDir))
             {
                 isUsingBDBD = true;
+
                 githubEnumProvider = new GithubEnumProvider(true);
+                Mappings = githubEnumProvider.Mappings;
             }
             else
             {
@@ -29,25 +31,20 @@ namespace wow.tools.local.Providers
                 else
                 {
                     isUsingBDBD = true;
+
                     githubEnumProvider = new GithubEnumProvider();
                     Mappings = githubEnumProvider.Mappings;
                 }
             }
         }
-        public IReadOnlyDictionary<int?, EnumDefinition>? GetArrayEnumDefinitions(string tableName, string columnName)
-        {
-            if (isUsingBDBD)
-                return githubEnumProvider?.GetArrayEnumDefinitions(tableName, columnName);
-            else
-                return filesystemEnumProvider?.GetArrayEnumDefinitions(tableName, columnName);
-        }
 
-        public EnumDefinition? GetEnumDefinition(string tableName, string columnName)
+        public EnumDefinition? GetEnumDefinition(string tableName, string columnName, int? arrayIndex = null,
+            string? conditionalTable = null, string? conditionalColumn = null, string? conditionalValue = null)
         {
             if (isUsingBDBD)
-                return githubEnumProvider?.GetEnumDefinition(tableName, columnName);
+                return githubEnumProvider?.GetEnumDefinition(tableName, columnName, arrayIndex, conditionalTable, conditionalColumn, conditionalValue);
             else
-                return filesystemEnumProvider?.GetEnumDefinition(tableName, columnName);
+                return filesystemEnumProvider?.GetEnumDefinition(tableName, columnName, arrayIndex, conditionalTable, conditionalColumn, conditionalValue);
         }
 
         public void ClearCache()

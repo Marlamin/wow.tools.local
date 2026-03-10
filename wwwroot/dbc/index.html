@@ -107,6 +107,7 @@
                     <input type="checkbox" autocomplete="off" id="showFKButton"> <label for='showFKButton'>
                         Show FK search
                         button?
+                    </label>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -248,8 +249,9 @@
         </div>
     </div>
     <script src="/js/files.js" crossorigin="anonymous"></script>
-    <script src="/js/flags.js"></script>
-    <script src="/js/enums.js"></script>
+    <script src="/js/meta.js"></script>
+    <!-- <script src="/js/flags.js"></script> -->
+    <!-- <script src="/js/enums.js"></script> -->
     <script src="/js/dbc.js"></script>
     <script type='text/javascript'>
         var Settings = {
@@ -650,7 +652,7 @@
                                 currentParams["build"] = data[0].item1;
                             }
                         }
-                     
+
                         loadTable();
                     }
 
