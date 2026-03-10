@@ -18,6 +18,7 @@
     <Compile Remove="DBCD\**" />
     <Compile Remove="dbcs\**" />
     <Compile Remove="DBDiffer\**" />
+    <Compile Remove="EnumCache\**" />
     <Compile Remove="extract\**" />
     <Compile Remove="manifests\**" />
     <Compile Remove="TACTSharp\**" />
@@ -32,6 +33,7 @@
     <Content Remove="DBCD\**" />
     <Content Remove="dbcs\**" />
     <Content Remove="DBDiffer\**" />
+    <Content Remove="EnumCache\**" />
     <Content Remove="extract\**" />
     <Content Remove="manifests\**" />
     <Content Remove="TACTSharp\**" />
@@ -46,6 +48,7 @@
     <EmbeddedResource Remove="DBCD\**" />
     <EmbeddedResource Remove="dbcs\**" />
     <EmbeddedResource Remove="DBDiffer\**" />
+    <EmbeddedResource Remove="EnumCache\**" />
     <EmbeddedResource Remove="extract\**" />
     <EmbeddedResource Remove="manifests\**" />
     <EmbeddedResource Remove="TACTSharp\**" />
@@ -60,6 +63,7 @@
     <None Remove="DBCD\**" />
     <None Remove="dbcs\**" />
     <None Remove="DBDiffer\**" />
+    <None Remove="EnumCache\**" />
     <None Remove="extract\**" />
     <None Remove="manifests\**" />
     <None Remove="TACTSharp\**" />
