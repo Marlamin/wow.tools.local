@@ -2758,7 +2758,7 @@ const questLineXQuestFlags = {
 }
 
 window.flagMap = new Map();
-window.flagMap.set("achievement.Flags", achievementFlags);
+window.flagMap.set("achievement.Flags", achievementFlags); //d
 window.flagMap.set("animationdata.Flags[0]", animationDataFlags0);
 window.flagMap.set("animkitconfig.ConfigFlags", animKitConfigConfigFlags);
 window.flagMap.set("areapoi.Flags", areaPOIFlags);
@@ -2825,16 +2825,16 @@ window.flagMap.set("houseroom.Flags", houseRoomFlags);
 window.flagMap.set("itembonuslistgroupentry.Flags", itemBonusListGroupEntryFlags);
 window.flagMap.set("itemdisplayinfo.Flags", itemDisplayInfoFlags);
 window.flagMap.set("itemset.SetFlags", itemSetSetFlags);
-window.flagMap.set("itemsearchname.Flags[0]", itemStaticFlags0);
-window.flagMap.set("itemsearchname.Flags[1]", itemStaticFlags1);
-window.flagMap.set("itemsearchname.Flags[2]", itemStaticFlags2);
-window.flagMap.set("itemsearchname.Flags[3]", itemStaticFlags3);
-window.flagMap.set("itemsparse.AllowableClass", classMask);
-window.flagMap.set("itemsearchname.AllowableClass", classMask);
-window.flagMap.set("itemsparse.Flags[0]", itemStaticFlags0);
-window.flagMap.set("itemsparse.Flags[1]", itemStaticFlags1);
-window.flagMap.set("itemsparse.Flags[2]", itemStaticFlags2);
-window.flagMap.set("itemsparse.Flags[3]", itemStaticFlags3);
+window.flagMap.set("itemsearchname.Flags[0]", itemStaticFlags0); //d
+window.flagMap.set("itemsearchname.Flags[1]", itemStaticFlags1); //d
+window.flagMap.set("itemsearchname.Flags[2]", itemStaticFlags2); //d
+window.flagMap.set("itemsearchname.Flags[3]", itemStaticFlags3); //d
+window.flagMap.set("itemsparse.AllowableClass", classMask); //d
+window.flagMap.set("itemsearchname.AllowableClass", classMask); //d
+window.flagMap.set("itemsparse.Flags[0]", itemStaticFlags0); //d
+window.flagMap.set("itemsparse.Flags[1]", itemStaticFlags1); //d
+window.flagMap.set("itemsparse.Flags[2]", itemStaticFlags2); //d
+window.flagMap.set("itemsparse.Flags[3]", itemStaticFlags3); //d
 window.flagMap.set("itemsubclass.DisplayFlags", itemSubClassDisplayFlags);
 window.flagMap.set("itemsubclass.Flags", itemSubClassFlags);
 window.flagMap.set("journalencounter.Flags", journalEncounterFlags);
@@ -2852,7 +2852,7 @@ window.flagMap.set("modifiedcraftingreagentitem.Flags", optionalReagentItemFlag)
 window.flagMap.set("mount.Flags", mountFlags);
 window.flagMap.set("mountcapability.Flags", mountCapabilityFlags);
 window.flagMap.set("phase.Flags", phaseFlags);
-window.flagMap.set("playercondition.ClassMask", classMask);
+window.flagMap.set("playercondition.ClassMask", classMask); //d
 window.flagMap.set("playercondition.Flags", playerConditionFlags);
 window.flagMap.set("powertype.Flags", powerTypeFlags);
 window.flagMap.set("questinfo.Modifiers", questTagModifierFlags);
@@ -2880,23 +2880,23 @@ window.flagMap.set("spellinterrupts.ChannelInterruptFlags[0]", auraInterruptFlag
 window.flagMap.set("spellinterrupts.ChannelInterruptFlags[1]", auraInterruptFlags1);
 window.flagMap.set("spellinterrupts.InterruptFlags", interruptFlags);
 window.flagMap.set("spellitemenchantment.Flags", spellItemEnchantmentFlags);
-window.flagMap.set("spellmisc.Attributes[0]", spellAttributes0);
-window.flagMap.set("spellmisc.Attributes[1]", spellAttributes1);
-window.flagMap.set("spellmisc.Attributes[10]", spellAttributes10);
-window.flagMap.set("spellmisc.Attributes[11]", spellAttributes11);
-window.flagMap.set("spellmisc.Attributes[12]", spellAttributes12);
-window.flagMap.set("spellmisc.Attributes[13]", spellAttributes13);
-window.flagMap.set("spellmisc.Attributes[14]", spellAttributes14);
-window.flagMap.set("spellmisc.Attributes[15]", spellAttributes15);
-window.flagMap.set("spellmisc.Attributes[2]", spellAttributes2);
-window.flagMap.set("spellmisc.Attributes[3]", spellAttributes3);
-window.flagMap.set("spellmisc.Attributes[4]", spellAttributes4);
-window.flagMap.set("spellmisc.Attributes[5]", spellAttributes5);
-window.flagMap.set("spellmisc.Attributes[6]", spellAttributes6);
-window.flagMap.set("spellmisc.Attributes[7]", spellAttributes7);
-window.flagMap.set("spellmisc.Attributes[8]", spellAttributes8);
-window.flagMap.set("spellmisc.Attributes[9]", spellAttributes9);
-window.flagMap.set("spellmisc.SchoolMask", damageClass);
+window.flagMap.set("spellmisc.Attributes[0]", spellAttributes0); //d
+window.flagMap.set("spellmisc.Attributes[1]", spellAttributes1); //d
+window.flagMap.set("spellmisc.Attributes[10]", spellAttributes10); //d
+window.flagMap.set("spellmisc.Attributes[11]", spellAttributes11); //d
+window.flagMap.set("spellmisc.Attributes[12]", spellAttributes12); //d
+window.flagMap.set("spellmisc.Attributes[13]", spellAttributes13); //d
+window.flagMap.set("spellmisc.Attributes[14]", spellAttributes14); //d
+window.flagMap.set("spellmisc.Attributes[15]", spellAttributes15); //d
+window.flagMap.set("spellmisc.Attributes[2]", spellAttributes2); //d
+window.flagMap.set("spellmisc.Attributes[3]", spellAttributes3); //d
+window.flagMap.set("spellmisc.Attributes[4]", spellAttributes4); //d
+window.flagMap.set("spellmisc.Attributes[5]", spellAttributes5); //d
+window.flagMap.set("spellmisc.Attributes[6]", spellAttributes6); //d
+window.flagMap.set("spellmisc.Attributes[7]", spellAttributes7); //d
+window.flagMap.set("spellmisc.Attributes[8]", spellAttributes8); //d
+window.flagMap.set("spellmisc.Attributes[9]", spellAttributes9); //d
+window.flagMap.set("spellmisc.SchoolMask", damageClass); //d 
 window.flagMap.set("spellshapeshiftform.Flags", spellShapeshiftFormFlags);
 window.flagMap.set("spelltargetrestrictions.TargetCreatureType", targetCreatureType);
 window.flagMap.set("spelltargetrestrictions.Targets", targetFlags);
@@ -2934,7 +2934,7 @@ window.flagMap.set("wbaccesscontrollist.RevokeFlags", ingameBrowserFlags);
 let conditionalFlags = new Map();
 conditionalFlags.set("chrcustomizationreq.ReqValue",
     [
-        ['chrcustomizationreq.ReqType=1', classMask],
+        ['chrcustomizationreq.ReqType=1', classMask], //d
     ]
 );
 
