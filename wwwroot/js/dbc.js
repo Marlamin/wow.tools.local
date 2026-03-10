@@ -421,7 +421,7 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
                 "</a>";
         }
     } else if (columnName.startsWith("Flags") || flagMap.has(columnWithTable)) {
-        returnVar = " <span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-build= '" + build + "' data-tooltip='flags' data-table='" + tableName + "' data-col='" + columnName + "' data-value='" + columnValue + "'>0x" + dec2hex(columnValue) + "</span>";
+        returnVar = " <span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-build= '" + build + "' data-tooltip='flags' data-table='" + tableName + "' data-col='" + columnName + "' data-id='" + columnValue + "'>0x" + dec2hex(columnValue) + "</span>";
     } else if (columnWithTable == "item.ID") {
         returnVar =
             "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='item' data-build= '" + build + "' data-id='" +

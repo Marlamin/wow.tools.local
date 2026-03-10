@@ -97,9 +97,9 @@ function tooltip2(el, event){
             generateWExTooltip(tooltipTargetValue, tooltipDiv);
         } else if (tooltipType == "flags") {
             if (el.dataset.overrideflag != null) {
-                generateFlagsTooltip(el.dataset.table, el.dataset.col, el.dataset.value, tooltipDiv, el.dataset.overrideflag);
+                generateFlagsTooltip(el.dataset.table, el.dataset.col, tooltipTargetValue, tooltipDiv, el.dataset.overrideflag);
             } else {
-                generateFlagsTooltip(el.dataset.table, el.dataset.col, el.dataset.value, tooltipDiv);
+                generateFlagsTooltip(el.dataset.table, el.dataset.col, tooltipTargetValue, tooltipDiv);
             }
         } else {
             console.log("Unsupported tooltip type " + tooltipType);
