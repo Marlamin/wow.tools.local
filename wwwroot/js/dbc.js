@@ -491,7 +491,7 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
             // Col target found?
             if (colTarget > -1) {
                 if (row[colTarget] == conditionValue) {
-                    returnVar = " <span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-build= '" + build + "' data-tooltip='flags' data-table='" + tableName + "' data-col='" + columnName + "' data-value='" + columnValue + "' data-overrideFlag='" + JSON.stringify(resultFlag) + "'>0x" + dec2hex(columnValue) + "</span>";
+                    returnVar = " <span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-build= '" + build + "' data-tooltip='flags' data-table='" + tableName + "' data-col='" + columnName + "' data-id='" + columnValue + "' data-overrideFlag='" + JSON.stringify(resultFlag) + "'>0x" + dec2hex(columnValue) + "</span>";
                 }
             }
         });
