@@ -4,6 +4,7 @@
 - Added hex dumps in file previews for all files.
 - Added JSON previews for WDT and WDL files.
 - Added persistent settings to table page lengths between sessions for DB2 browsing, DB2 diffs and file browsing.
+- Added WIP support for flag/enum definitions from WoWDBDefs.
 - Fixed dark mode not applying to the new Choices dropdowns if the browser wasn't in dark mode.
 - Fixed parented files not showing up under non-M2/WMO files in the more info modal.
 - Fixed flag tooltips constantly refreshing when moving the mouse.
