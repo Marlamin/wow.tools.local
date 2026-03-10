@@ -480,11 +480,6 @@ function generateFlagsTooltip(table, col, value, tooltip, overrideflag) {
         targetFlags = JSON.parse(overrideflag);
     }
 
-    if (targetFlags == null) {
-        tooltipDesc.innerHTML = "No defined flags found for this field (" + table + "::" + col + ").";
-        return;
-    }
-
     if (value == "-1") {
         tooltipDesc.innerHTML = "-1 usually means all flags are enabled.";
         return;
@@ -494,9 +489,13 @@ function generateFlagsTooltip(table, col, value, tooltip, overrideflag) {
     for (let i = 0; i < 32; i++) {
         let toCheck = BigInt(1) << BigInt(i);
         if (BigInt(value) & toCheck) {
-            let targetFlag = targetFlags.at(i);
-            if (targetFlag !== undefined && targetFlag.value) {
-                usedFlags.push(['0x' + "" + dec2hex(toCheck, true), targetFlag.name]);
+            if (targetFlags != null) {
+                let targetFlag = targetFlags.at(i);
+                if (targetFlag !== undefined && targetFlag.value) {
+                    usedFlags.push(['0x' + "" + dec2hex(toCheck, true), targetFlag.name]);
+                } else {
+                    usedFlags.push(['0x' + "" + dec2hex(toCheck, true), ""]);
+                }
             } else {
                 usedFlags.push(['0x' + "" + dec2hex(toCheck, true), ""]);
             }
