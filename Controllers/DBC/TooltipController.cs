@@ -1,10 +1,10 @@
 ﻿using DBCD;
-using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text;
+using wow.tools.local.Managers;
 using wow.tools.local.Services;
-using wow.tools.Services;
+using wow.tools.local.Utils;
 using WoWTools.SpellDescParser;
 using WoWTools.SpellDescParser.Nodes;
 
@@ -230,15 +230,15 @@ namespace wow.tools.local.Controllers
             }
 
             var itemEffectIDs = new List<int>();
-            foreach(var row in await dbcManager.FindRecords("ItemXItemEffect", CASC.BuildName, "ItemID", itemID))
+            foreach (var row in await dbcManager.FindRecords("ItemXItemEffect", CASC.BuildName, "ItemID", itemID))
                 itemEffectIDs.Add((int)row["ItemEffectID"]);
 
             List<DBCDRow> itemEffectEntries = new List<DBCDRow>();
 
-            foreach(var itemEffectID in itemEffectIDs)
+            foreach (var itemEffectID in itemEffectIDs)
             {
                 var itemEffect = await dbcManager.FindRecords("ItemEffect", CASC.BuildName, "ID", itemEffectID);
-                if(itemEffect.Count > 0)
+                if (itemEffect.Count > 0)
                     itemEffectEntries.Add(itemEffect.First());
             }
 

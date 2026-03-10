@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
+using wow.tools.local.Services;
 
-namespace wow.tools.local.Services
+namespace wow.tools.local.Providers
 {
     public static class GameTableProvider
     {

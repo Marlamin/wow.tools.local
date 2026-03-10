@@ -1,7 +1,9 @@
 ﻿using CASCLib;
 using DBCD.Providers;
+using wow.tools.local.Managers;
+using wow.tools.local.Services;
 
-namespace wow.tools.local.Services
+namespace wow.tools.local.Providers
 {
     public class DBCProvider : IDBCProvider
     {

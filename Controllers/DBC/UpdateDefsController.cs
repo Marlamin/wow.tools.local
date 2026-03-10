@@ -1,7 +1,8 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
+using wow.tools.local.Managers;
+using wow.tools.local.Providers;
 using wow.tools.local.Services;
-using wow.tools.Services;
 
 namespace wow.tools.local.Controllers.DBC
 {

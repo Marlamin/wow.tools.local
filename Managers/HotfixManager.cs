@@ -1,6 +1,8 @@
 ﻿using DBCD.IO;
+using wow.tools.local.Services;
+using wow.tools.local.Utils;
 
-namespace wow.tools.local.Services
+namespace wow.tools.local.Managers
 {
     public static class HotfixManager
     {

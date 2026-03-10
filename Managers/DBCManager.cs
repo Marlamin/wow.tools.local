@@ -4,14 +4,15 @@ using DBCD.IO;
 using DBCD.Providers;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Concurrent;
-using wow.tools.Services;
+using wow.tools.local.Providers;
 
-namespace wow.tools.local.Services
+namespace wow.tools.local.Managers
 {
-    public class DBCManager(IDBDProvider dbdProvider, IDBCProvider dbcProvider) : IDBCManager
+    public class DBCManager(IDBDProvider dbdProvider, IDBCProvider dbcProvider, IEnumProvider enumProvider) : IDBCManager
     {
         private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
+        private readonly EnumProvider enumProvider = (EnumProvider)enumProvider;
 
         private MemoryCache Cache = new(new MemoryCacheOptions() { SizeLimit = 250 });
         private readonly ConcurrentDictionary<(string, string, bool, LocaleFlags), SemaphoreSlim> Locks = [];
@@ -67,6 +68,7 @@ namespace wow.tools.local.Services
 
             DBCD.DBCD dbcd;
 
+            // we don't feed enumProvider to DBCD for now
             if (dbdProvider.isUsingBDBD)
                 dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
             else

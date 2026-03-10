@@ -1,6 +1,7 @@
 ﻿using TACTSharp;
+using wow.tools.local.Services;
 
-namespace wow.tools.local.Services
+namespace wow.tools.local.Managers
 {
     public static class BuildManager
     {

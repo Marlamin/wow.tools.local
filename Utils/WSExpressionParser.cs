@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace wow.tools.local.Services
+namespace wow.tools.local.Utils
 {
     public class WSExpressionParser
     {

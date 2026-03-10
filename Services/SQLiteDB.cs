@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using wow.tools.local.Managers;
 using static wow.tools.local.Services.Linker;
 
 namespace wow.tools.local.Services

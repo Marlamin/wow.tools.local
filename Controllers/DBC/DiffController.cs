@@ -2,7 +2,7 @@
 using DBDiffer.DiffResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections;
-using wow.tools.local.Services;
+using wow.tools.local.Managers;
 
 namespace wow.tools.Local.Controllers
 {

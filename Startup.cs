@@ -1,7 +1,7 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.StaticFiles;
-using wow.tools.local.Services;
-using wow.tools.Services;
+using wow.tools.local.Managers;
+using wow.tools.local.Providers;
 
 namespace wow.tools.local
 {
@@ -15,6 +15,7 @@ namespace wow.tools.local
             services.AddControllers().AddNewtonsoftJson();
             services.AddSingleton<IDBDProvider, DBDProvider>();
             services.AddSingleton<IDBCProvider, DBCProvider>();
+            services.AddSingleton<IEnumProvider, EnumProvider>();
             services.AddSingleton<IDBCManager, DBCManager>();
         }
 

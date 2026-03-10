@@ -3,8 +3,9 @@ using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
 using System.Globalization;
+using wow.tools.local.Managers;
+using wow.tools.local.Providers;
 using wow.tools.local.Services;
-using wow.tools.Services;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 

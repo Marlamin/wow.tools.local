@@ -1,6 +1,7 @@
 ﻿using wow.tools.local.Controllers;
+using wow.tools.local.Providers;
 
-namespace wow.tools.local.Services
+namespace wow.tools.local.Utils
 {
     public static class TooltipUtils
     {

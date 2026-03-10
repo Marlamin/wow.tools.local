@@ -3,7 +3,10 @@ using DBCD;
 using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using wow.tools.local;
+using wow.tools.local.Managers;
+using wow.tools.local.Providers;
 using wow.tools.local.Services;
+using wow.tools.local.Utils;
 
 namespace wow.tools.Local.Controllers
 {

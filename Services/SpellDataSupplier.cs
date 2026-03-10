@@ -1,4 +1,6 @@
 ﻿using DBCD;
+using wow.tools.local.Managers;
+using wow.tools.local.Utils;
 using WoWTools.SpellDescParser;
 
 namespace wow.tools.local.Services

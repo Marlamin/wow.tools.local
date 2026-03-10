@@ -1,8 +1,9 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using wow.tools.local.Managers;
+using wow.tools.local.Providers;
 using wow.tools.local.Services;
-using wow.tools.Services;
 using WoWFormatLib.FileReaders;
 using WoWNamingLib;
 

@@ -1,7 +1,9 @@
 ﻿using CASCLib;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using wow.tools.local.Managers;
 using wow.tools.local.Services;
+using wow.tools.local.Utils;
 namespace wow.tools.local.Controllers
 {
     [Route("dbc/data")]

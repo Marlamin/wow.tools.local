@@ -2,6 +2,7 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using wow.tools.local.Managers;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers

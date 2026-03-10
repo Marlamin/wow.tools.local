@@ -4,7 +4,8 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using TACTSharp;
-using wow.tools.Services;
+using wow.tools.local.Managers;
+using wow.tools.local.Providers;
 using WoWFormatLib;
 
 namespace wow.tools.local.Services

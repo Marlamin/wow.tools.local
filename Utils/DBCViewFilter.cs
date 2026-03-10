@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace wow.tools.local.Services
+namespace wow.tools.local.Utils
 {
     public class DBCViewFilter
     {
@@ -140,11 +140,32 @@ namespace wow.tools.local.Services
                     }
 
                     // cast to string and apply any custom string formatting i.e. HtmlEncode and StringToCSVCell
-                    var formattedProperty = Expression.Call(property, ObjectToString);
+
+                    // if dbcd gets enum
+                    //var fieldName = Storage.AvailableColumns[i];
+                    //var enumFieldName = isArray ? $"{fieldName}[{j}]" : fieldName;
+                    //var isEnumOrFlag = Storage.EnumTypes != null && (Storage.EnumTypes.ContainsKey(enumFieldName) || (isArray && Storage.EnumTypes.ContainsKey(fieldName)));
+
+                    Expression formattedProperty;
+                    /*
+                    if (isEnumOrFlag)
+                    {
+                        // TODO: converting to a long for now, idk if there's a better way to do this. maybe getting type through reflection and then doing a convert of that type specifically?
+                        var convertMethod = typeof(Convert).GetMethod(nameof(Convert.ToInt64), new[] { typeof(object) })!;
+                        var numericValue = Expression.Call(convertMethod, property);
+
+                        // call tostring on the long, type.emptytypes goes here because we need the tostring version that has no parameters
+                        formattedProperty = Expression.Call(numericValue, typeof(long).GetMethod(nameof(ToString), Type.EmptyTypes)!);
+                    }
+                    else
+                    {
+                    */
+                    formattedProperty = Expression.Call(property, ObjectToString);
                     if (StringFormatter != null && (field.GetType() == typeof(string) || field.GetType() == typeof(string[])))
                     {
                         formattedProperty = Expression.Call(StringFormatter.Method, formattedProperty);
                     }
+                    //}
 
                     properties.Add(formattedProperty);
                     siteColIndex++;

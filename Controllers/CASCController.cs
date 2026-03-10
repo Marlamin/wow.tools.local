@@ -9,6 +9,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Web;
+using wow.tools.local.Managers;
+using wow.tools.local.Providers;
 using wow.tools.local.Services;
 using WoWFormatLib;
 using WoWFormatLib.FileProviders;

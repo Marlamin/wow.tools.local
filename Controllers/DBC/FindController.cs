@@ -1,6 +1,6 @@
 ﻿using DBCD;
 using Microsoft.AspNetCore.Mvc;
-using wow.tools.local.Services;
+using wow.tools.local.Managers;
 
 namespace wow.tools.local.Controllers.DBC
 {

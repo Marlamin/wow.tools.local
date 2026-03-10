@@ -1,6 +1,7 @@
 ﻿using CASCLib;
 using DBCD;
 using Microsoft.AspNetCore.Mvc;
+using wow.tools.local.Managers;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Controllers.DBC

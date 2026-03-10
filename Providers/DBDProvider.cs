@@ -1,13 +1,13 @@
 ﻿using DBCD.Providers;
 using DBDefsLib;
-using wow.tools.local;
+using DBDefsLib.Structs;
 
-namespace wow.tools.Services
+namespace wow.tools.local.Providers
 {
     public class DBDProvider : IDBDProvider
     {
         private readonly DBDReader dbdReader;
-        private Dictionary<string, (string FilePath, Structs.DBDefinition Definition)> definitionLookup = new(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, (string FilePath, DBDefinition Definition)> definitionLookup = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, List<string>> relationshipMap = [];
         public bool isUsingBDBD = false;
         private static Lock bdbdLock = new Lock();
@@ -139,7 +139,7 @@ namespace wow.tools.Services
             throw new FileNotFoundException("Definition for " + tableName + " not found");
         }
 
-        public bool TryGetDefinition(string tableName, out Structs.DBDefinition definition)
+        public bool TryGetDefinition(string tableName, out DBDefinition definition)
         {
             if (definitionLookup.TryGetValue(tableName, out var lookup))
             {
