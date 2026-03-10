@@ -507,7 +507,7 @@ function generateFlagsTooltip(table, col, value, tooltip, overrideflag) {
 
     for (let i = 0; i < usedFlags.length; i++) {
         tooltipContents += "<tr><td><b>" + usedFlags[i][0] + "</b></td>";
-        if (usedFlags[i][1] == "") {
+        if (usedFlags[i][1] == "" || usedFlags[i][1] == null) {
             tooltipContents += "<td style='opacity: 0.6;'><i>Unknown flag</i></td>";
         } else {
             tooltipContents += "<td>" + usedFlags[i][1] + "</td>";
