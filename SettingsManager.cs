@@ -99,11 +99,17 @@ namespace wow.tools.local
             string configPath = Path.Combine(cwd, "config.json");
             bool hasConfig = File.Exists(configPath);
             if (!hasConfig && File.Exists(Path.Combine(appDir, "config.json")))
+            {
                 Environment.CurrentDirectory = appDir; // set the current directory to the app's directory if config.json is there
+                hasConfig = true;
+            }
 
             if (hasConfig)
             {
-                var config = new ConfigurationBuilder().SetBasePath(cwd).AddJsonFile("config.json", optional: false, reloadOnChange: false).Build();
+                var config = new ConfigurationBuilder()
+                    .SetBasePath(appDir)
+                    .AddJsonFile("config.json", optional: false, reloadOnChange: false)
+                    .Build();
                 if (config.GetSection("config").Exists())
                     foreach (var setting in Settings)
                     {
