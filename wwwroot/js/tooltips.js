@@ -287,7 +287,7 @@ function generateFKTooltip(targetFK, value, tooltip, build)
     console.log("Generating foreign key tooltip for " + value);
 
     let useHotfixes = false;
-    if (Settings != undefined && Settings.useHotfixes != undefined && Settings.useHotfixes)
+    if (typeof Settings !== 'undefined' && Settings.useHotfixes != undefined && Settings.useHotfixes)
         useHotfixes = true;
 
     if (parseInt(build.split('.')[0]) > 6 && targetFK == "SoundEntries::ID")
@@ -419,9 +419,9 @@ function generateFileTooltip(id, tooltip)
                 tooltipTable += "<tr><td>Filename</td><td>Unknown</td></tr>";
             }
 
-            //if (calcData["type"] != null && calcData["type"] == "blp"){
-            //    tooltipTable += "<tr><td colspan='2'><img class='tooltip-preview' src='https://wow.tools/casc/preview/fdid?buildconfig=" + SiteSettings.buildConfig + "&cdnconfig=" + SiteSettings.cdnConfig + "&filename=inlinepreview.blp&filedataid=" + calcData["fileDataID"] + "'></td></tr>";
-            //}
+            if (calcData["type"] != null && calcData["type"] == "blp"){
+                tooltipTable += "<tr><td colspan='2'><img class='tooltip-preview' src='/casc/blp2png?filedataid=" + calcData["fileDataID"] + "'></td></tr>";
+            }
 
             tooltipDesc.innerHTML = tooltipTable;
         }).catch(function (error) {
