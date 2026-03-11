@@ -158,7 +158,6 @@ function fillPreviewModal(buildconfig, filedataid, type) {
     var html = "";
     var url = "/casc/fdid?fileDataID=" + filedataid + "&filename=preview";
 
-
     // Preview tab: visual preview of files, e.g. modelviewer, audio player, textures, code, text, etc
     var previewTabExts = ["blp", "mp3", "ogg", "m2", "wmo", "m3", "lua", "html", "txt", "srt", "xml", "toc", "hlsl"];
     var hasPreviewTab = previewTabExts.includes(type); 
@@ -280,7 +279,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
 
     html += "</div>";
 
-    if (document.getElementById("files_preview").style.display !== "none") {
+    if (document.getElementById("files_preview") && document.getElementById("files_preview").style.display !== "none") {
         document.getElementById("files_preview").innerHTML = html;
     } else {
         document.getElementById("previewModalContent").innerHTML = html;
