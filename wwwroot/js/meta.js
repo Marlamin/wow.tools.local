@@ -19,25 +19,25 @@ window.onload = _ => {
 
                 const isConditional = entry.conditionalTable && entry.conditionalColumn;
                 if (entry.meta === 0) {         // Flags
-                    window.flagMap.set(tableColumnKey, entry.entries);
-
                     if (isConditional) {
                         if (!window.conditionalFlags.has(tableColumnKey)) {
                             window.conditionalFlags.set(tableColumnKey, []);
                         }
                         const conditionKey = `${entry.conditionalTable.toLowerCase()}.${entry.conditionalColumn}=${entry.conditionalValue}`;
                         window.conditionalFlags.get(tableColumnKey).push([conditionKey, entry.entries]);
+                    } else {
+                        window.flagMap.set(tableColumnKey, entry.entries);
                     }
 
                 } else if (entry.meta === 1) {  // Enum
-                    window.enumMap.set(tableColumnKey, entry.entries);
-
                     if (isConditional) {
                         if (!window.conditionalEnums.has(tableColumnKey)) {
                             window.conditionalEnums.set(tableColumnKey, []);
                         }
                         const conditionKey = `${entry.conditionalTable.toLowerCase()}.${entry.conditionalColumn}=${entry.conditionalValue}`;
                         window.conditionalEnums.get(tableColumnKey).push([conditionKey, entry.entries]);
+                    } else {
+                        window.enumMap.set(tableColumnKey, entry.entries);
                     }
                 } else if (entry.meta === 2) {  // Color
                     window.colorFields.push(tableColumnKey);
