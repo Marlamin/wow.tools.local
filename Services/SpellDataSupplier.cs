@@ -72,13 +72,11 @@ namespace wow.tools.local.Services
                 var expectedStatRow = expectedStatRows.Where(x => (int)x["ExpansionID"] == this.expansion);
 
                 var expectedStatType =
-                    TooltipUtils.GetExpectedStatTypeBySpellEffect(int.Parse(spellEffect["Effect"].ToString()), (short)spellEffect["EffectAura"], miscValue[0]);
+                    TooltipUtils.GetExpectedStatTypeBySpellEffect((int)spellEffect.Field<uint>("Effect"), spellEffect.Field<short>("EffectAura"), miscValue[0]);
                 if (expectedStatType != TooltipUtils.ExpectedStatType.None)
                 {
                     if ((spellAttributes[0] & 0x80000) == 0x80000)
                         expectedStatType = TooltipUtils.ExpectedStatType.CreatureAutoAttackDps;
-
-
                 }
 
                 return effectPoints;

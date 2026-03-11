@@ -95,8 +95,7 @@
     </div>
     <link href="/css/dbc.css" rel="stylesheet">
     <script src="/js/dbc.js"></script>
-    <!-- <script src="/js/flags.js"></script> -->
-    <!-- <script src="/js/enums.js"></script> -->
+    <script src="/js/meta.js"></script>
     <script src="/js/diff_match_patch.js"></script>
     <script type='text/javascript'>
         const showHotfixButtons = false;
@@ -287,7 +286,7 @@
                     if (colTarget > -1) {
                         if (row[conditionTarget[1]] == conditionValue) {
                             if (val in resultEnum) {
-                                returnedValue += " (" + resultEnum[val] + ")";
+                                returnedValue += " (" + resultEnum[val].name + ")";
                             } else {
                                 returnedValue += " (unknown)";
                             }
@@ -298,9 +297,9 @@
                 var enumRes = enumMap.get(columnWithTable);
                 if (val in enumRes) {
                     if (Array.isArray(enumRes[val])) {
-                        returnedValue += " (" + enumRes[val][1] + ")";
+                        returnedValue += " (" + enumRes[val][1].name + ")";
                     } else {
-                        returnedValue += " (" + enumRes[val] + ")";
+                        returnedValue += " (" + enumRes[val].name + ")";
                     }
                 } else {
                     returnedValue += " (unknown)";
@@ -310,7 +309,11 @@
             if (flagMap.has(dbc.toLowerCase() + "." + col) || col.startsWith("Flags")) {
                 let usedFlags = getFlagDescriptions(dbc.toLowerCase(), col, val);
                 usedFlags.forEach(function (flag) {
-                    returnedValue += " (" + flag[0] + ": " + flag[1] + ")";
+                    if (flag[1].name == undefined) {
+                        returnedValue += " (" + flag[0] + ")";
+                    } else {
+                        returnedValue += " (" + flag[0] + ": " + flag[1].name + ")";
+                    }
                 });
             }
 
@@ -414,7 +417,8 @@
                                             if (!usedFlagNumsAfter.includes(flag[0])) {
                                                 if (!seenFlags.includes(flag[0])) {
                                                     if (flag[1] != "") {
-                                                        changes += "<span class='diff-removed'>" + flag[0] + ": " + flag[1] + "</span> ";
+                                                        let name = flag[1].name == undefined ? "unknown" : flag[1].name;
+                                                        changes += "<span class='diff-removed'>" + flag[0] + ": " + name + "</span> ";
                                                     } else {
                                                         changes += "<span class='diff-removed'>" + flag[0] + "</span> ";
                                                     }
@@ -424,7 +428,8 @@
                                             } else if (!usedFlagNumsBefore.includes(flag[0])) {
                                                 if (!seenFlags.includes(flag[0])) {
                                                     if (flag[1] != "") {
-                                                        changes += "<span class='diff-added'>" + flag[0] + ": " + flag[1] + "</span> ";
+                                                        let name = flag[1].name == undefined ? "unknown" : flag[1].name;
+                                                        changes += "<span class='diff-added'>" + flag[0] + ": " + name + "</span> ";
                                                     } else {
                                                         changes += "<span class='diff-added'>" + flag[0] + "</span> ";
                                                     }
@@ -434,7 +439,8 @@
                                             } else {
                                                 if (!seenFlags.includes(flag[0])) {
                                                     if (flag[1] != "") {
-                                                        changes += "<span class=''>" + flag[0] + ": " + flag[1] + "</span> ";
+                                                        let name = flag[1].name == undefined ? "unknown" : flag[1].name;
+                                                        changes += "<span class=''>" + flag[0] + ": " + name + "</span> ";
                                                     } else {
                                                         changes += "<span class=''>" + flag[0] + "</span> ";
                                                     }
