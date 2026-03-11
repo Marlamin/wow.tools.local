@@ -2,7 +2,7 @@
 This contains a very slimmed down version of the WoW.tools site meant for local use without relying on anything from the main WoW.tools website (or the internet in general, after external dependencies have been downloaded, see relevant section at the bottom of this README).
 
 ## Requirements
-All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least ~6-8GB of free RAM. Please note that some features (e.g. DB2 global search) will take up far more RAM than that.
+All dependencies should be included with the executable. If you have the included requirements already installed, feel free to compile it yourself for a smaller/cleaner runtime directory. As this loads quite a bit of data, you'll need at least ~3-5GB of free RAM. Please note that some features (e.g. DB2 global search) will take up far more RAM than that.
 
 ## Download 
 The latest version can be downloaded [here](https://github.com/Marlamin/wow.tools.local/releases).
