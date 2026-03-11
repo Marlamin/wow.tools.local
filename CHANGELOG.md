@@ -10,6 +10,7 @@
 - Fixed parented files not showing up under non-M2/WMO files in the more info modal.
 - Fixed flag tooltips constantly refreshing when moving the mouse.
 - Fixed previews being broken in diffs.
+- Fixed switcher button in BLP diffs not working.
 - Removed Ribbit v1 support in CascLib and dropped Ribbit.NET (removes a few dependencies).
 - Removed unused dependencies.
 - More JQuery removal and JS cleanup.

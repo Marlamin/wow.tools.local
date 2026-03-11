@@ -1316,10 +1316,10 @@ namespace wow.tools.local.Controllers
                 html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
                 html += "</div>";
                 html += "</div>";
-                html += "<button class='btn btn-primary' id='toggle-button'>Switch</button>";
+                html += "<button class='btn btn-primary' id='toggle-button' onclick='switchImages()'>Switch</button>";
                 html += "</div>";
                 js += @"
-                    $('#toggle-button').click(function() { 
+                    function switchImages(){ 
                         let toggleDiv = document.getElementById('toggle-content');
                         let fromHTML = document.getElementById('from-diff').innerHTML;
                         let toHTML = document.getElementById('to-diff').innerHTML;
@@ -1331,7 +1331,7 @@ namespace wow.tools.local.Controllers
                             toggleDiv.innerHTML = fromHTML; 
                             toggleDiv.dataset.current = 'from'; 
                         }
-                    });
+                    }
                     ";
             }
 
