@@ -261,7 +261,12 @@ namespace wow.tools.local.Utils
         private static Predicate<object> CreateRegexPredicate(string pattern)
         {
             var re = new Regex(pattern, RegexOptions.IgnoreCase);
-            return (field) => re.IsMatch(field.ToString()!);
+            return (field) => 
+            {
+                // Hack
+                var asString = field.GetType().IsEnum ? Convert.ToUInt64(field, CultureInfo.InvariantCulture).ToString() : field.ToString();
+                return re.IsMatch(asString!);
+            };
         }
 
         private static Predicate<object> CreateFlagsPredicate(ulong flags)
