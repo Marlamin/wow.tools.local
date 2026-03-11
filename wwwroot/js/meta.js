@@ -44,8 +44,6 @@ window.onload = _ => {
                 } else if (entry.meta === 3) {  // Date
                     window.dateFields.push(tableColumnKey);
                 }
-
-                // console.log(entry);
             });
         });
 };

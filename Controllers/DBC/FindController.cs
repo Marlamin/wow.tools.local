@@ -45,7 +45,11 @@ namespace wow.tools.local.Controllers.DBC
                     {
                         foreach (var arrayField in arrayFields)
                         {
-                            if (arrayField.ToString() == value)
+                            var compareValue = arrayField.ToString();
+                            if (arrayField.GetType().IsEnum)
+                                compareValue = Convert.ToInt64(arrayField).ToString()!;
+
+                            if (compareValue == value)
                             {
                                 var newDict = new Dictionary<string, string>();
                                 for (var j = 0; j < storage.AvailableColumns.Length; ++j)
@@ -57,12 +61,18 @@ namespace wow.tools.local.Controllers.DBC
                                     {
                                         for (var k = 0; k < a.Length; k++)
                                         {
-                                            newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
+                                            if(a.GetType().IsEnum)
+                                                newDict.Add(subfieldName + "[" + k + "]", Convert.ToInt64(a.GetValue(k)!).ToString()!);
+                                            else
+                                                newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                                         }
                                     }
                                     else
                                     {
-                                        newDict.Add(subfieldName, subfield.ToString()!);
+                                        if(subfield.GetType().IsEnum)
+                                            newDict.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
+                                        else
+                                            newDict.Add(subfieldName, subfield.ToString()!);
                                     }
                                 }
 
@@ -72,7 +82,11 @@ namespace wow.tools.local.Controllers.DBC
                     }
                     else
                     {
-                        if (field.ToString() == value)
+                        var compareField = field.ToString();
+                        if (field.GetType().IsEnum)
+                            compareField = Convert.ToInt64(field).ToString()!;
+
+                        if (compareField == value)
                         {
                             var newDict = new Dictionary<string, string>();
                             for (var j = 0; j < storage.AvailableColumns.Length; ++j)
@@ -84,12 +98,18 @@ namespace wow.tools.local.Controllers.DBC
                                 {
                                     for (var k = 0; k < a.Length; k++)
                                     {
-                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
+                                        if(a.GetType().IsEnum)
+                                            newDict.Add(subfieldName + "[" + k + "]", Convert.ToInt64(a.GetValue(k)!).ToString()!);
+                                        else
+                                            newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                                     }
                                 }
                                 else
                                 {
-                                    newDict.Add(subfieldName, subfield.ToString()!);
+                                    if(subfield.GetType().IsEnum)
+                                        newDict.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
+                                    else
+                                        newDict.Add(subfieldName, subfield.ToString()!);
                                 }
                             }
 
@@ -151,12 +171,18 @@ namespace wow.tools.local.Controllers.DBC
                                 {
                                     for (var k = 0; k < a.Length; k++)
                                     {
-                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
+                                        if(a.GetType().IsEnum)
+                                            newDict.Add(subfieldName + "[" + k + "]", Convert.ToInt64(a.GetValue(k)!).ToString()!);
+                                        else
+                                            newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
                                     }
                                 }
                                 else
                                 {
-                                    newDict.Add(subfieldName, subfield.ToString()!);
+                                    if(subfield.GetType().IsEnum)
+                                        newDict.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
+                                    else
+                                        newDict.Add(subfieldName, subfield.ToString()!);
                                 }
                             }
 
@@ -187,9 +213,10 @@ namespace wow.tools.local.Controllers.DBC
                         var field = row[fieldName];
 
                         if (field is Array arrayField)
-                        {
                             field = arrayField.GetValue(arrIndex)!.ToString();
-                        }
+
+                        if (field!.GetType().IsEnum)
+                            field = Convert.ToInt64(field).ToString()!;
 
                         // Don't think FKs to arrays are possible, so only check regular value
                         if (field!.ToString() == val.ToString())
@@ -204,12 +231,19 @@ namespace wow.tools.local.Controllers.DBC
                                 {
                                     for (var k = 0; k < a.Length; k++)
                                     {
-                                        newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
+                                        var element = a.GetValue(k);
+                                        if (element!.GetType().IsEnum)
+                                            newDict.Add(subfieldName + "[" + k + "]", Convert.ToInt64(element).ToString()!);
+                                        else
+                                            newDict.Add(subfieldName + "[" + k + "]", element.ToString()!);
                                     }
                                 }
                                 else
                                 {
-                                    newDict.Add(subfieldName, subfield.ToString()!);
+                                    if(subfield.GetType().IsEnum)
+                                        newDict.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
+                                    else
+                                        newDict.Add(subfieldName, subfield.ToString()!);
                                 }
                             }
 
