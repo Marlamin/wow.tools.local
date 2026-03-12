@@ -17,6 +17,8 @@ namespace wow.tools.local.Services
         public static readonly Lock LoadLock = new Lock();
         private static readonly HttpClient WebClient = new();
 
+        public static uint CachedLookupCount = 0;
+
         public static string[] GetLines(bool forceRedownload = false)
         {
             var listfileMode = "downloaded";
@@ -266,6 +268,7 @@ namespace wow.tools.local.Services
             if (File.Exists("cachedLookups.txt"))
             {
                 var cachedLookups = File.ReadAllLines("cachedLookups.txt").Select(x => x.Split(";")).ToDictionary(x => int.Parse(x[0]), x => ulong.Parse(x[1]));
+                CachedLookupCount = (uint)cachedLookups.Count;
                 foreach (var lookup in cachedLookups)
                     LookupMap[lookup.Key] = lookup.Value;
             }

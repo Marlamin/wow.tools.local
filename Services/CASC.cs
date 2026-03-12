@@ -749,7 +749,9 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     }
                 }
 
-                File.WriteAllLines("cachedLookups.txt", Listfile.LookupMap.Select(x => x.Key + ";" + x.Value));
+                // Only write out cached lookups if we added new ones, to avoid unnecessary file writes
+                if (Listfile.CachedLookupCount != Listfile.LookupMap.Count)
+                    File.WriteAllLines("cachedLookups.txt", Listfile.LookupMap.Select(x => x.Key + ";" + x.Value));
             }
 
             Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");
