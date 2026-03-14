@@ -965,6 +965,24 @@ namespace wow.tools.local.Services
             return versions;
         }
 
+        public static List<int> GetSeenFileDataIDs()
+        {
+            var seenFileDataIDs = new List<int>();
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT DISTINCT fileDataID FROM wow_rootfiles_chashes";
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    seenFileDataIDs.Add(reader.GetInt32(0));
+                }
+                reader.Close();
+            }
+
+            return seenFileDataIDs;
+        }
+
         public static uint GetFirstVersionNumberByFileDataID(int fileDataID)
         {
             var firstVersion = GetFileVersions(fileDataID);

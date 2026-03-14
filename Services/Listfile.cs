@@ -171,6 +171,17 @@ namespace wow.tools.local.Services
                     }
                 }
 
+                if (SettingsManager.ShowAllFiles)
+                {
+                    var seenFDIDs = SQLiteDB.GetSeenFileDataIDs();
+                    seenFDIDs.ForEach(x =>
+                    {
+                        if (!NameMap.ContainsKey(x))
+                            NameMap.TryAdd(x, "");
+                    });
+                    Console.WriteLine("Loaded " + seenFDIDs.Count + " seen fileDataIDs from database");
+                }
+
                 Console.WriteLine("Finished loading listfile: " + NameMap.Count + " named files for this build");
 
                 // Load DBD manifest for additional DB2s
