@@ -70,9 +70,9 @@ namespace wow.tools.local.Managers
 
             // we don't feed enumProvider to DBCD for now
             if (dbdProvider.isUsingBDBD)
-                dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream(), enumProvider);
+                dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
             else
-                dbcd = new DBCD.DBCD(dbcProvider, dbdProvider, enumProvider);
+                dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
 
             var storage = dbcd.Load(name, build);
 
