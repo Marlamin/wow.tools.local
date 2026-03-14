@@ -583,11 +583,17 @@
                                 var db2name = filename.toLowerCase().replace("dbfilesclient/", "").replace(".db2", "");
                                 var test = "<a href='/dbc/?dbc=" + db2name + "' target='_BLANK'><i class='fa fa-table'></i></a>";
                             } else {
-                                if ($("#files_preview").is(":visible")) {
-                                    var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                if (full[3] == "false") {
+                                    // not in current version
+                                    var test = "<i class='fa fa-ban text-danger'></i>";
                                 } else {
-                                    var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                    if ($("#files_preview").is(":visible")) {
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                    } else {
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                    }
                                 }
+                             
                             }
                             return test;
                         }
