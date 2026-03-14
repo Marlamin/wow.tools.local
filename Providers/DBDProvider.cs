@@ -10,7 +10,10 @@ namespace wow.tools.local.Providers
         private Dictionary<string, (string FilePath, DBDefinition Definition)> definitionLookup = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, List<string>> relationshipMap = [];
         public bool isUsingBDBD = false;
-        private static Lock bdbdLock = new Lock();
+        public static Lock bdbdLock = new Lock();
+
+        public List<MappingDefinition> mappingDefinitions = [];
+        public Dictionary<string, EnumDefinition> enumDefinitions = [];
 
         public DBDProvider()
         {
@@ -72,14 +75,18 @@ namespace wow.tools.local.Providers
                 using (var fs = GetBDBDStream(clearCache))
                 {
                     var bdbd = BDBDReader.Read(fs);
-                    foreach (var entry in bdbd)
+                    foreach (var entry in bdbd.tableDefinitions)
                     {
                         var name = Path.GetFileNameWithoutExtension(entry.Key);
                         var definition = entry.Value.dbd;
 
                         definitionLookup.Add(name, (entry.Key, definition));
                     }
-                    Console.WriteLine("Loaded " + definitionLookup.Count + " definitions from BDBD file!");
+
+                    enumDefinitions = bdbd.enumDefinitions;
+                    mappingDefinitions = bdbd.enumMappings;
+
+                    Console.WriteLine("Loaded " + definitionLookup.Count + " definitions, " + enumDefinitions.Count + " enums, " + mappingDefinitions.Count + " enum mappings from BDBD file!");
                 }
 
                 isUsingBDBD = true;
