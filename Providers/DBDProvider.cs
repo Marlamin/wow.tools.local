@@ -12,9 +12,6 @@ namespace wow.tools.local.Providers
         public bool isUsingBDBD = false;
         public static Lock bdbdLock = new Lock();
 
-        public List<MappingDefinition> mappingDefinitions = [];
-        public Dictionary<string, EnumDefinition> enumDefinitions = [];
-
         public DBDProvider()
         {
             dbdReader = new DBDReader();
@@ -83,10 +80,7 @@ namespace wow.tools.local.Providers
                         definitionLookup.Add(name, (entry.Key, definition));
                     }
 
-                    enumDefinitions = bdbd.enumDefinitions;
-                    mappingDefinitions = bdbd.enumMappings;
-
-                    Console.WriteLine("Loaded " + definitionLookup.Count + " definitions, " + enumDefinitions.Count + " enums, " + mappingDefinitions.Count + " enum mappings from BDBD file!");
+                    Console.WriteLine("Loaded " + definitionLookup.Count + " definitions from BDBD file!");
                 }
 
                 isUsingBDBD = true;
