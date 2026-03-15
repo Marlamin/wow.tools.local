@@ -1,5 +1,5 @@
 0.9.3 (xx-03-2026)
-- Added WIP support for flag/enum definitions from WoWDBDefs, removed built-in flags/enums (thanks @MaxtorCoder).
+- Added support for flag/enum definitions from WoWDBDefs, removed built-in flags/enums (thanks @MaxtorCoder).
   Note: This may have caused some issues with DB2 reading that I missed, please let me know if you encounter any.
 - Reworked file preview modal UI to be more consistent between file types.
 - Added parsed tooltips back to spells, items and BLP file previews (very experimental).
