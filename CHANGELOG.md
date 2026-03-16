@@ -17,6 +17,7 @@
 - Removed unused dependencies.
 - More JQuery removal and JS cleanup.
 - Updated WoWFormatLib for improved WDT/WDL parsing/dependency cleanup.
+- Updated TACT Key metadata.
 
 0.9.2 (25-02-2026)
 - Finished up v1 of the Maps feature, it is now included in the menu.

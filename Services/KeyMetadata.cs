@@ -762,6 +762,25 @@
             KeyInfo.Add(0x40E1023E8122D1FB, (8148, "WOW-64xxxpatch11.2.5_PTR", "Store: AH Brutosaur comeback 2"));
             KeyInfo.Add(0xA49E1F447427707D, (8150, "WOW-64xxxpatch11.2.5_PTR", "Store: TBC Classic Anniversary pre-order"));
             KeyInfo.Add(0x4BB0B9D99685116B, (8152, "WOW-64xxxpatch12.0.0_Beta", ""));
+            KeyInfo.Add(0xDC0F7FC25BF7D88F, (8154, "WOW-64xxxpatch12.0.1_PTR", "Diablo 2 Resurrected pre-order"));
+            KeyInfo.Add(0x055E96C13236930C, (8157, "WOW-64xxxpatch12.0.1_PTR", "Xal’atath Animation: Supremacy cinematic"));
+            KeyInfo.Add(0x8A5D2977F3843B65, (8157, "WOW-66407patch12.0.5_PTR", "Unknown mount"));
+            KeyInfo.Add(0x8E8AB7C6CBF5487A, (8158, "WOW-66407patch12.0.5_PTR", "Unknown mount"));
+            KeyInfo.Add(0xFCBD5547B165C10E, (8159, "WOW-66407patch12.0.5_PTR", "Unknown battle pet"));
+            KeyInfo.Add(0x74CA527029A95ACA, (8160, "WOW-66407patch12.0.5_PTR", "Unknown battle pet"));
+            KeyInfo.Add(0xB2177B2A818C3355, (8162, "WOW-66407patch12.0.5_PTR", ""));
+            KeyInfo.Add(0xAA78EA5B391B184E, (8163, "WOW-64xxxpatch12.0.1_PTR", ""));
+            KeyInfo.Add(0xD138A92654D2B366, (8165, "WOW-66407patch12.0.5_PTR", "Unknown mounts (2x)"));
+            KeyInfo.Add(0x5F64EB8D9BC26643, (8179, "WOW-64xxxpatch12.0.1_PTR", "Midnight: The Story So Far cinematic"));
+            KeyInfo.Add(0xBBD411BEA4522AFE, (8184, "WOW-66407patch12.0.5_PTR", "Unknown battle pets (4x)"));
+            KeyInfo.Add(0x633A889CF88A2DB0, (8188, "WOW-66407patch12.0.5_PTR", "Unknown mount"));
+            KeyInfo.Add(0x291AF9FE83D992E4, (8194, "WOW-66407patch12.0.5_PTR", "Venthyr transmog set"));
+            KeyInfo.Add(0x59EA247E0185EE0D, (8203, "WOW-66407patch12.0.5_PTR", "Unknown transmog set"));
+            KeyInfo.Add(0x6F72D3708201E596, (8204, "WOW-66407patch12.0.5_PTR", "Venthyr housing decor"));
+            KeyInfo.Add(0x107C1DBA85F3C0DF, (8206, "WOW-66407patch12.0.5_PTR", "Exterior housing components (6x)"));
+            KeyInfo.Add(0x91FBF3086A7A0323, (8207, "WOW-66407patch12.0.5_PTR", "Housing decor shop sets (cherryblossom, spring, ?)"));
+            KeyInfo.Add(0xD7486AE7F33E357B, (8208, "WOW-66407patch12.0.5_PTR", "0 file(s) as of 12.0.5.66407"));
+            KeyInfo.Add(0xCF9022A9913B1B4D, (8209, "WOW-66407patch12.0.5_PTR", "Unknown housing decor (12x)"));
         }
 
         public static void ReloadKeys()
