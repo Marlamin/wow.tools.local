@@ -723,7 +723,7 @@
             KeyInfo.Add(0xA397596138D1BADF, (8089, "WOW-64xxxpatch11.2.7_XPTR", "Unknown mount"));
             KeyInfo.Add(0x6754E8DAC2312246, (8090, "WOW-64xxxpatch12.0.0_Beta", ""));
             KeyInfo.Add(0x9031B5C710AF366C, (8091, "WOW-64xxxpatch11.2.7_XPTR", ""));
-            KeyInfo.Add(0x461E349B7E94BCC2, (8092, "WOW-64xxxpatch12.0.0_Beta", "Unknown battle pet + decor"));
+            KeyInfo.Add(0x461E349B7E94BCC2, (8092, "WOW-64xxxpatch12.0.0_Beta", "Store: The Roofus Pack"));
             KeyInfo.Add(0x4EED9D535E94B4AA, (8093, "WOW-64xxxpatch12.0.0_Beta", "Unknown cutscene"));
             KeyInfo.Add(0x56DDD458D2F7AA21, (8094, "WOW-64xxxpatch12.0.0_Beta", "Unknown cinematic"));
             KeyInfo.Add(0x690D8E3421EA745C, (8095, "WOW-64xxxpatch12.0.0_Beta", "Unknown cinematic"));
