@@ -292,15 +292,15 @@ footer p{
 }
 
 :root {
-	--choices-primary-color: #64B5F6;
-	--choices-item-color: #f8f9fa;
-	--choices-bg-color: #212529;
-	--choices-bg-color-dropdown: #343a40;
-	--choices-keyline-color: #495057;
-	--choices-bg-color-disabled: #495057;
-	--choices-item-disabled-color: #6c757d;
-	--choices-disabled-color: #6c757d;
-	--choices-highlighted-color: #495057;
+	--choices-primary-color: var(--bs-primary);
+	--choices-item-color: var(--bs-light);
+	--choices-bg-color: var(--bs-body-bg);
+	--choices-bg-color-dropdown: var(--bs-secondary-bg);
+	--choices-keyline-color: var(--bs-border-color);
+	--choices-bg-color-disabled: var(--bs-border-color);
+	--choices-item-disabled-color: var(--bs-secondary-color);
+	--choices-disabled-color: var(--bs-secondary-color);
+	--choices-highlighted-color: var(--bs-border-color);
 	--choices-input-height: 39px;
 	--choices-inner-padding: 1px 0px 0px 0px;
 }
