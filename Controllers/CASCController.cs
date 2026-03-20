@@ -1790,7 +1790,7 @@ namespace wow.tools.local.Controllers
                     uint obj0FDID = 0;
                     uint tex0FDID = 0;
 
-                    if (Listfile.NameMap.TryGetValue((int)fileDataID, out var adtName))
+                    if (Listfile.NameMap.TryGetValue((int)fileDataID, out var adtName) && !string.IsNullOrEmpty(adtName))
                     {
                         obj0FDID = Listfile.NameMap.Select(x => (Key: x.Key, Value: x.Value))
                             .Where(x => !string.IsNullOrEmpty(x.Value) && x.Value.EndsWith("_obj0.adt") && x.Value.StartsWith(adtName.Replace(".adt", "")))
@@ -1801,15 +1801,23 @@ namespace wow.tools.local.Controllers
                             .Select(x => (uint)x.Key).FirstOrDefault();
                     }
 
-                    adtReader.LoadADT(MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing, fileDataID, obj0FDID, tex0FDID, true);
-                    for (var i = 0; i < adtReader.adtfile.chunks.Length; i++)
+                    if(obj0FDID == 0 || tex0FDID == 0)
+                        adtReader.LoadADT(fileDataID, MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing);
+                    else
+                        adtReader.LoadADT(MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing, fileDataID, obj0FDID, tex0FDID, true);
+
+                    if(adtReader.adtfile.chunks != null)
                     {
-                        adtReader.adtfile.chunks[i].vertices = new WoWFormatLib.Structs.ADT.MCVT();
-                        adtReader.adtfile.chunks[i].normals.normal_0 = [];
-                        adtReader.adtfile.chunks[i].normals.normal_1 = [];
-                        adtReader.adtfile.chunks[i].normals.normal_2 = [];
-                        adtReader.adtfile.chunks[i].colors.color = [];
+                        for (var i = 0; i < adtReader.adtfile.chunks.Length; i++)
+                        {
+                            adtReader.adtfile.chunks[i].vertices = new WoWFormatLib.Structs.ADT.MCVT();
+                            adtReader.adtfile.chunks[i].normals.normal_0 = [];
+                            adtReader.adtfile.chunks[i].normals.normal_1 = [];
+                            adtReader.adtfile.chunks[i].normals.normal_2 = [];
+                            adtReader.adtfile.chunks[i].colors.color = [];
+                        }
                     }
+
                     return JsonConvert.SerializeObject(adtReader.adtfile, Formatting.Indented, new StringEnumConverter());
                 case "m2":
                     var m2Reader = new M2Reader();

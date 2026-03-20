@@ -8,9 +8,10 @@
 - Added persistent settings to table page lengths between sessions for DB2 browsing, DB2 diffs and file browsing.
 - Added retrieval of known FileDataIDs from the local database when ShowAllFiles is enabled.
 - Fixed file previews being available for unavailable versions when ShowAllFiles is enabled.
-- Fixed dark mode not applying to the new Choices dropdowns if the browser wasn't in dark mode.
+- Fixed dark mode/light mode styling for choicesjs dropdowns.
 - Fixed parented files not showing up under non-M2/WMO files in the more info modal.
 - Fixed flag tooltips constantly refreshing when moving the mouse.
+- Fixed previews breaking on unnamed ADT files.
 - Fixed previews being broken in diffs.
 - Fixed switcher button in BLP diffs not working.
 - Removed Ribbit v1 support in CascLib and dropped Ribbit.NET (removes a few dependencies).
