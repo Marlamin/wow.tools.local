@@ -88,6 +88,13 @@ namespace wow.tools.local.Controllers
             return NotFound();
         }
 
+        [Route("commonCHashes")]
+        [HttpGet]
+        public ActionResult CommonCHashes()
+        {
+            return Ok(WoWNamingLib.Namers.ContentHashNamer.knownHashes);
+        }
+
         [Route("dumpInstall")]
         [HttpGet]
         public bool DumpInstall()

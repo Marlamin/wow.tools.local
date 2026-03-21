@@ -912,6 +912,23 @@ namespace wow.tools.local.Services
             return files;
         }
 
+        public static Dictionary<int, int> GetNumParentFiles(List<int> fileDataIDs)
+        {
+            var results = new Dictionary<int, int>();
+            using (var cmd = dbConn.CreateCommand())
+            {
+                var fileIdList = string.Join(",", fileDataIDs);
+                cmd.CommandText = $"SELECT child, COUNT(parent) as parentCount FROM wow_rootfiles_links WHERE child IN ({fileIdList}) GROUP BY child";
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    results[reader.GetInt32(0)] = reader.GetInt32(1);
+                }
+            }
+
+            return results;
+        }
+
         public static List<LinkedFile> GetFilesByParent(int fileDataID)
         {
             var files = new List<LinkedFile>();

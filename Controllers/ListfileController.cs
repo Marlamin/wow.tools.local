@@ -216,6 +216,21 @@ namespace wow.tools.local.Controllers
                 length = listfileResults.Count;
             }
 
+            Dictionary<int, int> FDIDParentCounts = new();
+            if(Request.Query.TryGetValue("mode", out var mode) && mode == "parent" && !string.IsNullOrEmpty(search) && search.ToString().Contains("chash:", StringComparison.OrdinalIgnoreCase))
+            {
+                var fdids = listfileResults.Select(x => x.Key).ToList();
+                FDIDParentCounts = SQLiteDB.GetNumParentFiles(fdids);
+
+                listfileResults = listfileResults.OrderByDescending(x =>
+                {
+                    if (FDIDParentCounts.TryGetValue(x.Key, out var parentCount))
+                        return parentCount;
+                    else
+                        return 0;
+                }).ToDictionary(x => x.Key, x => x.Value);
+            }
+
             foreach (var listfileResult in listfileResults.Skip(start).Take(length))
             {
                 var lookupMatch = false;
@@ -229,8 +244,8 @@ namespace wow.tools.local.Controllers
                 lock (dbcLock)
                 {
                     result.data.Add(
-                  [
-                      listfileResult.Key.ToString(), // ID
+                    [
+                        listfileResult.Key.ToString(), // ID
                         listfileResult.Value, // Filename
                         lookup != 0 ? lookup.ToString("X16") : "", // Lookup
                         CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
@@ -242,8 +257,9 @@ namespace wow.tools.local.Controllers
                         SoundKitMap != null ? SoundKitMap.TryGetValue(listfileResult.Key, out var soundKits) ? string.Join(", ", soundKits) : "" : "", // SoundKits
                         MFDMap != null ? MFDMap.TryGetValue(listfileResult.Key, out var modelResourceIDs) ? string.Join(", ", modelResourceIDs) : "" : "", // ModelFileData
                         TFDMap != null ? TFDMap.TryGetValue(listfileResult.Key, out var materialResourceIDs) ? string.Join(", ", materialResourceIDs) : "" : "", // TextureFileData
-                        CMDMap != null ? CMDMap.TryGetValue(listfileResult.Key, out var creatureModelDataIDs) ? string.Join(", ", creatureModelDataIDs) : "" : "" // CreatureModelData
-                  ]);
+                        CMDMap != null ? CMDMap.TryGetValue(listfileResult.Key, out var creatureModelDataIDs) ? string.Join(", ", creatureModelDataIDs) : "" : "", // CreatureModelData
+                        FDIDParentCounts.Count > 0 && FDIDParentCounts.TryGetValue(listfileResult.Key, out var parentCount) ? parentCount.ToString() : ""
+                    ]);
                 }
             }
 

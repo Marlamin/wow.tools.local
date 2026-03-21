@@ -8,7 +8,7 @@
 - Added persistent settings to table page lengths between sessions for DB2 browsing, DB2 diffs and file browsing.
 - Added support for adding/editing PresetSplit file tags.
 - Added retrieval of known FileDataIDs from the local database when ShowAllFiles is enabled.
-- Added mass placeholder naming tab to naming page for quicker naming of related files (WIP).
+- Added mass placeholder naming mode to naming page for quicker naming of related files.
 - Added `parentof:`/`childof:` files page search filters (only works when file linking has ran at least once).
 - Fixed file previews being available for unavailable versions when ShowAllFiles is enabled.
 - Fixed dark mode/light mode styling for choicesjs dropdowns.
