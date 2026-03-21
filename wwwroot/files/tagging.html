@@ -56,22 +56,27 @@
         <br />
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item">
-                <a class="nav-link" id="tagging-tab" data-bs-toggle="tab" href="#tagging" role="tab" aria-controls="tagging" aria-selected="false">Manual Tagging</a>
+                <a class="nav-link active" id="tagging-tab" data-bs-toggle="tab" href="#tagging" role="tab" aria-controls="tagging" aria-selected="false">Manual Tagging</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" id="manageTags-tab" data-bs-toggle="tab" href="#manageTags" role="tab" aria-controls="manageTags" aria-selected="false">Manage Tags</a>
+                <a class="nav-link " id="manageTags-tab" data-bs-toggle="tab" href="#manageTags" role="tab" aria-controls="manageTags" aria-selected="false">Manage Tags</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="automatic-tab" data-bs-toggle="tab" href="#automatic" role="tab" aria-controls="automatic" aria-selected="false">Auto Tagging</a>
             </li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane" id="tagging" role="tabpanel" aria-labelledby="tagging-tab">
+            <div class="tab-pane show active" id="tagging" role="tabpanel" aria-labelledby="tagging-tab">
                 Tagging! 
                 TODO: Query-based tagging interface for files, which would support bulk tagging based on various other DB tables/things.
                 Example: For all files that use a shared texture, e.g. armorreflect4.blp or whatever, the user should be able to tag all files that reference it with a 'culture' tag for those files, e.g. "Void" or "Amani", since they'd all be in the same directory. 
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" name="query" id="query" class="form-control" placeholder="Enter query" value="SELECT * FROM wow_rootfiles_chashes">
+                    </div>
+                </div>
             </div>
-            <div class="tab-pane show active" id="manageTags" role="tabpanel" aria-labelledby="manageTags-tab">
+            <div class="tab-pane" id="manageTags" role="tabpanel" aria-labelledby="manageTags-tab">
                 <div class="row">
                     <div class="col-md-4">
                         <h4>Current tags</h4>

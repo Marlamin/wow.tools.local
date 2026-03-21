@@ -94,7 +94,7 @@
                 <a class="nav-link" id="lookup-tab" data-bs-toggle="tab" href="#lookup" role="tab" aria-controls="lookup" aria-selected="false">Filename checks</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" id="manual-tab" data-bs-toggle="tab" href="#manual" role="tab" aria-controls="m2" aria-selected="true">Manual models</a>
+                <a class="nav-link active" id="manual-tab" data-bs-toggle="tab" href="#manual" role="tab" aria-controls="m2" aria-selected="true">Manual</a>
             </li>
         </ul>
         <div class="tab-content">
@@ -202,85 +202,185 @@
                             </table>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div id="modelPreview">
-                            Model preview
-                        </div>
-                        <div id="nameForm">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="filename" name="name" placeholder="File name"><br />
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" onclick="setSuffix('.m2')">.m2</button>
-                                    <button class="btn btn-primary" disabled>.wmo</button>
-                                    <button class="btn btn-danger" onclick="loadLastName()">Last</button>
+                    <div class="col-md-9">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="models-tab" data-bs-toggle="tab" href="#models" role="tab" aria-controls="models" aria-selected="false">Model naming</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="mass-tab" data-bs-toggle="tab" href="#mass" role="tab" aria-controls="mass" aria-selected="false">Mass placeholder naming</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane show active" id="models" role="tabpanel" aria-labelledby="models-tab">
+                                <div class='row'>
+                                    <div class="col-md-5">
+                                        <div id="modelPreview">
+                                            Model preview
+                                        </div>
+                                        <div id="nameForm">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="filename" name="name" placeholder="File name"><br />
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-primary" onclick="setSuffix('.m2')">.m2</button>
+                                                    <button class="btn btn-primary" disabled>.wmo</button>
+                                                    <button class="btn btn-danger" onclick="loadLastName()">Last</button>
+                                                </div>
+                                            </div>
+                                            <button id="nameButton" class="btn btn-success form-control" style="margin-top:4px;">Name file</button>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h4>M2 naming prefixes</h4>
+                                                <div class="row">
+                                                    <!--
+                            <div class="col-md-4">
+                                <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/10XP_')">10 Generic</button> <br />
+                                <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Highlands/10HGL_Highlands_')">10 Highlands</button> <br />
+                                <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Primalist/10PM_Primalist_')">10 Primalist</button> <br />
+                                <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dragon/10DG_Dragon_')">10 Dragon</button> <br />
+                                <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Grasslands/10GSL_Grasslands_')">10 Grasslands</button> <br />
+                                <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dungeon/10DU_Dungeon_')">10 Dungeon</button> <br />
+                                <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Tuskarr/10TS_Tuskarr_')">10 Tuskarr</button> <br />
+                            </div>
+                            -->
+                                                    <div class="col-md-4">
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Volcanic/10CAN_Volcanic_')">10 Volcanic</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Djaradin/10DJ_Djaradin_')">10 Djaradin</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Reliquary/10RQ_Reliquary_')">10 Reliquary</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/ExplorersLeague/10EL_ExplorersLeague_')">10 Explorers</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Titan/10TI_Titan_')">10 Titan</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/EmeraldDream/10ED_EmeraldDream_')">10 ED</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Centaur/10CT_Centaur_')">10 Centaur</button> <br />
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/11XP_')">11 Generic</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Earthen/11EA_Earthen_')">11 Earthen</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Arathor/11AT_Arathor_')">11 Arathi</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Nerubian/11NB_Nerubian_')">11 Nerubian</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Rootlands/11RTL_Rootlands_')">11 Harronir (RTL)</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobold/11KO_Kobold_')">11 Kobold</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobyss/11KB_Kobyss_')">11 Kobyss</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Goblin/11GO_Goblin_')">11 Goblin</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Ethereal/11ET_Ethereal_')">11 Ethereal</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Broker/11BO_Brokers_')">11 Brokers</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/WildElves/11WE_WildElves_')">11 WildElves</button> <br />
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/12XP_')">12 Root</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Generic/12XP_Generic_')">12 Generic</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/PlayerHousing/12PH_')">12 Housing</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Elwynn/12ELW_Elwynn_')">12 Elwynn</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Durotar/12DUR_Durotar_')">12 Durotar</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/BloodElf/12BE_BloodElf_')">12 BloodElf</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Troll/12TR_Troll_')">12 Troll</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Void/12VD_Void_')">12 Void</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/VoidElf/12VE_VoidElf_')">12 VoidElf</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Fungarian/12FN_Fungarian_')">12 Fungarian</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Primitive/12PM_Primitive_')">12 Primitive</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Rutaani/12RU_Rutaani_')">12 Rutaani</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/TwilightsBlade/12TB_TwilightsBlade_')">12 Twilights Blade</button> <br />
+                                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/ArmyofLight/12AL_ArmyofLight_')">12 Army of Light</button> <br />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7" style="max-height: 100vh; overflow-y: scroll">
+                                        <div id="modelInfo">
+                                            Info
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <button id="nameButton" class="btn btn-success form-control" style="margin-top:4px;">Name file</button>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h4>M2 naming prefixes</h4>
+                            <div class="tab-pane fade" id="mass" role="tabpanel" aria-labelledby="mass-tab">
                                 <div class="row">
-                                    <!--
-                                    <div class="col-md-4">
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/10XP_')">10 Generic</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Highlands/10HGL_Highlands_')">10 Highlands</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Primalist/10PM_Primalist_')">10 Primalist</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dragon/10DG_Dragon_')">10 Dragon</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Grasslands/10GSL_Grasslands_')">10 Grasslands</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Dungeon/10DU_Dungeon_')">10 Dungeon</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Tuskarr/10TS_Tuskarr_')">10 Tuskarr</button> <br />
-                                    </div>
-                                    -->
-                                    <div class="col-md-4">
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Volcanic/10CAN_Volcanic_')">10 Volcanic</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Djaradin/10DJ_Djaradin_')">10 Djaradin</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Reliquary/10RQ_Reliquary_')">10 Reliquary</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/ExplorersLeague/10EL_ExplorersLeague_')">10 Explorers</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Titan/10TI_Titan_')">10 Titan</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/EmeraldDream/10ED_EmeraldDream_')">10 ED</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion09/Doodads/Centaur/10CT_Centaur_')">10 Centaur</button> <br />
+                                    <div class="col-md-3">
+                                        <div id="fileList">
+                                            <table id='linkedFiles' class="table table-striped table-bordered table-condensed" cellspacing="0" style='margin: auto; ' width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th style='width: 50px;'>ID</th>
+                                                        <th>Filename</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/11XP_')">11 Generic</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Earthen/11EA_Earthen_')">11 Earthen</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Arathor/11AT_Arathor_')">11 Arathi</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Nerubian/11NB_Nerubian_')">11 Nerubian</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Rootlands/11RTL_Rootlands_')">11 Harronir (RTL)</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobold/11KO_Kobold_')">11 Kobold</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Kobyss/11KB_Kobyss_')">11 Kobyss</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Goblin/11GO_Goblin_')">11 Goblin</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Ethereal/11ET_Ethereal_')">11 Ethereal</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion10/Doodads/Broker/11BO_Brokers_')">11 Brokers</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/WildElves/11WE_WildElves_')">11 WildElves</button> <br />
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/12XP_')">12 Root</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Generic/12XP_Generic_')">12 Generic</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/PlayerHousing/12PH_')">12 Housing</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Elwynn/12ELW_Elwynn_')">12 Elwynn</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Durotar/12DUR_Durotar_')">12 Durotar</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/BloodElf/12BE_BloodElf_')">12 BloodElf</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Troll/12TR_Troll_')">12 Troll</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Void/12VD_Void_')">12 Void</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/VoidElf/12VE_VoidElf_')">12 VoidElf</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Fungarian/12FN_Fungarian_')">12 Fungarian</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Primitive/12PM_Primitive_')">12 Primitive</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/Rutaani/12RU_Rutaani_')">12 Rutaani</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/TwilightsBlade/12TB_TwilightsBlade_')">12 Twilights Blade</button> <br />
-                                        <button class="btn btn-primary" onclick="setPrefix('World/Expansion11/Doodads/ArmyofLight/12AL_ArmyofLight_')">12 Army of Light</button> <br />
-                                    </div>
-                                    </div>
+                                        <div id="nameForm">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="filenameTemplate" name="name" placeholder="File name"><br />
+                                            </div>
+                                            <button id="massNameButton" class="btn btn-danger form-control" style="margin-top:4px;">Mass name</button>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h4>M2 naming templates</h4>
+                                                <div class="row">
+                                                    <!--
+                            <div class="col-md-4">
+                                <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/10XP_')">10 Generic</button> <br />
+                                <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Highlands/10HGL_Highlands_')">10 Highlands</button> <br />
+                                <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Primalist/10PM_Primalist_')">10 Primalist</button> <br />
+                                <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Dragon/10DG_Dragon_')">10 Dragon</button> <br />
+                                <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Grasslands/10GSL_Grasslands_')">10 Grasslands</button> <br />
+                                <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Dungeon/10DU_Dungeon_')">10 Dungeon</button> <br />
+                                <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Tuskarr/10TS_Tuskarr_')">10 Tuskarr</button> <br />
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-md-5" style="max-height: 100vh; overflow-y: scroll">
-                        <div id="modelInfo">
-                            Info
+                            -->
+                                                    <div class="col-md-4">
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Volcanic/10CAN_Volcanic_')">10 Volcanic</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Djaradin/10DJ_Djaradin_')">10 Djaradin</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Reliquary/10RQ_Reliquary_')">10 Reliquary</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/ExplorersLeague/10EL_ExplorersLeague_')">10 Explorers</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Titan/10TI_Titan_')">10 Titan</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/EmeraldDream/10ED_EmeraldDream_')">10 ED</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion09/Doodads/Centaur/10CT_Centaur_')">10 Centaur</button> <br />
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/11XP_')">11 Generic</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Earthen/11EA_Earthen_')">11 Earthen</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Arathor/11AT_Arathor_')">11 Arathi</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Nerubian/11NB_Nerubian_')">11 Nerubian</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Rootlands/11RTL_Rootlands_')">11 Harronir (RTL)</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Kobold/11KO_Kobold_')">11 Kobold</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Kobyss/11KB_Kobyss_')">11 Kobyss</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Goblin/11GO_Goblin_')">11 Goblin</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Ethereal/11ET_Ethereal_')">11 Ethereal</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion10/Doodads/Broker/11BO_Brokers_')">11 Brokers</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/WildElves/11WE_WildElves_')">11 WildElves</button> <br />
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/12XP_')">12 Root</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/Generic/12XP_Generic_')">12 Generic</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/PlayerHousing/12PH_')">12 Housing</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/Elwynn/12ELW_Elwynn_')">12 Elwynn</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/Durotar/12DUR_Durotar_')">12 Durotar</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/BloodElf/12BE_BloodElf_')">12 BloodElf</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/Troll/12TR_Troll_')">12 Troll</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/Void/12VD_Void_')">12 Void</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/VoidElf/12VE_VoidElf_')">12 VoidElf</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/Fungarian/12FN_Fungarian_')">12 Fungarian</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/Primitive/12PM_Primitive_')">12 Primitive</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/Rutaani/12RU_Rutaani_')">12 Rutaani</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/TwilightsBlade/12TB_TwilightsBlade_')">12 Twilights Blade</button> <br />
+                                                        <button class="btn btn-primary" onclick="setMassTemplate('World/Expansion11/Doodads/ArmyofLight/12AL_ArmyofLight_')">12 Army of Light</button> <br />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="max-height: 100vh; overflow-y: scroll">
+                                     
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
- 
             </div>
         </div>
     </div>
@@ -328,6 +428,10 @@
             document.getElementById("filename").value = name;
         }
 
+        function setMassTemplate(name) {
+            document.getElementById("filenameTemplate").value = "models/" + name + "Unknown_{id}.m2";
+        }
+
         function setSuffix(suffix) {
             var filenameInput = document.getElementById("filename");
             var name = filenameInput.value;
@@ -337,6 +441,7 @@
             }
 
             document.getElementById("nameButton").disabled = false;
+            document.getElementById("massNameButton").disabled = false;
         }
 
         function loadLastName() {
@@ -409,8 +514,8 @@
                 "displayStart": page * 30,
                 "autoWidth": false,
                 "lengthMenu": [
-                    [15, 25, 50, 100, 1000, -1],
-                    [15, 25, 50, 100, 1000, "All"]
+                    [15, 25, 30, 50, 100, 1000, -1],
+                    [15, 25, 30, 50, 100, 1000, "All"]
                 ],
                 "orderMulti": false,
                 "order": [[sortCol, sortDesc]],
@@ -488,8 +593,6 @@
                 window.location.hash = url;
 
                 $('.popover').remove();
-
-                $("[data-bs-toggle=popover]").popover();
             });
 
             $("#files").on('click', 'tbody tr td', function () {
@@ -592,6 +695,26 @@
                 }
             }
 
+            document.getElementById("massNameButton").onclick = function () {
+                var templateInput = document.getElementById("filenameTemplate");
+                var template = templateInput.value;
+                var searchValue = document.getElementById("dt-search-0").value;
+
+                if (template) {
+                    $.ajax({
+                        url: "/naming/massPHNaming?search=" + encodeURIComponent(searchValue) + "&namePattern=" + encodeURIComponent(template),
+                        type: 'GET',
+                        success: function (data) {
+                            var numResults = data.split('\n').length;
+                            if (data.length == 0)
+                                numResults = 0;
+                            resultTitle.innerHTML = "Result (" + numResults + " names)";
+                            result.innerHTML = data;
+                        }
+                    });
+                }
+            }
+
             fetch('/naming/getNewFiles', {
                 method: 'GET'
             }).then(function (response) {
@@ -602,7 +725,7 @@
                     resultTitle.innerHTML = "Results";
                 else
                     resultTitle.innerHTML = "Result (" + (data.split('\n').length) + " names)";
-                    
+
             });
 
             var tabEl = document.querySelectorAll('a[data-bs-toggle="tab"]');
@@ -615,7 +738,7 @@
                     }
                 })
             }
-          
+
         }());
 
     </script>

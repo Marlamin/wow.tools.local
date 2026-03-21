@@ -8,6 +8,7 @@
 - Added persistent settings to table page lengths between sessions for DB2 browsing, DB2 diffs and file browsing.
 - Added support for adding/editing PresetSplit file tags.
 - Added retrieval of known FileDataIDs from the local database when ShowAllFiles is enabled.
+- Added mass placeholder naming tab to naming page for quicker naming of related files (WIP).
 - Fixed file previews being available for unavailable versions when ShowAllFiles is enabled.
 - Fixed dark mode/light mode styling for choicesjs dropdowns.
 - Fixed parented files not showing up under non-M2/WMO files in the more info modal.
@@ -15,6 +16,7 @@
 - Fixed previews breaking on unnamed ADT files.
 - Fixed previews being broken in diffs.
 - Fixed switcher button in BLP diffs not working.
+- Fixed namer not picking up on obvious names for player housing models.
 - Temporarily disabled skit:/skitid: search filter due to still unresolved issues with it.
 - Removed Ribbit v1 support in CascLib and dropped Ribbit.NET (removes a few dependencies).
 - Removed unused dependencies.

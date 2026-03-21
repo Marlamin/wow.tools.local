@@ -1079,5 +1079,39 @@ namespace wow.tools.local.Services
 
             return "";
         }
+
+        public static List<List<string>> RunQuery(string query)
+        {
+            var results = new List<List<string>>();
+            lock (SQLiteLock)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = query;
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        if (results.Count == 0)
+                        {
+                            var headerRow = new List<string>();
+                            for (int i = 0; i < reader.FieldCount; i++)
+                                headerRow.Add(reader.GetName(i));
+
+                            results.Add(headerRow);
+                        }
+
+                        var row = new List<string>();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                            row.Add(reader[i].ToString()!);
+
+                        results.Add(row);
+                    }
+                    reader.Close();
+                }
+            }
+
+            return results;
+        }
     }
 }

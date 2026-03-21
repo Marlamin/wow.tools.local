@@ -144,6 +144,24 @@ namespace wow.tools.local.Controllers
         }
 
         [HttpGet]
+        [Route("massPHNaming")]
+        public string MassPlaceholderNaming(string search, string namePattern)
+        {
+            if (SettingsManager.ReadOnly)
+                return "";
+
+            string resultNames = "";
+
+            var results = Listfile.DoSearch(Listfile.NameMap, search).Where(x => Listfile.PlaceholderFiles.Contains(x.Key)).ToList();
+            foreach (var result in results)
+            {
+                resultNames += SingleFile(result.Key, namePattern.Replace("{id}", result.Key.ToString())) + "\n";
+            }
+            
+            return resultNames;
+        }
+
+        [HttpGet]
         [Route("singleVO")]
         public string SingleVO(int id, string name)
         {
