@@ -6,6 +6,7 @@
 - Added hex dumps in file previews for all files.
 - Added JSON previews for WDT and WDL files.
 - Added persistent settings to table page lengths between sessions for DB2 browsing, DB2 diffs and file browsing.
+- Added support for adding/editing PresetSplit file tags.
 - Added retrieval of known FileDataIDs from the local database when ShowAllFiles is enabled.
 - Fixed file previews being available for unavailable versions when ShowAllFiles is enabled.
 - Fixed dark mode/light mode styling for choicesjs dropdowns.

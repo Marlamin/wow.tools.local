@@ -76,7 +76,7 @@ namespace wow.tools.local.Controllers
 
             Services.TagService.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple, status);
 
-            if (type == "Preset")
+            if (type == "Preset" || type == "PresetSplit")
             {
                 var optionIndex = 0;
                 var optionKeys = new List<string>();

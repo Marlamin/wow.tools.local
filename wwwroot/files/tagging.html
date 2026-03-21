@@ -164,6 +164,16 @@
                             </div>
                             <div class="row mb-3">
                                 <div class="col-sm-11 offset-sm-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="splitPresetCheck">
+                                        <label class="form-check-label" for="splitPresetCheck">
+                                            This tag stores each preset in a separate file (use for tags that have many mappings per preset)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-11 offset-sm-1">
                                     <div id="presetFormHolder" style="display: none">
                                         <h5>Add/edit presets <a class="btn btn-sm btn-primary" id="addPresetRowButton">Add Row</a></h5>
                                         <div id="presetForm" style="max-height: 265px; overflow-y: scroll; overflow-x: hidden">
@@ -278,8 +288,7 @@
 
             checkForChanges();
 
-            function loadTag(tagKey)
-            {
+            function loadTag(tagKey) {
                 fetch("/tags/list?tagKey=" + tagKey)
                     .then(response => {
                         if (!response.ok) {
@@ -294,8 +303,9 @@
                         document.getElementById("tagCategory").value = tags[0].category;
                         document.getElementById("tagStatus").value = tags[0].status;
 
-                        document.getElementById("presetCheck").checked = tags[0].type == 0;
-                        if (tags[0].type == 0) {
+                        document.getElementById("presetCheck").checked = tags[0].type == 0 || tags[0].type == 2;
+                        document.getElementById("splitPresetCheck").checked = tags[0].type == 2;
+                        if (tags[0].type == 0 || tags[0].type == 2) {
                             // Load presets
                             presetForm.innerHTML = "";
                             console.log(tags[0].presets);
@@ -339,11 +349,15 @@
 
             manageTagForm.onsubmit = function (e) {
                 e.preventDefault();
-         
+
                 var data = new FormData(manageTagForm);
 
                 if (document.getElementById("presetCheck").checked) {
-                    data.append("type", "Preset");
+                    if (document.getElementById("splitPresetCheck").checked) {
+                        data.append("type", "PresetSplit");
+                    } else {
+                        data.append("type", "Preset");
+                    }
                 } else {
                     data.append("type", "Custom");
                 }
