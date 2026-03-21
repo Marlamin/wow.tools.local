@@ -155,10 +155,13 @@ namespace wow.tools.local.Controllers
             var results = Listfile.DoSearch(Listfile.NameMap, search).Where(x => Listfile.PlaceholderFiles.Contains(x.Key)).ToList();
             foreach (var result in results)
             {
-                resultNames += SingleFile(result.Key, namePattern.Replace("{id}", result.Key.ToString())) + "\n";
+                _ = SingleFile(result.Key, namePattern.Replace("{id}", result.Key.ToString())) + "\n";
             }
-            
-            return resultNames;
+
+            CASC.EnsureCHashesLoaded();
+            Namer.NameByContentHashes(CASC.FDIDToCHash, Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key).ToList());
+
+            return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
 
         [HttpGet]
