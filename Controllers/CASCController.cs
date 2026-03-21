@@ -1170,32 +1170,8 @@ namespace wow.tools.local.Controllers
                 html += "</table></td></tr></table>";
             }
 
-
             // TODO: Soundkits?
-            // TODO: With SQLite, import manifests one time to DB and then implement version history again
-            // Disable for now, slow to load manifests :<
-            /*
-            CASC.EnsureVersionHistoryLoaded();
-
-            html += "<tr><td colspan='2'><b>Known versions</b></td></tr>";
-            html += "<tr><td colspan='2'><table class='table table-sm'>";
-            html += "<tr><th>Description</th><th>Build</th><th>Contenthash</th></tr>";
-            if (CASC.VersionHistory.TryGetValue(filedataid, out var versions))
-            {
-                html += "<table class='table table-striped'><thead><tr><th>Build</th><th>Content hash</th></tr></thead>";
-                foreach (var version in versions)
-                {
-                    html += "<tr><td>" + version.buildName + "</td><td><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + version.contentHash.ToLower() + "\")'>" + version.contentHash.ToLower() + "</a></td></tr>";
-                }
-                html += "</table>";
-            }
-            else
-            {
-                html += "<td colspan='2'>No version history found for this file.</td>";
-            }
-            html += "</table></td></tr>";
-            */
-
+           
             html += "<tr><td colspan='2'><b>Neighbouring files</b></td></tr>";
             html += "<tr><td colspan='2'><table class='table table-sm'>";
             html += "<tr><th>ID</th><th>Filename</th></tr>";

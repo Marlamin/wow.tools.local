@@ -19,19 +19,16 @@ namespace wow.tools.local.Controllers
         private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
 
         private readonly Jenkins96 hasher = new();
-        private static Dictionary<int, List<uint>>? SoundKitMap;
-        private static Dictionary<uint, List<int>>? SoundKitMapReverse;
+
         private static Dictionary<int, List<uint>>? MFDMap;
         private static Dictionary<int, List<uint>>? TFDMap;
         private static Dictionary<int, List<uint>>? CMDMap;
+
+        private static Dictionary<int, List<uint>>? SoundKitMap;
+        private static Dictionary<uint, List<int>>? SoundKitMapReverse;
         private static readonly Lock dbcLock = new Lock();
 
-        private readonly int ListfileSearchCacheMax = 10;
-        private static List<KeyValuePair<string, Dictionary<int, string>>> ListfileSearchCache = new();
-        public static int ListfileSearchCacheIsForListefileLoadID = -1;
-        private static readonly Lock ListfileSearchCacheLock = new();
-
-        private void ensureSoundKitMapInitialized()
+        public void ensureSoundKitMapInitialized()
         {
             lock (dbcLock)
             {
@@ -68,182 +65,6 @@ namespace wow.tools.local.Controllers
                         Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
                     }
                 }
-            }
-        }
-
-        private Func<KeyValuePair<int, string>, bool> MakeFilter(string search)
-        {
-            if (search.StartsWith("!") && search.Length > 1)
-            {
-                var sub = MakeFilter(search.Substring("!".Length));
-                return p => !sub(p);
-            }
-            else if (search.StartsWith("type:"))
-            {
-                var cleaned = search.Substring("type:".Length);
-                if (cleaned == "model")
-                {
-                    var m2AndWMO = new HashSet<int>(Listfile.TypeMap["m2"].Concat(Listfile.TypeMap["wmo"]));
-                    return p => m2AndWMO.Contains(p.Key);
-                }
-                else if (Listfile.TypeMap.TryGetValue(cleaned, out var fdids))
-                {
-                    return p => fdids.Contains(p.Key);
-                }
-            }
-            else if (search.StartsWith("added:"))
-            {
-                var builds = search.Substring("added:".Length).Split("|");
-                if (builds.Length == 2)
-                {
-                    if (builds[1] == "current" || builds[1] == "now")
-                        builds[1] = CASC.BuildName;
-
-                    var newFiles = new HashSet<int>();
-                    if (SQLiteDB.newFilesBetweenVersion.ContainsKey(builds[0] + "|" + builds[1]))
-                        newFiles = SQLiteDB.newFilesBetweenVersion[builds[0] + "|" + builds[1]];
-                    else
-                        newFiles = SQLiteDB.getNewFilesBetweenVersions(builds[0], builds[1]);
-
-                    return p => newFiles.Contains(p.Key);
-                }
-            }
-            else if (search.StartsWith("in:"))
-            {
-                var build = search.Substring("in:".Length);
-                var presentFiles = SQLiteDB.getFilesInVersion(build);
-                return p => presentFiles.Contains(p.Key);
-            }
-            else if (search == "unnamed")
-            {
-                return p => p.Value.Length == 0;
-            }
-            else if (search == "isplaceholder")
-            {
-                return p => Listfile.PlaceholderFiles.Contains(p.Key);
-            }
-            else if (search == "encrypted")
-            {
-                var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Keys);
-                return p => fdids.Contains(p.Key);
-            }
-            else if (search.StartsWith("encrypted:"))
-            {
-                var args = search.Substring("encrypted:".Length);
-                if (ulong.TryParse(args, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var converted))
-                {
-                    var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
-                    return p => fdids.Contains(p.Key);
-                }
-            }
-            else if (search == "knownkey")
-            {
-                return p => CASC.EncryptionStatuses.ContainsKey(p.Key) &&
-                              (CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedKnownKey ||
-                               CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed);
-            }
-            else if (search == "unknownkey")
-            {
-                return p => CASC.EncryptionStatuses.ContainsKey(p.Key) &&
-                              (CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey ||
-                               CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed);
-            }
-            else if (search.StartsWith("range:"))
-            {
-                string[] fdidRange = search.Substring("range:".Length).Split("-");
-
-                if (fdidRange.Length == 2 && int.TryParse(fdidRange[0], out var fdidLower) && int.TryParse(fdidRange[1], out var fdidUpper))
-                {
-                    var fdids = new HashSet<int>(Listfile.NameMap.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
-                    return p => fdids.Contains(p.Key);
-                }
-            }
-            else if (search.StartsWith("skitid:") || search.StartsWith("skit:"))
-            {
-                ensureSoundKitMapInitialized();
-                if (uint.TryParse(search.Replace("skitid:", "").Replace("skit:", ""), out var skitID))
-                    return x => SoundKitMapReverse!.ContainsKey(skitID) && SoundKitMapReverse[skitID].Contains(x.Key);
-            }
-            else if (search.StartsWith("chash:"))
-            {
-                if (CASC.CHashToFDID.TryGetValue(search.Substring("chash:".Length).ToUpperInvariant(), out var resultFDIDs))
-                {
-                    return x => resultFDIDs.Contains(x.Key);
-                }
-            }
-            else if (search == "haslookup")
-            {
-                var fdids = new HashSet<int>(Listfile.LookupMap.Keys);
-                return p => fdids.Contains(p.Key);
-            }
-            else if (search == "otherlocaleonly")
-            {
-                var fdids = new HashSet<int>(CASC.OtherLocaleOnlyFiles);
-                return p => fdids.Contains(p.Key);
-            }
-            else if (search.StartsWith("tag:"))
-            {
-                var tag = search.Substring("tag:".Length);
-                if (tag.Contains('='))
-                {
-                    var split = tag.Split('=', 2);
-                    var fdids = new HashSet<int>(TagService.GetFileDataIDsByTagAndValue(split[0], split[1]));
-                    return p => fdids.Contains(p.Key);
-                }
-                else
-                {
-                    var fdids = new HashSet<int>(TagService.GetFileDataIDsByTag(tag));
-                    return p => fdids.Contains(p.Key);
-                }
-            }
-
-            return x => x.Value.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
-                        x.Key.ToString().Contains(search, StringComparison.CurrentCultureIgnoreCase);
-        }
-
-        public Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
-        {
-            IEnumerable<KeyValuePair<int, string>> results = resultsIn;
-            foreach (var filter in search.ToLowerInvariant().Split(',', StringSplitOptions.TrimEntries))
-            {
-                results = results.Where(MakeFilter(filter));
-            }
-            return results.ToDictionary();
-        }
-
-        public Dictionary<int, string> GetFilteredListfileNameMap(string search)
-        {
-            lock (Listfile.LoadLock)
-            {
-                lock (ListfileSearchCacheLock)
-                {
-                    if (ListfileSearchCacheIsForListefileLoadID != Listfile.LoadID)
-                    {
-                        ListfileSearchCache.Clear();
-                        ListfileSearchCacheIsForListefileLoadID = Listfile.LoadID;
-                    }
-
-                    foreach (var cacheEntry in ListfileSearchCache)
-                    {
-                        if (cacheEntry.Key == search)
-                        {
-                            return cacheEntry.Value;
-                        }
-                    }
-                }
-
-                var result = DoSearch(Listfile.NameMap, search);
-
-                lock (ListfileSearchCacheLock)
-                {
-                    ListfileSearchCache.Add(new(search, result));
-                    while (ListfileSearchCache.Count > ListfileSearchCacheMax)
-                    {
-                        ListfileSearchCache.RemoveAt(0);
-                    }
-                }
-
-                return result;
             }
         }
 
@@ -361,7 +182,7 @@ namespace wow.tools.local.Controllers
             Dictionary<int, string> listfileResults;
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
-                listfileResults = GetFilteredListfileNameMap(search.ToString());
+                listfileResults = Listfile.GetFilteredListfileNameMap(search.ToString());
             }
             else
             {
@@ -651,7 +472,7 @@ namespace wow.tools.local.Controllers
             if (string.IsNullOrEmpty(search) || SettingsManager.ReadOnly)
                 return false;
 
-            var listfileResults = GetFilteredListfileNameMap(search.ToString());
+            var listfileResults = Listfile.GetFilteredListfileNameMap(search.ToString());
 
             foreach (var result in listfileResults)
             {
@@ -1046,7 +867,7 @@ namespace wow.tools.local.Controllers
                 Dictionary<int, string> searchResults = [];
 
                 if (!string.IsNullOrEmpty(search))
-                    searchResults = DoSearch(Listfile.GetAllNames(), search);
+                    searchResults = Listfile.DoSearch(Listfile.GetAllNames(), search);
                 else
                     searchResults = Listfile.GetAllNames();
 
@@ -1077,8 +898,8 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool ClearListfileCache()
         {
-            lock (ListfileSearchCacheLock)
-                ListfileSearchCache.Clear();
+            lock (Listfile.ListfileSearchCacheLock)
+                Listfile.ListfileSearchCache.Clear();
 
             return true;
         }

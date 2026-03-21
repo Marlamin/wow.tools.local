@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Globalization;
 using TACTSharp;
+using WoWFormatLib;
 
 namespace wow.tools.local.Services
 {
@@ -18,6 +19,11 @@ namespace wow.tools.local.Services
         private static readonly HttpClient WebClient = new();
 
         public static uint CachedLookupCount = 0;
+
+        private static readonly int ListfileSearchCacheMax = 10;
+        public static List<KeyValuePair<string, Dictionary<int, string>>> ListfileSearchCache = new();
+        public static int ListfileSearchCacheIsForListefileLoadID = -1;
+        public static readonly Lock ListfileSearchCacheLock = new();
 
         public static string[] GetLines(bool forceRedownload = false)
         {
@@ -399,6 +405,200 @@ namespace wow.tools.local.Services
                     sw.WriteLine(kvp.Key + ";" + kvp.Value.ToString("X16").ToLower());
                 }
             }
+        }
+
+        public static Dictionary<int, string> GetFilteredListfileNameMap(string search)
+        {
+            lock (Listfile.LoadLock)
+            {
+                lock (ListfileSearchCacheLock)
+                {
+                    if (ListfileSearchCacheIsForListefileLoadID != Listfile.LoadID)
+                    {
+                        ListfileSearchCache.Clear();
+                        ListfileSearchCacheIsForListefileLoadID = Listfile.LoadID;
+                    }
+
+                    foreach (var cacheEntry in ListfileSearchCache)
+                    {
+                        if (cacheEntry.Key == search)
+                        {
+                            return cacheEntry.Value;
+                        }
+                    }
+                }
+
+                var result = DoSearch(Listfile.NameMap, search);
+
+                lock (ListfileSearchCacheLock)
+                {
+                    ListfileSearchCache.Add(new(search, result));
+                    while (ListfileSearchCache.Count > ListfileSearchCacheMax)
+                    {
+                        ListfileSearchCache.RemoveAt(0);
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        private static Func<KeyValuePair<int, string>, bool> MakeFilter(string search)
+        {
+            if (search.StartsWith("!") && search.Length > 1)
+            {
+                var sub = MakeFilter(search.Substring("!".Length));
+                return p => !sub(p);
+            }
+            else if (search.StartsWith("type:"))
+            {
+                var cleaned = search.Substring("type:".Length);
+                if (cleaned == "model")
+                {
+                    var m2AndWMO = new HashSet<int>(Listfile.TypeMap["m2"].Concat(Listfile.TypeMap["wmo"]));
+                    return p => m2AndWMO.Contains(p.Key);
+                }
+                else if (Listfile.TypeMap.TryGetValue(cleaned, out var fdids))
+                {
+                    return p => fdids.Contains(p.Key);
+                }
+            }
+            else if (search.StartsWith("added:"))
+            {
+                var builds = search.Substring("added:".Length).Split("|");
+                if (builds.Length == 2)
+                {
+                    if (builds[1] == "current" || builds[1] == "now")
+                        builds[1] = CASC.BuildName;
+
+                    var newFiles = new HashSet<int>();
+                    if (SQLiteDB.newFilesBetweenVersion.ContainsKey(builds[0] + "|" + builds[1]))
+                        newFiles = SQLiteDB.newFilesBetweenVersion[builds[0] + "|" + builds[1]];
+                    else
+                        newFiles = SQLiteDB.getNewFilesBetweenVersions(builds[0], builds[1]);
+
+                    return p => newFiles.Contains(p.Key);
+                }
+            }
+            else if (search.StartsWith("in:"))
+            {
+                var build = search.Substring("in:".Length);
+                var presentFiles = SQLiteDB.getFilesInVersion(build);
+                return p => presentFiles.Contains(p.Key);
+            }
+            else if (search == "unnamed")
+            {
+                return p => p.Value.Length == 0;
+            }
+            else if (search == "isplaceholder")
+            {
+                return p => Listfile.PlaceholderFiles.Contains(p.Key);
+            }
+            else if (search == "encrypted")
+            {
+                var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Keys);
+                return p => fdids.Contains(p.Key);
+            }
+            else if (search.StartsWith("encrypted:"))
+            {
+                var args = search.Substring("encrypted:".Length);
+                if (ulong.TryParse(args, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var converted))
+                {
+                    var fdids = new HashSet<int>(CASC.EncryptedFDIDs.Where(kvp => kvp.Value.Contains(converted)).Select(kvp => kvp.Key));
+                    return p => fdids.Contains(p.Key);
+                }
+            }
+            else if (search == "knownkey")
+            {
+                return p => CASC.EncryptionStatuses.ContainsKey(p.Key) &&
+                              (CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedKnownKey ||
+                               CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed);
+            }
+            else if (search == "unknownkey")
+            {
+                return p => CASC.EncryptionStatuses.ContainsKey(p.Key) &&
+                              (CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey ||
+                               CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed);
+            }
+            else if (search.StartsWith("range:"))
+            {
+                string[] fdidRange = search.Substring("range:".Length).Split("-");
+
+                if (fdidRange.Length == 2 && int.TryParse(fdidRange[0], out var fdidLower) && int.TryParse(fdidRange[1], out var fdidUpper))
+                {
+                    var fdids = new HashSet<int>(Listfile.NameMap.Where(kvp => fdidLower <= kvp.Key && kvp.Key <= fdidUpper).Select(kvp => kvp.Key));
+                    return p => fdids.Contains(p.Key);
+                }
+            }
+            else if (search.StartsWith("skitid:") || search.StartsWith("skit:"))
+            {
+                //ensureSoundKitMapInitialized();
+                //if (uint.TryParse(search.Replace("skitid:", "").Replace("skit:", ""), out var skitID))
+                //    return x => SoundKitMapReverse!.ContainsKey(skitID) && SoundKitMapReverse[skitID].Contains(x.Key);
+            }
+            else if (search.StartsWith("chash:"))
+            {
+                if (CASC.CHashToFDID.TryGetValue(search.Substring("chash:".Length).ToUpperInvariant(), out var resultFDIDs))
+                {
+                    return x => resultFDIDs.Contains(x.Key);
+                }
+            }
+            else if (search == "haslookup")
+            {
+                var fdids = new HashSet<int>(Listfile.LookupMap.Keys);
+                return p => fdids.Contains(p.Key);
+            }
+            else if (search == "otherlocaleonly")
+            {
+                var fdids = new HashSet<int>(CASC.OtherLocaleOnlyFiles);
+                return p => fdids.Contains(p.Key);
+            }
+            else if (search.StartsWith("childof:"))
+            {
+                var fdid = search.Substring("childof:".Length);
+                if (int.TryParse(fdid, out var parentFDID))
+                {
+                    var childFDIDs = new HashSet<int>(SQLiteDB.GetFilesByParent(parentFDID).Select(x => (int)x.fileDataID));
+                    return p => childFDIDs.Contains(p.Key);
+                }
+            }
+            else if (search.StartsWith("parentof:"))
+            {
+                var fdid = search.Substring("parentof:".Length);
+                if (int.TryParse(fdid, out var childFDID))
+                {
+                    var parentFDIDs = new HashSet<int>(SQLiteDB.GetParentFiles(childFDID).Select(x => (int)x.fileDataID));
+                    return p => parentFDIDs.Contains(p.Key);
+                }
+            }
+            else if (search.StartsWith("tag:"))
+            {
+                var tag = search.Substring("tag:".Length);
+                if (tag.Contains('='))
+                {
+                    var split = tag.Split('=', 2);
+                    var fdids = new HashSet<int>(TagService.GetFileDataIDsByTagAndValue(split[0], split[1]));
+                    return p => fdids.Contains(p.Key);
+                }
+                else
+                {
+                    var fdids = new HashSet<int>(TagService.GetFileDataIDsByTag(tag));
+                    return p => fdids.Contains(p.Key);
+                }
+            }
+
+            return x => x.Value.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+                        x.Key.ToString().Contains(search, StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public static Dictionary<int, string> DoSearch(Dictionary<int, string> resultsIn, string search)
+        {
+            IEnumerable<KeyValuePair<int, string>> results = resultsIn;
+            foreach (var filter in search.ToLowerInvariant().Split(',', StringSplitOptions.TrimEntries))
+            {
+                results = results.Where(MakeFilter(filter));
+            }
+            return results.ToDictionary();
         }
     }
 }
