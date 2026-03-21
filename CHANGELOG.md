@@ -15,6 +15,7 @@
 - Fixed previews breaking on unnamed ADT files.
 - Fixed previews being broken in diffs.
 - Fixed switcher button in BLP diffs not working.
+- Temporarily disabled skit:/skitid: search filter due to still unresolved issues with it.
 - Removed Ribbit v1 support in CascLib and dropped Ribbit.NET (removes a few dependencies).
 - Removed unused dependencies.
 - More JQuery removal and JS cleanup.
