@@ -157,7 +157,20 @@ namespace wow.tools.local.Controllers
             var results = Listfile.DoSearch(Listfile.NameMap, search).Where(x => Listfile.PlaceholderFiles.Contains(x.Key)).ToList();
             foreach (var result in results)
             {
-                _ = SingleFile(result.Key, namePattern.Replace("{id}", result.Key.ToString())) + "\n";
+                if (namePattern.Contains("{xp}"))
+                {
+                    var addedInXP = SQLiteDB.GetFirstVersionByFileDataID(result.Key);
+                    if (string.IsNullOrEmpty(addedInXP))
+                        addedInXP = "12";
+                    else
+                        addedInXP = addedInXP.Split(".")[0];
+
+                    _ = SingleFile(result.Key, namePattern.Replace("{id}", result.Key.ToString()).Replace("{xp}", addedInXP)) + "\n";
+                }
+                else
+                {
+                    _ = SingleFile(result.Key, namePattern.Replace("{id}", result.Key.ToString())) + "\n";
+                }
             }
 
             CASC.EnsureCHashesLoaded();
