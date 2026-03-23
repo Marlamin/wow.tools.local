@@ -28,6 +28,8 @@ namespace wow.tools.local.Controllers
                 Namer.localProduct = SettingsManager.WoWProduct;
                 Namer.build = CASC.BuildName;
                 Namer.cacheDir = "caches";
+                Namer.battleNetClientID = SettingsManager.BnetClientID;
+                Namer.battleNetClientSecret = SettingsManager.BnetClientSecret;
 
                 if (((DBDProvider)dbdProvider).isUsingBDBD)
                     Namer.SetProviders(dbcProvider, DBDProvider.GetBDBDStream());

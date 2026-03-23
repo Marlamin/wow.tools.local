@@ -38,6 +38,8 @@ namespace wow.tools.local
             {"defaultFilesSearch", new WTLSetting { Key = "defaultFilesSearch", Value = string.Empty, Description = "Default search query for files page.", Type = "string", DefaultValue = string.Empty } },
             {"tagRepo", new WTLSetting { Key = "tagRepo", Value = string.Empty, Description = "Path to the wow-filetags repository.", Type = "string", DefaultValue = string.Empty } },
             {"readOnly", new WTLSetting { Key = "readOnly", Value = "false", Description = "Whether to operate in read-only mode. Disables various functionality.", Type = "bool", DefaultValue = "false" }},
+            {"bnetClientID", new WTLSetting { Key = "bnetClientID", Value = string.Empty, Description = "Battle.net Web API client ID (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
+            {"bnetClientSecret", new WTLSetting { Key = "bnetClientSecret", Value = string.Empty, Description = "Battle.net Web API client secret (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
         };
 
         private static CASCLib.LocaleFlags cascLocale;
@@ -58,6 +60,8 @@ namespace wow.tools.local
         public static string CDNConfigFile { get => Settings["cdnConfigFile"].Value; set => Settings["cdnConfigFile"].Value = value; }
         public static string DefaultFilesSearch { get => Settings["defaultFilesSearch"].Value; set => Settings["defaultFilesSearch"].Value = value; }
         public static string TagRepo { get => Settings["tagRepo"].Value; set => Settings["tagRepo"].Value = value; }
+        public static string BnetClientID { get => Settings["bnetClientID"].Value; set => Settings["bnetClientID"].Value = value; }
+        public static string BnetClientSecret { get => Settings["bnetClientSecret"].Value; set => Settings["bnetClientSecret"].Value = value; }
 
         // Bools
         public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
@@ -366,6 +370,8 @@ namespace wow.tools.local
                     else
                         return (false, "Specified CDN config file does not exist");
                 case "defaultFilesSearch":
+                case "bnetClientID":
+                case "bnetClientSecret":
                     return (true, string.Empty);
                 case "tagRepo":
                     if (string.IsNullOrEmpty(value))

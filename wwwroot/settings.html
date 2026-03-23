@@ -62,7 +62,11 @@
                 const setting = settings[i];
                 output += "<tr>";
                 output += "<td><label for='field_" + setting.key + "'>" + setting.key + "</label></td>";
-                output += "<td><input class='form-control' id='field_" + setting.key + "' oninput='validateSetting(\"" + setting.key + "\")' style='width: 100%' type='text' name='" + setting.key + "' value='" + setting.value + "'/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                var type = "text";
+                if (setting.key == "bnetClientSecret")
+                    type = "password";
+
+                output += "<td><input class='form-control' id='field_" + setting.key + "' oninput='validateSetting(\"" + setting.key + "\")' style='width: 100%' type='" + type + "' name='" + setting.key + "' value='" + setting.value + "'/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
                 if (setting.defaultValue == "")
                     output += "<td style='font-size: 15px;' class='text-muted'><i>Empty</i></td>";
                 else
