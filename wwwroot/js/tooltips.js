@@ -149,11 +149,16 @@ function generateItemTooltip(id, tooltip) {
             }
 
             const calcData = data[0]; // Calculated on server
-
+            if (calcData.status && calcData.status != 200) {
+                tooltipDesc.innerHTML = "Item either not found or another error occurred (" + calcData.status + ")";
+                return;
+            }
             let tooltipTable = "<table class='tooltip-table'><tr><td><h2 class='q" + calcData["overallQualityID"] + "'>" + calcData["name"] + "</h2></td><td class='right'><img style='max-height: 24px;' src='/img/exp/" + calcData["expansionID"] + ".webp'></td></tr>";
             if (calcData["itemLevel"] != 0) tooltipTable += "<tr><td class='yellow'>Item Level " + calcData["itemLevel"] + "</td></tr>";
 
-            tooltipTable += "<tr><td>" + inventoryTypeEnum[calcData["inventoryType"]] + "</td><td class='right'>" + itemSubClass[calcData['classID']][calcData['subClassID']] + "</td></tr>";
+            var itemType = enumMap.get("itemsparse.InventoryType")[calcData["inventoryType"]].name;
+            var itemClassName = conditionalEnums.get("item.SubclassID")[calcData['classID']][1][calcData['subClassID']].name;
+            tooltipTable += "<tr><td>" + itemType + "</td><td class='right'>" + itemClassName + "</td></tr>";
 
             if (calcData["classID"] == 2 && calcData["hasSparse"] == true) {
                 tooltipTable += "<tr><td><span class='mindmg'>" + calcData["minDamage"] + "</span> - <span class='maxdmg'>" + calcData["maxDamage"] + "</span> Damage</td><td class='right'>Speed <span class='speed'>" + calcData["speed"] + "</span></td></tr>";
@@ -161,9 +166,15 @@ function generateItemTooltip(id, tooltip) {
             }
 
             if (calcData["itemEffects"] != undefined) {
+                let itemEffectTriggerTypeEnum = enumMap.get("itemeffect.TriggerType");
+
                 for (let i = 0; i < calcData["itemEffects"].length; i++) {
                     let itemEffect = calcData["itemEffects"][i];
-                    tooltipTable += "<tr><td colspan='2'>" + itemEffectTriggerType[itemEffect["triggerType"]] + ": ";
+                    let itemEffectTriggerName = "Unknown trigger " + itemEffect["triggerType"];
+                    if (itemEffectTriggerTypeEnum[itemEffect["triggerType"]] !== undefined)
+                        itemEffectTriggerName = itemEffectTriggerTypeEnum[itemEffect["triggerType"]].name;
+                    
+                    tooltipTable += "<tr><td colspan='2'>" + itemEffectTriggerName + ": ";
                      if(itemEffect["spell"]["name"] != ""){
                      	tooltipTable += " <b>" + itemEffect["spell"]["name"] + "</b>";
                      }
@@ -174,8 +185,6 @@ function generateItemTooltip(id, tooltip) {
                             .then(function (spellResponse) {
                                 return spellResponse.json();
                             }).then(function (data) {
-
-                                console.log(data);
                                 var spellDescHolder = document.getElementById("spelldesc-" + data["spellID"]);
                                 if (data["description"] != null) {
                                     if (spellDescHolder) {
