@@ -92,7 +92,18 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public ActionResult CommonCHashes()
         {
-            return Ok(WoWNamingLib.Namers.ContentHashNamer.knownHashes);
+            var hashesWithUsages = new Dictionary<string, (string, int)>();
+            CASC.EnsureCHashesLoaded();
+            foreach(var hash in WoWNamingLib.Namers.ContentHashNamer.knownHashes)
+            {
+                hashesWithUsages[hash.Key] = (hash.Value, 0);
+                if (CASC.CHashToFDID.TryGetValue(hash.Key.ToUpperInvariant(), out var ckeyUses))
+                {
+                    hashesWithUsages[hash.Key] = (hashesWithUsages[hash.Key].Item1, ckeyUses.Count);
+                }
+            }
+
+            return Ok(hashesWithUsages);
         }
 
         [Route("dumpInstall")]

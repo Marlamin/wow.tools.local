@@ -765,7 +765,7 @@
 
                         $('#chashLinkedFiles').DataTable().search("chash:" + chash).draw();
                     }
-                    let newText = document.createTextNode(data[keys[i]]);
+                    let newText = document.createTextNode(data[keys[i]].item1 + " (" + data[keys[i]].item2 + ")");
                     newCell.appendChild(newText);
                 }
             });
