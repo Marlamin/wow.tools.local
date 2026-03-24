@@ -992,11 +992,30 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                     var eKey = fileEKeys[0];
 
                     var (offset, size, archiveIndex) = buildInstance!.GroupIndex!.GetIndexInfo(eKey);
-                    byte[] fileBytes;
-                    if (offset == -1)
-                        fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
-                    else
-                        fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
+                    byte[] fileBytes = null;
+
+                    try
+                    {
+                        if (offset == -1)
+                            fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
+                        else
+                            fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
+                    }
+                    catch (Exception e)
+                    {
+                        if (e.Message == "Invalid BLTE header")
+                        {
+                            buildInstance.cdn.InvalidateCache("data", Convert.ToHexStringLower(eKey));
+
+                            if (offset == -1)
+                                fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
+                            else
+                                fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
+                        }
+                    }
+
+                    if (fileBytes == null)
+                        throw new Exception("Failed to retrieve file after 2 attempts");
 
                     return new MemoryStream(fileBytes);
                 }
