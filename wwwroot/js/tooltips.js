@@ -6,7 +6,7 @@ document.addEventListener('mousemove', (e) => {
     tooltip2.call(this, e.target, e);
 });
 
-function tooltip2(el, event){
+async function tooltip2(el, event){
     if (document.getElementById("tooltipToggle")){
         if (!document.getElementById("tooltipToggle").checked){
             return;
@@ -71,10 +71,11 @@ function tooltip2(el, event){
 
         if ('build' in el.dataset){
             localBuild = el.dataset.build;
-        } else if (build != undefined) {
+        } else if (typeof build !== 'undefined') {
             localBuild = build;
         } else {
-            // TODO: Global site fallback build?
+            const response = await fetch("/casc/buildname");
+            localBuild = await response.text();
         }
 
         if (tooltipType == 'spell'){

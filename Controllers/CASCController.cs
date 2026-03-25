@@ -94,7 +94,7 @@ namespace wow.tools.local.Controllers
         {
             var hashesWithUsages = new Dictionary<string, (string, int)>();
             CASC.EnsureCHashesLoaded();
-            foreach(var hash in WoWNamingLib.Namers.ContentHashNamer.knownHashes)
+            foreach (var hash in WoWNamingLib.Namers.ContentHashNamer.knownHashes)
             {
                 hashesWithUsages[hash.Key] = (hash.Value, 0);
                 if (CASC.CHashToFDID.TryGetValue(hash.Key.ToUpperInvariant(), out var ckeyUses))
@@ -917,7 +917,7 @@ namespace wow.tools.local.Controllers
             var filedataids = CASC.GetSameFiles(chash).Order();
             foreach (var filedataid in filedataids)
             {
-                html += "<tr><td>" + filedataid + "</td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
+                html += "<tr><td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + filedataid + "' onclick='fillModal(" + filedataid + ")'>" + filedataid + "</a></td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
             }
             html += "</table>";
 
@@ -1124,7 +1124,8 @@ namespace wow.tools.local.Controllers
                 html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
                 foreach (var linkedFile in linkedParentFiles)
                 {
-                    html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
+                    html += "<tr><td>" + linkedFile.linkType + "</td>";
+                    html += "<td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + linkedFile.fileDataID + "' onclick='fillModal(" + linkedFile.fileDataID + ")'>" + linkedFile.fileDataID + "</a> <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                 }
                 html += "</table></td></tr></table>";
             }
@@ -1183,13 +1184,13 @@ namespace wow.tools.local.Controllers
                 html += "<tr><th>Link type</th><th>ID</th><th>Filename</th><th>Type</th></tr>";
                 foreach (var linkedFile in linkedChildFiles)
                 {
-                    html += "<tr><td>" + linkedFile.linkType + "</td><td>" + linkedFile.fileDataID + " <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
+                    html += "<tr><td>" + linkedFile.linkType + "</td><td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + linkedFile.fileDataID + "' onclick='fillModal(" + linkedFile.fileDataID + ")'>" + linkedFile.fileDataID + "</a> <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                 }
                 html += "</table></td></tr></table>";
             }
 
             // TODO: Soundkits?
-           
+
             html += "<tr><td colspan='2'><b>Neighbouring files</b></td></tr>";
             html += "<tr><td colspan='2'><table class='table table-sm'>";
             html += "<tr><th>ID</th><th>Filename</th></tr>";
@@ -1207,9 +1208,9 @@ namespace wow.tools.local.Controllers
                 var fdid = listfileAsKeys[idx];
                 if (Listfile.NameMap.TryGetValue(fdid, out var listfileName))
                     if (fdid == filedataid)
-                        html += "<tr><td style='color: red'><b>" + fdid + "</b></td><td style='color: red'><b>" + listfileName + "</b></td></tr>";
+                        html += "<tr><td style='color: red'><b><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + fdid + "' onclick='fillModal(" + fdid + ")'>" + fdid + "</a></b></td><td style='color: red'><b>" + listfileName + "</b></td></tr>";
                     else
-                        html += "<tr><td>" + fdid + "</td><td>" + listfileName + "</td></tr>";
+                        html += "<tr><td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + fdid + "' onclick='fillModal(" + fdid + ")'>" + fdid + "</a></td><td>" + listfileName + "</td></tr>";
             }
 
             html += "</table></td></tr></table>";
@@ -1795,12 +1796,12 @@ namespace wow.tools.local.Controllers
                             .Select(x => (uint)x.Key).FirstOrDefault();
                     }
 
-                    if(obj0FDID == 0 || tex0FDID == 0)
+                    if (obj0FDID == 0 || tex0FDID == 0)
                         adtReader.LoadADT(fileDataID, MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing);
                     else
                         adtReader.LoadADT(MPHDFlags.adt_has_height_texturing | MPHDFlags.adt_has_height_texturing, fileDataID, obj0FDID, tex0FDID, true);
 
-                    if(adtReader.adtfile.chunks != null)
+                    if (adtReader.adtfile.chunks != null)
                     {
                         for (var i = 0; i < adtReader.adtfile.chunks.Length; i++)
                         {

@@ -12,6 +12,7 @@
 - Added `parentof:`/`childof:` files page search filters (only works when file linking has ran at least once).
 - Added settings for Battle.net API credentials, used for file naming.
 - Added retrying of file download when hitting the "Invalid BLTE header" exception.
+- Added file tooltips to FileDataIDs in more info/contenthash modals.
 - Fixed file previews being available for unavailable versions when ShowAllFiles is enabled.
 - Fixed dark mode/light mode styling for choicesjs dropdowns.
 - Fixed parented files not showing up under non-M2/WMO files in the more info modal.

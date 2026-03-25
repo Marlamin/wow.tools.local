@@ -115,7 +115,7 @@
                 </div>
                 <div class="modal-body" id="helpModalContent">
                     <!--<kbd>%</kbd> for wildcard<br>
-    <kbd>^</kbd> string must start with<br>-->
+                    <kbd>^</kbd> string must start with<br>-->
                     <kbd>type:type</kbd> for filtering by type (requires files to be analyzed to include unknown files)<br>
                     <kbd>chash:md5</kbd> for filter by contenthash (currently loaded build only)<br>
                     <kbd>unnamed</kbd> for files without filenames<br>
@@ -188,6 +188,7 @@
         </div>
     </div>
     <script src="/js/files.js"></script>
+    <script src="/js/tooltips.js"></script>
     <script type='text/javascript'>
         var Settings =
         {
@@ -595,7 +596,7 @@
                                         var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
                                     }
                                 }
-                             
+
                             }
                             return test;
                         }
