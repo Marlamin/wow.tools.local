@@ -13,6 +13,7 @@
 - Added settings for Battle.net API credentials, used for file naming.
 - Added retrying of file download when hitting the "Invalid BLTE header" exception.
 - Added file tooltips to FileDataIDs in more info/contenthash modals.
+- Added JSON diffing support for non-root ADT files.
 - Fixed file previews being available for unavailable versions when ShowAllFiles is enabled.
 - Fixed dark mode/light mode styling for choicesjs dropdowns.
 - Fixed parented files not showing up under non-M2/WMO files in the more info modal.
@@ -21,6 +22,7 @@
 - Fixed previews being broken in diffs.
 - Fixed switcher button in BLP diffs not working.
 - Fixed namer not picking up on obvious names for player housing models.
+- Improved diffing speed/listfile caching a little.
 - Temporarily disabled `skit:`/`skitid:` search filter due to still unresolved issues with it.
 - Removed Ribbit v1 support in CascLib and dropped Ribbit.NET (removes a few dependencies).
 - Removed unused dependencies.
