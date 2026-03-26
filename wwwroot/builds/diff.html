@@ -64,7 +64,7 @@
         };
 
         function actionToBadge(action) {
-            switch (action) {
+            switch (action.toLowerCase()) {
                 case "added":
                     return "success";
                 case "removed":
@@ -97,8 +97,16 @@
                 var pageLength = 25;
             }
 
+            var apiURL = '/casc/diff?from=' + from + '&to=' + to;
+            if (urlParams.has("type")) {
+                var type = urlParams.get("type");
+                if (type == "e") {
+                    apiURL += '&type=e';
+                }
+            }
+
             var table = $('#buildtable').DataTable({
-                ajax: '/casc/diff?from=' + from + '&to=' + to,
+                ajax: apiURL,
                 columns: [{
                     data: 'action'
                 },
@@ -123,7 +131,6 @@
                     "targets": 0,
                     "orderable": true,
                     "render": function (data, type, full, meta) {
-
                         var badge = actionToBadge(full.action);
                         var content = "<span class='badge bg-" + badge + "'>" + full.action.capitalize() + "</span>";
                         return content;
@@ -148,7 +155,7 @@
                     "targets": 5,
                     "render": function (data, type, full, meta) {
                         var content = "";
-                        switch (full.action) {
+                        switch (full.action.toLowerCase()) {
                             case "added":
                                 //switch (full.type) {
                                 //    case "db2":

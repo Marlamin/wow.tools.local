@@ -1,15 +1,25 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace wow.tools.local.Services
 {
+    public enum DiffAction
+    {
+        Added,
+        Removed,
+        Modified
+    }
+
     public struct DiffEntry
     {
-        public string action;
-        public string filename;
-        public string id;
+        public int id;
+        [JsonConverter(typeof(StringEnumConverter))]
+        public DiffAction action;
+        public CASC.EncryptionStatus encryptedStatus;
         public string type;
         public string md5;
-        public string encryptedStatus;
+        public string filename;
     }
 
     public struct ApiDiff

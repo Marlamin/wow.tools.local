@@ -49,6 +49,7 @@ namespace wow.tools.local.Services
 
         public enum EncryptionStatus : byte
         {
+            Unknown,
             EncryptedKnownKey,
             EncryptedUnknownKey,
             EncryptedMixed,

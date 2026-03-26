@@ -771,22 +771,36 @@ namespace wow.tools.local.Controllers
 
         [Route("diff")]
         [HttpGet]
-        public async Task<ActionResult> DiffManifests(string from, string to)
+        public async Task<ActionResult> DiffManifests(string from, string to, string type = "normal")
         {
+            var oldDiff = new ApiDiff
+            {
+                Added = Array.Empty<DiffEntry>(),
+                Removed = Array.Empty<DiffEntry>(),
+                Modified = Array.Empty<DiffEntry>()
+            };
+
             if (BuildDiffCache.Get(from, to, out ApiDiff diff))
             {
-                return Json(new
+                if (type == "normal")
                 {
-                    added = diff.Added.Count(),
-                    modified = diff.Modified.Count(),
-                    removed = diff.Removed.Count(),
-                    data = diff.All.ToArray()
-                });
+                    return Json(new
+                    {
+                        added = diff.Added.Count(),
+                        modified = diff.Modified.Count(),
+                        removed = diff.Removed.Count(),
+                        data = diff.All.ToArray()
+                    });
+                }
+                else
+                {
+                    oldDiff = diff;
+                }
             }
 
             var allListfileNames = Listfile.GetAllNames();
 
-            Func<KeyValuePair<int, string>, DiffEntry> toDiffEntry(string action)
+            Func<KeyValuePair<int, string>, DiffEntry> toDiffEntry(DiffAction action)
             {
                 return delegate (KeyValuePair<int, string> entry)
                 {
@@ -796,35 +810,71 @@ namespace wow.tools.local.Controllers
                     {
                         action = action,
                         filename = file,
-                        id = entry.Key.ToString(),
+                        id = entry.Key,
                         md5 = entry.Value.ToLower(),
                         type = Listfile.Types.TryGetValue(entry.Key, out string? type) ? type : (!string.IsNullOrEmpty(filename) ? Path.GetExtension(file).Replace(".", "").ToLower() : "unk"),
-                        encryptedStatus = CASC.EncryptionStatuses.TryGetValue(entry.Key, out CASC.EncryptionStatus encStatus) ? encStatus.ToString() : ""
+                        encryptedStatus = CASC.EncryptionStatuses.TryGetValue(entry.Key, out CASC.EncryptionStatus encStatus) ? encStatus : CASC.EncryptionStatus.Unknown
                     };
                 };
             }
 
-            var rootFromEntries = await ManifestManager.GetEntriesForVersionAsync(from);
-            var rootToEntries = await ManifestManager.GetEntriesForVersionAsync(to);
+            var rawFromEntries = new List<(uint FileDataID, byte[] MD5)>();
+            var rawToEntries = new List<(uint FileDataID, byte[] MD5)>();
 
-            var rootFromDict = rootFromEntries.ToDictionary(x => (int)x.FileDataID, x => Convert.ToHexString(x.MD5));
-            var rootToDict = rootToEntries.ToDictionary(x => (int)x.FileDataID, x => Convert.ToHexString(x.MD5));
+            if (type == "normal")
+            {
+                rawFromEntries = await ManifestManager.GetEntriesForVersionAsync(from);
+                rawToEntries = await ManifestManager.GetEntriesForVersionAsync(to);
+            }
+            else
+            {
+                TACTSharp.BuildInstance fromBuild;
+                TACTSharp.BuildInstance toBuild;
 
-            var fromEntries = rootFromDict.Keys.ToHashSet();
-            var toEntries = rootToDict.Keys.ToHashSet();
+                if (from == CASC.BuildName)
+                    fromBuild = CASC.buildInstance!;
+                else
+                    fromBuild = BuildManager.GetBuildByVersion(from);
 
+                if (to == CASC.BuildName)
+                    toBuild = CASC.buildInstance!;
+                else
+                    toBuild = BuildManager.GetBuildByVersion(to);
+
+                foreach (var entry in fromBuild.Root!.GetAvailableFDIDs())
+                {
+                    var entries = fromBuild.Root.GetEntriesByFDID(entry);
+                    var anMD5 = entries[0].md5;
+                    var encodingEntries = fromBuild.Encoding!.FindContentKey(anMD5);
+                    rawFromEntries.Add((entry, encodingEntries[0].ToArray()));
+                }
+
+                foreach (var entry in toBuild.Root!.GetAvailableFDIDs())
+                {
+                    var entries = toBuild.Root.GetEntriesByFDID(entry);
+                    var anMD5 = entries[0].md5;
+                    var encodingEntries = toBuild.Encoding!.FindContentKey(anMD5);
+                    rawToEntries.Add((entry, encodingEntries[0].ToArray()));
+                }
+            }
+
+            var fromDict = rawFromEntries.ToDictionary(x => (int)x.FileDataID, x => Convert.ToHexString(x.MD5));
+            var toDict = rawToEntries.ToDictionary(x => (int)x.FileDataID, x => Convert.ToHexString(x.MD5));
+
+            var fromEntries = fromDict.Keys.ToHashSet();
+            var toEntries = toDict.Keys.ToHashSet();
+         
             var commonEntries = fromEntries.Intersect(toEntries);
             var removedEntries = fromEntries.Except(commonEntries);
             var addedEntries = toEntries.Except(commonEntries);
 
-            var addedFiles = addedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootToDict[entry]));
-            var removedFiles = removedEntries.Select(entry => new KeyValuePair<int, string>(entry, rootFromDict[entry]));
+            var addedFiles = addedEntries.Select(entry => new KeyValuePair<int, string>(entry, toDict[entry]));
+            var removedFiles = removedEntries.Select(entry => new KeyValuePair<int, string>(entry, fromDict[entry]));
             var modifiedFiles = new List<KeyValuePair<int, string>>();
 
             var modifiedLock = new Lock();
             Parallel.ForEach(commonEntries, entry =>
             {
-
                 // DB2 files are special, we need to ignore the string in header (if current build, obviously)
                 var type = "unk";
                 if (Listfile.Types.TryGetValue(entry, out string? value))
@@ -860,7 +910,7 @@ namespace wow.tools.local.Controllers
 
                                 if (!remainingFromBytes.SequenceEqual(remainingToBytes))
                                     lock (modifiedLock)
-                                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, rootToDict[entry]));
+                                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, toDict[entry]));
 
                                 return;
                             }
@@ -872,30 +922,47 @@ namespace wow.tools.local.Controllers
                     }
                 }
 
-                var originalFile = rootFromDict[entry];
-                var patchedFile = rootToDict[entry];
+                var originalFile = fromDict[entry];
+                var patchedFile = toDict[entry];
 
                 if (originalFile != patchedFile)
                     lock (modifiedLock)
                         modifiedFiles.Add(new KeyValuePair<int, string>(entry, patchedFile));
             });
 
-            var toAddedDiffEntryDelegate = toDiffEntry("added");
-            var toRemovedDiffEntryDelegate = toDiffEntry("removed");
-            var toModifiedDiffEntryDelegate = toDiffEntry("modified");
+            var toAddedDiffEntryDelegate = toDiffEntry(DiffAction.Added);
+            var toRemovedDiffEntryDelegate = toDiffEntry(DiffAction.Removed);
+            var toModifiedDiffEntryDelegate = toDiffEntry(DiffAction.Modified);
 
-            diff = new ApiDiff
+            if (type == "normal")
             {
-                Added = addedFiles.Select(toAddedDiffEntryDelegate),
-                Removed = removedFiles.Select(toRemovedDiffEntryDelegate),
-                Modified = modifiedFiles.Select(toModifiedDiffEntryDelegate)
-            };
+                diff = new ApiDiff
+                {
+                    Added = addedFiles.Select(toAddedDiffEntryDelegate),
+                    Removed = removedFiles.Select(toRemovedDiffEntryDelegate),
+                    Modified = modifiedFiles.Select(toModifiedDiffEntryDelegate)
+                };
+            }
+            else
+            {
+                var oldAdded = oldDiff.Added.Select(x => x.id).ToHashSet();
+                var oldRemoved = oldDiff.Removed.Select(x => x.id).ToHashSet();
+                var oldModified = oldDiff.Modified.Select(x => x.id).ToHashSet();
+
+                diff = new ApiDiff
+                {
+                    Added = addedFiles.Where(x => !oldAdded.Contains(x.Key)).Select(toAddedDiffEntryDelegate),
+                    Removed = removedFiles.Where(x => !oldRemoved.Contains(x.Key)).Select(toRemovedDiffEntryDelegate),
+                    Modified = modifiedFiles.Where(x => !oldModified.Contains(x.Key)).Select(toModifiedDiffEntryDelegate)
+                };
+            }
 
             dbcProvider.LoadFromBuildManager = false;
 
             Console.WriteLine($"Added: {diff.Added.Count()}, removed: {diff.Removed.Count()}, modified: {diff.Modified.Count()}, common: {commonEntries.Count()}");
 
-            BuildDiffCache.Add(from, to, diff);
+            if (type == "normal")
+                BuildDiffCache.Add(from, to, diff);
 
             return Json(new
             {

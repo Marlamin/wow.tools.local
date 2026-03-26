@@ -13,6 +13,7 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<int, string> Types = [];
         public static readonly Dictionary<string, HashSet<int>> TypeMap = [];
         public static readonly Dictionary<int, ulong> LookupMap = [];
+        public static readonly List<string> FullListfile = [];
 
         public static int LoadID = 0;
         public static readonly Lock LoadLock = new Lock();
@@ -27,6 +28,9 @@ namespace wow.tools.local.Services
 
         public static string[] GetLines(bool forceRedownload = false)
         {
+            if(FullListfile.Count > 0 && !forceRedownload)
+                return FullListfile.ToArray();
+
             var listfileMode = "downloaded";
 
             if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
@@ -95,6 +99,9 @@ namespace wow.tools.local.Services
                         listfileLines.AddRange(File.ReadAllLines(file));
                 });
             }
+
+            FullListfile.Clear();
+            FullListfile.AddRange(listfileLines);
 
             return [.. listfileLines];
         }
