@@ -1399,22 +1399,8 @@ namespace wow.tools.local.Controllers
 
             if (jsonTypes.Contains(fileType))
             {
-                var validFileToJSON = true;
-
                 if (!Listfile.NameMap.TryGetValue(fileDataID, out var filename))
                     filename = "";
-
-                if (fileType == "wdt" && !string.IsNullOrEmpty(filename))
-                {
-                    if (filename.EndsWith("_fogs.wdt") || filename.EndsWith("_occ.wdt") || filename.EndsWith("_lgt.wdt") || filename.EndsWith("_mpv.wdt") || filename.EndsWith("_preload.wdt"))
-                        validFileToJSON = false;
-                }
-
-                if (fileType == "adt" && !string.IsNullOrEmpty(filename))
-                {
-                    if (filename.EndsWith("_tex0.adt") || filename.EndsWith("_obj0.adt") || filename.EndsWith("_obj1.adt") || filename.EndsWith("_lod.adt"))
-                        validFileToJSON = false;
-                }
 
                 html += "<div class='tab-pane active' id='json' role='tabpanel' aria-labelledby='json-tab'>";
                 html += "Note: Git is required to be installed on the system (and in PATH) to generate JSON diffs.<br>";
@@ -1422,35 +1408,26 @@ namespace wow.tools.local.Controllers
                 if (string.IsNullOrEmpty(filename))
                     html += "<div class='alert alert-warning'>This file is a file with multiple subtypes (e.g. WDT or ADT) with an unknown filename. The file will be loaded as the main type (root WDT or root ADT), any subtypes will show incorrect information below or cause other issues.</div>";
 
-                if (validFileToJSON)
-                {
-                    html += "<div id='json-content' style='max-height: 100vh'>";
-                    html += "<i class='fa fa-spin fa-spinner'></i>";
-                    html += "</div>";
+                html += "<div id='json-content' style='max-height: 100vh'>";
+                html += "<i class='fa fa-spin fa-spinner'></i>";
+                html += "</div>";
 
-                    js += @"
-                    $(document).ready(function() {
-                        $.get('/casc/diffJSON?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
-                            try{
-                                if(data.length > 10000000)
-                                    throw new Error('Too much data');
+                js += @"
+                $(document).ready(function() {
+                    $.get('/casc/diffJSON?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                        try{
+                            if(data.length > 10000000)
+                                throw new Error('Too much data');
 
-                                var diff2htmlUi = new Diff2HtmlUI(document.getElementById('json-content'), data, d2hConfig);
-                                diff2htmlUi.draw();
-                                diff2htmlUi.highlightCode();
-                            } catch (error) {
-                                document.getElementById('json-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
-                            }
-                        });
+                            var diff2htmlUi = new Diff2HtmlUI(document.getElementById('json-content'), data, d2hConfig);
+                            diff2htmlUi.draw();
+                            diff2htmlUi.highlightCode();
+                        } catch (error) {
+                            document.getElementById('json-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
+                        }
                     });
-                ";
-                }
-                else
-                {
-                    html += "<div id='json-content'>";
-                    html += "<div class='alert alert-danger'>File was detected to be a subtype (e.g. non-root ADT/WDT), can not show JSON diffs for these (yet).</div>";
-                    html += "</div>";
-                }
+                });
+            ";
 
                 html += "</div>";
             }
