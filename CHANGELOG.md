@@ -5,6 +5,7 @@
 - Added parsed tooltips back to spells, items and BLP file previews (very experimental).
 - Added hex dumps in file previews for all files.
 - Added JSON previews for WDT and WDL files.
+- Added JSON diffing support for non-root ADT files.
 - Added persistent settings to table page lengths between sessions for DB2 browsing, DB2 diffs and file browsing.
 - Added support for adding/editing PresetSplit file tags.
 - Added retrieval of known FileDataIDs from the local database when ShowAllFiles is enabled.
@@ -13,7 +14,6 @@
 - Added settings for Battle.net API credentials, used for file naming.
 - Added retrying of file download when hitting the "Invalid BLTE header" exception.
 - Added file tooltips to FileDataIDs in more info/contenthash modals.
-- Added JSON diffing support for non-root ADT files.
 - Fixed file previews being available for unavailable versions when ShowAllFiles is enabled.
 - Fixed dark mode/light mode styling for choicesjs dropdowns.
 - Fixed parented files not showing up under non-M2/WMO files in the more info modal.
