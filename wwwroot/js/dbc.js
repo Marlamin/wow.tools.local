@@ -387,14 +387,14 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
             //        columnValue + ", \"" + fk + "\", \"" +
             //        build + "\")'>" + columnValue +
             //        "</a>";
-            //} else if (fk.toLowerCase() == "spell::id" && columnValue > 0) {
-            //    returnVar =
-            //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
-            //        columnValue +
-            //        "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
-            //        columnValue + ", \"" + fk + "\", \"" +
-            //        build + "\")'>" + columnValue +
-            //        "</a>";
+            } else if (fk.toLowerCase() == "spell::id" && columnValue > 0) {
+                returnVar =
+                    "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
+                    columnValue +
+                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+                    columnValue + ", \"" + fk + "\", \"" +
+                    build + "\")'>" + columnValue +
+                    "</a>";
         } else {
             returnVar =
                 "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-id='" + columnValue + "' data-fk='" + fk +
