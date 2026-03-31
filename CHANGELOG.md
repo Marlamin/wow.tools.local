@@ -1,3 +1,6 @@
+0.9.4 (xx-04-2026)
+- Improved the naming of item textures.
+
 0.9.3 (31-03-2026)
 - Added support for flag/enum definitions from WoWDBDefs, removed built-in flags/enums (thanks @MaxtorCoder).
   Note: This may have caused some issues with DB2 reading that I missed, please let me know if you encounter any.
