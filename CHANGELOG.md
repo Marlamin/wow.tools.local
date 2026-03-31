@@ -1,19 +1,19 @@
-0.9.3 (xx-03-2026)
+0.9.3 (31-03-2026)
 - Added support for flag/enum definitions from WoWDBDefs, removed built-in flags/enums (thanks @MaxtorCoder).
   Note: This may have caused some issues with DB2 reading that I missed, please let me know if you encounter any.
 - Reworked file preview modal UI to be more consistent between file types.
-- Added parsed tooltips back to spells, items and BLP file previews (very experimental).
+- Added parsed tooltips back to spells, items and BLP file previews (very experimental, many tooltips will be incomplete).
 - Added hex dumps in file previews for all files.
 - Added JSON previews for WDT and WDL files.
 - Added JSON diffing support for non-root ADT files.
 - Added persistent settings to table page lengths between sessions for DB2 browsing, DB2 diffs and file browsing.
-- Added support for adding/editing PresetSplit file tags.
 - Added retrieval of known FileDataIDs from the local database when ShowAllFiles is enabled.
 - Added mass placeholder file naming mode to naming page for quicker naming of related files.
 - Added `parentof:`/`childof:` files page search filters (only works when file linking has ran at least once).
-- Added settings for Battle.net API credentials, used for file naming.
+- Added settings for Battle.net API credentials, only used for file naming.
 - Added retrying of file download when hitting the "Invalid BLTE header" exception.
 - Added file tooltips to FileDataIDs in more info/contenthash modals.
+- Added support for adding/editing PresetSplit file tags.
 - Fixed file previews being available for unavailable versions when ShowAllFiles is enabled.
 - Fixed dark mode/light mode styling for choicesjs dropdowns.
 - Fixed parented files not showing up under non-M2/WMO files in the more info modal.
@@ -24,7 +24,7 @@
 - Fixed namer not picking up on obvious names for player housing models.
 - Improved diffing speed/listfile caching a little.
 - Temporarily disabled `skit:`/`skitid:` search filter due to still unresolved issues with it.
-- Removed Ribbit v1 support in CascLib and dropped Ribbit.NET (removes a few dependencies).
+- Removed Ribbit v1 support in CascLib and dropped Ribbit.NET (removes a few dependencies/build output files).
 - Removed unused dependencies.
 - More JQuery removal and JS cleanup.
 - Updated WoWFormatLib for improved WDT/WDL parsing/dependency cleanup.
