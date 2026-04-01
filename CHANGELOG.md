@@ -1,4 +1,5 @@
 0.9.4 (xx-04-2026)
+- Fixed missing encryption icons in diffs.
 - Improved the naming of item textures.
 
 0.9.3 (31-03-2026)

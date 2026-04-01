@@ -243,9 +243,9 @@
                                 }
                                 break;
                         }
-                        if (full.encryptedStatus == "EncryptedUnknownKey") {
+                        if (full.encryptedStatus == 2) {
                             content += " <i style=\"color: red\" title=\"File is encrypted with unknown key\" class=\"fa fa-lock\"></i>";
-                        } else if (full.encryptedStatus == "EncryptedButNot") {
+                        } else if (full.encryptedStatus == 4) {
                             content += " <i style=\"color: white\" title=\"Flagged as encrypted but isn't\" class=\"fa fa-unlock\"></i>";
                         }
                         return content;
