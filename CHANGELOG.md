@@ -1,6 +1,7 @@
 0.9.4 (xx-04-2026)
+- Added support for naming new and still unknown map files.
 - Fixed missing encryption icons in diffs.
-- Improved the naming of item textures.
+- Improved the automatic naming of item textures.
 
 0.9.3 (31-03-2026)
 - Added support for flag/enum definitions from WoWDBDefs, removed built-in flags/enums (thanks @MaxtorCoder).
