@@ -9,7 +9,7 @@ function showError(error) {
 }
 
 window.onerror = function(message, source, lineno, colno, error) {
-    showError("An error occured! You might have to force reload the page with <kbd>CTRL-F5</kbd>. <br>Let us know what the error is by opening the console (<kbd>CTRL-SHIFT-J</kbd> on Chrome) and posting a screenshot of the error in <a href='https://discord.gg/5bkAvXFkDF'>Discord</a>.");
+    showError("An error occured! You might have to force reload the page with <kbd>CTRL-F5</kbd>.<br>If it persists, you may be viewing a model not compatible with the modelviewer.");
 }
 
 var Elements =
