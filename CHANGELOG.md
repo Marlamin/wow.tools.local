@@ -1,5 +1,6 @@
 0.9.4 (xx-04-2026)
 - Added support for naming new and still unknown map files.
+- Added support for dumping TEX files as JSON.
 - Fixed missing encryption icons in diffs.
 - Improved the automatic naming of item textures.
 

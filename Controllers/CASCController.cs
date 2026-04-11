@@ -1297,7 +1297,7 @@ namespace wow.tools.local.Controllers
         public string DiffFile(int fileDataID, string from, string to)
         {
             var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt", "hlsl" };
-            var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt", "m3" };
+            var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt", "m3", "tex" };
 
             var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
             var js = @"      
@@ -1768,7 +1768,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat", "wdt", "wdl" };
+            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat", "wdt", "wdl", "tex" };
 
             if (!(Listfile.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
@@ -1812,6 +1812,10 @@ namespace wow.tools.local.Controllers
                     var wdlReader = new WDLReader();
                     wdlReader.LoadWDL(fileDataID);
                     return JsonConvert.SerializeObject(wdlReader.wdlfile, Formatting.Indented);
+                case "tex":
+                    var texReader = new TEXReader();
+                    var tex = texReader.LoadTEX(fileDataID);
+                    return JsonConvert.SerializeObject(tex, Formatting.Indented);
                 case "wmo":
                     var wmoReader = new WMOReader();
                     var wmo = wmoReader.LoadWMO(fileDataID);
