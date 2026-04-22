@@ -863,7 +863,7 @@ namespace wow.tools.local.Controllers
 
             var fromEntries = fromDict.Keys.ToHashSet();
             var toEntries = toDict.Keys.ToHashSet();
-         
+
             var commonEntries = fromEntries.Intersect(toEntries);
             var removedEntries = fromEntries.Except(commonEntries);
             var addedEntries = toEntries.Except(commonEntries);
@@ -1794,9 +1794,20 @@ namespace wow.tools.local.Controllers
                 }
                 else
                 {
-                    var wago = new WagoFileProvider();
-                    wago.SetBuild(build);
-                    FileProvider.SetProvider(wago, build);
+                    try
+                    {
+                        var dbBuild = BuildManager.GetBuildByVersion(build);
+                        var tact = new TACTSharpFileProvider();
+                        tact.InitTACT(dbBuild);
+                        FileProvider.SetProvider(tact, build);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error initializing TACTSharp for build " + build + ": " + e.Message);
+                        var wago = new WagoFileProvider();
+                        wago.SetBuild(build);
+                        FileProvider.SetProvider(wago, build);
+                    }
                 }
             }
 
@@ -1947,9 +1958,20 @@ namespace wow.tools.local.Controllers
                 }
                 else
                 {
-                    var wago = new WagoFileProvider();
-                    wago.SetBuild(build);
-                    FileProvider.SetProvider(wago, build);
+                    try
+                    {
+                        var dbBuild = BuildManager.GetBuildByVersion(build);
+                        var tact = new TACTSharpFileProvider();
+                        tact.InitTACT(dbBuild);
+                        FileProvider.SetProvider(tact, build);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error initializing TACTSharp for build " + build + ": " + e.Message);
+                        var wago = new WagoFileProvider();
+                        wago.SetBuild(build);
+                        FileProvider.SetProvider(wago, build);
+                    }
                 }
             }
 
