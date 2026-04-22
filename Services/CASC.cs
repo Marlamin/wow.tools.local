@@ -258,6 +258,12 @@ namespace wow.tools.local.Services
 
             WTLKeyService.LoadKeys();
 
+            CHashToFDID.Clear();
+            CHashToSize.Clear();
+            FDIDToCHash.Clear();
+            FDIDToCHashSet.Clear();
+            FDIDToExtraCHashes.Clear();
+
             #region Install entry conversion between TACTSharp and CASCLib
             var hasher = new CASCLib.Jenkins96();
 
