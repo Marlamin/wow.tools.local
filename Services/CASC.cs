@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using TACTSharp;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
-using WoWFormatLib;
 
 namespace wow.tools.local.Services
 {
@@ -333,13 +332,13 @@ namespace wow.tools.local.Services
                                     continue;
                                 }
 
-                                var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
+                                var parsedLookup = BitConverter.ToUInt64(Convert.FromHexString(lookup), 0);
 
                                 if (WTLKeyService.HasKey(parsedLookup))
                                     continue;
 
                                 Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
-                                WTLKeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
+                                WTLKeyService.SetKey(parsedLookup, Convert.FromHexString(splitLine[1]));
                             }
                         }
                         catch (Exception e)
@@ -550,13 +549,13 @@ namespace wow.tools.local.Services
                                     continue;
                                 }
 
-                                var parsedLookup = BitConverter.ToUInt64(lookup.ToByteArray(), 0);
+                                var parsedLookup = BitConverter.ToUInt64(Convert.FromHexString(lookup), 0);
 
                                 if (WTLKeyService.HasKey(parsedLookup))
                                     continue;
 
                                 Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
-                                WTLKeyService.SetKey(parsedLookup, splitLine[1].ToByteArray());
+                                WTLKeyService.SetKey(parsedLookup, Convert.FromHexString(splitLine[1]));
                             }
                         }
                         catch (Exception e)
@@ -1114,7 +1113,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                                 ckey = preferredEntry.cKey.ToHexString();
                             }
 
-                            FDIDToCHash.Add(entry.Key, ckey.ToByteArray());
+                            FDIDToCHash.Add(entry.Key, Convert.FromHexString(ckey));
 
                             if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
                             {
@@ -1141,7 +1140,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                                 ckey = preferredEntry.cKey.ToHexString();
                             }
 
-                            FDIDToCHash.Add(entry.Key, ckey.ToByteArray());
+                            FDIDToCHash.Add(entry.Key, Convert.FromHexString(ckey));
 
                             if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
                             {

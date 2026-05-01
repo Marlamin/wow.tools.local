@@ -12,7 +12,6 @@ using System.Web;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
-using WoWFormatLib;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 using WoWFormatLib.Structs.WDT;
@@ -1896,7 +1895,7 @@ namespace wow.tools.local.Controllers
                     var blsReader = new BLSReader();
 
                     if (!string.IsNullOrEmpty(overrideCKey))
-                        blsReader.LoadBLS(overrideCKey.ToByteArray());
+                        blsReader.LoadBLS(Convert.FromHexString(overrideCKey));
                     else
                         blsReader.LoadBLS(fileDataID);
 
@@ -1925,7 +1924,7 @@ namespace wow.tools.local.Controllers
                     var gfat = gfatReader.LoadGFAT(fileDataID);
 
                     if (!string.IsNullOrEmpty(overrideCKey))
-                        gfat = gfatReader.LoadGFAT(overrideCKey.ToByteArray());
+                        gfat = gfatReader.LoadGFAT(Convert.FromHexString(overrideCKey));
 
                     return JsonConvert.SerializeObject(gfat, Formatting.Indented, new StringEnumConverter());
                 default:
