@@ -100,7 +100,7 @@ namespace wow.tools.local.Controllers.DBC
                         {
                             for (var k = 0; k < a.Length; k++)
                             {
-                                if(a.GetType().IsEnum)
+                                if (a.GetType().IsEnum)
                                     result.values.Add(subfieldName + "[" + k + "]", Convert.ToInt64(a.GetValue(k)!).ToString()!);
                                 else
                                     result.values.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
@@ -108,7 +108,7 @@ namespace wow.tools.local.Controllers.DBC
                         }
                         else
                         {
-                            if(subfield.GetType().IsEnum)
+                            if (subfield.GetType().IsEnum)
                                 result.values.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
                             else
                                 result.values.Add(subfieldName, subfield.ToString()!);
@@ -143,7 +143,7 @@ namespace wow.tools.local.Controllers.DBC
                             {
                                 for (var k = 0; k < a.Length; k++)
                                 {
-                                    if(a.GetType().IsEnum)
+                                    if (a.GetType().IsEnum)
                                         result.values.Add(subfieldName + "[" + k + "]", Convert.ToInt64(a.GetValue(k)!).ToString()!);
                                     else
                                         result.values.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
@@ -151,7 +151,7 @@ namespace wow.tools.local.Controllers.DBC
                             }
                             else
                             {
-                                if(subfield.GetType().IsEnum)
+                                if (subfield.GetType().IsEnum)
                                     result.values.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
                                 else
                                     result.values.Add(subfieldName, subfield.ToString()!);

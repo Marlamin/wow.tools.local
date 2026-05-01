@@ -217,7 +217,7 @@ namespace wow.tools.local.Controllers
             }
 
             Dictionary<int, int> FDIDParentCounts = new();
-            if(Request.Query.TryGetValue("mode", out var mode) && mode == "parent" && !string.IsNullOrEmpty(search) && search.ToString().Contains("chash:", StringComparison.OrdinalIgnoreCase))
+            if (Request.Query.TryGetValue("mode", out var mode) && mode == "parent" && !string.IsNullOrEmpty(search) && search.ToString().Contains("chash:", StringComparison.OrdinalIgnoreCase))
             {
                 var fdids = listfileResults.Select(x => x.Key).ToList();
                 FDIDParentCounts = SQLiteDB.GetNumParentFiles(fdids);

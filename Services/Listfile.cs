@@ -130,7 +130,7 @@ namespace wow.tools.local.Services
                 DB2Map.Clear();
                 Types.Clear();
                 PlaceholderFiles.Clear();
-                foreach(var fdid in CASC.AvailableFDIDs)
+                foreach (var fdid in CASC.AvailableFDIDs)
                     Listfile.NameMap.TryAdd(fdid, "");
 
                 var listfileLines = GetLines(forceRedownload);
@@ -264,7 +264,7 @@ namespace wow.tools.local.Services
             {
                 foreach (var fdid in fdids)
                     NameMap.TryAdd(fdid, "");
-                
+
                 LoadID++;
             }
         }
