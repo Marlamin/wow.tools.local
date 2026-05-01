@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using TACTSharp;
-using WoWFormatLib;
 
 namespace wow.tools.local.Services
 {
@@ -13,7 +13,6 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<int, string> Types = [];
         public static readonly Dictionary<string, HashSet<int>> TypeMap = [];
         public static readonly Dictionary<int, ulong> LookupMap = [];
-        public static readonly List<string> FullListfile = [];
 
         public static int LoadID = 0;
         public static readonly Lock LoadLock = new Lock();
@@ -28,13 +27,11 @@ namespace wow.tools.local.Services
 
         public static string[] GetLines(bool forceRedownload = false)
         {
-            if(FullListfile.Count > 0 && !forceRedownload)
-                return FullListfile.ToArray();
-
             var listfileMode = "downloaded";
 
             if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
                 listfileMode = "parts";
+
 
             var listfileLines = new List<string>();
             if (listfileMode == "downloaded")
@@ -61,8 +58,11 @@ namespace wow.tools.local.Services
                     shouldBackup = true;
                 }
 
+                var sw = Stopwatch.StartNew();
+
                 if (download)
                 {
+                    sw.Restart();
                     Console.WriteLine("Downloading listfile");
 
                     if (shouldBackup)
@@ -77,6 +77,8 @@ namespace wow.tools.local.Services
                     using var s = WebClient.GetStreamAsync(SettingsManager.ListfileURL).Result;
                     using var fs = new FileStream(listfileName, FileMode.Create);
                     s.CopyTo(fs);
+                    sw.Stop();
+                    Console.WriteLine("Listfile download completed in " + sw.Elapsed.TotalSeconds + " seconds");
                 }
 
                 if (!File.Exists(listfileName))
@@ -99,9 +101,6 @@ namespace wow.tools.local.Services
                         listfileLines.AddRange(File.ReadAllLines(file));
                 });
             }
-
-            FullListfile.Clear();
-            FullListfile.AddRange(listfileLines);
 
             return [.. listfileLines];
         }
@@ -131,32 +130,38 @@ namespace wow.tools.local.Services
                 DB2Map.Clear();
                 Types.Clear();
                 PlaceholderFiles.Clear();
-                CASC.AvailableFDIDs.ForEach(x => Listfile.NameMap.TryAdd(x, ""));
+                foreach(var fdid in CASC.AvailableFDIDs)
+                    Listfile.NameMap.TryAdd(fdid, "");
 
                 var listfileLines = GetLines(forceRedownload);
 
                 if (File.Exists("custom-listfile.csv"))
                     listfileLines = listfileLines.Concat(File.ReadAllLines("custom-listfile.csv")).ToArray();
 
-                foreach (var line in listfileLines)
+                foreach (var rawLine in listfileLines)
                 {
-                    if (string.IsNullOrEmpty(line))
+                    var line = rawLine.AsSpan();
+                    if (line.Length == 0)
                         continue;
 
-                    var splitLine = line.Split(";");
-                    var fdid = int.Parse(splitLine[0]);
+                    var colonPos = line.IndexOf(';');
+                    if (colonPos < 0) continue;
+
+                    var fdid = int.Parse(line[..colonPos]);
+                    var filename = line[(colonPos + 1)..].ToString();
+
+                    NameMap[fdid] = filename;
 
                     if (SettingsManager.ShowAllFiles == false && !NameMap.ContainsKey(fdid))
                         continue;
 
-                    var filename = splitLine[1];
+                    var ext = Path.GetExtension(filename).Replace(".", "").ToLowerInvariant();
 
-                    var ext = Path.GetExtension(filename).Replace(".", "").ToLower();
+                    var filenameLower = filename.ToLowerInvariant().AsSpan();
+
 
                     if (!TypeMap.ContainsKey(ext))
                         TypeMap.Add(ext, []);
-
-                    NameMap[fdid] = filename;
 
                     // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
                     if (ext != "wmo")
@@ -165,10 +170,8 @@ namespace wow.tools.local.Services
                         TypeMap[ext].Add(fdid);
                     }
 
-                    var filenameLower = filename.ToLower();
-
                     if (ext == "db2")
-                        DB2Map.Add(filenameLower, fdid);
+                        DB2Map.Add(filenameLower.ToString(), fdid);
 
                     if (
                         filenameLower.StartsWith("models", StringComparison.Ordinal) ||
@@ -255,11 +258,13 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static void EnsureFDIDsPresent(List<int> fdids)
+        public static void EnsureFDIDsPresent(HashSet<int> fdids)
         {
             lock (LoadLock)
             {
-                fdids.ForEach(x => NameMap.TryAdd(x, ""));
+                foreach (var fdid in fdids)
+                    NameMap.TryAdd(fdid, "");
+                
                 LoadID++;
             }
         }
@@ -435,7 +440,7 @@ namespace wow.tools.local.Services
                     }
                 }
 
-                var result = DoSearch(Listfile.NameMap, search);
+                var result = DoSearch(SettingsManager.ShowAllFiles ? Listfile.NameMap : Listfile.NameMap.Where(x => CASC.AvailableFDIDs.Contains(x.Key)).ToDictionary(), search);
 
                 lock (ListfileSearchCacheLock)
                 {

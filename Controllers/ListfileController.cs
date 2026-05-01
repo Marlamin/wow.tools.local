@@ -175,7 +175,7 @@ namespace wow.tools.local.Controllers
             var result = new DataTablesResult()
             {
                 draw = draw,
-                recordsTotal = Listfile.NameMap.Count,
+                recordsTotal = SettingsManager.ShowAllFiles ? Listfile.NameMap.Count : CASC.AvailableFDIDs.Count,
                 data = []
             };
 
@@ -186,7 +186,7 @@ namespace wow.tools.local.Controllers
             }
             else
             {
-                listfileResults = new Dictionary<int, string>(Listfile.NameMap);
+                listfileResults = new Dictionary<int, string>(SettingsManager.ShowAllFiles ? Listfile.NameMap : Listfile.NameMap.Where(x => CASC.AvailableFDIDs.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
             }
 
             result.recordsFiltered = listfileResults.Count;

@@ -20,7 +20,7 @@ namespace wow.tools.local.Services
         public static string CurrentProduct = "";
         public static bool IsOnline = false;
 
-        public static List<int> AvailableFDIDs = [];
+        public static HashSet<int> AvailableFDIDs = [];
 
         public static readonly Dictionary<int, EncryptionStatus> EncryptionStatuses = [];
         public static readonly Dictionary<int, List<ulong>> EncryptedFDIDs = [];
@@ -350,7 +350,7 @@ namespace wow.tools.local.Services
             }
 
             AvailableFDIDs.Clear();
-            AvailableFDIDs.AddRange(buildInstance.Root.GetAvailableFDIDs().Select(x => (int)x));
+            AvailableFDIDs.UnionWith(buildInstance.Root.GetAvailableFDIDs().Select(x => (int)x));
 
             Directory.CreateDirectory(SettingsManager.ManifestFolder);
 
@@ -593,7 +593,7 @@ namespace wow.tools.local.Services
 
             if (cascHandler.Root is WowTVFSRootHandler wtrh)
             {
-                AvailableFDIDs.AddRange(wtrh.RootEntries.Keys);
+                AvailableFDIDs.UnionWith(wtrh.RootEntries.Keys);
                 if (!ManifestManager.ExistsForVersion(BuildName))
                 {
                     var manifestEntries = new List<(uint FileDataID, byte[] MD5)>();
@@ -618,7 +618,7 @@ namespace wow.tools.local.Services
             }
             else if (cascHandler.Root is WowRootHandler wrh)
             {
-                AvailableFDIDs.AddRange(wrh.RootEntries.Keys);
+                AvailableFDIDs.UnionWith(wrh.RootEntries.Keys);
                 if (!ManifestManager.ExistsForVersion(BuildName))
                 {
                     var manifestEntries = new List<(uint FileDataID, byte[] MD5)>();
