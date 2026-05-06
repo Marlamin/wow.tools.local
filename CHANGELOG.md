@@ -1,8 +1,12 @@
 0.9.4 (xx-04-2026)
 - Added support for naming new and still unknown map files.
 - Added support for dumping TEX files as JSON.
+- Prefer spawning a new TACTSharp instance over using wago.tools during diffs.
 - Fixed missing encryption icons in diffs.
+- Fixed contenthashes not resetting between build loads.
 - Improved the automatic naming of item textures.
+- Updated WoWFormatLib to pick up on various reading/performance improvements.
+- Updated TACT Key metadata.
 
 0.9.3 (31-03-2026)
 - Added support for flag/enum definitions from WoWDBDefs, removed built-in flags/enums (thanks @MaxtorCoder).
