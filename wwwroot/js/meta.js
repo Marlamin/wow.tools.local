@@ -135,7 +135,7 @@ for (let i = 0; i < 8; i++) {
 }
 
 for (let i = 0; i < 3; i++) {
-    window.set("spellitemenchantment.EffectArg[" + i + "]",
+    window.conditionalFKs.set("spellitemenchantment.EffectArg[" + i + "]",
         [
             ['spellitemenchantment.Effect[' + i + ']=1', 'spell::id'],
             ['spellitemenchantment.Effect[' + i + ']=3', 'spell::id'],
