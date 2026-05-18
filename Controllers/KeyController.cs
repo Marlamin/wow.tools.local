@@ -217,32 +217,22 @@ namespace wow.tools.local.Controllers
                 var filedataid = file.Key;
 
                 uint size = 0;
-                List<byte[]> cKeys = [];
+                List<(string cKey, uint size)> cKeys = [];
                 if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
                 {
-                    if (CASC.FDIDToExtraCHashes.TryGetValue(filedataid, out List<byte[]>? extraCHashes))
+                    var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+                    foreach (var cKey in allCKeys)
                     {
-                        var cKey = Convert.ToHexStringLower(cKeyBytes);
-                        cKeys.Add(cKeyBytes);
+                        var cKeyString = Convert.ToHexStringLower(cKey.cKey);
+                        CASC.CHashToSize.TryGetValue(cKeyString, out size);
 
-                        foreach (var extraCKey in extraCHashes)
-                            cKeys.Add(extraCKey);
-
-                        foreach (var cKeyB in cKeys)
-                            if (CASC.CHashToSize.TryGetValue(Convert.ToHexStringLower(cKeyB), out size) && size != 0)
-                                break;
-                    }
-                    else
-                    {
-                        var cKey = Convert.ToHexStringLower(cKeyBytes);
-                        cKeys.Add(cKeyBytes);
-                        CASC.CHashToSize.TryGetValue(cKey, out size);
+                        cKeys.Add((cKeyString, size));
                     }
                 }
 
                 if (Listfile.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
                 {
-                    output += "<tr><td>" + file.Key + "</td><td>db2</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => Convert.ToHexString(x)).ToList()) + "</td><td>" + size + " bytes</td></tr>";
+                    output += "<tr><td>" + file.Key + "</td><td>db2</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => x.cKey).ToList()) + "</td><td>" + size + " bytes</td></tr>";
 
                     var db2EncryptionMetaData = new Dictionary<ulong, int[]>();
 
@@ -275,25 +265,17 @@ namespace wow.tools.local.Controllers
                     continue;
 
                 var filedataid = file.Key;
+                List<(string cKey, uint size)> cKeys = [];
                 uint size = 0;
-                List<byte[]> cKeys = [];
                 if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
                 {
-                    if (CASC.FDIDToExtraCHashes.TryGetValue(filedataid, out List<byte[]>? extraCHashes))
+                    var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+                    foreach(var cKey in allCKeys)
                     {
-                        var cKey = Convert.ToHexStringLower(cKeyBytes);
-                        cKeys.Add(cKeyBytes);
+                        var cKeyString = Convert.ToHexStringLower(cKeyBytes);
+                        CASC.CHashToSize.TryGetValue(cKeyString, out size);
 
-                        foreach (var extraCKey in extraCHashes)
-                            cKeys.Add(extraCKey);
-
-                        CASC.CHashToSize.TryGetValue(cKey, out size);
-                    }
-                    else
-                    {
-                        var cKey = Convert.ToHexStringLower(cKeyBytes);
-                        cKeys.Add(cKeyBytes);
-                        CASC.CHashToSize.TryGetValue(cKey, out size);
+                        cKeys.Add((cKeyString, size));
                     }
                 }
 
@@ -308,7 +290,7 @@ namespace wow.tools.local.Controllers
                         filename = "Content hash name: " + chashname;
                     }
                 }
-                output += "<tr><td>" + file.Key + "</td><td>" + fileType + "</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => Convert.ToHexString(x)).ToList()) + "</td><td>" + size + " bytes</td></tr>";
+                output += "<tr><td>" + file.Key + "</td><td>" + fileType + "</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => x.cKey).ToList()) + "</td><td>" + size + " bytes</td></tr>";
             }
             output += "</table></td></tr>";
 

@@ -28,7 +28,6 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<string, List<int>> CHashToFDID = [];
         public static readonly Dictionary<int, byte[]> FDIDToCHash = [];
         public static readonly Dictionary<int, HashSet<string>> FDIDToCHashSet = [];
-        public static readonly Dictionary<int, List<byte[]>> FDIDToExtraCHashes = [];
         public static readonly Dictionary<string, uint> CHashToSize = [];
         public static Dictionary<int, List<Version>> VersionHistory = [];
         public static List<AvailableBuild> AvailableBuilds = [];
@@ -261,7 +260,6 @@ namespace wow.tools.local.Services
             CHashToSize.Clear();
             FDIDToCHash.Clear();
             FDIDToCHashSet.Clear();
-            FDIDToExtraCHashes.Clear();
 
             #region Install entry conversion between TACTSharp and CASCLib
             var hasher = new CASCLib.Jenkins96();
@@ -1194,30 +1192,6 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                             else
                                 CHashToFDID.Add(ckey, [(int)preferredEntry.fileDataID]);
                         }
-
-                        if (rootEntries.Count > 1)
-                        {
-                            for (int i = 1; i < rootEntries.Count; i++)
-                            {
-                                var cKey = rootEntries[i].md5.AsSpan().ToArray();
-
-                                lock (CHashLock)
-                                {
-                                    if (FDIDToCHash[(int)fdid].SequenceEqual(cKey))
-                                        continue;
-
-                                    if (FDIDToExtraCHashes.TryGetValue((int)fdid, out List<byte[]>? extraCHashes))
-                                    {
-                                        if (!extraCHashes.Contains(cKey))
-                                            extraCHashes.Add(cKey);
-                                    }
-                                    else
-                                    {
-                                        FDIDToExtraCHashes[(int)fdid] = new List<byte[]> { cKey };
-                                    }
-                                }
-                            }
-                        }
                     });
 
                     Parallel.ForEach(CHashToFDID.Keys, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, chash =>
@@ -1235,6 +1209,49 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             }
 
             return true;
+        }
+
+        public static List<(byte[] cKey, ContentFlags contentFlags, LocaleFlags localeFlags)> GetCKeysAndFlagsByFDID(int fileDataID)
+        {
+            var result = new List<(byte[], ContentFlags contentFlags, LocaleFlags localeFlags)>();
+
+            if (IsCASCLibInit)
+            {
+                if (cascHandler!.Root is WowTVFSRootHandler wtrh)
+                {
+                    if (wtrh.RootEntries.TryGetValue(fileDataID, out var entries))
+                    {
+                        foreach (var entry in entries)
+                        {
+                            result.Add((entry.cKey.ToHexString().FromHexString(), entry.ContentFlags, entry.LocaleFlags));
+                        }
+                    }
+                }
+                else if (cascHandler.Root is WowRootHandler wrh)
+                {
+                    if (wrh.RootEntries.TryGetValue(fileDataID, out var entries))
+                    {
+                        foreach (var entry in entries)
+                        {
+                            result.Add((entry.cKey.ToHexString().FromHexString(), entry.ContentFlags, entry.LocaleFlags));
+                        }
+                    }
+                }
+            }
+            else if (IsTACTSharpInit)
+            {
+                var rootEntries = buildInstance!.Root!.GetEntriesByFDID((uint)fileDataID);
+                foreach (var entry in rootEntries)
+                {
+                    result.Add((entry.md5.AsSpan().ToArray(), (ContentFlags)entry.contentFlags, (LocaleFlags)entry.localeFlags));
+                }
+            }
+            else
+            {
+                throw new Exception("No CASC or TACTSharp handler initialized");
+            }
+
+            return result;
         }
 
         public static List<int> GetSameFiles(string contenthash)
