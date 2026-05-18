@@ -1,4 +1,4 @@
-0.9.4 (xx-04-2026)
+0.9.4 (xx-05-2026)
 - Added support for naming new and still unknown map files.
 - Added support for dumping TEX files as JSON.
 - Added localeflags/contentflags to more info modal for files.

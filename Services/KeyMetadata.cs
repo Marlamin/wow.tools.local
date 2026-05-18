@@ -869,6 +869,9 @@
             KeyInfo.Add(0xFA0087A3EC2601E1, (8224, "WOW-67xxxpatch5.5.4_Classic", "Unknown mount"));
             KeyInfo.Add(0x62BF37A70E6D54F6, (8225, "WOW-67227patch12.0.7_XPTR", "Unknown transmog set"));
             KeyInfo.Add(0xFC852D42866CE038, (8231, "WOW-67227patch12.0.7_XPTR", "Unknown toy"));
+            KeyInfo.Add(0x570ED145F83E8B7B, (8243, "WOW-67525patch12.0.7_XPTR", "Spring armor"));
+            KeyInfo.Add(0x8033CEF7FDE556C9, (8244, "WOW-67525patch12.0.7_XPTR", "BabyFaerieDragon2 battle pet"));
+            KeyInfo.Add(0x9D96EBE2096AE3EE, (8246, "WOW-67525patch12.0.7_XPTR", "StormCrowMount_Ink mount"));
 
             // ID? FDC778C58B2FE080 Golden Ashened Cataclysm mount
         }
