@@ -8,7 +8,20 @@ window.conditionalFlags = new Map();
 
 // Load the mappings if it hasn't been loaded yet
 window.onload = _ => {
-    fetch('/dbc/meta/getMappings')
+    loadMappings();
+};
+
+function loadMappings(tableName = "", build = "") {
+    var url = "/dbc/meta/getMappings";
+
+    if (tableName != "") {
+        url += "?tableName=" + tableName;
+        if (build != "") {
+            url += "&build=" + build;
+        }
+    }
+
+    fetch(url)
         .then(res => res.json())
         .then(data => {
             data.forEach(entry => {
@@ -46,7 +59,7 @@ window.onload = _ => {
                 }
             });
         });
-};
+}
 
 function getEnum(db, field, value) {
     // eslint-disable-next-line no-undef

@@ -1,4 +1,5 @@
 ﻿using DBCD.Providers;
+using DBDefsLib;
 using DBDefsLib.Constants;
 using DBDefsLib.Structs;
 using Microsoft.AspNetCore.Mvc;
@@ -11,14 +12,24 @@ namespace wow.tools.local.Controllers.DBC
     public class MetaController(IEnumProvider enumProvider) : ControllerBase
     {
         private readonly EnumProvider enumProvider = (EnumProvider)enumProvider;
+        private static bool EntryMatchesBuild(EnumEntry entry, Build currentBuild)
+        {
+            if (currentBuild == null || (entry.builds.Length == 0 && entry.buildRanges.Length == 0))
+                return true;
+
+            if (entry.builds.Any(b => b.Equals(currentBuild)))
+                return true;
+
+            return entry.buildRanges.Any(r => r.Contains(currentBuild));
+        }
 
         [Route("getMappings")]
         [HttpGet]
-        public async Task<List<MappingWithEntries>> GetMappings(string? tableName = null)
+        public async Task<List<MappingWithEntries>> GetMappings(string? tableName = null, string? build = null)
         {
             var mappings = string.IsNullOrEmpty(tableName)
                 ? enumProvider.Mappings
-                : enumProvider.Mappings.Where(x => x.tableName == tableName).ToList();
+                : enumProvider.Mappings.Where(x => x.tableName.ToLower() == tableName.ToLower()).ToList();
 
             return mappings.Select(m =>
             {
@@ -27,7 +38,28 @@ namespace wow.tools.local.Controllers.DBC
                 {
                     var def = enumProvider.GetEnumDefinition(m.tableName, m.columnName, m.arrIndex,
                         m.conditionalTable, m.conditionalColumn, m.conditionalValue);
-                    entries = def?.entries;
+
+                    if (build == null)
+                    {
+                        entries = def?.entries;
+                    }
+                    else
+                    {
+                        var dbdBuild = new Build(build);
+
+                        if (def != null)
+                        {
+                            foreach (var entry in def?.entries!)
+                            {
+                                entries ??= new List<EnumEntry>();
+
+                                if (!EntryMatchesBuild(entry, dbdBuild))
+                                    continue;
+
+                                entries.Add(entry);
+                            }
+                        }
+                    }
                 }
 
                 return new MappingWithEntries(m.meta, m.tableName, m.columnName, m.arrIndex,

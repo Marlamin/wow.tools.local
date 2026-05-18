@@ -7,6 +7,7 @@
 - Fixed contenthashes not resetting between build loads.
 - Improved the automatic naming of item textures.
 - Improved memory footprint/reduced contenthash initialization time.
+- Improved different enum/flag selection based on build (e.g. SpellEffect/Weather).
 - Updated WoWFormatLib to pick up on various reading/performance improvements.
 - Updated TACT Key metadata.
 

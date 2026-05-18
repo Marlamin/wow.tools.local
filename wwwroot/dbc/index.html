@@ -1072,6 +1072,8 @@
                         var pageLength = 25;
                     }
 
+                    loadMappings(currentParams["dbc"], currentParams["build"]);
+
                     var table = $('#dbtable').DataTable({
                         "processing": true,
                         "serverSide": true,
