@@ -11,6 +11,7 @@
 - Improved different enum/flag selection based on build (e.g. SpellEffect/Weather).
 - Updated choices.js (should fix some issues with the dropdowns on the DBC pages).
 - Updated WoWFormatLib to pick up on various reading/performance improvements.
+- Updated WoWNamingLib to pick up on a fix for some M2s not getting placeholder names.
 - Updated TACT Key metadata.
 - Updated DataTables from 2.3.5 to 3.0.0-beta.2, the last reason of why WTL needed jQuery has now been vanquished.
 - Removed jQuery dependency, there's a chance I missed some usages, please report any issues you encounter.
