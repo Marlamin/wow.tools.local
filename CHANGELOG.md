@@ -8,6 +8,7 @@
 - Improved the automatic naming of item textures.
 - Improved memory footprint/reduced contenthash initialization time.
 - Improved different enum/flag selection based on build (e.g. SpellEffect/Weather).
+- Updated choices.js (should fix some issues with the dropdowns on the DBC pages).
 - Updated WoWFormatLib to pick up on various reading/performance improvements.
 - Updated TACT Key metadata.
 
