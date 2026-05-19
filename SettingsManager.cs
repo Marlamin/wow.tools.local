@@ -339,8 +339,8 @@ namespace wow.tools.local
                         var cdns = value.Split(',');
                         foreach (var cdn in cdns)
                         {
-                            if (string.IsNullOrWhiteSpace(cdn) || cdn.StartsWith("http"))
-                                return (false, "Invalid CDN host: " + cdn + "(must not contain http/https or slashes, only a host name)");
+                            if (string.IsNullOrWhiteSpace(cdn) || cdn.StartsWith("http") || cdn.Contains(' '))
+                                return (false, "Invalid CDN host: '" + cdn + "' (must not contain http/https, slashes or spaces, only a host name)");
                         }
                         return (true, string.Empty);
                     }
