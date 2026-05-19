@@ -2,6 +2,7 @@
 - Added support for naming new and still unknown map files.
 - Added support for dumping TEX files as JSON.
 - Added localeflags/contentflags to more info modal for files.
+- Added 52 new names to the contenthash namer.
 - Prefer spawning a new TACTSharp instance over using wago.tools during diffs.
 - Fixed missing encryption icons in diffs.
 - Fixed contenthashes not resetting between build loads.
