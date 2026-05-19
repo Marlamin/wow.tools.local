@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -64,8 +61,8 @@
         <script type='text/javascript'>
             let currentParams = [];
 
-            $('#buildFilter').on('change', function () {
-                var build = $("#buildFilter").val();
+            document.getElementById('buildFilter').addEventListener('change', function () {
+                var build = document.getElementById('buildFilter').value;
                 document.location = '/dbc/info.html?build=' + build;
                 currentParams["build"] = build;
             });
@@ -80,17 +77,18 @@
             if (urlBuild != null) {
                 currentParams["build"] = urlBuild;
             } else {
-                currentParams["build"] = $("#buildFilter").val();
+                currentParams["build"] = document.getElementById('buildFilter').value;
             }
 
             build = currentParams["build"];
 
-
             function loadTable() {
+                if (currentParams["build"] == "")
+                    currentParams["build"] = document.getElementById('buildFilter').value;
+
                 build = currentParams["build"];
 
                 let apiArgs = "?build=" + build;
-                $("#loadingMessage").html("Loading..");
 
                 let searchHash = location.hash.substr(1),
                     searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
@@ -99,11 +97,7 @@
                     searchString = decodeURIComponent(searchString);
                 }
 
-                $('#dbtable').on('error.dt', function (e, settings, techNote, message) {
-                    console.log('An error occurred: ', message);
-                });
-
-                var table = $('#dbtable').DataTable({
+                var table = new DataTable('#dbtable', {
                     "processing": true,
                     "serverSide": false,
                     "ajax": {
@@ -113,6 +107,11 @@
                     "pageLength": -1,
                     "autoWidth": true,
                     "lengthMenu": [[-1], ["All"]],
+                });
+
+
+                table.on('error.dt', function (e, settings, techNote, message) {
+                    console.log('An error occurred: ', message);
                 });
             }
 

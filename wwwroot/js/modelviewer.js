@@ -218,9 +218,9 @@ if (urlType){
 var urlEmbed = searchParams.get("embed");
 if (urlEmbed){
     Current.embedded = true;
-    $("#navbar").hide();
-    $("#js-sidebar-button").hide();
-    $("#fpsLabel").hide();
+    document.getElementById("navbar").style.display = "none";
+    document.getElementById("js-sidebar-button").style.display = "none";
+    document.getElementById("fpsLabel").style.display = "none";
     console.log("Running modelviewer in embedded mode!");
 }
 
@@ -507,17 +507,28 @@ window.addEventListener('resize', () => {
     }
 });
 
-$('#mvfiles').on('click', 'tbody tr td:first-child', function() {
-    var data = Elements.table.row($(this).parent()).data();
+document.getElementById('mvfiles').addEventListener('click', function(e) {
+    var cell = e.target.closest('td:first-child');
+    if (cell && cell.closest('tbody')) {
+        var row = cell.closest('tr');
+        var data = Elements.table.row(row).data();
 
-    $(".selected").removeClass("selected");
-    $(this).parent().addClass('selected');
-    loadModel(data[4], data[0]);
+        var selectedElements = document.querySelectorAll(".selected");
+        selectedElements.forEach(function(el) {
+            el.classList.remove("selected");
+        });
+
+        row.classList.add('selected');
+        loadModel(data[4], data[0]);
+    }
 });
 
-$('#js-sidebar').on('input', '.paginate_input', function(){
-    if ($(".paginate_input")[0].value != ''){
-        $("#mvfiles").DataTable().page($(".paginate_input")[0].value - 1).ajax.reload(null, false)
+document.getElementById('js-sidebar').addEventListener('input', function(e) {
+    if (e.target.classList.contains('paginate_input')) {
+        var paginateInput = document.querySelector(".paginate_input");
+        if (paginateInput && paginateInput.value != ''){
+            Elements.table.page(paginateInput.value - 1).ajax.reload(null, false);
+        }
     }
 });
 
@@ -526,16 +537,17 @@ window.addEventListener('keydown', function(event){
         return;
     }
 
-    if ($(".selected").length == 1){
+    const selected = document.querySelectorAll(".selected");
+    if (selected.length == 1){
         if (event.key == "ArrowDown"){
-            if ($(".selected")[0].rowIndex == 20) return;
+            if (selected[0].rowIndex == 20) return;
             if (document.getElementById('mvfiles').rows.length > 1){
-                $(document.getElementById('mvfiles').rows[$(".selected")[0].rowIndex + 1].firstChild).trigger("click");
+                document.getElementById('mvfiles').rows[selected[0].rowIndex + 1].firstChild.click();
             }
         } else if (event.key == "ArrowUp"){
-            if ($(".selected")[0].rowIndex == 1) return;
+            if (selected[0].rowIndex == 1) return;
             if (document.getElementById('mvfiles').rows.length > 1){
-                $(document.getElementById('mvfiles').rows[$(".selected")[0].rowIndex - 1].firstChild).trigger("click");
+                document.getElementById('mvfiles').rows[selected[0].rowIndex - 1].firstChild.click();
             }
         }
     }
@@ -578,12 +590,12 @@ window.addEventListener('keypress', function(event){
     }
 }, true);
 
-$("#animationSelect").change(function () {
+document.getElementById("animationSelect").addEventListener('change', function () {
     var display = this.options[this.selectedIndex].value;
     Module._setAnimationId(display);
 });
 
-$("#skinSelect").change(function() {
+document.getElementById("skinSelect").addEventListener('change', function() {
     if (this.options[this.selectedIndex].dataset.displayid == undefined){
         // Backwards compat
         var display = this.options[this.selectedIndex].value.split(',');
@@ -603,9 +615,9 @@ $("#skinSelect").change(function() {
 });
 
 function toggleUI(){
-    $(".navbar").toggle();
-    $("#js-sidebar-button").toggle();
-    $("#js-controls").toggle();
+    document.querySelector(".navbar").style.display = document.querySelector(".navbar").style.display === "none" ? "" : "none";
+    document.getElementById("js-sidebar-button").style.display = document.getElementById("js-sidebar-button").style.display === "none" ? "" : "none";
+    document.getElementById("js-controls").style.display = document.getElementById("js-controls").style.display === "none" ? "" : "none";
 }
 
 function loadModel(type, filedataid){
@@ -620,10 +632,10 @@ function loadModel(type, filedataid){
     DownloadQueue = [];
     isDownloading = false;
     numDownloading = 0;
-    $.ajax({
-        url: "/listfile/info?filename=1&filedataid=" + Current.fileDataID
-    })
-        .done(function( filename ) {
+
+    fetch("/listfile/info?filename=1&filedataid=" + Current.fileDataID)
+        .then(response => response.text())
+        .then(filename => {
             Current.filename = filename;
 
             updateURLs();
@@ -632,8 +644,8 @@ function loadModel(type, filedataid){
                 history.pushState({id: 'modelviewer'}, 'Model Viewer', '/mv/?filedataid=' + Current.fileDataID);
             }
 
-            $("#animationSelect").hide();
-            $("#skinSelect").hide();
+            document.getElementById("animationSelect").style.display = "none";
+            document.getElementById("skinSelect").style.display = "none";
 
             var alwaysLoadByFDID = true;
 
@@ -641,25 +653,30 @@ function loadModel(type, filedataid){
                 alwaysLoadByFDID = false;
             }
 
-            if (Current.type == "m2"){
-                $("#exportButton").prop('disabled', false);
-            } else {
-                $("#exportButton").prop('disabled', true);
+            var exportButton = document.getElementById("exportButton");
+            if (exportButton) {
+                if (Current.type == "m2"){
+                    exportButton.disabled = false;
+                } else {
+                    exportButton.disabled = true;
+                }
             }
-            
+
+            var jsControls = document.getElementById("js-controls");
+
             if (Current.filename != "" && !alwaysLoadByFDID) {
                 console.log("Loading " + Current.filename + " " + Current.fileDataID + " (" + Current.type + ")");
                 var ptrName = allocateUTF8(Current.filename);
                 if (Current.type == "adt") {
                     Module._setScene(2, ptrName, -1);
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "wmo") {
                     Module._setScene(1, ptrName, -1);
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "m2") {
                     Current.geosetsDone = false;
                     Module._setScene(0, ptrName, -1);
-                    $("#js-controls").show();
+                    jsControls.style.display = "block";
                     if (!Settings.newDisplayInfo){
                         loadModelTextures();
                     } else {
@@ -672,16 +689,16 @@ function loadModel(type, filedataid){
                 console.log("Loading " + Current.fileDataID + " (" + Current.type + ")");
                 if (Current.type == "adt") {
                     Module._setSceneFileDataId(2, Current.fileDataID, -1);
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "wmo") {
                     Module._setSceneFileDataId(1, Current.fileDataID, -1);
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "wdt") {
                     Module._setMap(0, Current.fileDataID, Current.posX, Current.posY, Current.posZ)
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "m2") {
                     Module._setSceneFileDataId(0, Current.fileDataID, -1);
-                    $("#js-controls").show();
+                    jsControls.style.display = "block";
                     if (!Settings.newDisplayInfo){
                         loadModelTextures();
                     } else {
@@ -904,69 +921,66 @@ function loadModelTextures() {
     //TODO build, fix wrong skin showing up after initial load
     var loadedTextures = Array();
     var currentFDID = Current.fileDataID;
-    $.ajax({url: "/dbc/texture/" + Current.fileDataID + "?build=" + Current.buildName}).done( function(data) {
-        var forFDID = this.url.replace("/dbc/texture/", "").replace("?build=" + Current.buildName, "");
-        if (Current.fileDataID != forFDID){
-            console.log("This request is not for this filedataid, discarding..");
-            return;
-        }
 
-        $("#skinSelect").empty();
-        for (let displayId in data) {
-            if (!data.hasOwnProperty(displayId)) continue;
-
-            var intArray = data[displayId];
-            if (intArray.every(fdid => fdid === 0)){
-                continue;
+    fetch("/dbc/texture/" + Current.fileDataID + "?build=" + Current.buildName)
+        .then(response => response.json())
+        .then(data => {
+            if (Current.fileDataID != currentFDID){
+                console.log("This request is not for this filedataid, discarding..");
+                return;
             }
 
-            // Open controls overlay
-            $("#skinSelect").show();
+            var skinSelect = document.getElementById("skinSelect");
+            skinSelect.innerHTML = "";
 
-            if (loadedTextures.includes(intArray.join(',')))
-                continue;
+            for (let displayId in data) {
+                if (!data.hasOwnProperty(displayId)) continue;
 
-            loadedTextures.push(intArray.join(','));
-
-            $.ajax({
-                type: 'GET',
-                url: "/listfile/info",
-                data: {
-                    filename: 1,
-                    filedataid : intArray.join(",")
+                var intArray = data[displayId];
+                if (intArray.every(fdid => fdid === 0)){
+                    continue;
                 }
-            })
-                .done(function( filename ) {
-                    var textureFileDataIDs = decodeURIComponent(this.url.replace("/listfile/info?filename=1&filedataid=", '')).split(',');
-          
-                    var textureFileDataID = textureFileDataIDs[0];
 
-                    var optionHTML = '<option value="' + textureFileDataIDs + '"';
+                // Open controls overlay
+                skinSelect.style.display = "block";
 
-                    if ($('#skinSelect option').length == 0){
-                        optionHTML += " SELECTED>";
-                        if (textureFileDataIDs.length == 3 || textureFileDataIDs.length == 4){
-                        // Creature
-                            setModelTexture(textureFileDataIDs, 11);
+                if (loadedTextures.includes(intArray.join(',')))
+                    continue;
+
+                loadedTextures.push(intArray.join(','));
+
+                fetch("/listfile/info?filename=1&filedataid=" + intArray.join(","))
+                    .then(response => response.text())
+                    .then(filename => {
+                        var textureFileDataIDs = intArray;
+                        var textureFileDataID = textureFileDataIDs[0];
+
+                        var optionHTML = '<option value="' + textureFileDataIDs + '"';
+
+                        if (skinSelect.options.length == 0){
+                            optionHTML += " SELECTED>";
+                            if (textureFileDataIDs.length == 3 || textureFileDataIDs.length == 4){
+                            // Creature
+                                setModelTexture(textureFileDataIDs, 11);
+                            } else {
+                            // Item
+                                setModelTexture(textureFileDataIDs, 2);
+                            }
                         } else {
-                        // Item
-                            setModelTexture(textureFileDataIDs, 2);
+                            optionHTML += ">";
                         }
-                    } else {
-                        optionHTML += ">";
-                    }
 
-                    if (filename != ""){
-                        var nopathname = filename.replace(/^.*[\\\/]/, '');
-                        optionHTML += "(" + textureFileDataID + ") " + nopathname + "</option>";
-                    } else {
-                        optionHTML += textureFileDataID + "</option>";
-                    }
+                        if (filename != ""){
+                            var nopathname = filename.replace(/^.*[\\\/]/, '');
+                            optionHTML += "(" + textureFileDataID + ") " + nopathname + "</option>";
+                        } else {
+                            optionHTML += textureFileDataID + "</option>";
+                        }
 
-                    $("#skinSelect").append(optionHTML);
-                });
-        }
-    });
+                        skinSelect.insertAdjacentHTML('beforeend', optionHTML);
+                    });
+            }
+        });
 }
 
 function queueDL(url){
@@ -975,7 +989,7 @@ function queueDL(url){
 
     if (!isDownloading){
         isDownloading = true;
-        $("#downloadLabel").show();
+        document.getElementById("downloadLabel").style.display = "block";
     }
 }
 
@@ -986,7 +1000,7 @@ function unqueueDL(url){
 
     if (DownloadQueue.length == 0){
         isDownloading = false;
-        $("#downloadLabel").hide();
+        document.getElementById("downloadLabel").style.display = "none";
     }
 
     numDownloading--;
@@ -1301,10 +1315,13 @@ function exportScene(){
 }
 
 (function() {
-    $('#wowcanvas').bind('contextmenu', function(e){
-        return false;
-    });
-
+    var canvas = document.getElementById('wowcanvas');
+    if (canvas) {
+        canvas.addEventListener('contextmenu', function(e){
+            e.preventDefault();
+            return false;
+        });
+    }
 
     // Skip further initialization in embedded mode
     if (embeddedMode){
@@ -1313,77 +1330,87 @@ function exportScene(){
 
     loadSettings();
 
-    Elements.table = $('#mvfiles').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ajax": {
-            "url": "/listfile/datatables",
-            "data": function ( d ) {
-                return $.extend( {}, d, {
-                    "src": "mv",
-                    //"showADT": $("#showADT").is(":checked"),
-                    "showWMO": $("#showWMO").is(":checked"),
-                    "showM2": $("#showM2").is(":checked")
-                } );
-            }
-        },
-        "pageLength": 30,
-        "autoWidth": false,
-        "orderMulti": false,
-        "ordering": true,
-        "order": [[0, 'asc']],
-        layout: {
-            topStart: null,
-            topEnd: null,
-            bottomStart: null,
-            bottomEnd: 'inputPaging'
-        },
-        "searching": true,
-        "columnDefs":
-        [
-            {
-                "targets": 0,
-                "orderable": false,
-                "visible": false
-            },
-            {
-                "targets": 1,
-                "orderable": false,
-                "createdCell": function (td, cellData, rowData, row, col) {
-                    if (!cellData && !rowData[7]) {
-                        $(td).css('background-color', '#ff5858');
-                        $(td).css('color', 'white');
-                    }
-                },
-                "render": function ( data, type, full, meta ) {
-                    if (full[1]) {
-                        var test = full[1].replace(/^.*[\\\/]/, '');
-                    } else {
-                        if (!full[4]){
-                            full[4] = "unk";
-                        }
-                        if (full[7]){
-                            var test = full[7].replace(/^.*[\\\/]/, '');
-                        } else {
-                            var test = "Unknown filename (Type: " + full[4] + ", ID " + full[0] + ")";
-                        }
-                    }
-
-                    return test;
+    var mvfilesElement = document.getElementById('mvfiles');
+    if (mvfilesElement) {
+        Elements.table = new DataTable('#mvfiles', {
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "/listfile/datatables",
+                "data": function ( d ) {
+                    var showWMO = document.getElementById("showWMO");
+                    var showM2 = document.getElementById("showM2");
+                    return Object.assign( {}, d, {
+                        "src": "mv",
+                        "showWMO": showWMO ? showWMO.checked : false,
+                        "showM2": showM2 ? showM2.checked : false
+                    } );
                 }
+            },
+            "pageLength": 30,
+            "autoWidth": false,
+            "orderMulti": false,
+            "ordering": true,
+            "order": [[0, 'asc']],
+            layout: {
+                topStart: null,
+                topEnd: null,
+                bottomStart: null,
+                bottomEnd: 'inputPaging'
+            },
+            "searching": true,
+            "columnDefs":
+            [
+                {
+                    "targets": 0,
+                    "orderable": false,
+                    "visible": false
+                },
+                {
+                    "targets": 1,
+                    "orderable": false,
+                    "createdCell": function (td, cellData, rowData, row, col) {
+                        if (!cellData && !rowData[7]) {
+                            td.style.backgroundColor = '#ff5858';
+                            td.style.color = 'white';
+                        }
+                    },
+                    "render": function ( data, type, full, meta ) {
+                        if (full[1]) {
+                            var test = full[1].replace(/^.*[\\\/]/, '');
+                        } else {
+                            if (!full[4]){
+                                full[4] = "unk";
+                            }
+                            if (full[7]){
+                                var test = full[7].replace(/^.*[\\\/]/, '');
+                            } else {
+                                var test = "Unknown filename (Type: " + full[4] + ", ID " + full[0] + ")";
+                            }
+                        }
+
+                        return test;
+                    }
+                }
+            ],
+            "language": {
+                search: "",
+                searchPlaceholder: "Search"
             }
-        ],
-        "language": {
-            search: "",
-            searchPlaceholder: "Search"
+        });
+
+        var filterBoxes = document.querySelectorAll(".filterBox");
+        filterBoxes.forEach(function(filterBox) {
+            filterBox.addEventListener('change', function(){
+                Elements.table.ajax.reload();
+            });
+        });
+
+        var mvfilesSearch = document.getElementById('mvfiles_search');
+        if (mvfilesSearch) {
+            mvfilesSearch.addEventListener('input', function(){
+                Elements.table.search(this.value).draw();
+            });
         }
-    });
-
-    $(".filterBox").on('change', function(){
-        Elements.table.ajax.reload();
-    });
-
-    $('#mvfiles_search').on('input', function(){
-        Elements.table.search($(this).val()).draw();
-    });
+    }
 }());

@@ -20,9 +20,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -382,18 +379,13 @@
                 var pageLength = 25;
             }
 
-            var table = $('#files').DataTable({
+            var table = new DataTable('#files', {
                 "processing": true,
                 "serverSide": true,
                 "search": { "search": searchString },
                 "ajax": {
                     url: '/listfile/files',
-                    type: 'GET',
-                    beforeSend: function () {
-                        if (table && table.hasOwnProperty('settings')) {
-                            //table.settings()[0].jqXHR.abort();
-                        }
-                    }
+                    type: 'GET'
                 },
                 "pageLength": pageLength,
                 "language": {
@@ -417,9 +409,9 @@
                         "createdCell": function (td, cellData, rowData, row, col) {
                             if (!cellData) {
                                 if (!rowData[7]) {
-                                    $(td).css('background-color', '#ff585850');
+                                    td.style.backgroundColor = '#ff585850';
                                 } else {
-                                    $(td).css('background-color', '#673ab750');
+                                    td.style.backgroundColor = '#673ab750';
                                 }
                             }
                         },
@@ -590,7 +582,8 @@
                                     // not in current version
                                     var test = "<i class='fa fa-ban text-danger'></i>";
                                 } else {
-                                    if ($("#files_preview").is(":visible")) {
+                                    var filesPreview = document.getElementById("files_preview");
+                                    if (filesPreview && filesPreview.style.display !== "none") {
                                         var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
                                     } else {
                                         var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
@@ -604,18 +597,21 @@
                 ]
             });
 
-            $("#files").on('draw.dt', function () {
-                var currentSearch = encodeURIComponent($("#dt-search-0").val());
-                var currentPage = $('#files').DataTable().page() + 1;
+            filesTable = table;
 
-                var sort = $('#files').DataTable().order();
+            table.on('draw.dt', function () {
+                var searchInput = document.getElementById("dt-search-0");
+                var currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
+                var currentPage = table.page() + 1;
+
+                var sort = table.order();
                 var sortCol = sort[0][0];
                 var sortDir = sort[0][1];
 
                 if (sortDir == "" || sortDir == null)
                     sortDir = "asc";
 
-                var build = $('#files').DataTable().ajax.url().split("buildConfig=")[1];
+                var build = table.ajax.url().split("buildConfig=")[1];
 
                 var url = "search=" + currentSearch + "&page=" + currentPage + "&sort=" + sortCol + "&desc=" + sortDir;
                 if (build) {
@@ -624,37 +620,60 @@
 
                 window.location.hash = url;
 
-                $('.popover').remove();
+                var popovers = document.querySelectorAll('.popover');
+                popovers.forEach(function(popover) {
+                    popover.remove();
+                });
 
-                $("[data-bs-toggle=popover]").popover();
+                var popoverElements = document.querySelectorAll('[data-bs-toggle="popover"]');
+                popoverElements.forEach(function(popoverEl) {
+                    new bootstrap.Popover(popoverEl);
+                });
             });
 
-            $("#files").on('click', 'tbody tr td', function () {
-                if ($("#files_preview").is(":visible")) {
-                    var data = $('#files').DataTable().row($(this).parent()).data();
-                    if (Settings.previewTypes.includes(data[4])) {
-                        fillPreviewModal("", data[0], data[4]);
+            document.getElementById('files').addEventListener('click', function (e) {
+                if (e.target.tagName === 'TD' && e.target.closest('tbody')) {
+                    var filesPreview = document.getElementById("files_preview");
+                    if (filesPreview && filesPreview.style.display !== "none") {
+                        var row = e.target.closest('tr');
+                        var data = table.row(row).data();
+                        if (Settings.previewTypes.includes(data[4])) {
+                            fillPreviewModal("", data[0], data[4]);
+                        }
+                        var selectedElements = document.querySelectorAll(".selected");
+                        selectedElements.forEach(function(el) {
+                            el.classList.remove("selected");
+                        });
+                        row.classList.add('selected');
                     }
-                    $(".selected").removeClass("selected");
-                    $(this).parent().addClass('selected');
                 }
             });
 
-            $('#files').on('length.dt', function (e, settings, len) {
+            table.on('length.dt', function (e, settings, len) {
                 localStorage.setItem("filesPageLength", len);
             });
         }());
 
+        var filesTable = null;
+
         function copyResultsToClipboard() {
-            console.log($('#files').DataTable().rows().data().toArray());
+            if (!filesTable) {
+                console.log("Table not initialized");
+                return;
+            }
+            console.log(filesTable.rows().data().toArray());
             var result = "";
-            for (const row of $('#files').DataTable().rows().data().toArray()) {
+            for (const row of filesTable.rows().data().toArray()) {
                 result += row[0] + ";" + row[1] + "\n";
             }
             navigator.clipboard.writeText(result);
         }
 
         function locationHashChanged(event) {
+            if (!filesTable) {
+                return;
+            }
+
             var searchHash = location.hash.substr(1),
                 searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
 
@@ -662,15 +681,15 @@
                 searchString = decodeURIComponent(searchString);
             }
 
-            if (searchString != undefined && $("#dt-search-0").val() != searchString) {
+            var searchInput = document.getElementById("dt-search-0");
+            if (searchString != undefined && searchInput && searchInput.value != searchString) {
                 console.log("Setting search to " + searchString);
-                //$("#files_filter label input").val(searchString); // This causes issues where search field is overwritten while typing
-                $('#files').DataTable().search(searchString).draw(false);
+                filesTable.search(searchString).draw(false);
             }
             var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
-            if ($('#files').DataTable().page() != page) {
+            if (filesTable.page() != page) {
                 console.log("Setting page to " + page);
-                $('#files').DataTable().page(page).draw(false);
+                filesTable.page(page).draw(false);
             }
 
             var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
@@ -683,10 +702,10 @@
                 sortDesc = "asc";
             }
 
-            var curSort = $('#files').DataTable().order();
+            var curSort = filesTable.order();
             if (sortCol != curSort[0][0] || sortDesc != curSort[0][1]) {
                 console.log("Setting sort to " + sortCol + ", " + sortDesc);
-                $('#files').DataTable().order([sortCol, sortDesc]).draw(false);
+                filesTable.order([sortCol, sortDesc]).draw(false);
             }
         }
 

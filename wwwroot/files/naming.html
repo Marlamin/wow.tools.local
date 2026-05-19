@@ -20,9 +20,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -202,7 +199,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3"  style="z-index: 2">
                         <div class="row">
                             <div id="modelPreview">
                                 Model preview
@@ -439,7 +436,7 @@
             var sortCol = 0;
             var sortDesc = "asc";
 
-            Elements.table = $('#files').DataTable({
+            Elements.table = new DataTable('#files', {
                 "processing": true,
                 "serverSide": true,
                 "search": { "search": searchString },
@@ -467,14 +464,14 @@
                         "createdCell": function (td, cellData, rowData, row, col) {
                             if (!cellData) {
                                 if (!rowData[7] || rowData[1].includes(rowData[0])) {
-                                    $(td).css('background-color', '#ff585850');
+                                    td.style.backgroundColor = '#ff585850';
                                 } else {
-                                    $(td).css('background-color', '#673ab750');
+                                    td.style.backgroundColor = '#673ab750';
                                 }
                             }
 
                             if (rowData[1].includes(rowData[0])) {
-                                $(td).css('background-color', '#ff585850');
+                                td.style.backgroundColor = '#ff585850';
                             }
                         },
                         "render": function (data, type, full, meta) {
@@ -509,7 +506,7 @@
                 ]
             });
 
-            $('#chashLinkedFiles').DataTable({
+            var chashLinkedFilesTable = new DataTable('#chashLinkedFiles', {
                 "processing": true,
                 "serverSide": true,
                 "search": { "search": "chash:none" },
@@ -537,14 +534,14 @@
                         "createdCell": function (td, cellData, rowData, row, col) {
                             if (!cellData) {
                                 if (!rowData[7] || rowData[1].includes(rowData[0])) {
-                                    $(td).css('background-color', '#ff585850');
+                                    td.style.backgroundColor = '#ff585850';
                                 } else {
-                                    $(td).css('background-color', '#673ab750');
+                                    td.style.backgroundColor = '#673ab750';
                                 }
                             }
 
                             if (rowData[1].includes(rowData[0])) {
-                                $(td).css('background-color', '#ff585850');
+                                td.style.backgroundColor = '#ff585850';
                             }
                         }
                     },
@@ -560,7 +557,7 @@
                 ]
             });
 
-            $("#files").on('draw.dt', function () {
+            document.getElementById('files').addEventListener('draw.dt', function () {
                 if (Elements.currentID == 0) {
                     if (Elements.table.rows().count() > 0) {
                         const data = Elements.table.row(0).data();
@@ -569,14 +566,15 @@
                     }
                 }
 
-                var currentSearch = encodeURIComponent($("#dt-search-0").val());
-                var currentPage = $('#files').DataTable().page() + 1;
+                var searchInput = document.getElementById("dt-search-0");
+                var currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
+                var currentPage = Elements.table.page() + 1;
 
-                var sort = $('#files').DataTable().order();
+                var sort = Elements.table.order();
                 var sortCol = sort[0][0];
                 var sortDir = sort[0][1];
 
-                var build = $('#files').DataTable().ajax.url().split("buildConfig=")[1];
+                var build = Elements.table.ajax.url().split("buildConfig=")[1];
 
                 var url = "search=" + currentSearch + "&page=" + currentPage + "&sort=" + sortCol + "&desc=" + sortDir;
                 if (build) {
@@ -585,17 +583,26 @@
 
                 window.location.hash = url;
 
-                $('.popover').remove();
+                var popovers = document.querySelectorAll('.popover');
+                popovers.forEach(function(popover) {
+                    popover.remove();
+                });
             });
 
-            $("#files").on('click', 'tbody tr td', function () {
-                var data = Elements.table.row($(this).parent()).data();
+            document.getElementById('files').addEventListener('click', function (e) {
+                if (e.target.tagName === 'TD' && e.target.closest('tbody')) {
+                    var row = e.target.closest('tr');
+                    var data = Elements.table.row(row).data();
 
-                $(".selected").removeClass("selected");
-                $(this).parent().addClass('selected');
+                    var selectedElements = document.querySelectorAll(".selected");
+                    selectedElements.forEach(function(el) {
+                        el.classList.remove("selected");
+                    });
+                    row.classList.add('selected');
 
-                Elements.currentID = data[0];
-                loadFile(data[0], data[1], data[4]);
+                    Elements.currentID = data[0];
+                    loadFile(data[0], data[1], data[4]);
+                }
             });
 
             function loadFile(id, name, type) {
@@ -609,17 +616,15 @@
                     modelPreview.innerHTML = "<iframe src='/mv/?filedataid=" + id + "&type=wmo&embed=true' style='width: 100%; height: 500px; border: none;'></iframe>";
                 }
 
-                $.ajax({
-                    url: "/casc/moreInfo?filedataid=" + id,
-                    type: 'GET',
-                    success: function (data) {
+                fetch("/casc/moreInfo?filedataid=" + id)
+                    .then(response => response.text())
+                    .then(data => {
                         var filenameInput = document.getElementById("filename");
                         filenameInput.value = name;
 
                         var modelInfo = document.getElementById("modelInfo");
                         modelInfo.innerHTML = data;
-                    }
-                });
+                    });
             }
 
             var modeTabElements = document.querySelectorAll('#modeTabList a[data-bs-toggle="tab"]');
@@ -689,22 +694,19 @@
                 var name = filenameInput.value;
                 lastName = name;
                 if (name) {
-                    $.ajax({
-                        url: "/naming/singleFile?id=" + Elements.currentID + "&name=" + encodeURIComponent(name),
-                        type: 'GET',
-                        success: function (data) {
+                    fetch("/naming/singleFile?id=" + Elements.currentID + "&name=" + encodeURIComponent(name))
+                        .then(response => response.text())
+                        .then(data => {
                             var numResults = data.split('\n').length;
                             if (data.length == 0)
                                 numResults = 0;
 
                             resultTitle.innerHTML = "Result (" + numResults + " names)";
                             result.innerHTML = data;
-                        }
-                    });
+                        });
 
                     // update datatable
-                    var table = $('#files').DataTable();
-                    var row = table.row('.selected');
+                    var row = Elements.table.row('.selected');
                     var data = row.data();
                     data[1] = name;
                     row.data(data).draw(false);
@@ -717,17 +719,15 @@
                 var searchValue = document.getElementById("dt-search-0").value;
 
                 if (template) {
-                    $.ajax({
-                        url: "/naming/massPHNaming?search=" + encodeURIComponent(searchValue) + "&namePattern=" + encodeURIComponent(template),
-                        type: 'GET',
-                        success: function (data) {
+                    fetch("/naming/massPHNaming?search=" + encodeURIComponent(searchValue) + "&namePattern=" + encodeURIComponent(template))
+                        .then(response => response.text())
+                        .then(data => {
                             var numResults = data.split('\n').length;
                             if (data.length == 0)
                                 numResults = 0;
                             resultTitle.innerHTML = "Result (" + numResults + " names)";
                             result.innerHTML = data;
-                        }
-                    });
+                        });
                 }
             }
 
@@ -763,26 +763,28 @@
 
                         this.parentElement.classList.add("selected");
 
-                        $('#chashLinkedFiles').DataTable().search("chash:" + chash).draw();
+                        chashLinkedFilesTable.search("chash:" + chash).draw();
                     }
                     let newText = document.createTextNode(data[keys[i]].item1 + " (" + data[keys[i]].item2 + ")");
                     newCell.appendChild(newText);
                 }
             });
 
-            $("#chashLinkedFiles").on('click', 'tbody tr td', function () {
-                var linkedFilesTable = document.getElementById("chashLinkedFiles");
+            document.getElementById('chashLinkedFiles').addEventListener('click', function (e) {
+                if (e.target.tagName === 'TD' && e.target.closest('tbody')) {
+                    var linkedFilesTable = document.getElementById("chashLinkedFiles");
 
-                var rows = linkedFilesTable.getElementsByTagName("tr");
-                for (var j = 0; j < rows.length; j++) {
-                    rows[j].classList.remove("selected");
+                    var rows = linkedFilesTable.getElementsByTagName("tr");
+                    for (var j = 0; j < rows.length; j++) {
+                        rows[j].classList.remove("selected");
+                    }
+
+                    var row = e.target.closest('tr');
+                    row.classList.add("selected");
+
+                    var data = chashLinkedFilesTable.row('.selected').data();
+                    Elements.table.search("parentof:" + data[0]).draw();
                 }
-
-                this.parentElement.classList.add("selected");
-
-                var data = $("#chashLinkedFiles").DataTable().row('.selected').data();
-                $('#files').DataTable().search("parentof:" + data[0]).draw();
-
             });
 
             var tabEl = document.querySelectorAll('a[data-bs-toggle="tab"]');

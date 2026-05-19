@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -201,7 +198,7 @@
         <script type="text/javascript">
             Elements = {};
             let page = 0;
-            Elements.table = $('#tagTable').DataTable({
+            Elements.table = new DataTable('#tagTable', {
                 "processing": true,
                 "serverSide": true,
                 "ajax": {
@@ -224,14 +221,20 @@
                 "orderMulti": false,
             });
 
-            $("#tagTable").on('click', 'tbody tr td', function () {
-                var data = Elements.table.row($(this).parent()).data();
+            document.getElementById('tagTable').addEventListener('click', function (e) {
+                if (e.target.tagName === 'TD' && e.target.closest('tbody')) {
+                    var row = e.target.closest('tr');
+                    var data = Elements.table.row(row).data();
 
-                $(".selected").removeClass("selected");
-                $(this).parent().addClass('selected');
+                    var selectedElements = document.querySelectorAll(".selected");
+                    selectedElements.forEach(function(el) {
+                        el.classList.remove("selected");
+                    });
+                    row.classList.add('selected');
 
-                Elements.currentID = data[0];
-                loadTag(data[0]);
+                    Elements.currentID = data[0];
+                    loadTag(data[0]);
+                }
             });
 
             const manageTagForm = document.getElementById("manageTagForm");
@@ -398,7 +401,10 @@
 
             document.getElementById("cancelButton").onclick = function (e) {
                 e.preventDefault();
-                $(".selected").removeClass("selected");
+                var selectedElements = document.querySelectorAll(".selected");
+                selectedElements.forEach(function(el) {
+                    el.classList.remove("selected");
+                });
                 Elements.currentID = "";
                 manageTagForm.reset();
                 presetForm.innerHTML = "";

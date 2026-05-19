@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -473,48 +470,77 @@
 
         function toggleFilters() {
             if (!Settings.filtersCurrentlyEnabled) {
-                $("#filterToggle").text("Disable filters");
-                $("#filterToggle").addClass("btn-outline-danger");
-                $("#filterToggle").removeClass("btn-outline-success");
-                $("#filterToggle").removeClass("btn-outline-primary");
-                $("#tableContainer thead tr").clone(true).appendTo("#tableContainer thead");
-                $("#tableContainer thead tr:eq(1) th").each(function (i) {
-                    var title = $(this).text();
+                var filterToggle = document.getElementById("filterToggle");
+                filterToggle.textContent = "Disable filters";
+                filterToggle.classList.add("btn-outline-danger");
+                filterToggle.classList.remove("btn-outline-success");
+                filterToggle.classList.remove("btn-outline-primary");
 
-                    $(this).html('<input type="text"/>');
+                var headerRow = document.querySelector("#tableContainer thead tr");
+                var clonedRow = headerRow.cloneNode(true);
+                document.querySelector("#tableContainer thead").appendChild(clonedRow);
 
-                    if ($('#dbtable').DataTable().column(i).search() != "") {
-                        $('input', this).val($('#dbtable').DataTable().column(i).search());
-                    }
+                var filterHeaders = document.querySelectorAll("#tableContainer thead tr:nth-child(2) th");
+                filterHeaders.forEach(function (th, i) {
+                    var title = th.textContent;
 
-                    $('input', this).on('keyup change', function () {
-                        if ($('#dbtable').DataTable().column(i).search() !== this.value) {
-                            $('#dbtable').DataTable().column(i).search(this.value).draw();
+                    th.innerHTML = '<input type="text"/>';
+
+                    var dbTable = document.getElementById('dbtable');
+                    if (dbTable && DataTable.isDataTable(dbTable)) {
+                        var table = DataTable('#dbtable');
+                        if (table.column(i).search() != "") {
+                            th.querySelector('input').value = table.column(i).search();
                         }
-                    });
 
-                    $('input', this).on('click', function (e) {
-                        e.stopPropagation();
-                    });
+                        var input = th.querySelector('input');
+                        input.addEventListener('keyup', function () {
+                            if (table.column(i).search() !== this.value) {
+                                table.column(i).search(this.value).draw();
+                            }
+                        });
+
+                        input.addEventListener('change', function () {
+                            if (table.column(i).search() !== this.value) {
+                                table.column(i).search(this.value).draw();
+                            }
+                        });
+
+                        input.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                        });
+                    }
                 });
 
                 Settings.filtersCurrentlyEnabled = true;
             } else {
-                $("#filterToggle").text("Enable filters");
-                $("#filterToggle").addClass("btn-outline-success");
-                $("#filterToggle").removeClass("btn-outline-danger");
-                $("#filterToggle").removeClass("btn-outline-primary");
+                var filterToggle = document.getElementById("filterToggle");
+                filterToggle.textContent = "Enable filters";
+                filterToggle.classList.add("btn-outline-success");
+                filterToggle.classList.remove("btn-outline-danger");
+                filterToggle.classList.remove("btn-outline-primary");
 
-                $("#tableContainer thead tr:eq(1) th").each(function (i) {
-                    $('#dbtable').DataTable().column(i).search("");
-                });
+                var dbTable = document.getElementById('dbtable');
+                if (dbTable && DataTable.isDataTable(dbTable)) {
+                    var table = DataTable('#dbtable');
+                    var filterHeaders = document.querySelectorAll("#tableContainer thead tr:nth-child(2) th");
+                    filterHeaders.forEach(function (th, i) {
+                        table.column(i).search("");
+                    });
+                }
 
-                $("#tableContainer thead tr:eq(1)").remove();
+                var secondRow = document.querySelector("#tableContainer thead tr:nth-child(2)");
+                if (secondRow) {
+                    secondRow.remove();
+                }
 
                 Settings.filtersCurrentlyEnabled = false;
             }
 
-            $('#dbtable').DataTable().draw('page');
+            var dbTable = document.getElementById('dbtable');
+            if (dbTable && DataTable.isDataTable(dbTable)) {
+                DataTable('#dbtable').draw('page');
+            }
         }
 
         function buildURL(currentParams) {
@@ -826,7 +852,7 @@
                     var externalResultURL = "/dbc/?dbc=" + splitFK[0].toLowerCase() + "&build=" + currentParams["build"] + "#page=1&colFilter[" + targetCol + "]=exact:" + encodeURIComponent(searchVal);
                     resultsHTML += "</table><br><a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>View " + splitFK[0] + "::" + splitFK[1] + " results in new tab</a></div>";
                     resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
-                    const dt = $("#FKResults" + splitFK[0] + splitFK[1]).DataTable({
+                    const dt = new DataTable("#FKResults" + splitFK[0] + splitFK[1], {
                         "searching": false,
                         "pageLength": 10,
                         "displayStart": 0,
@@ -889,7 +915,7 @@
                     var externalResultURL = "/dbc/?dbc=" + name + "&build=" + currentParams["build"] + "#page=1&search=" + encodeURIComponent(searchVal);
                     resultsHTML += "</table><br><a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>View " + name + " results in new tab</a></div>";
                     resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
-                    const dt = $("#globalResults" + name).DataTable({
+                    const dt = new DataTable("#globalResults" + name, {
                         "searching": false,
                         "pageLength": 10,
                         "displayStart": 0,
@@ -927,15 +953,14 @@
             build = currentParams["build"];
             locale = currentParams["locale"];
 
-            $("#dbtable").html(
-                "<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>"
-            );
+            var dbTable = document.getElementById("dbtable");
+            dbTable.innerHTML = "<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>";
             document.getElementById('downloadCSVButton').href = buildURL(currentParams).replace("/dbc/?dbc=", "/dbc/export/?name=");
             document.getElementById('downloadallCSVLink').href = "/dbc/export/all/?build=" + build + "&locale=" + locale;
             document.getElementById('downloadDB2Link').href = "/dbc/export/db2/?tableName=" + currentParams["dbc"] + "&fullBuild=" + build + "&locale=" + locale;
 
             document.getElementById('downloadCSVButton').classList.remove("disabled");
-            $("#loadingMessage").html("Loading..");
+            document.getElementById("loadingMessage").innerHTML = "Loading..";
 
             let apiArgs = currentParams["dbc"] + "/?build=" + currentParams["build"];
 
@@ -1037,11 +1062,9 @@
 
                     let page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1],10) || 1) - 1;
                     let highlightRow = parseInt(searchHash.substr(searchHash.indexOf('row=')).split('&')[0].split('=')[1], 10) - 1;
-                    $.fn.dataTable.ext.errMode = 'none';
+                    DataTable.ext.errMode = 'none';
 
-                    $('#dbtable').on('error.dt', function (e, settings, techNote, message) {
-                        console.log('An error occurred: ', message);
-                    });
+                  
 
                     var colSearchSet = false;
                     var colSearches = [];
@@ -1074,21 +1097,15 @@
 
                     loadMappings(currentParams["dbc"], currentParams["build"]);
 
-                    var table = $('#dbtable').DataTable({
+                    var table = new DataTable("#dbtable", {
                         "processing": true,
                         "serverSide": true,
                         "ajax": {
                             url: "/dbc/data/" + apiArgs,
                             type: "POST",
-                            beforeSend: function () {
-                                if (table && table.hasOwnProperty('settings')) {
-                                    // table.settings()[0].jqXHR.abort();
-                                }
-                            },
                             "data": function (result) {
                                 for (const col in result.columns) {
-                                    result.columns[col].search.value = result.columns[col].search.value
-                                        .trim();
+                                    result.columns[col].search.value = result.columns[col].search.value.trim();
                                 }
                                 return result;
                             }
@@ -1121,13 +1138,17 @@
                         }],
                         "createdRow": function (row, data, dataIndex) {
                             if (dataIndex == highlightRow) {
-                                $(row).addClass('highlight');
+                                row.classList.add('highlight');
                                 highlightRow = -1;
                             }
                         },
                     });
 
-                    $('#dbtable').on('init.dt', function () {
+                    table.on('error.dt', function (e, settings, techNote, message) {
+                        console.log('An error occurred: ', message);
+                    });
+
+                    table.on('init.dt', function () {
                         if (Settings.filtersAlwaysEnabled) {
                             toggleFilters();
                         }
@@ -1136,16 +1157,17 @@
                         }
                     });
 
-                    $('#dbtable').on('draw.dt', function () {
-                        let currentPage = $('#dbtable').DataTable().page() + 1;
+                    table.on('draw.dt', function () {
+                        let currentPage = table.page() + 1;
                         let hashPart = "page=" + currentPage;
 
-                        const currentSearch = encodeURIComponent($("#dt-search-0").val());
+                        var searchInput = document.getElementById("dt-search-0");
+                        const currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
                         if (currentSearch != "" && currentSearch != undefined && currentSearch != "undefined") {
                             hashPart += "&search=" + currentSearch;
                         }
 
-                        const columnSearches = $('#dbtable').DataTable().columns().search();
+                        const columnSearches = table.columns().search();
                         for (let i = 0; i < columnSearches.length; i++) {
                             var colSearch = columnSearches[i];
 
@@ -1159,7 +1181,7 @@
                         window.location.hash = hashPart;
                     });
 
-                    $('#dbtable').on('length.dt', function (e, settings, len) {
+                    table.on('length.dt', function (e, settings, len) {
                         localStorage.setItem("dbcPageLength", len);
                     });
                 });
@@ -1229,12 +1251,12 @@
             refreshVersions();
             loadTable();
 
-            $('#fileFilter').on('change', function () {
-                if ($(this).val() != "" && $(this).val() != "Select a table") {
-                    currentParams["dbc"] = $(this).val().toLowerCase();
+            document.getElementById('fileFilter').addEventListener('change', function () {
+                if (this.value != "" && this.value != "Select a table") {
+                    currentParams["dbc"] = this.value.toLowerCase();
                     if (document.getElementById("buildFilter")) {
                         clearState = true;
-                        setPageDB2Title($(this).val());
+                        setPageDB2Title(this.value);
                         refreshVersions();
                         loadTable();
                         updateDBDButton();
@@ -1244,17 +1266,17 @@
                 }
             });
 
-            $('#buildFilter').on('change', function () {
-                currentParams["build"] = $('#buildFilter').val();
+            document.getElementById('buildFilter').addEventListener('change', function () {
+                currentParams["build"] = document.getElementById('buildFilter').value;
                 loadTable();
             });
 
-             $('#localeSelection').on('change', function() {
-                 currentParams["locale"] = $('#localeSelection').val();
+             document.getElementById('localeSelection').addEventListener('change', function() {
+                 currentParams["locale"] = document.getElementById('localeSelection').value;
                  loadTable();
              });
 
-            $('#hotfixToggle').on('change', function () {
+            document.getElementById('hotfixToggle').addEventListener('change', function () {
                 if (document.getElementById('hotfixToggle').checked) {
                     currentParams["hotfixes"] = true;
                 } else {
@@ -1295,7 +1317,8 @@
                 }).catch(function (error) {
                     console.log("An error occurred retrieving files: " + error);
                 });
-            $('#foreignKeySearchModal').on('hidden.bs.modal', function () {
+            var foreignKeyModal = document.getElementById('foreignKeySearchModal');
+            foreignKeyModal.addEventListener('hidden.bs.modal', function () {
                 document.getElementById("foreignKeySearchForm").style.display = 'flex';
                 document.getElementById("fkSearchResultHolder").innerHTML = "";
             })

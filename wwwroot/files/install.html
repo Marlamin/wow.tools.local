@@ -20,9 +20,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -77,17 +74,12 @@
         }
 
         (function () {
-            var table = $('#files').DataTable({
+            var table = new DataTable('#files', {
                 "processing": true,
                 "serverSide": true,
                 "ajax": {
                     url: '/listfile/installfiles',
-                    type: 'GET',
-                    beforeSend: function () {
-                        if (table && table.hasOwnProperty('settings')) {
-                            //table.settings()[0].jqXHR.abort();
-                        }
-                    }
+                    type: 'GET'
                 },
                 "pageLength": 25,
                 "language": {

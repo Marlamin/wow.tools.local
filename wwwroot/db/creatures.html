@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -68,7 +65,7 @@
                 sortDesc = "asc";
             }
 
-            Elements.table = $('#creatures').DataTable({
+            Elements.table = new DataTable('#creatures', {
                 "processing": true,
                 "serverSide": true,
                 "search": { "search": searchString },
@@ -82,33 +79,18 @@
                 "order": [[sortCol, sortDesc]]
             });
 
-            $('#creatures').on('draw.dt', function () {
-                var currentSearch = encodeURIComponent($("#dt-search-0").val());
-                var currentPage = $('#creatures').DataTable().page() + 1;
+            Elements.table.on('draw.dt', function () {
+                var currentSearch = encodeURIComponent(document.getElementById("dt-search-0").value);
+                var currentPage = Elements.table.page() + 1;
 
-                var sort = $('#creatures').DataTable().order();
+                var sort = Elements.table.order();
                 var sortCol = sort[0][0];
                 var sortDir = sort[0][1];
 
                 var url = "search=" + currentSearch + "&page=" + currentPage + "&sort=" + sortCol + "&desc=" + sortDir;
 
                 window.location.hash = url;
-
-                $("[data-bs-toggle=popover]").popover();
             });
-
-            //$('#creatures').on('click', 'tbody tr td', function () {
-            //    $("#creatures_preview").html("Loading..");
-            //    var data = Elements.table.row($(this).parent()).data();
-            //    loadCreatureInfo(data[0])
-            //        .then(returnedData => {
-            //            renderCreatureInfo(data[0], returnedData); // JSON data parsed by `response.json()` call
-            //        });
-
-            //    $(".selected").removeClass("selected");
-            //    $(this).parent().addClass('selected');
-            //});
-
         }());
 
         async function loadCreatureInfo(id) {
@@ -142,12 +124,18 @@
 
             result += "<table class='table table-sm table-striped table-hover' id='creatureInfoTable'></table></div>";
 
-            $("#creatures_preview").html(result);
+            var previewElement = document.getElementById("creatures_preview");
+            previewElement.innerHTML = result;
 
+            var creatureInfoTable = document.getElementById('creatureInfoTable');
             Object.keys(info).forEach(function (key) {
                 const val = info[key];
                 if (val != "") {
-                    $("#creatureInfoTable").append("<tr><td>" + key + "</td><td>" + val + "</td></tr>");
+                    var row = creatureInfoTable.insertRow();
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    cell1.textContent = key;
+                    cell2.textContent = val;
                 }
 
             });
@@ -160,12 +148,13 @@
                 searchString = decodeURIComponent(searchString);
             }
 
-            if ($("#creatures_filter label input").val() != searchString) {
-                $('#creatures').DataTable().search(searchString).draw(false);
+            var filterInput = document.querySelector("#creatures_filter label input");
+            if (filterInput && filterInput.value != searchString) {
+                Elements.table.search(searchString).draw(false);
             }
             var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
-            if ($('#creatures').DataTable().page() != page) {
-                $('#creatures').DataTable().page(page).draw(false);
+            if (Elements.table.page() != page) {
+                Elements.table.page(page).draw(false);
             }
 
             var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
@@ -178,9 +167,9 @@
                 sortDesc = "asc";
             }
 
-            var curSort = $('#creatures').DataTable().order();
+            var curSort = Elements.table.order();
             if (sortCol != curSort[0][0] || sortDesc != curSort[0][1]) {
-                $('#creatures').DataTable().order([sortCol, sortDesc]).draw(false);
+                Elements.table.order([sortCol, sortDesc]).draw(false);
             }
         }
 

@@ -171,12 +171,6 @@ function openFKModal(value, location, build){
             console.log(error);
             fkTable.insertAdjacentHTML("beforeend", "<tr><td colspan='2'>This row is not available in clients or an error occurred.</td></tr>");
         });
-
-    //if (db == "soundkit" && col == "ID"){
-    //    fkModal.insertAdjacentHTML("beforeend", "<div id='soundkitList'></div>");
-    //    // TODO: Get rid of JQuery
-    //    $( "#soundkitList" ).load( "/files/sounds.php?embed=1&skitid=" + value );
-    //}
 }
 
 function dec2hex(str, big = false){

@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTheme(getPreferredTheme());
         });
 
-    $(document).on('init.dt', function (e, settings) {
+    document.addEventListener('init.dt', function (e) {
         const pageInput = document.querySelector(".dt-paging-input input");
         if (pageInput) {
             pageInput.addEventListener("keydown", (event) => {

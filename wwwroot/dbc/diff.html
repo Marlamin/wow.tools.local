@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -94,7 +91,7 @@
     <script type="text/javascript" src="/js/files.js"></script>
 
     <script type='text/javascript'>
-        $(function () {
+        document.addEventListener('DOMContentLoaded', function () {
             var Settings = {
                 localBuildName: "",
                 embed: false
@@ -109,11 +106,11 @@
             const isEmbed = urlParams.get('embed');
             if (isEmbed != undefined && isEmbed == "1") {
                 Settings.embed = true;
-                $("nav").hide();
-                $("#fileFilter").hide();
-                $("#dbcform").hide();
-                $("#toCompareButton").show();
-                $("#toDBCButton").show();
+                document.querySelector("nav").style.display = "none";
+                document.getElementById("fileFilter").style.display = "none";
+                document.getElementById("dbcform").style.display = "none";
+                document.getElementById("toCompareButton").style.display = "block";
+                document.getElementById("toDBCButton").style.display = "block";
 
                 updateComparehref(urlParams.get('dbc'), urlParams.get('old'), urlParams.get('new'));
                 updateToDBChref(urlParams.get('dbc'), urlParams.get('new'));
@@ -153,9 +150,9 @@
                     console.log("An error occurred retrieving files: " + error);
                 });
 
-            $('#fileFilter').on('change', function () {
-                if ($(this).val() != "") {
-                    document.location = "/dbc/diff.html?dbc=" + $(this).val().toLowerCase();
+            document.getElementById('fileFilter').addEventListener('change', function () {
+                if (this.value != "") {
+                    document.location = "/dbc/diff.html?dbc=" + this.value.toLowerCase();
                 }
             });
 
@@ -205,25 +202,28 @@
                 var header1URL = "/dbc/header/" + currentDBC + "/?build=" + oldBuild;
                 var header2URL = "/dbc/header/" + currentDBC + "/?build=" + newBuild;
 
-                $.when($.getJSON(header1URL), $.getJSON(header2URL)).then(function (resp1, resp2) {
+                Promise.all([
+                    fetch(header1URL).then(response => response.json()),
+                    fetch(header2URL).then(response => response.json())
+                ]).then(function ([resp1, resp2]) {
                     // show 'open DBC' button after diff
-                    $("#toDBCButton").show();
+                    document.getElementById("toDBCButton").style.display = "block";
                     updateToDBChref(urlParams.get('dbc'), urlParams.get('new'));
 
                     //this callback will be fired once all ajax calls have finished.
-                    if (resp1[0]['error'] != "") {
-                        alert("An error occured on the server:\n" + resp1[0]['error']);
+                    if (resp1['error'] != "") {
+                        alert("An error occured on the server:\n" + resp1['error']);
                     }
 
-                    if (resp2[0]['error'] != "") {
-                        alert("An error occured on the server:\n" + resp2[0]['error']);
+                    if (resp2['error'] != "") {
+                        alert("An error occured on the server:\n" + resp2['error']);
                     }
-                    var fields = [...new Set([].concat(...resp1[0].headers, ...resp2[0].headers))];
+                    var fields = [...new Set([].concat(...resp1.headers, ...resp2.headers))];
 
-                    const fkCols = getFKCols(resp2[0]['headers'], resp2[0]['fks']);
+                    const fkCols = getFKCols(resp2['headers'], resp2['fks']);
 
                     var tableHeaders = "";
-                    $.each(fields, function (i, val) {
+                    fields.forEach(function (val) {
                         tableHeaders += "<th>" + val + "</th>";
                     });
 
@@ -236,7 +236,7 @@
                     }
 
                     tableContainer.innerHTML = '<table id="dbtable" class="table table-striped table-bordered" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>';
-                    var diffTable = $('#dbtable').DataTable({
+                    var diffTable = new DataTable('#dbtable', {
                         "pageLength": pageLength,
                         "ordering": false,
                         "bFilter": false,
@@ -272,7 +272,7 @@
                                     // assign the cell value
                                     data = match ? row.row[match[1]][match[2]] : row.row[field];
 
-                                    const headers = resp2[0].headers // using build #2 for all fk references
+                                    const headers = resp2.headers // using build #2 for all fk references
 
                                     const columnWithTable = currentDBC + '.' + headers[meta.col];
                                     let fk = "";
@@ -319,7 +319,7 @@
                                         } else if (field.startsWith("Flags") || flagMap.has(columnWithTable)) {
                                             data = "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='flags' data-table='" + currentDBC + "' data-col='" + field + "' data-id='" + row.row[field] + "'  data-build=" + newBuild + ">0x" + dec2hex(row.row[field]) + "</span>";
                                         } else {
-                                            data = columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2[0], fkCols, 0, conditionalFKs);
+                                            data = columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2, fkCols, 0, conditionalFKs);
                                         }
 
                                         return data;
@@ -329,15 +329,15 @@
                                     // if no diff is found then return the default data value
                                     var diff = row.diff.find(x => x.property == field);
                                     if (!diff) {
-                                        return columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2[0], fkCols, 0, conditionalFKs);
+                                        return columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2, fkCols, 0, conditionalFKs);
                                     }
 
                                     // apply the diff html information
                                     switch (diff.op) {
                                         case "Added":
-                                            return '<ins class="diff-added">' + columnRender(row.row, field, diff.currentvalue, currentDBC, newBuild, resp2[0], fkCols, 0, conditionalFKs) + '</ins>';
+                                            return '<ins class="diff-added">' + columnRender(row.row, field, diff.currentvalue, currentDBC, newBuild, resp2, fkCols, 0, conditionalFKs) + '</ins>';
                                         case "Removed":
-                                            return '<del class="diff-removed">' + columnRender(row.row, field, diff.previousvalue, currentDBC, newBuild, resp2[0], fkCols, 0, conditionalFKs) + '</del>';
+                                            return '<del class="diff-removed">' + columnRender(row.row, field, diff.previousvalue, currentDBC, newBuild, resp2, fkCols, 0, conditionalFKs) + '</del>';
                                         case "Replaced":
                                             {
                                                 if (!isNaN(diff.previousvalue) && !isNaN(diff.currentvalue)) {
@@ -392,7 +392,7 @@
                             /* Overrides row rendering for Added/Removed rows */
                             function (ele, row, rowIndex) {
                                 if (row.op == "Added" || row.op == "Removed") {
-                                    $(ele).addClass(row.op.toLowerCase()); // apply the formatting class
+                                    ele.classList.add(row.op.toLowerCase()); // apply the formatting class
                                 }
                             },
                     });

@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -57,6 +54,7 @@
             white-space: pre;
             font-size: 12px;
             overflow-y: scroll;
+            position: relative;
         }
 
         tr.selected {
@@ -73,12 +71,12 @@
             <a class='btn btn-info' onClick='copyScript()' style='float: right'>Copy</a>
         </h3>
         <div id='tableContainer'><table id='dbtable' class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"><thead></thead><tbody></tbody></table></div>
-        <div id='scriptContainer'></div>
+        <div id='scriptContainer' style="z-index: 2"></div>
         <script type='text/javascript'>
             let currentParams = [];
 
-            $('#buildFilter').on('change', function () {
-                var build = $("#buildFilter").val();
+            document.getElementById('buildFilter').addEventListener('change', function () {
+                var build = document.getElementById("buildFilter").value;
                 document.location = '/dbc/scenescript.html?build=' + build;
                 currentParams["build"] = build;
             });
@@ -93,8 +91,8 @@
             if (urlBuild != null) {
                 currentParams["build"] = urlBuild;
             } else {
-                currentParams["build"] = $("#buildFilter").val();
-            } 
+                currentParams["build"] = document.getElementById("buildFilter").value;
+            }
 
             build = currentParams["build"];
 
@@ -174,28 +172,34 @@
             }
 
             function loadTable() {
+                if (currentParams["build"] == "")
+                    currentParams["build"] = document.getElementById('buildFilter').value;
+
                 build = currentParams["build"];
 
-                $("#dbtable").html("<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>");
-                $("#loadingMessage").html("Loading..");
+                var dbTable = document.getElementById("dbtable");
+                dbTable.innerHTML = "<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>";
+                document.getElementById("loadingMessage").innerHTML = "Loading..";
 
                 let apiArgs = currentParams["dbc"] + "/?build=" + currentParams["build"];
                 apiArgs += "&useHotfixes=true";
                 let tableHeaders = "";
                 let idHeader = 0;
 
-                $.ajax({
-                    "url": "/dbc/header/" + currentParams["dbc"] + "/?build=" + currentParams["build"],
-                    "success": function (json) {
+                fetch("/dbc/header/" + currentParams["dbc"] + "/?build=" + currentParams["build"])
+                    .then(function (response) {
+                        return response.json();
+                    }).then(function (json) {
                         if (json['error'] != "") {
                             if (json['error'] == "No valid definition found for this layouthash or build!") {
                                 json['error'] += "\n\nPlease open an issue on the WoWDBDefs repository with the DBC name and selected version on GitHub to request a definition for this build.\n\nhttps://github.com/wowdev/WoWDBDefs";
                             }
-                            $("#loadingMessage").html("<div class='alert '><b>Whoops, something exploded while loading this DBC</b><br>It is possible this is due to maintenance or an issue with reading the DBC file itself. Please try again later or report the below error (together with the table name and version) in Discord if it persists. Thanks!</p><p style='margin: 5px;'><kbd>" + json['error'] + "</kbd></p></div>");
+                            var loadingMessage = document.getElementById("loadingMessage");
+                            loadingMessage.innerHTML = "<div class='alert '><b>Whoops, something exploded while loading this DBC</b><br>It is possible this is due to maintenance or an issue with reading the DBC file itself. Please try again later or report the below error (together with the table name and version) in Discord if it persists. Thanks!</p><p style='margin: 5px;'><kbd>" + json['error'] + "</kbd></p></div>";
                             return;
                         }
                         let allCols = [];
-                        $.each(json['headers'], function (i, val) {
+                        json['headers'].forEach(function (val, i) {
                             tableHeaders += "<th style='white-space: nowrap'>";
 
                             tableHeaders += val;
@@ -208,8 +212,9 @@
                             allCols.push(i);
                         });
 
-                        $("#tableContainer").empty();
-                        $("#tableContainer").append('<table id="dbtable" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>');
+                        var tableContainer = document.getElementById("tableContainer");
+                        tableContainer.innerHTML = '';
+                        tableContainer.innerHTML = '<table id="dbtable" class="table table-striped table-bordered table-condensed" cellspacing="0" width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>';
 
                         let searchHash = location.hash.substr(1),
                             searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
@@ -220,22 +225,14 @@
 
                         let page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
                         let highlightRow = parseInt(searchHash.substr(searchHash.indexOf('row=')).split('&')[0].split('=')[1], 10) - 1;
-                        $.fn.dataTable.ext.errMode = 'none';
-                        $('#dbtable').on('error.dt', function (e, settings, techNote, message) {
-                            console.log('An error occurred: ', message);
-                        });
-
-                        var table = $('#dbtable').DataTable({
+                        DataTable.ext.errMode = 'none';
+                
+                        var table = new DataTable('#dbtable', {
                             "processing": true,
                             "serverSide": true,
                             "ajax": {
                                 url: "/dbc/data/" + apiArgs,
                                 type: "POST",
-                                beforeSend: function () {
-                                    if (table && table.hasOwnProperty('settings')) {
-                                        // table.settings()[0].jqXHR.abort();
-                                    }
-                                },
                                 "data": function (result) {
                                     for (const col in result.columns) {
                                         result.columns[col].search.value = result.columns[col].search.value.trim();
@@ -243,9 +240,9 @@
                                     return result;
                                 }
                             },
+                            "autoWidth": false,
                             "pageLength": 20,
                             "displayStart": page * 20,
-                            "autoWidth": true,
                             "lengthMenu": [[10, 20, 50, 100, 1000], [10, 20, 50, 100, 1000]],
                             "orderMulti": false,
                             layout: {
@@ -265,21 +262,31 @@
                                 }]
                         });
 
-                        $('#dbtable').on('init.dt', function () {
-                            $('#dbtable').on('click', 'tbody tr td', function () {
-                                var data = table.row($(this).parent()).data();
-                                // var mostRecentVersion = data[3][0];
+                        table.on('error.dt', function (e, settings, techNote, message) {
+                            console.log('An error occurred: ', message);
+                        });
 
-                                console.log(data);
+                        table.on('init.dt', function () {
+                            document.getElementById('dbtable').addEventListener('click', function (e) {
+                                if (e.target.tagName === 'TD' && e.target.closest('tbody')) {
+                                    var row = e.target.closest('tr');
+                                    var data = table.row(row).data();
+                                    // var mostRecentVersion = data[3][0];
 
-                                $(".selected").removeClass("selected");
-                                $(this).parent().addClass('selected');
-                                loadSceneScript(data[0], build);
+                                    console.log(data);
+
+                                    var selectedElements = document.querySelectorAll(".selected");
+                                    selectedElements.forEach(function(el) {
+                                        el.classList.remove("selected");
+                                    });
+                                    row.classList.add('selected');
+                                    loadSceneScript(data[0], build);
+                                }
                             });
                         });
-                    },
-                    "dataType": "json"
-                });
+                    }).catch(function (error) {
+                        console.log("An error occurred: " + error);
+                    });
             }
 
             (function () {

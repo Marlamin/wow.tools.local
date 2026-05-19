@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -126,7 +123,7 @@
         if (!page)
             page = 0;
 
-        var table = $('#hotfixTable').DataTable({
+        var table = new DataTable("#hotfixTable", {
             "processing": true,
             "serverSide": true,
             "ajax": {
@@ -197,8 +194,8 @@
                 }]
         });
 
-        $("#hotfixTable").on('draw.dt', function () {
-            var currentPage = $('#hotfixTable').DataTable().page() + 1;
+        table.on('draw.dt', function () {
+            var currentPage = table.page() + 1;
 
             var url = "page=" + currentPage;
 
@@ -473,37 +470,12 @@
                         changes = "No changes found (<a href='#' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" + recordID + ", \"" + dbc.toLowerCase() + "::ID" + "\", \"" + build + "\")'>view record</a>)";
                     }
 
-                    //if (dbc == "CreatureDifficulty" || dbc == "Creature") {
-                    //    const cdRes = json[3].data;
-                    //    if (cdRes.length > 0 && cdRes[0][1] != undefined) {
-                    //        changes += ", related creature ID " + cdRes[0][0] + ": " + cdRes[0][1];
-                    //    }
-                    //}
-
                     var resultHolder = document.getElementById("resultHolder-" + dbc + "-" + build + "-" + recordID + "-" + pushID);
                     if (resultHolder) {
                         resultHolder.innerHTML = changes;
                     }
                 });
         }
-
-        function fillModal(fileDataID) {
-            $("#moreInfoModalContent").load("/casc/moreInfo?filedataid=" + fileDataID);
-        }
-
-        function fillPreviewModal(buildconfig, filedataid) {
-            $("#previewModalContent").load("/files/scripts/preview_api.php?buildconfig=" + buildconfig + "&filedataid=" + filedataid);
-        }
-
-        $("html").on('hidden.bs.modal', '#moreInfoModal', function (e) {
-            console.log("Clearing modal");
-            $("#moreInfoModalContent").html('<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>');
-        })
-
-        $("html").on('hidden.bs.modal', '#previewModal', function (e) {
-            console.log("Clearing modal");
-            $("#previewModalContent").html('<i class="fa fa-refresh fa-spin" style="font-size:24px"></i>');
-        })
 
         async function reloadHotfixes() {
             var button = document.getElementById("reloadHotfixesButton");

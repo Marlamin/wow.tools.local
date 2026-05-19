@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -68,7 +65,7 @@
                 sortDesc = "asc";
             }
 
-            Elements.table = $('#voLines').DataTable({
+            Elements.table = new DataTable("#voLines", {
                 "processing": true,
                 "serverSide": true,
                 "search": { "search": searchString },
@@ -137,15 +134,15 @@
                 ]
             });
 
-            $('#voLines').on('init.dt', function () {
+            Elements.table.on('init.dt', function () {
                 toggleFilters();
             });
 
-            $('#voLines').on('draw.dt', function () {
-                var currentSearch = encodeURIComponent($("#dt-search-0").val());
-                var currentPage = $('#voLines').DataTable().page() + 1;
+            Elements.table.on('draw.dt', function () {
+                var currentSearch = encodeURIComponent(document.getElementById("dt-search-0").value);
+                var currentPage = Elements.table.page() + 1;
 
-                var sort = $('#voLines').DataTable().order();
+                var sort = Elements.table.order();
                 var sortCol = sort[0][0];
                 var sortDir = sort[0][1];
 
@@ -155,17 +152,21 @@
 
             });
 
-            $('#voLines').on('click', 'tbody tr td.editableCreature', function () {
-                var data = Elements.table.row($(this).parent()).data();
-                var oldVal = this.innerHTML;
-                if (this.innerHTML.startsWith("<input") == false) {
-                    this.innerHTML = "<input type='text' class='nameInput' onkeydown='fnameInputKeyDown(this)'/> <a class='btn btn-sm btn-success' onclick='saveButton(this)'><i class='fa fa-check'></i></a> <a class='btn btn-sm btn-secondary' onClick='cancelButton(this)'><i class='fa fa-times'></i></a>";
-                    $(this).children('input')[0].value = oldVal;
-                    $(this).children('input')[0].dataset['oldval'] = oldVal;
+            document.getElementById('voLines').addEventListener('click', function (e) {
+                if (e.target.classList.contains('editableCreature') || e.target.closest('td.editableCreature')) {
+                    var cell = e.target.classList.contains('editableCreature') ? e.target : e.target.closest('td.editableCreature');
+                    var row = cell.closest('tr');
+                    var data = Elements.table.row(row).data();
+                    var oldVal = cell.innerHTML;
+                    if (cell.innerHTML.startsWith("<input") == false) {
+                        cell.innerHTML = "<input type='text' class='nameInput' onkeydown='fnameInputKeyDown(this)'/> <a class='btn btn-sm btn-success' onclick='saveButton(this)'><i class='fa fa-check'></i></a> <a class='btn btn-sm btn-secondary' onClick='cancelButton(this)'><i class='fa fa-times'></i></a>";
+                        cell.querySelector('input').value = oldVal;
+                        cell.querySelector('input').dataset['oldval'] = oldVal;
+                    }
                 }
             });
 
-            $('body').on('keydown', function (e) {
+            document.body.addEventListener('keydown', function (e) {
                 if (e.keyCode == 27) {
                     for(const field of document.getElementsByClassName('nameInput')) {
                         resetField(field);
@@ -175,28 +176,42 @@
         }());
 
         function toggleFilters() {
-            $("#voLines thead tr").clone(true).appendTo("#voLines thead");
-            $("#voLines thead tr:eq(1) th").each(function (i) {
-                var title = $(this).text();
+            var headerRow = document.querySelector("#voLines thead tr");
+            var clonedRow = headerRow.cloneNode(true);
+            document.querySelector("#voLines thead").appendChild(clonedRow);
 
-                $(this).html('<input style="width: 100%" type="text"/>');
+            var filterHeaders = document.querySelectorAll("#voLines thead tr:nth-child(2) th");
+            filterHeaders.forEach(function (th, i) {
+                var title = th.textContent;
 
-                if ($('#voLines').DataTable().column(i).search() != "") {
-                    $('input', this).val($('#voLines').DataTable().column(i).search());
+                th.innerHTML = '<input style="width: 100%" type="text"/>';
+
+                if (Elements.table.column(i).search() != "") {
+                    th.querySelector('input').value = Elements.table.column(i).search();
                 }
 
-                $('input', this).on('keyup change', function () {
-                    if ($('#voLines').DataTable().column(i).search() !== this.value) {
-                        $('#voLines').DataTable().column(i).search(this.value).draw();
+                var input = th.querySelector('input');
+                input.addEventListener('keyup', function () {
+                    if (Elements.table.column(i).search() !== this.value) {
+                        Elements.table.column(i).search(this.value).draw();
                     }
                 });
 
-                $('input', this).on('click', function (e) {
+                input.addEventListener('change', function () {
+                    if (Elements.table.column(i).search() !== this.value) {
+                        Elements.table.column(i).search(this.value).draw();
+                    }
+                });
+
+                input.addEventListener('click', function (e) {
                     e.stopPropagation();
                 });
             });
 
-            $('#dbtable').DataTable().draw('page');
+            var dbtable = document.getElementById('dbtable');
+            if (dbtable && dbtable.DataTable) {
+                dbtable.DataTable().draw('page');
+            }
         }
 
         function fnameInputKeyDown(element) {
@@ -261,12 +276,13 @@
                 searchString = decodeURIComponent(searchString);
             }
 
-            if ($("#voLines_filter label input").val() != searchString) {
-                $('#voLines').DataTable().search(searchString).draw(false);
+            var filterInput = document.querySelector("#voLines_filter label input");
+            if (filterInput && filterInput.value != searchString) {
+                Elements.table.search(searchString).draw(false);
             }
             var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
-            if ($('#voLines').DataTable().page() != page) {
-                $('#voLines').DataTable().page(page).draw(false);
+            if (Elements.table.page() != page) {
+                Elements.table.page(page).draw(false);
             }
 
             var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
@@ -279,9 +295,9 @@
                 sortDesc = "asc";
             }
 
-            var curSort = $('#voLines').DataTable().order();
+            var curSort = Elements.table.order();
             if (sortCol != curSort[0][0] || sortDesc != curSort[0][1]) {
-                $('#voLines').DataTable().order([sortCol, sortDesc]).draw(false);
+                Elements.table.order([sortCol, sortDesc]).draw(false);
             }
         }
 

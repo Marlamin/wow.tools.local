@@ -30,10 +30,13 @@ function togglePreviewPane(){
     var visibility = document.getElementById("files_preview").style.display;
     if (document.getElementById("files_preview").style.display !== "none"){
         // Refresh table to rewrite the preview links
-        $('#files').DataTable().draw(false);
+        DataTable('#files').draw(false);
 
         // Hide preview pane
         document.getElementById("files_preview").style.display = "none";
+
+        // Also clear preview pane because sometimes oggs/mp3s are playing
+        document.getElementById("files_preview").innerHTML = "";
 
         // Resize table
         document.getElementById("files_wrapper").style.width = "100%";
@@ -44,7 +47,7 @@ function togglePreviewPane(){
         document.getElementById("files_preview").innerHTML = "";
 
         // Refresh table to rewrite the preview links
-        $('#files').DataTable().draw(false);
+        DataTable('#files').draw(false);
 
         // Show preview pane
         document.getElementById("files_preview").style.display = "block";
@@ -404,9 +407,9 @@ function treeClick(event, returnAfterClear = true){
 
     if (start !== undefined){
         if (filter != ''){
-            $('#files').DataTable().search("^" + start + "%," + filter).draw();
+            DataTable('#files').search("^" + start + "%," + filter).draw();
         } else {
-            $('#files').DataTable().search("^" + start + "%").draw();
+            DataTable('#files').search("^" + start + "%").draw();
         }
     }
 

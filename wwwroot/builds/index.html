@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -106,7 +103,7 @@
         let currentBuild = "";
         let diffInit = false;
 
-        var table = $('#buildtable').DataTable({
+        var buildTable = new DataTable("#buildtable", {
             "pageLength": 25,
             "searching": false,
             "serverSide": true,
@@ -175,7 +172,7 @@
             ],
         });
 
-        var table = $('#remotebuildtable').DataTable({
+        var remoteBuildTable = new DataTable("#remotebuildtable", {
             "pageLength": 25,
             "searching": false,
             "serverSide": true,
@@ -250,10 +247,10 @@
                         return result;
                     }
                 }
-            ],
+            ]
         });
 
-        $("#buildtable").on('draw.dt', function () {
+        buildTable.on('draw.dt', function () {
             fetch('/casc/listManifests')
             .then((response) => response.json())
             .then((manifests) => {

@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -105,7 +102,7 @@
                 }
             }
 
-            var table = $('#buildtable').DataTable({
+            var table = new DataTable('#buildtable', {
                 ajax: apiURL,
                 columns: [{
                     data: 'action'
@@ -141,7 +138,7 @@
                     "orderable": true,
                     "createdCell": function (td, cellData, rowData, row, col) {
                         if (!cellData) {
-                            $(td).css('background-color', '#ff5858');
+                            td.style.backgroundColor = '#ff5858';
                         }
                     }
                 },
@@ -254,38 +251,53 @@
                 ],
                 initComplete: function () {
                     var table = this.api();
-                    $('#buildtable thead tr.filters th').each(function (index, element) {
-                        element = $(element);
-                        var column = table.column(index);
-                        if (element.hasClass("filterable")) {
-                            var select = $('<select style="height: 20px; width: calc(100% - 5px); display: inline-block;" class="form-control form-control-sm"><option value=""></option></select>')
-                                .appendTo(element)
-                                .on('change', function () {
-                                    var val = "^" + $(this).val() + "$"
-                                    if ($(this).val() == "")
-                                        val = "";
 
-                                    table.column(index)
-                                        .search(val, true, false)
-                                        .draw();
-                                });
+                    var filterHeaders = document.querySelectorAll('#buildtable thead tr.filters th');
+
+                    filterHeaders.forEach(function (element, index) {
+                        var column = table.column(index);
+
+                        if (element.classList.contains("filterable")) {
+                            var select = document.createElement('select');
+                            select.style.height = '20px';
+                            select.style.width = 'calc(100% - 5px)';
+                            select.style.display = 'inline-block';
+                            select.className = 'form-control form-control-sm';
+                            select.innerHTML = '<option value=""></option>';
+
+                            select.addEventListener('change', function () {
+                                var val = "^" + this.value + "$"
+                                if (this.value == "")
+                                    val = "";
+
+                                table.column(index).search(val, true, false).draw();
+                            });
+
+                            element.appendChild(select);
 
                             column.data().unique().sort().each(function (d, j) {
-                                if (d === "") {
+                                if (d === "")
                                     return;
-                                }
-                                select.append('<option value="' + d + '">' + d + '</option>')
+
+                                var option = document.createElement('option');
+                                option.value = d;
+                                option.textContent = d;
+                                select.appendChild(option);
                             });
-                        } else if (element.hasClass("searchable")) {
-                            $(this).html('<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 5px); display: inline-block;" placeholder="Search" />');
-                            $("input", this).on('keyup change', debounce(function () {
+                        } else if (element.classList.contains("searchable")) {
+                            element.innerHTML = '<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 5px); display: inline-block;" placeholder="Search" />';
+
+                            var input = element.querySelector("input");
+
+                            input.addEventListener('keyup', debounce(function () {
+                                table.column(index).search(this.value).draw();
+                            }, 50));
+
+                            input.addEventListener('change', debounce(function () {
                                 table.column(index).search(this.value).draw();
                             }, 50));
                         }
                     });
-                },
-                "drawCallback": function () {
-                    $('[data-bs-toggle="popover"]').popover();
                 }
             });
 
