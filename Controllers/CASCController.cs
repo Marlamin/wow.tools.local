@@ -1420,8 +1420,9 @@ namespace wow.tools.local.Controllers
                 html += "</div>";
 
                 js += @"
-                $(document).ready(function() {
-                    $.get('/casc/diffJSON?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                    fetch('/casc/diffJSON?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"')
+                        .then(response => response.text())
+                        .then(data => {
                         try{
                             if(data.length > 10000000)
                                 throw new Error('Too much data');
@@ -1433,7 +1434,6 @@ namespace wow.tools.local.Controllers
                             document.getElementById('json-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                         }
                     });
-                });
             ";
 
                 html += "</div>";
@@ -1449,8 +1449,9 @@ namespace wow.tools.local.Controllers
                 html += "</div>";
 
                 js += @"
-                    $(document).ready(function() {
-                        $.get('/casc/diffText?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                        fetch('/casc/diffText?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"')
+                        .then(response => response.text())
+                        .then(data => {
                             try{
                                 if(data.length > 10000000)
                                     throw new Error('Too much data');
@@ -1462,7 +1463,6 @@ namespace wow.tools.local.Controllers
                                 document.getElementById('text-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                             }
                         });
-                    });
                 ";
             }
 
@@ -1474,12 +1474,14 @@ namespace wow.tools.local.Controllers
             html += "</div>";
 
             if (!hasActiveTab)
-                js += "$(document).ready(function() {";
+                js += "document.addEventListener('DOMContentLoaded', () => {";
             else
-                js += "$('#hex-tab').on('click', function() {";
+                js += "document.getElementById('hex-tab').addEventListener('click', () => {";
 
             js += @"
-                $.get('/casc/diffHex?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                fetch('/casc/diffHex?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"')
+                    .then(response => response.text())
+                    .then(data => {
                         try{
                             if(data.length > 10000000)
                                 throw new Error('Too much data');
@@ -1491,8 +1493,9 @@ namespace wow.tools.local.Controllers
                             document.getElementById('hex-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                         }
                 });
-            });
            ";
+
+            js += "});";
 
             html += "</div>";
 
