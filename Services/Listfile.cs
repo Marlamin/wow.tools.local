@@ -498,6 +498,16 @@ namespace wow.tools.local.Services
                 var presentFiles = SQLiteDB.getFilesInVersion(build);
                 return p => presentFiles.Contains(p.Key);
             }
+            else if (search == "available")
+            {
+                var availableFDIDs = new HashSet<int>(CASC.AvailableFDIDs);
+                return p => availableFDIDs.Contains(p.Key);
+            }
+            else if (search == "unavailable")
+            {
+                var availableFDIDs = new HashSet<int>(CASC.AvailableFDIDs);
+                return p => !availableFDIDs.Contains(p.Key);
+            }
             else if (search == "unnamed")
             {
                 return p => p.Value.Length == 0;

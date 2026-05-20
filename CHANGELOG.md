@@ -3,6 +3,7 @@
 - Added support for dumping TEX files as JSON.
 - Added localeflags/contentflags to more info modal for files.
 - Added 52 new names to the contenthash namer.
+- Added available/unavailable filter keywords to files page (only useful with showAllFiles setting on).
 - Prefer spawning a new TACTSharp instance over using wago.tools during diffs.
 - Fixed missing encryption icons in diffs.
 - Fixed contenthashes not resetting between build loads.
