@@ -32,7 +32,7 @@ namespace wow.tools.local
             {"locale", new WTLSetting { Key = "locale", Value = "enUS", Description = "The locale to use (e.g. enUS, deDE, zhCN, etc.).", Type = "string", DefaultValue = "enUS" }},
             {"preferHighResTextures", new WTLSetting { Key = "preferHighResTextures", Value = "false", Description = "Whether to prefer high-res textures when available (Classic only).", Type = "bool", DefaultValue = "false" }},
             {"useTACTSharp", new WTLSetting { Key = "useTACTSharp", Value = "false", Description = "Whether to use TACTSharp for TACT operations. Uses CASCLib if disabled.", Type = "bool", DefaultValue = "true" }},
-            {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDN hosts to use for downloading files, separated by commas.", Type = "string", DefaultValue = string.Empty }},
+            {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = "casc.wago.tools,cdn.arctium.tools,archive.wow.tools", Description = "Additional CDN hosts to use for downloading files, separated by commas.", Type = "string", DefaultValue = string.Empty }},
             {"buildConfigFile", new WTLSetting { Key = "buildConfigFile", Value = string.Empty, Description = "Path to a build config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"cdnConfigFile", new WTLSetting { Key = "cdnConfigFile", Value = string.Empty, Description = "Path to a CDN config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"defaultFilesSearch", new WTLSetting { Key = "defaultFilesSearch", Value = string.Empty, Description = "Default search query for files page.", Type = "string", DefaultValue = string.Empty } },
