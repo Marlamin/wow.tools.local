@@ -2104,5 +2104,28 @@ namespace wow.tools.local.Controllers
                 return "Error generating diff: " + e.Message;
             }
         }
+
+        [Route("commonBLPs")]
+        [HttpGet]
+        public Dictionary<string, List<int>> CommonBLPs()
+        {
+            CASC.EnsureCHashesLoaded();
+            var blpIDs = Listfile.TypeMap["blp"];
+            var commonCHashes = CASC.CHashToFDID.Where(x => x.Value.Count > 2).OrderByDescending(x => x.Value.Count).ToDictionary();
+
+            var chashesToSkip = new HashSet<string> { "93eb33c44532ea7e4f62666417beaa6a", "77beda3cb2c5709fc953c9d21e1d2414", "ef3ae8b80605064fadc0515b10c82ef2" }; // empty maptextures, minimaps
+            var result = new Dictionary<string, List<int>>();
+            foreach (var entry in commonCHashes)
+            {
+                if(chashesToSkip.Contains(entry.Key.ToLowerInvariant()))
+                    continue;
+
+                if (blpIDs.Contains(entry.Value[0]))
+                    result[entry.Key] = entry.Value;
+            }
+               
+
+            return result;
+        }
     }
 }

@@ -111,14 +111,15 @@
                     <h5 class="modal-title" id="helpModalLabel">Help</h5>
                 </div>
                 <div class="modal-body" id="helpModalContent">
-                    <!--<kbd>%</kbd> for wildcard<br>
-                    <kbd>^</kbd> string must start with<br>-->
                     <kbd>type:type</kbd> filtering by type (requires files to be analyzed to include unknown files)<br>
                     <kbd>chash:md5</kbd> filter by contenthash (currently loaded build only)<br>
                     <kbd>unnamed</kbd> files without filenames<br>
                     <kbd>haslookup</kbd> files with filename hashes/lookups<br />
+                    <kbd>lookupmatch</kbd> files where filename hash/lookup matches the filename<br />
+                    <kbd>lookupwrong</kbd> files where filename hash/lookup does not match the filename<br />
                     <kbd>encrypted</kbd> encrypted files<br>
                     <kbd>encrypted:KEY</kbd> encrypted by key<br>
+                    <kbd>encryptedbutnot</kbd> files that are tagged as encrypted but aren't due to shared content with unencrypted files<br>
                     <kbd>knownkey</kbd> files encrypted with known keys<br>
                     <kbd>unknownkey</kbd> files encrypted with unknown keys<br>
                     <!--<kbd>skit:soundkitid</kbd> for searching by SoundKitID<br>-->

@@ -542,6 +542,10 @@ namespace wow.tools.local.Services
                               (CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey ||
                                CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed);
             }
+            else if (search == "encryptedbutnot")
+            {
+                return p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedButNot;
+            }
             else if (search.StartsWith("range:"))
             {
                 string[] fdidRange = search.Substring("range:".Length).Split("-");
@@ -569,6 +573,32 @@ namespace wow.tools.local.Services
             {
                 var fdids = new HashSet<int>(Listfile.LookupMap.Keys);
                 return p => fdids.Contains(p.Key);
+            }
+            else if(search == "lookupmatch")
+            {
+                var lookupFDIDs = new HashSet<int>(Listfile.LookupMap.Keys);
+                var hasher = new Jenkins96();
+
+                return p =>
+                {
+                    if (!lookupFDIDs.Contains(p.Key) || string.IsNullOrEmpty(p.Value))
+                        return false;
+
+                    return hasher.ComputeHash(p.Value) == Listfile.LookupMap[p.Key];
+                };
+            }
+            else if (search == "lookupwrong")
+            {
+                var lookupFDIDs = new HashSet<int>(Listfile.LookupMap.Keys);
+                var hasher = new Jenkins96();
+
+                return p =>
+                {
+                    if (!lookupFDIDs.Contains(p.Key) || string.IsNullOrEmpty(p.Value))
+                        return false;
+
+                    return hasher.ComputeHash(p.Value) != Listfile.LookupMap[p.Key];
+                };
             }
             else if (search == "otherlocaleonly")
             {
