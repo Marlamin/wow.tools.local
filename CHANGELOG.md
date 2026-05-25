@@ -2,7 +2,7 @@
 - Added support for naming new and still unknown map files.
 - Added support for dumping TEX files as JSON.
 - Added localeflags/contentflags to more info modal for files.
-- Added 52 new names to the contenthash namer.
+- Added a bunch of new names to the contenthash namer.
 - Added available/unavailable filter keywords to files page (only useful with showAllFiles setting on).
 - Added encryptedbutnot,lookupmatch and lookupwrong filter keywords to files page.
 - Prefer spawning a new TACTSharp instance over using wago.tools during diffs.
