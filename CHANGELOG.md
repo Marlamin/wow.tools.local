@@ -7,6 +7,7 @@
 - Added encryptedbutnot,lookupmatch and lookupwrong filter keywords to files page.
 - Prefer spawning a new TACTSharp instance over using wago.tools during diffs.
 - Fixed missing encryption icons in diffs.
+- Fixed chashes not being loaded for ckey: searches when not already loaded.
 - Fixed contenthashes not resetting between build loads.
 - Improved the automatic naming of item textures.
 - Improved memory footprint/reduced contenthash initialization time.

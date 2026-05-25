@@ -564,6 +564,7 @@ namespace wow.tools.local.Services
             }
             else if (search.StartsWith("chash:"))
             {
+                CASC.EnsureCHashesLoaded();
                 if (CASC.CHashToFDID.TryGetValue(search.Substring("chash:".Length).ToUpperInvariant(), out var resultFDIDs))
                 {
                     return x => resultFDIDs.Contains(x.Key);
