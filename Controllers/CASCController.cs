@@ -26,7 +26,6 @@ namespace wow.tools.local.Controllers
     {
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
-        private static readonly Dictionary<string, string> RibbitCache = new();
         private static readonly Lock moreInfoInitLock = new Lock();
 
         [Route("fdid")]
@@ -143,116 +142,6 @@ namespace wow.tools.local.Controllers
         public string BuildName()
         {
             return CASC.BuildName;
-        }
-
-        [Route("builds")]
-        [HttpPost]
-        public DataTablesResult Builds(bool remote = false)
-        {
-            var result = new DataTablesResult();
-
-            if (Request.Method == "POST" && Request.Form.TryGetValue("draw", out var drawValue) && int.TryParse(drawValue, out var draw))
-            {
-                result.draw = draw;
-                result.data = [];
-            }
-
-            if (!remote && SettingsManager.WoWFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.WoWFolder, ".build.info")))
-            {
-                foreach (var availableBuild in CASC.AvailableBuilds)
-                {
-                    var splitVersion = availableBuild.Version.Split(".");
-                    var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
-                    var build = splitVersion[3];
-
-                    var isActive = CASC.CurrentProduct == availableBuild.Product;
-
-                    // It's possible that we're not actually on the same build as the product is on when loading custom configs with TACTSharp. Double check.
-                    if (isActive && CASC.IsTACTSharpInit)
-                        isActive = availableBuild.BuildConfig == CASC.buildInstance!.Settings.BuildConfig && availableBuild.CDNConfig == CASC.buildInstance!.Settings.CDNConfig;
-
-                    var hasManifest = ManifestManager.ExistsForBuild(patch, build);
-                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
-                    result.data.Add([patch, build, availableBuild.Product, availableBuild.Folder, availableBuild.BuildConfig, availableBuild.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
-                }
-
-                result.data = [.. result.data.OrderBy(x => x[0])];
-                result.recordsTotal = result.data.Count;
-                result.recordsFiltered = result.data.Count;
-            }
-
-            if (remote)
-            {
-                var httpClient = new HttpClient();
-                RibbitCache["v2/summary"] = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/v2/summary").Result;
-
-                List<(string buildConfig, string cdnConfig)> availableRemoteBuilds = new();
-
-                foreach (var summaryLine in RibbitCache["v2/summary"].Split("\n"))
-                {
-                    if (summaryLine.StartsWith('#') || summaryLine.StartsWith("Product") || string.IsNullOrWhiteSpace(summaryLine))
-                        continue;
-
-                    var product = summaryLine.Split('|');
-
-                    // Skip products with no versions
-                    if (product[2] != "" || !product[0].StartsWith("wow"))
-                        continue;
-
-                    var endPoint = "v2/products/" + product[0] + "/versions";
-                    if (!RibbitCache.TryGetValue(endPoint, out var cachedResult))
-                    {
-                        cachedResult = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/" + endPoint).Result;
-                        RibbitCache[endPoint] = cachedResult;
-                    }
-
-                    foreach (var line in cachedResult.Split("\n"))
-                    {
-                        var splitLine = line.Split('|');
-
-                        if (splitLine[0] != "us")
-                            continue;
-
-                        var splitVersion = splitLine[5].Split(".");
-                        var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
-                        var build = splitVersion[3];
-
-                        var isActive = CASC.CurrentProduct == product[0] && CASC.IsOnline;
-                        // It's possible that we're not actually on the same build as the product is on when loading custom configs with TACTSharp. Double check.
-                        if (isActive && CASC.IsTACTSharpInit)
-                            isActive = splitLine[1] == CASC.buildInstance!.Settings.BuildConfig && splitLine[2] == CASC.buildInstance!.Settings.CDNConfig;
-
-                        var hasManifest = ManifestManager.ExistsForBuild(patch, build);
-                        var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
-
-                        availableRemoteBuilds.Add((splitLine[1], splitLine[2]));
-
-                        result.data.Add([patch, build, product[0], splitLine[1], splitLine[2], isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
-                    }
-
-                    // sort by build
-                    result.data = result.data.OrderByDescending(x => x[1]).ToList();
-                }
-
-                if (CASC.IsOnline && CASC.IsTACTSharpInit && !availableRemoteBuilds.Any(x => x.buildConfig == CASC.buildInstance!.Settings.BuildConfig && x.cdnConfig == CASC.buildInstance!.Settings.CDNConfig))
-                {
-                    var isActive = true;
-
-                    var splitVersion = CASC.BuildName.Split(".");
-                    var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
-                    var build = splitVersion[3];
-
-                    var hasManifest = ManifestManager.ExistsForBuild(patch, build);
-                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
-
-                    result.data.Add([patch, build, "unknown", CASC.buildInstance!.Settings.BuildConfig, CASC.buildInstance!.Settings.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
-
-                    // sort by build
-                    result.data = result.data.OrderByDescending(x => x[5]).ThenByDescending(x => x[1]).ToList();
-                }
-            }
-
-            return result;
         }
 
         [Route("switchProduct")]
@@ -1046,12 +935,12 @@ namespace wow.tools.local.Controllers
                 foreach (var extraCKeyEntry in allCKeys)
                 {
                     var extraCKeyHex = Convert.ToHexStringLower(extraCKeyEntry.cKey);
-                 
+
                     html += "<tr>";
                     html += "<td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + extraCKeyHex + "\")'>" + extraCKeyHex + "</a>";
-                    if(primaryCKey == extraCKeyHex && allCKeys.Count > 1)
+                    if (primaryCKey == extraCKeyHex && allCKeys.Count > 1)
                         html += " (preferred)";
-                    html += "</td>"; 
+                    html += "</td>";
                     html += "<td>" + extraCKeyEntry.localeFlags + "</td>";
                     html += "<td>" + extraCKeyEntry.contentFlags + "</td>";
                     html += "<td><a href='/casc/chash?contenthash=" + extraCKeyHex + "&filename=" + filedataid + ".bytes'>download</a></td>";
@@ -1066,7 +955,7 @@ namespace wow.tools.local.Controllers
 
                 if (allCKeys.Count > 1)
                     html += " (for preferred version)";
-                
+
                 html += "</td></tr>";
             }
 
@@ -2117,13 +2006,13 @@ namespace wow.tools.local.Controllers
             var result = new Dictionary<string, List<int>>();
             foreach (var entry in commonCHashes)
             {
-                if(chashesToSkip.Contains(entry.Key.ToLowerInvariant()))
+                if (chashesToSkip.Contains(entry.Key.ToLowerInvariant()))
                     continue;
 
                 if (blpIDs.Contains(entry.Value[0]))
                     result[entry.Key] = entry.Value;
             }
-               
+
 
             return result;
         }

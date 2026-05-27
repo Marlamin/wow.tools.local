@@ -30,7 +30,6 @@
 
     <link href="/css/style.css?v=1661289414" rel="stylesheet">
     <script type="text/javascript" src="/js/main.js?v=1645063884"></script>
-    <script type="text/javascript" src="/js/anims.js?v=1658923290"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg" id="navbar"></nav>
@@ -53,39 +52,42 @@
             </div>
         </form>
         <br />
-        <h3>Available local builds <a id="reloadBuildsButton" class="btn btn-primary btn-sm" href="#" onClick="reloadBuilds()">Reload</a></h3>
-        <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-            <div class="col-sm-12">
-                <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
-                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Folder</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+        <div class="row">
+            <form class="form-inline">
+                <label class="btn btn-sm btn-success active">
+                    <input type="checkbox" autocomplete="off" id="localBuilds" CHECKED> Local
+                </label>
+                <label class="btn btn-sm btn-primary active">
+                    <input type="checkbox" autocomplete="off" id="onlineBuilds"> Online
+                </label>
+                <label class="btn btn-sm btn-warning active">
+                    <input type="checkbox" autocomplete="off" id="archivedBuilds"> Archived
+                </label>
+            </form>
+            <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+                <div class="col-sm-12">
+                    <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
+                        <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        <h3>Available remote builds</h3>
-        <div class="alert alert-warning">Note: Remote builds could be encrypted or missing data. Loading some of these might break.</div>
-        <div id="remotebuildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-            <div class="col-sm-12">
-                <table id="remotebuildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="remotebuildtable_info">
-                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-        <h3>Load specific configs</h3>
+        <br />
+        <h3>Manual build</h3>
         <div class="alert alert-warning">Note: Only supported when loading with TACTSharp. Only use if you know what you're doing. Inputting invalid config hashes will crash WTL.</div>
         <div class="row" style="width: 40vw">
             <div class="col">
-                <input class="form-control" placeholder="Build config hash" type="text" id="buildConfig"/>
+                <input class="form-control" placeholder="Build config hash" type="text" id="buildConfig" />
             </div>
             <div class="col">
                 <input class="form-control" placeholder="CDN config hash" type="text" id="cdnConfig" />
             </div>
             <div class="col">
-                <input id="customBuildButton" class="form-control btn btn-primary" value="Load" onClick="loadConfigs()"/>
+                <input type="submit" id="customBuildButton" class="form-control btn btn-primary" value="Load" onClick="loadConfigs()" />
             </div>
         </div>
-        <br />
+
         <h3>Admin</h3>
         <p>Only <a href='#' onClick='document.getElementById("adminStuff").style.display = document.getElementById("adminStuff").style.display === "none" ? "block" : "none"'>show</a> and use this section if you know what you are doing.</p>
         <p style="display: none" id="adminStuff">
@@ -98,6 +100,7 @@
         </p>
         <p class="text-muted" style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment which this tool is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
     </div>
+
     <script type='text/javascript'>
         let knownManifests = new Array();
         let currentBuild = "";
@@ -108,89 +111,25 @@
             "searching": false,
             "serverSide": true,
             "ajax": {
-                url: "/casc/builds",
-                type: "POST"
+                url: "/build/table",
+                type: "POST",
+                data: function (ajaxData) {
+                    ajaxData.showLocal = document.getElementById("localBuilds").checked;
+                    ajaxData.showOnline = document.getElementById("onlineBuilds").checked;
+                    ajaxData.showArchived = document.getElementById("archivedBuilds").checked;
+                }
             },
             "order": [[1, 'desc']],
             "lengthChange": false,
             "columnDefs": [
                 {
-                    "targets": [2, 3, 4, 5, 6, 7, 8],
-                    "orderable": false,
-                },
-                {
-                    "targets": 6,
-                    "render": function (data, type, full, meta) {
-                        let isActive = data == "True";
-                        var result = "";
-                        if (isActive) {
-                            result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Force load</a>';
-                        } else {
-                            result += '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Switch to build</a>';
-                        }
-                        return result;
-                    }
-                },
-                {
-                    "targets": 7,
-                    "render": function (data, type, full, meta) {
-                        return "";
-                    }
-                },
-                {
-                    "targets": 8,
-                    "render": function (data, type, full, meta) {
-                        let isActive = full[6] == "True";
-                        if (isActive)
-                            currentBuild = full[0] + "." + full[1];
-
-                        let hasManifest = full[7] == "True";
-                         let hasDBCs = full[8] == "True";
-                        var result = "";
-                        if (hasManifest) {
-                            result += '<a class="btn btn-success btn-sm disabled" href="#">Has manifest</a>';
-                        } else {
-                            result += '<a class="btn btn-danger btn-sm disabled" href="#">Manifest missing</a>';
-                        }
-                        if (hasDBCs) {
-                            if (isActive) {
-                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">Force update</a>';
-                            } else {
-                                result += ' <a class="btn btn-success btn-sm disabled" href="#">Has DBCs</a>';
-                            }
-                        } else {
-                            if (isActive) {
-                                result += ' <a class="btn btn-primary btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">DBCs missing, extract?</a>';
-                            } else {
-                                result += ' <a class="btn btn-danger btn-sm disabled" href="#">DBCs missing</a>';
-                            }
-                        }
-
-                        return result;
-                    }
-                }
-            ],
-        });
-
-        var remoteBuildTable = new DataTable("#remotebuildtable", {
-            "pageLength": 25,
-            "searching": false,
-            "serverSide": true,
-            "ajax": {
-                url: "/casc/builds?remote=true",
-                type: "POST"
-            },
-            "order": false,
-            "lengthChange": false,
-            "columnDefs": [
-                {
-                    "targets": [0, 1, 2, 3, 4, 5, 6, 7],
+                    "targets": [3, 4, 5, 6, 7],
                     "orderable": false,
                 },
                 {
                     "targets": 2,
                     "render": function (data, type, full, meta) {
-                        if (full[2].includes('wowdev') || full[2].includes('wowv') || full[2] == 'wowlivetest2')
+                        if (full[2].includes('wowdev') || full[2].includes('wownev') || full[2].includes('wowv') || full[2] == 'wowlivetest2')
                             return "<i class='fa fa-lock' style='color: aqua'></i> " + full[2];
 
                         return full[2];
@@ -200,12 +139,32 @@
                     "targets": 5,
                     "render": function (data, type, full, meta) {
                         let isActive = data == "True";
+                        let isLocal = full[8] == "False";
+                        let isArmadillo = full[2].includes('wowdev') || full[2].includes('wownev') || full[2].includes('wowv') || full[2] == 'wowlivetest2';
+
                         var result = "";
-                        if (isActive) {
-                            result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Force load</a>';
+                        if (isLocal) {
+                            if (isActive) {
+                                result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Force local reload</a>';
+                            } else {
+                                result += '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Switch to local build</a>';
+                            }
                         } else {
-                            result += '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Switch to build</a>';
+                            if (isArmadillo) {
+                                if (isActive) {
+                                    result += '<a class="btn btn-secondary btn-sm" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Force remote reload</a>';
+                                } else {
+                                    result += '<a class="btn btn-secondary btn-sm text-muted" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Encrypted build</a>';
+                                }
+                            } else {
+                                if (isActive) {
+                                    result += '<a class="btn btn-secondary btn-sm" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Force remote reload</a>';
+                                } else {
+                                    result += '<a class="btn btn-primary btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Switch to online build</a>';
+                                }
+                            }
                         }
+
                         return result;
                     }
                 },
@@ -232,7 +191,7 @@
                         }
                         if (hasDBCs) {
                             if (isActive) {
-                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">Force update</a>';
+                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">Re-extract</a>';
                             } else {
                                 result += ' <a class="btn btn-success btn-sm disabled" href="#">Has DBCs</a>';
                             }
@@ -247,11 +206,19 @@
                         return result;
                     }
                 }
-            ]
+            ],
         });
 
-        buildTable.on('draw.dt', function () {
-            fetch('/casc/listManifests')
+        function reloadBuildTable() {
+            buildTable.ajax.reload();
+        }
+
+        document.getElementById("localBuilds").addEventListener("change", reloadBuildTable);
+        document.getElementById("onlineBuilds").addEventListener("change", reloadBuildTable);
+        document.getElementById("archivedBuilds").addEventListener("change", reloadBuildTable);
+
+
+        fetch('/casc/listManifests')
             .then((response) => response.json())
             .then((manifests) => {
                 for (j = 0; j < manifests.length; j++) {
@@ -278,7 +245,6 @@
             .catch((error) => {
                 console.error('Error:', error);
             });
-        });
 
         async function switchToProduct(product, remote = false) {
             var button = document.querySelector('[data-product="' + product + '"]');

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using wow.tools.local.Managers;
+using static wow.tools.local.Services.CASC;
 using static wow.tools.local.Services.Linker;
 
 namespace wow.tools.local.Services
@@ -316,6 +317,34 @@ namespace wow.tools.local.Services
             }
 
             return null;
+        }
+
+        public static List<BuildMetaData> GetBuilds()
+        {
+            var builds = new List<BuildMetaData>();
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT product, version, buildConfig, cdnConfig, productConfig, build, firstSeen FROM wow_builds ORDER BY build DESC";
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    builds.Add(
+                        new BuildMetaData
+                        {
+                            product = reader["product"].ToString()!,
+                            version = reader["version"].ToString()!,
+                            buildConfig = reader["buildConfig"].ToString()!,
+                            cdnConfig = reader["cdnConfig"].ToString()!,
+                            productConfig = reader["productConfig"].ToString()!,
+                            build = int.Parse(reader["build"].ToString()!),
+                            firstSeen = reader["firstSeen"].ToString()!
+                        }
+                    );
+                }
+            }
+
+            return builds;
         }
 
         public static void InsertBuildIfNotExists(string product, string version, string buildConfig, string cdnConfig)
