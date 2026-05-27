@@ -1,3 +1,6 @@
+0.9.5 (xx-06-2025)
+- Updated config.json creation to have community CDNs set as additional CDNs by default.
+
 0.9.4 (25-05-2026)
 - Added support for naming new and still unknown map files.
 - Added support for dumping TEX files as JSON.
