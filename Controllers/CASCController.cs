@@ -600,6 +600,9 @@ namespace wow.tools.local.Controllers
                             case "#pra":
                                 type = "hlsl";
                                 break;
+                            case "?PNG":
+                                type = "png";
+                                break;
                             default:
                                 break;
                         }
@@ -1194,6 +1197,7 @@ namespace wow.tools.local.Controllers
         {
             var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt", "hlsl" };
             var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt", "m3", "tex" };
+            var imageTypes = new List<string>() { "blp", "png", };
 
             var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
             var js = @"      
@@ -1216,7 +1220,7 @@ namespace wow.tools.local.Controllers
 
             var hasActiveTab = false;
 
-            if (fileType == "blp")
+            if (imageTypes.Contains(fileType))
             {
                 hasActiveTab = true;
                 html += "<li class='nav-item'>";
@@ -1250,18 +1254,31 @@ namespace wow.tools.local.Controllers
             html += "</ul>";
 
             html += "<div class='tab-content' style='min-height: 256px;'>";
-            if (fileType == "blp")
+            if (imageTypes.Contains(fileType))
             {
                 // side by side tab
                 html += "<div class='tab-pane active' id='sbs' role='tabpanel' aria-labelledby='sbs-tab'>";
                 html += "<div class='row'>";
                 html += "<div class='col-md-6' id='from-diff'>";
                 html += "<h3>Build " + from + " (Before)</h3>";
-                html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
-                html += "</div>";
-                html += "<div class='col-md-6' id='to-diff'>";
-                html += "<h3>Build " + to + " (After)</h3>";
-                html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
+
+                if (fileType == "blp")
+                {
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                    html += "</div>";
+                    html += "<div class='col-md-6' id='to-diff'>";
+                    html += "<h3>Build " + to + " (After)</h3>";
+                    html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
+                }
+                else
+                {
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/file?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                    html += "</div>";
+                    html += "<div class='col-md-6' id='to-diff'>";
+                    html += "<h3>Build " + to + " (After)</h3>";
+                    html += "<img id='toImage' style='max-width: 100%;' src='/casc/file?fileDataID=" + fileDataID + "&build=" + to + "'>";
+                }
+
                 html += "</div>";
                 html += "</div>";
                 html += "</div>";
@@ -1271,7 +1288,16 @@ namespace wow.tools.local.Controllers
                 html += "<div id='toggle-content' data-current='from'>";
                 html += "<div class='col-md-6' id='from-diff'>";
                 html += "<h3>Build " + from + " (Before)</h3>";
-                html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+
+                if (fileType == "blp")
+                {
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                }
+                else
+                {
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/file?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                }
+
                 html += "</div>";
                 html += "</div>";
                 html += "<button class='btn btn-primary' id='toggle-button' onclick='switchImages()'>Switch</button>";

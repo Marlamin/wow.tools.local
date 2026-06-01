@@ -162,7 +162,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
     var url = "/casc/fdid?fileDataID=" + filedataid + "&filename=preview";
 
     // Preview tab: visual preview of files, e.g. modelviewer, audio player, textures, code, text, etc
-    var previewTabExts = ["blp", "mp3", "ogg", "m2", "wmo", "m3", "lua", "html", "txt", "srt", "xml", "toc", "hlsl"];
+    var previewTabExts = ["blp", "mp3", "ogg", "m2", "wmo", "m3", "lua", "html", "txt", "srt", "xml", "toc", "hlsl", "png"];
     var hasPreviewTab = previewTabExts.includes(type); 
 
     // JSON preview of file, for files where this is relevant (e.g. models, wmos, adts, bls, gfats, etc)
@@ -210,6 +210,8 @@ function fillPreviewModal(buildconfig, filedataid, type) {
         if (type == "blp") {
             html += "<canvas id='mapCanvas' width='1' height='1'></canvas>";
             renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true);
+        } else if (type == "png") {
+            html += "<img src=\"" + url + "\" style=\"max-width: 100%; max-height: 80vh;\" />";
         } else if (type == "mp3" || type == "ogg") {
             var mimeType = "";
             if (type == "mp3") {

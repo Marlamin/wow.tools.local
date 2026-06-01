@@ -75,7 +75,7 @@
             return this.charAt(0).toUpperCase() + this.slice(1)
         }
 
-        var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2", "xml", "lua", "txt", "srt"];
+        var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2", "xml", "lua", "txt", "srt", "png"];
 
         document.addEventListener("DOMContentLoaded", function () {
             const urlParams = new URLSearchParams(window.location.search);
@@ -193,6 +193,7 @@
                                     case "lua":
                                     case "json":
                                     case "sbt":
+                                    case "png":
                                     case "toc":
                                     case "txt":
                                     case "xml":
