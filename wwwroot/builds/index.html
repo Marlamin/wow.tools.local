@@ -84,7 +84,7 @@
                 <input class="form-control" placeholder="CDN config hash" type="text" id="cdnConfig" />
             </div>
             <div class="col">
-                <input type="submit" id="customBuildButton" class="form-control btn btn-primary" value="Load" onClick="loadConfigs()" />
+                <a id="customBuildButton" class="form-control btn btn-primary" href="#" onClick="loadManualConfigs(this)">Load</a>
             </div>
         </div>
 
@@ -138,29 +138,33 @@
                 {
                     "targets": 5,
                     "render": function (data, type, full, meta) {
-                        let isActive = data == "True";
-                        let isLocal = full[8] == "False";
-                        let isArmadillo = full[2].includes('wowdev') || full[2].includes('wownev') || full[2].includes('wowv') || full[2] == 'wowlivetest2';
+                        const isActive = data == "True";
+                        const isLocal = full[8] == "False";
+                        const isArmadillo = full[2].includes('wowdev') || full[2].includes('wownev') || full[2].includes('wowv') || full[2] == 'wowlivetest2';
+
+                        const product = full[2];
+                        const buildConfig = full[3];
+                        const cdnConfig = full[4];
 
                         var result = "";
                         if (isLocal) {
                             if (isActive) {
-                                result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Force local reload</a>';
+                                result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Force local reload</a>';
                             } else {
-                                result += '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Switch to local build</a>';
+                                result += '<a class="btn btn-success btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Switch to local build</a>';
                             }
                         } else {
                             if (isArmadillo) {
                                 if (isActive) {
-                                    result += '<a class="btn btn-secondary btn-sm" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Force remote reload</a>';
+                                    result += '<a class="btn btn-secondary btn-sm" href="#">Current build</a> <a class="btn btn-danger btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Force remote reload</a>';
                                 } else {
-                                    result += '<a class="btn btn-secondary btn-sm text-muted" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Encrypted build</a>';
+                                    result += '<a class="btn btn-secondary btn-sm text-muted" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Encrypted build</a>';
                                 }
                             } else {
                                 if (isActive) {
-                                    result += '<a class="btn btn-secondary btn-sm" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Force remote reload</a>';
+                                    result += '<a class="btn btn-secondary btn-sm" href="#">Current build</a> <a class="btn btn-danger btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Force remote reload</a>';
                                 } else {
-                                    result += '<a class="btn btn-primary btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Switch to online build</a>';
+                                    result += '<a class="btn btn-primary btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Switch to online build</a>';
                                 }
                             }
                         }
@@ -191,13 +195,13 @@
                         }
                         if (hasDBCs) {
                             if (isActive) {
-                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">Re-extract</a>';
+                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(this)">Re-extract</a>';
                             } else {
                                 result += ' <a class="btn btn-success btn-sm disabled" href="#">Has DBCs</a>';
                             }
                         } else {
                             if (isActive) {
-                                result += ' <a class="btn btn-primary btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">DBCs missing, extract?</a>';
+                                result += ' <a class="btn btn-primary btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(this)">DBCs missing, extract?</a>';
                             } else {
                                 result += ' <a class="btn btn-danger btn-sm disabled" href="#">DBCs missing</a>';
                             }
@@ -246,19 +250,7 @@
                 console.error('Error:', error);
             });
 
-        async function switchToProduct(product, remote = false) {
-            var button = document.querySelector('[data-product="' + product + '"]');
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Switching, please wait!";
-            button.classList.remove("btn-success");
-            button.classList.add("btn-danger");
-            const response = await fetch("/casc/switchProduct?product=" + product + "&remote=" + remote);
-            var result = await response.text();
-            if (result == "true") {
-                location.reload();
-            }
-        }
-
-        async function loadConfigs() {
+        async function loadManualConfigs(source) {
             var buildconfig = document.getElementById("buildConfig").value;
             var cdnconfig = document.getElementById("cdnConfig").value;
 
@@ -267,24 +259,28 @@
                 return;
             }
 
-            var button = document.getElementById("customBuildButton");
+            loadConfigs("wow", buildconfig, cdnconfig, source);
+        }
 
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Switching, please wait!";
-            button.classList.remove("btn-success");
-            button.classList.add("btn-danger");
-
-            const response = await fetch("/casc/switchConfigs?buildconfig=" + buildconfig + "&cdnconfig=" + cdnconfig);
+        async function loadConfigs(product, buildconfig, cdnconfig, source) {
+            if (source != undefined) {
+                console.log(source);
+                source.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Loading, please wait!";
+                source.classList.remove("btn-success");
+                source.classList.add("btn-danger");
+            }
+        
+            const response = await fetch("/casc/switchConfigs?product=" + product + "&buildconfig=" + buildconfig + "&cdnconfig=" + cdnconfig);
             var result = await response.text();
             if (result == "true") {
                 location.reload();
             }
         }
 
-        async function extractDBCs(product) {
-            var button = document.querySelector('[data-dbcproduct="' + product + '"]');
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
-            button.classList.remove("btn-success");
-            button.classList.add("btn-danger");
+        async function extractDBCs(source) {
+            source.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
+            source.classList.remove("btn-success");
+            source.classList.add("btn-danger");
             const response = await fetch("/dbc/export/alltodisk");
             var result = await response.text();
             if (result == "true") {
