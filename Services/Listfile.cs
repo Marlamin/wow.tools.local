@@ -32,7 +32,6 @@ namespace wow.tools.local.Services
             if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
                 listfileMode = "parts";
 
-
             var listfileLines = new List<string>();
             if (listfileMode == "downloaded")
             {
@@ -109,13 +108,30 @@ namespace wow.tools.local.Services
         {
             var allNames = new Dictionary<int, string>();
 
+            if (File.Exists("custom-listfile.csv"))
+            {
+                var customLines = File.ReadAllLines("custom-listfile.csv");
+                foreach (var line in customLines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    allNames[int.Parse(splitLine[0])] = splitLine[1];
+                }
+            }
+
             foreach (var line in GetLines())
             {
                 if (string.IsNullOrEmpty(line))
                     continue;
 
                 var splitLine = line.Split(";");
-                allNames[int.Parse(splitLine[0])] = splitLine[1];
+                var id = int.Parse(splitLine[0]);
+                if (allNames.ContainsKey(id))
+                    continue;
+
+                allNames[id] = splitLine[1];
             }
 
             Console.WriteLine("Finished loading full listfile: " + allNames.Count + " named files");
@@ -131,12 +147,16 @@ namespace wow.tools.local.Services
                 Types.Clear();
                 PlaceholderFiles.Clear();
                 foreach (var fdid in CASC.AvailableFDIDs)
-                    Listfile.NameMap.TryAdd(fdid, "");
+                    NameMap.TryAdd(fdid, "");
 
                 var listfileLines = GetLines(forceRedownload);
 
+                var customFileIDs = new List<uint>();
                 if (File.Exists("custom-listfile.csv"))
-                    listfileLines = listfileLines.Concat(File.ReadAllLines("custom-listfile.csv")).ToArray();
+                {
+                    var customLines = File.ReadAllLines("custom-listfile.csv");
+                    listfileLines = customLines.Concat(listfileLines).ToArray();
+                }
 
                 foreach (var rawLine in listfileLines)
                 {
@@ -148,6 +168,9 @@ namespace wow.tools.local.Services
                     if (colonPos < 0) continue;
 
                     var fdid = int.Parse(line[..colonPos]);
+                    if (NameMap.TryGetValue(fdid, out var existingName) && !string.IsNullOrEmpty(existingName))
+                        continue;
+
                     var filename = line[(colonPos + 1)..].ToString();
 
                     NameMap[fdid] = filename;
@@ -158,7 +181,6 @@ namespace wow.tools.local.Services
                     var ext = Path.GetExtension(filename).Replace(".", "").ToLowerInvariant();
 
                     var filenameLower = filename.ToLowerInvariant().AsSpan();
-
 
                     if (!TypeMap.ContainsKey(ext))
                         TypeMap.Add(ext, []);
@@ -575,7 +597,7 @@ namespace wow.tools.local.Services
                 var fdids = new HashSet<int>(Listfile.LookupMap.Keys);
                 return p => fdids.Contains(p.Key);
             }
-            else if(search == "lookupmatch")
+            else if (search == "lookupmatch")
             {
                 var lookupFDIDs = new HashSet<int>(Listfile.LookupMap.Keys);
                 var hasher = new Jenkins96();
