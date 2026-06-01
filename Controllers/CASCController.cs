@@ -146,15 +146,15 @@ namespace wow.tools.local.Controllers
 
         [Route("switchProduct")]
         [HttpGet]
-        public bool SwitchProduct(string product, bool isOnline = false)
+        public bool SwitchProduct(string product)
         {
             if (SettingsManager.ReadOnly)
                 return false;
 
             if (SettingsManager.UseTACTSharp)
-                CASC.InitTACT(isOnline ? "" : SettingsManager.WoWFolder, product);
+                CASC.InitTACT(SettingsManager.WoWFolder, product);
             else
-                CASC.InitCasc(isOnline ? "" : SettingsManager.WoWFolder, product);
+                CASC.InitCasc(SettingsManager.WoWFolder, product);
 
             // Don't respond until things are done loading
             while (true)
@@ -169,12 +169,12 @@ namespace wow.tools.local.Controllers
 
         [Route("switchConfigs")]
         [HttpGet]
-        public bool SwitchConfigs(string buildconfig, string cdnconfig)
+        public bool SwitchConfigs(string product, string buildconfig, string cdnconfig)
         {
             if (!SettingsManager.UseTACTSharp || SettingsManager.ReadOnly)
                 return false;
 
-            CASC.InitTACT(string.Empty, "wow", buildconfig, cdnconfig);
+            CASC.InitTACT(SettingsManager.WoWFolder, product, buildconfig, cdnconfig);
 
             // Don't respond until things are done loading
             while (true)

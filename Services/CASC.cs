@@ -116,7 +116,7 @@ namespace wow.tools.local.Services
                 buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.AdditionalCDNs);
 
             bool loadOnline = false;
-            if (!string.IsNullOrEmpty(wowFolder) && string.IsNullOrEmpty(overrideBC) && string.IsNullOrEmpty(overrideCDNC))
+            if (!string.IsNullOrEmpty(wowFolder))
             {
                 // Load from build.info
                 var buildInfoPath = Path.Combine(wowFolder, ".build.info");
@@ -194,8 +194,7 @@ namespace wow.tools.local.Services
             if (!string.IsNullOrEmpty(SettingsManager.CDNFolder))
                 buildInstance.Settings.CDNDir = SettingsManager.CDNFolder;
 
-            if (!IsOnline)
-                buildInstance.cdn.OpenLocal();
+            buildInstance.cdn.OpenLocal();
 
             try
             {
