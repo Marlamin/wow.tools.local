@@ -151,15 +151,16 @@ namespace wow.tools.local.Services
                 loadOnline = true;
             }
 
+            if (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC))
+            {
+                buildInstance.Settings.BuildConfig = overrideBC;
+                buildInstance.Settings.CDNConfig = overrideCDNC;
+            }
+
             if (loadOnline)
             {
                 IsOnline = true;
-                if (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC))
-                {
-                    buildInstance.Settings.BuildConfig = overrideBC;
-                    buildInstance.Settings.CDNConfig = overrideCDNC;
-                }
-                else
+                if (string.IsNullOrEmpty(overrideBC) && string.IsNullOrEmpty(overrideCDNC))
                 {
                     var versions = await buildInstance.cdn.GetPatchServiceFile(product);
                     foreach (var line in versions.Split('\n'))
@@ -774,8 +775,6 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
             Console.WriteLine("Finished loading " + BuildName);
         }
-
-
 
         public static void LoadBuildInfo()
         {

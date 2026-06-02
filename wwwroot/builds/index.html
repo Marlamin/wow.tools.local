@@ -53,17 +53,6 @@
         </form>
         <br />
         <div class="row">
-            <form class="form-inline">
-                <label class="btn btn-sm btn-success active">
-                    <input type="checkbox" autocomplete="off" id="localBuilds" CHECKED> Local
-                </label>
-                <label class="btn btn-sm btn-primary active">
-                    <input type="checkbox" autocomplete="off" id="onlineBuilds"> Online
-                </label>
-                <label class="btn btn-sm btn-warning active">
-                    <input type="checkbox" autocomplete="off" id="archivedBuilds"> Archived
-                </label>
-            </form>
             <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
                 <div class="col-sm-12">
                     <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
@@ -104,12 +93,28 @@
     <script type='text/javascript'>
         let knownManifests = new Array();
         let currentBuild = "";
-        let diffInit = false;
 
         var buildTable = new DataTable("#buildtable", {
             "pageLength": 25,
-            "searching": false,
+            "searching": true,
             "serverSide": true,
+            "layout": {
+                topStart: {
+                    div: {
+                        html: `<form class="form-inline">
+                               <label class="btn btn-sm btn-success active">
+                                   <input type="checkbox" autocomplete="off" id="localBuilds" CHECKED> Local
+                               </label>
+                               <label class="btn btn-sm btn-primary active">
+                                   <input type="checkbox" autocomplete="off" id="onlineBuilds"> Online
+                               </label>
+                               <label class="btn btn-sm btn-warning active">
+                                   <input type="checkbox" autocomplete="off" id="archivedBuilds"> Archived
+                               </label>
+                           </form>`
+                    }
+                }
+            },
             "ajax": {
                 url: "/build/table",
                 type: "POST",
@@ -133,6 +138,12 @@
                             return "<i class='fa fa-lock' style='color: aqua'></i> " + full[2];
 
                         return full[2];
+                    }
+                },
+                {
+                    "targets": [3, 4],
+                    "render": function (data, type, full, meta) {
+                        return "<span style='font-family: monospace;'>" + data + "</span>";
                     }
                 },
                 {
@@ -217,20 +228,25 @@
             buildTable.ajax.reload();
         }
 
+        reloadDiffSection();
         document.getElementById("localBuilds").addEventListener("change", reloadBuildTable);
         document.getElementById("onlineBuilds").addEventListener("change", reloadBuildTable);
         document.getElementById("archivedBuilds").addEventListener("change", reloadBuildTable);
 
+        async function reloadDiffSection() {
+            document.getElementById("diffFormButton").disabled = true;
 
-        fetch('/casc/listManifests')
-            .then((response) => response.json())
-            .then((manifests) => {
-                for (j = 0; j < manifests.length; j++) {
-                    if (!knownManifests.includes(manifests[j]))
-                        knownManifests.push(manifests[j]);
-                }
+            fetch('/casc/listManifests')
+                .then((response) => response.json())
+                .then((manifests) => {
+                    for (j = 0; j < manifests.length; j++) {
+                        if (!knownManifests.includes(manifests[j]))
+                            knownManifests.push(manifests[j]);
+                    }
 
-                if (!diffInit) {
+                    document.getElementById("diffFormFrom").children = [];
+                    document.getElementById("diffFormTo").children = [];
+
                     for (i = 0; i < knownManifests.length; i++) {
                         var option = document.createElement("option");
                         option.text = knownManifests[i];
@@ -244,11 +260,11 @@
                     }
 
                     document.getElementById("diffFormButton").disabled = false;
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
 
         async function loadManualConfigs(source) {
             var buildconfig = document.getElementById("buildConfig").value;
@@ -273,7 +289,7 @@
             const response = await fetch("/casc/switchConfigs?product=" + product + "&buildconfig=" + buildconfig + "&cdnconfig=" + cdnconfig);
             var result = await response.text();
             if (result == "true") {
-                location.reload();
+                reloadBuildTable();
             }
         }
 
@@ -284,19 +300,7 @@
             const response = await fetch("/dbc/export/alltodisk");
             var result = await response.text();
             if (result == "true") {
-                location.reload();
-            }
-        }
-
-        async function reloadBuilds() {
-            var button = document.getElementById('reloadBuildsButton');
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Reloading, please wait!";
-            button.classList.remove("btn-success");
-            button.classList.add("btn-danger");
-            const response = await fetch("/casc/reloadBuilds");
-            var result = await response.text();
-            if (result == "true") {
-                location.reload();
+                reloadBuildTable();
             }
         }
     </script>

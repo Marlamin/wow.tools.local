@@ -34,6 +34,7 @@ namespace wow.tools.local.Controllers
 
             var orderCol = 1; // Build
             var orderDir = "desc";
+            var search = "";
 
             if (Request.Method == "POST")
             {
@@ -46,6 +47,8 @@ namespace wow.tools.local.Controllers
 
                 _ = Request.Form.TryGetValue("order[0][column]", out var orderColString) && int.TryParse(orderColString, out orderCol);
                 _ = Request.Form.TryGetValue("order[0][dir]", out var orderDirString) && (orderDirString == "asc" || orderDirString == "desc") ? orderDir = orderDirString : orderDir = "desc";
+
+                _ = Request.Form.TryGetValue("search[value]", out var searchString) && !string.IsNullOrWhiteSpace(searchString) ? search = searchString : search = "";
                 result.data = [];
             }
 
@@ -133,7 +136,11 @@ namespace wow.tools.local.Controllers
             result.recordsTotal = result.data.Count;
             result.recordsFiltered = result.data.Count;
 
-            // TODO: Filtering, searching?
+            if(!string.IsNullOrEmpty(search))
+            {
+                result.data = result.data.Where(x => x.Any(field => field.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();
+                result.recordsFiltered = result.data.Count;
+            }
 
             return result;
         }

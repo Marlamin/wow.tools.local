@@ -1,5 +1,9 @@
 0.9.5 (xx-06-2025)
-- Reworked build page to only 1 table that now also supports historical/previously seen builds.
+- Reworked build page:
+  Combined the previously separate local/online tables into 1 table.
+  Table now supports ordering/searching.
+  Table now also optionally lists previously seen/historical builds.
+  Build switching/DB2 extraction tasks no longer refresh the full page when done.
 - Added support for PNG previews (for some reason there's 4 of them in the game?).
 - Fixed custom-listfile.csv entries being overwritten, should be easier to test submissions now.
 - Updated config.json creation to have community CDNs set as additional CDNs by default.
