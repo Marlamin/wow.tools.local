@@ -7,6 +7,7 @@
 - Added support for PNG previews (for some reason there's 4 of them in the game?).
 - Fixed custom-listfile.csv entries being overwritten, should be easier to test submissions now.
 - Updated config.json creation to have community CDNs set as additional CDNs by default.
+- Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
 
 0.9.4 (25-05-2026)
 - Added support for naming new and still unknown map files.

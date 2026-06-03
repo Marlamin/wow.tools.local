@@ -199,6 +199,10 @@
             previewTypes: ["ogg", "mp3", "blp", "wmo", "m2", "bls", "gfat", "lua", "txt", "srt", "toc", "hlsl", "m3", "adt", "png"]
         }
 
+        var Elements = {
+            fileTable: null,
+        }
+
         window.onkeydown = function (e) {
             if (e.shiftKey && e.keyCode == 65) {
                 showButtons();
@@ -246,7 +250,9 @@
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateListfile");
-            window.location.reload();
+            Elements.filesTable.ajax.reload(); 
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update listfile";
         }
 
         async function updateLookups() {
@@ -254,12 +260,29 @@
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateLookups");
-            window.location.reload();
+            Elements.filesTable.ajax.reload();
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update lookups";
+        }
+
+        async function updateTACTKeys() {
+            var button = document.getElementById("updateTACTKeysButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
+
+            await fetch("/casc/updateTACTKeys");
+            Elements.filesTable.ajax.reload();
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update TACTKeys";
         }
 
         async function analyzeFiles() {
+            var button = document.getElementById("analyzeFileButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Analyzing, please wait!";
+
             const response = await fetch("/casc/analyzeUnknown");
-            window.location.reload();
+            Elements.filesTable.ajax.reload();
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Analyze unknown files";
         }
 
         function loadSettings() {
@@ -382,7 +405,7 @@
                 var pageLength = 25;
             }
 
-            var table = new DataTable('#files', {
+            Elements.filesTable = new DataTable('#files', {
                 "processing": true,
                 "serverSide": true,
                 "search": { "search": searchString },
@@ -600,9 +623,7 @@
                 ]
             });
 
-            filesTable = table;
-
-            table.on('draw.dt', function () {
+            Elements.filesTable.on('draw.dt', function () {
                 var searchInput = document.getElementById("dt-search-0");
                 var currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
                 var currentPage = table.page() + 1;
@@ -652,28 +673,26 @@
                 }
             });
 
-            table.on('length.dt', function (e, settings, len) {
+            Elements.filesTable.on('length.dt', function (e, settings, len) {
                 localStorage.setItem("filesPageLength", len);
             });
         }());
 
-        var filesTable = null;
-
         function copyResultsToClipboard() {
-            if (!filesTable) {
+            if (!Elements.filesTable) {
                 console.log("Table not initialized");
                 return;
             }
-            console.log(filesTable.rows().data().toArray());
+            console.log(Elements.filesTable.rows().data().toArray());
             var result = "";
-            for (const row of filesTable.rows().data().toArray()) {
+            for (const row of Elements.filesTable.rows().data().toArray()) {
                 result += row[0] + ";" + row[1] + "\n";
             }
             navigator.clipboard.writeText(result);
         }
 
         function locationHashChanged(event) {
-            if (!filesTable) {
+            if (!Elements.filesTable) {
                 return;
             }
 
@@ -687,12 +706,12 @@
             var searchInput = document.getElementById("dt-search-0");
             if (searchString != undefined && searchInput && searchInput.value != searchString) {
                 console.log("Setting search to " + searchString);
-                filesTable.search(searchString).draw(false);
+                Elements.filesTable.search(searchString).draw(false);
             }
             var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
-            if (filesTable.page() != page) {
+            if (Elements.filesTable.page() != page) {
                 console.log("Setting page to " + page);
-                filesTable.page(page).draw(false);
+                Elements.filesTable.page(page).draw(false);
             }
 
             var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
@@ -705,10 +724,10 @@
                 sortDesc = "asc";
             }
 
-            var curSort = filesTable.order();
+            var curSort = Elements.filesTable.order();
             if (sortCol != curSort[0][0] || sortDesc != curSort[0][1]) {
                 console.log("Setting sort to " + sortCol + ", " + sortDesc);
-                filesTable.order([sortCol, sortDesc]).draw(false);
+                Elements.filesTable.order([sortCol, sortDesc]).draw(false);
             }
         }
 

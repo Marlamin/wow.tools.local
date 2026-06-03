@@ -100,6 +100,14 @@
 
             return false;
         }
+
+        async function updateTACTKeys() {
+            var button = document.getElementById("updateTACTKeysButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
+
+            await fetch("/casc/updateTACTKeys");
+            window.location.reload();
+        }
     </script>
     <link href="/css/files.css" rel="stylesheet">
 </body>

@@ -294,7 +294,9 @@
             const response2 = await fetch("/dbc/clearCache");
             console.log(await response2.text());
 
-            window.location.reload();
+            loadTable();
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Clear DB2/DBC/DBD cache";
         }
 
         function setPageDB2Title(tableName) {
@@ -307,7 +309,10 @@
 
             const response = await fetch("/dbc/updateDefs");
             console.log(await response.text());
-            window.location.reload();
+
+            loadTable();
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache";
         }
 
         function updateDBDButton() {

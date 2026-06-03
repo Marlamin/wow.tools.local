@@ -486,14 +486,6 @@ async function exportTACTKeys() {
     button.innerHTML = beforeText;
 }
 
-async function updateTACTKeys() {
-    var button = document.getElementById("updateTACTKeysButton");
-    button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
-
-    await fetch("/casc/updateTACTKeys");
-    window.location.reload();
-}
-
 function checkFiles() {
     var button = document.getElementById("checkFilesButton");
     button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Checking, please wait!";
