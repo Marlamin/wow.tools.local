@@ -204,7 +204,7 @@
         }
 
         window.onkeydown = function (e) {
-            if (e.shiftKey && e.keyCode == 65) {
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 65) {
                 showButtons();
                 queueAllFiles();
                 event.preventDefault();

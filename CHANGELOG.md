@@ -1,11 +1,12 @@
 0.9.5 (xx-06-2025)
-- Reworked build page:
+- Reworked builds page:
   Combined the previously separate local/online tables into 1 table.
   Table now supports ordering/searching.
   Table now also optionally lists previously seen/historical builds.
   Build switching/DB2 extraction tasks no longer refresh the full page when done.
 - Added support for PNG previews (for some reason there's 4 of them in the game?).
 - Fixed custom-listfile.csv entries being overwritten, should be easier to test submissions now.
+- Fixed Shift-A not working on files page, Ctrl-Shift-A is now the key combo to add all files to DL queue.
 - Updated config.json creation to have community CDNs set as additional CDNs by default.
 - Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
 
