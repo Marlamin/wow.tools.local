@@ -284,7 +284,7 @@ window.createscene = async function () {
     const textureForm = document.getElementById("textureForm");
     const textureRow = document.getElementById("textureRow");
     const sscTextureForm = document.getElementById("sscTextureForm");
-    const sscTextureListSelect = document.getElementById("sscTextureListSelect");
+    sscTextureForm.innerHTML = "<div class='sscSectionHeading'><span class='sscSectionLabel'>Texture Slots:</span><span class='sscLinkedCheckboxLabel'>&#x1F517;</span></div>";
 
     for (let i = 0; i < 2; i++) {
         const textureCol = document.createElement('div');
@@ -346,22 +346,30 @@ window.createscene = async function () {
       textureCol.appendChild(textureInputDiv);
       
       const sscTextureInputDiv = document.createElement('div');
+      const sscTextureInputCheckbox = document.createElement('input');
       const sscTextureInput = document.createElement('input');
       const sscTextureInputLabel = document.createElement('label');
       sscTextureInputDiv.classList.add("sscInputDiv");
-      sscTextureInputDiv.classList.add("sscTextureInputDiv");
+      sscTextureInputDiv.classList.add("sscTexInputDiv");
       sscTextureInput.type = "text";
       sscTextureInput.id = "sscTex" + i;
       sscTextureInput.setAttribute('name', "sscTextures[" + i + "]");
       sscTextureInput.classList.add("sscInput");
-      sscTextureInput.classList.add("sscTextureInput");
+      sscTextureInput.classList.add("sscTexInput");
       sscTextureInputLabel.htmlFor = "sscTex" + i;
       sscTextureInputLabel.innerHTML = (i + ":");
       sscTextureInputLabel.classList.add("sscInputLabel");
-      sscTextureInputLabel.classList.add("sscTextureInputLabel");
+      sscTextureInputLabel.classList.add("sscTexInputLabel");
+      sscTextureInputCheckbox.type = "checkbox";
+      sscTextureInputCheckbox.id = "sscTexLinkedCheckbox" + i;
+      sscTextureInputCheckbox.name = "sscTexLinkedCheckbox" + i;
+      sscTextureInputCheckbox.value = i;
+      sscTextureInputCheckbox.classList.add("sscLinkedCheckboxInput");
+      sscTextureInputCheckbox.classList.add("sscTexLinkedCheckboxInput");
       sscTextureInputDiv.id = "sscTexDiv" + i;
       sscTextureInputDiv.appendChild(sscTextureInputLabel);
       sscTextureInputDiv.appendChild(sscTextureInput);
+      sscTextureInputDiv.appendChild(sscTextureInputCheckbox);
       sscTextureForm.appendChild(sscTextureInputDiv);
     }
     
@@ -409,7 +417,7 @@ window.createscene = async function () {
         const geosetControl = document.getElementById("geosets");
         geosetControl.innerHTML = "This functionality is WIP and might cause display issues. Use with caution. Sometimes a geoset value of 0 gives a valid appearance, other times it creates a hole in your model.";
         const sscGeoForm = document.getElementById("sscGeosetForm");
-        sscGeoForm.innerHTML = "<strong>Geoset Groups:</strong>";
+        sscGeoForm.innerHTML = "<div class='sscSectionHeading'><span class='sscSectionLabel'>Geoset Groups:</span><span class='sscLinkedCheckboxLabel'>&#x1F517;</span></div>";
         for (let meshID of Current.availableGeosets){
             meshID = Number(meshID);
 
@@ -446,22 +454,30 @@ window.createscene = async function () {
             let geoInput = document.getElementById("sscGeo" + geosetGroup);
             if (!geoInput){
               const sscGeosetInputDiv = document.createElement('div');
+              const sscGeosetInputCheckbox = document.createElement('input');
               const sscGeosetInput = document.createElement('input');
               const sscGeosetInputLabel = document.createElement('label');
               sscGeosetInputDiv.classList.add("sscInputDiv");
-              sscGeosetInputDiv.classList.add("sscGeosetInputDiv");
+              sscGeosetInputDiv.classList.add("sscGeoInputDiv");
               sscGeosetInput.type = "text";
               sscGeosetInput.id = "sscGeo" + geosetGroup;
               sscGeosetInput.value = geosetIndex;
               sscGeosetInput.dataset.geosetGroup = geosetGroup;
               sscGeosetInput.classList.add("sscInput");
-              sscGeosetInput.classList.add("sscGeosetInput");
+              sscGeosetInput.classList.add("sscGeoInput");
               sscGeosetInputLabel.htmlFor = "sscGeo" + geosetGroup;
               sscGeosetInputLabel.innerHTML = geosetGroup + ":";
               sscGeosetInputLabel.classList.add("sscInputLabel");
-              sscGeosetInputLabel.classList.add("sscGeosetInputLabel");
+              sscGeosetInputLabel.classList.add("sscGeoInputLabel");
+              sscGeosetInputCheckbox.type = "checkbox";
+              sscGeosetInputCheckbox.id = "sscGeoLinkedCheckbox" + geosetGroup;
+              sscGeosetInputCheckbox.name = "sscGeoLinkedCheckbox" + geosetGroup;
+              sscGeosetInputCheckbox.value = geosetGroup;
+              sscGeosetInputCheckbox.classList.add("sscLinkedCheckboxInput");
+              sscGeosetInputCheckbox.classList.add("sscGeoLinkedCheckboxInput");
               sscGeosetInputDiv.appendChild(sscGeosetInputLabel);
               sscGeosetInputDiv.appendChild(sscGeosetInput);
+              sscGeosetInputDiv.appendChild(sscGeosetInputCheckbox);
               sscGeoForm.appendChild(sscGeosetInputDiv);
             }
             else{
@@ -1045,38 +1061,62 @@ function takescreenShotCombo()
   Module._createScreenshot();
 }
 
-async function screenShotComboGeo(geoNumIndex, allGeosets)
+async function screenShotComboGeo(geoNumIndex, allGeosets, texArray, linking)
 {
-  console.log("screenShotComboGeo() called. GeoNumIndex = " + geoNumIndex);
-  if (geoNumIndex >= allGeosets.geoNums.length){
+  if (geoNumIndex >= allGeosets.length){
     await asyncTimeout();
+    setModelTextures(texArray);
     updateEnabledGeosets();
     await asyncTimeout();
     await takescreenShotCombo();
     return;
   }
-  var geoNum = allGeosets.geoNums[geoNumIndex];
-  var geoVals = allGeosets.geoVals[geoNumIndex];
-  for (let i = 0; i < geoVals.length; i++){
+  var geoNum = allGeosets[geoNumIndex].slotNum;
+  var geoVals = allGeosets[geoNumIndex].variants;
+  var primaryLink = false;
+  var geoStart = 0;
+  var geoEnd = geoVals.length;
+  if (allGeosets[geoNumIndex].linked) {
+    if (linking < 0) // haven't encountered a linked field before now
+      primaryLink = true;
+    else {
+      geoStart = linking;
+      geoEnd = linking + 1;
+    }
+  }
+  for (let i = geoStart; i < geoEnd; i++){
     Current.enabledGeosets[geoNum] = Number(geoVals[i]);
-    await screenShotComboGeo(geoNumIndex+1, allGeosets);
+    if (primaryLink)
+      linking = i;
+    await screenShotComboGeo(geoNumIndex+1, allGeosets, texArray, linking);
   }
 }
 
-async function screenShotComboTex(texNum, texArray, allTextures, allGeosets)
+async function screenShotComboTex(texNum, texArray, allTextures, allGeosets, linking)
 {
-  console.log("screenShotComboTex() called. TexNum = " + texNum);
   if (texNum >= NUM_TEXTURE_SLOTS){
     await asyncTimeout();
-    setModelTextures(texArray);
-    await asyncTimeout();
-    await screenShotComboGeo(0, allGeosets);
+    await screenShotComboGeo(0, allGeosets, texArray, linking);
     return;
   }
-  var texes = allTextures[texNum];
-  for (let i = 0; i < texes.length; i++){
-    texArray[texNum] = texes[i];
-    await screenShotComboTex(texNum+1, texArray, allTextures, allGeosets);
+  var texes = allTextures[texNum].variants;
+  var primaryLink = false;
+  var texStart = 0;
+  var texEnd = texes.length;
+  if (allTextures[texNum].linked) {
+    if (linking < 0) {// haven't encountered a linked field before now
+      primaryLink = true;
+    }
+    else {
+      texStart = linking;
+      texEnd = linking + 1;
+    }
+  }
+  for (let i = texStart; i < texEnd; i++){
+    texArray[allTextures[texNum].slotNum] = texes[i];
+    if (primaryLink)
+      linking = i;
+    await screenShotComboTex(texNum+1, texArray, allTextures, allGeosets, linking);
   }
 }
 
@@ -1085,25 +1125,51 @@ function screenShotCombos()
   // Take screenshots for multiple combos of textures and/or geoset variants for a model.
   // It does this slowly or it bugs out.
   var allTextures = new Array(NUM_TEXTURE_SLOTS);
-  for (let i = 0; i < allTextures.length; i++){
-    allTextures[i] = parseComboList('sscTex' + i);
+  var linkedSettings = new Array();
+  var lastLinkedSize = 0;
+  var linkedLengthVaries = false;
+  
+  for (let i = 0; i < allTextures.length; i++) {
+    let variantVals = parseComboList('sscTex' + i);
+    let isLinked = document.getElementById('sscTexLinkedCheckbox' + i).checked;
+    if (isLinked) {
+      linkedSize = variantVals.length;
+      if (lastLinkedSize > 0 && lastLinkedSize != linkedSize)
+        linkedLengthVaries = true;
+      lastLinkedSize = linkedSize;
+      linkedSettings.push({name: "Texture #" + i, size: linkedSize});
+    }
+    allTextures[i] = {variants: variantVals, slotNum: i, varType: "texture", linked: isLinked};
   }
-
-  let rawGeosetList = document.getElementsByClassName("sscGeosetInput");
-  var allGeosets = {};
-  allGeosets.geoNums = Array();
-  allGeosets.geoVals = Array();
+  let rawGeosetList = document.getElementsByClassName("sscGeoInput");
+  var allGeosets = new Array();
   if (rawGeosetList.length > 0){
-    for (i = 0; i < rawGeosetList.length; i++){
+    for (let i = 0; i < rawGeosetList.length; i++) {
       let geoNum = rawGeosetList[i].dataset.geosetGroup;
-      let geoVals = parseComboList("sscGeo"+geoNum);
-      if (geoVals.length > 1 || geoVals[0] != "0"){
-        allGeosets.geoNums.push(geoNum);
-        allGeosets.geoVals.push(geoVals);
+      let variantVals = parseComboList("sscGeo"+geoNum);
+      let isLinked = document.getElementById('sscGeoLinkedCheckbox' + geoNum).checked;
+      if (isLinked) {
+        linkedSize = variantVals.length;
+        if (lastLinkedSize > 0 && lastLinkedSize != linkedSize)
+          linkedLengthVaries = true;
+        lastLinkedSize = linkedSize;
+        linkedSettings.push({name: "Geoset #" + geoNum, size: linkedSize});
       }
+      // if (variantVals.length > 1 || variantVals[0] != "0") {
+        allGeosets.push({variants: variantVals, slotNum: geoNum, varType: "geoset", linked: isLinked});
+      // }
     }
   }
-  screenShotComboTex(0, new Int32Array(NUM_TEXTURE_SLOTS), allTextures, allGeosets);
+  if (linkedLengthVaries) {
+    let alertText = "All linked fields must have exactly the same number of comma-separated values. The order is important for indicating which values are linked. Currently, the number of values for the linked fields are:\n";
+    for (let i = 0; i < linkedSettings.length; i++) {
+      alertText = alertText.concat(linkedSettings[i].name, " :\t", linkedSettings[i].size, "\n");
+    }
+    window.alert(alertText);
+    return;
+  }
+  else
+    screenShotComboTex(0, new Int32Array(NUM_TEXTURE_SLOTS), allTextures, allGeosets, -1);
 }
 
 function getScenePos(){
