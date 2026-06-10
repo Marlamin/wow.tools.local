@@ -127,9 +127,9 @@
                     </div>
                     <div class="tab-pane fade" id="screenshots" role="tabpanel" aria-labelledby="screenshots-tab">
                         <p><strong>Experimental:</strong> Take screenshots covering multiple texture and/or geoset combos.</p>
-                        <form id='sscTextureForm'><strong>Texture Slots:</strong></form>
-                        <form id='sscGeosetForm'><strong>Geosets:</strong></form>
-                        <button id='sscFormButton' type="button" class="btn btn-primary" onclick="screenShotCombos();" data-dismiss="modal">Take Screenshot Combos</button><p>Enter comma-separated texture IDs and/or geoset #s in relevant fields. Include proper values for slots with single values or they'll be set to zero.</p><p>This form is pre-filled with all known variants for this model but it may need adjusting, especially zero geosets.</p><p>Be patient and don't change tabs: the screenshot process has to be slow or it bugs out.</p>
+                        <form id='sscTextureForm'></form>
+                        <form id='sscGeosetForm'></form>
+                        <button id='sscFormButton' type="button" class="btn btn-primary" onclick="screenShotCombos();" data-dismiss="modal">Take Screenshot Combos</button><p>Enter comma-separated texture IDs or geoset #s in relevant fields. Include proper values for fields with just one value or they'll be set to zero. Be patient and don't change tabs: the screenshot process has to be slow or it bugs out.</p><p>This form is pre-filled with all known variants for this model but it may need adjusting/pruning, especially geoset values of 0.</p><p>&#x1F517; Values in linked fields will be combined 1:1 by list order, rather than used in varying combos. E.g.: link body & wing textures so wing and body colours always match, or link textures with geoset variants specially intended for them. Linked fields must hold the same number of values and you'll need to manually determine correct ordering.</p>
                     </div>
                 </div>
             </div>
