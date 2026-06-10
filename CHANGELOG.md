@@ -7,6 +7,7 @@
 - Added support for PNG previews (for some reason there's 4 of them in the game?).
 - Fixed custom-listfile.csv entries being overwritten, should be easier to test submissions now.
 - Fixed Shift-A not working on files page, Ctrl-Shift-A is now the key combo to add all files to DL queue.
+- Improved speed of build diffs.
 - Updated config.json creation to have community CDNs set as additional CDNs by default.
 - Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
 

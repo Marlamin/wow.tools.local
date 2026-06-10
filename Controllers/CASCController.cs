@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -714,8 +715,11 @@ namespace wow.tools.local.Controllers
 
             if (type == "normal")
             {
-                rawFromEntries = await ManifestManager.GetEntriesForVersionAsync(from);
-                rawToEntries = await ManifestManager.GetEntriesForVersionAsync(to);
+                var fromTask = ManifestManager.GetEntriesForVersionAsync(from);
+                var toTask = ManifestManager.GetEntriesForVersionAsync(to);
+                await Task.WhenAll(fromTask, toTask);
+                rawFromEntries = fromTask.Result;
+                rawToEntries = toTask.Result;
             }
             else
             {
@@ -755,15 +759,16 @@ namespace wow.tools.local.Controllers
             var fromEntries = fromDict.Keys.ToHashSet();
             var toEntries = toDict.Keys.ToHashSet();
 
-            var commonEntries = fromEntries.Intersect(toEntries);
+            var commonEntries = fromEntries.Intersect(toEntries).ToHashSet();
             var removedEntries = fromEntries.Except(commonEntries);
             var addedEntries = toEntries.Except(commonEntries);
 
             var addedFiles = addedEntries.Select(entry => new KeyValuePair<int, string>(entry, toDict[entry]));
             var removedFiles = removedEntries.Select(entry => new KeyValuePair<int, string>(entry, fromDict[entry]));
-            var modifiedFiles = new List<KeyValuePair<int, string>>();
+            var modifiedFiles = new ConcurrentBag<KeyValuePair<int, string>>();
 
-            var modifiedLock = new Lock();
+            dbcProvider.LoadFromBuildManager = true;
+
             Parallel.ForEach(commonEntries, entry =>
             {
                 // DB2 files are special, we need to ignore the string in header (if current build, obviously)
@@ -779,16 +784,22 @@ namespace wow.tools.local.Controllers
 
                         try
                         {
-                            dbcProvider.LoadFromBuildManager = true;
                             var fromDB2 = dbcProvider.StreamForTableName(basename, from);
+                            var toDB2 = dbcProvider.StreamForTableName(basename, to);
+                     
+                            if (fromDB2.Length != toDB2.Length)
+                            {
+                                modifiedFiles.Add(new KeyValuePair<int, string>(entry, toDict[entry]));
+                                return;
+                            }
+
                             var fromDB2Header = new byte[4];
                             fromDB2.ReadExactly(fromDB2Header);
 
-                            var toDB2 = dbcProvider.StreamForTableName(basename, to);
                             var toDB2Header = new byte[4];
                             toDB2.ReadExactly(toDB2Header);
 
-                            if (MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457 && MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457)
+                            if (MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457 && MemoryMarshal.Read<int>(toDB2Header) == 0x35434457)
                             {
                                 fromDB2.Position = 136;
                                 toDB2.Position = 136;
@@ -800,8 +811,7 @@ namespace wow.tools.local.Controllers
                                 toDB2.ReadExactly(remainingToBytes);
 
                                 if (!remainingFromBytes.SequenceEqual(remainingToBytes))
-                                    lock (modifiedLock)
-                                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, toDict[entry]));
+                                    modifiedFiles.Add(new KeyValuePair<int, string>(entry, toDict[entry]));
 
                                 return;
                             }
@@ -817,22 +827,24 @@ namespace wow.tools.local.Controllers
                 var patchedFile = toDict[entry];
 
                 if (originalFile != patchedFile)
-                    lock (modifiedLock)
-                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, patchedFile));
+                    modifiedFiles.Add(new KeyValuePair<int, string>(entry, patchedFile));
             });
+
+            dbcProvider.LoadFromBuildManager = false;
 
             var toAddedDiffEntryDelegate = toDiffEntry(DiffAction.Added);
             var toRemovedDiffEntryDelegate = toDiffEntry(DiffAction.Removed);
             var toModifiedDiffEntryDelegate = toDiffEntry(DiffAction.Modified);
 
+            DiffEntry[] addedDiffEntries;
+            DiffEntry[] removedDiffEntries;
+            DiffEntry[] modifiedDiffEntries;
+
             if (type == "normal")
             {
-                diff = new ApiDiff
-                {
-                    Added = addedFiles.Select(toAddedDiffEntryDelegate),
-                    Removed = removedFiles.Select(toRemovedDiffEntryDelegate),
-                    Modified = modifiedFiles.Select(toModifiedDiffEntryDelegate)
-                };
+                addedDiffEntries = addedFiles.Select(toAddedDiffEntryDelegate).ToArray();
+                removedDiffEntries = removedFiles.Select(toRemovedDiffEntryDelegate).ToArray();
+                modifiedDiffEntries = modifiedFiles.Select(toModifiedDiffEntryDelegate).ToArray();
             }
             else
             {
@@ -840,27 +852,34 @@ namespace wow.tools.local.Controllers
                 var oldRemoved = oldDiff.Removed.Select(x => x.id).ToHashSet();
                 var oldModified = oldDiff.Modified.Select(x => x.id).ToHashSet();
 
-                diff = new ApiDiff
-                {
-                    Added = addedFiles.Where(x => !oldAdded.Contains(x.Key)).Select(toAddedDiffEntryDelegate),
-                    Removed = removedFiles.Where(x => !oldRemoved.Contains(x.Key)).Select(toRemovedDiffEntryDelegate),
-                    Modified = modifiedFiles.Where(x => !oldModified.Contains(x.Key)).Select(toModifiedDiffEntryDelegate)
-                };
+                addedDiffEntries = addedFiles.Where(x => !oldAdded.Contains(x.Key)).Select(toAddedDiffEntryDelegate).ToArray();
+                removedDiffEntries = removedFiles.Where(x => !oldRemoved.Contains(x.Key)).Select(toRemovedDiffEntryDelegate).ToArray();
+                modifiedDiffEntries = modifiedFiles.Where(x => !oldModified.Contains(x.Key)).Select(toModifiedDiffEntryDelegate).ToArray();
             }
 
-            dbcProvider.LoadFromBuildManager = false;
+            diff = new ApiDiff
+            {
+                Added = addedDiffEntries,
+                Removed = removedDiffEntries,
+                Modified = modifiedDiffEntries
+            };
 
-            Console.WriteLine($"Added: {diff.Added.Count()}, removed: {diff.Removed.Count()}, modified: {diff.Modified.Count()}, common: {commonEntries.Count()}");
+            Console.WriteLine($"Added: {addedDiffEntries.Length}, removed: {removedDiffEntries.Length}, modified: {modifiedDiffEntries.Length}, common: {commonEntries.Count}");
 
             if (type == "normal")
                 BuildDiffCache.Add(from, to, diff);
 
+            var allEntries = new DiffEntry[addedDiffEntries.Length + removedDiffEntries.Length + modifiedDiffEntries.Length];
+            addedDiffEntries.CopyTo(allEntries, 0);
+            removedDiffEntries.CopyTo(allEntries, addedDiffEntries.Length);
+            modifiedDiffEntries.CopyTo(allEntries, addedDiffEntries.Length + removedDiffEntries.Length);
+
             return Json(new
             {
-                added = diff.Added.Count(),
-                modified = diff.Modified.Count(),
-                removed = diff.Removed.Count(),
-                data = diff.All.ToArray()
+                added = addedDiffEntries.Length,
+                modified = modifiedDiffEntries.Length,
+                removed = removedDiffEntries.Length,
+                data = allEntries
             });
         }
 
