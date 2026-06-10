@@ -940,37 +940,40 @@ namespace wow.tools.local.Controllers
             html += "<tr><td>Type</td><td>" + (Listfile.Types.TryGetValue(filedataid, out string? value) ? value : "unk") + "</td></tr>";
 
             var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
-            var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(allCKeys));
-
-            html += "<tr><td>Content Hashes</td><td>";
-            html += "<table class='table table-sm table-inverse'>";
-            html += "<thead><tr><th>MD5/CKey</th><th>LocaleFlags</th><th>ContentFlags</th><th>&nbsp;</th></tr></thead>";
-
-            foreach (var extraCKeyEntry in allCKeys)
+            if(allCKeys.Count > 0)
             {
-                var extraCKeyHex = Convert.ToHexStringLower(extraCKeyEntry.cKey);
+                var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(allCKeys));
 
-                html += "<tr>";
-                html += "<td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + extraCKeyHex + "\")'>" + extraCKeyHex + "</a>";
-                if (primaryCKey == extraCKeyHex && allCKeys.Count > 1)
-                    html += " (preferred)";
-                html += "</td>";
-                html += "<td>" + extraCKeyEntry.localeFlags + "</td>";
-                html += "<td>" + extraCKeyEntry.contentFlags + "</td>";
-                html += "<td><a href='/casc/chash?contenthash=" + extraCKeyHex + "&filename=" + filedataid + ".bytes'>download</a></td>";
-                html += "</tr>";
+                html += "<tr><td>Content Hashes</td><td>";
+                html += "<table class='table table-sm table-inverse'>";
+                html += "<thead><tr><th>MD5/CKey</th><th>LocaleFlags</th><th>ContentFlags</th><th>&nbsp;</th></tr></thead>";
+
+                foreach (var extraCKeyEntry in allCKeys)
+                {
+                    var extraCKeyHex = Convert.ToHexStringLower(extraCKeyEntry.cKey);
+
+                    html += "<tr>";
+                    html += "<td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + extraCKeyHex + "\")'>" + extraCKeyHex + "</a>";
+                    if (primaryCKey == extraCKeyHex && allCKeys.Count > 1)
+                        html += " (preferred)";
+                    html += "</td>";
+                    html += "<td>" + extraCKeyEntry.localeFlags + "</td>";
+                    html += "<td>" + extraCKeyEntry.contentFlags + "</td>";
+                    html += "<td><a href='/casc/chash?contenthash=" + extraCKeyHex + "&filename=" + filedataid + ".bytes'>download</a></td>";
+                    html += "</tr>";
+                }
+
+                html += "</table>";
+
+                html += "</td></tr>";
+
+                html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(primaryCKey, out var size) ? size + " bytes" : "N/A");
+
+                if (allCKeys.Count > 1)
+                    html += " (for preferred version)";
+
+                html += "</td></tr>";
             }
-
-            html += "</table>";
-
-            html += "</td></tr>";
-
-            html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(primaryCKey, out var size) ? size + " bytes" : "N/A");
-
-            if (allCKeys.Count > 1)
-                html += " (for preferred version)";
-
-            html += "</td></tr>";
 
             if (CASC.EncryptionStatuses.TryGetValue(filedataid, out var encryptionStatus))
             {
