@@ -217,16 +217,13 @@ namespace wow.tools.local.Controllers
 
                 uint size = 0;
                 List<(string cKey, uint size)> cKeys = [];
-                if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
+                var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+                foreach (var cKey in allCKeys)
                 {
-                    var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
-                    foreach (var cKey in allCKeys)
-                    {
-                        var cKeyString = Convert.ToHexStringLower(cKey.cKey);
-                        CASC.CHashToSize.TryGetValue(cKeyString, out size);
+                    var cKeyString = Convert.ToHexStringLower(cKey.cKey);
+                    CASC.CHashToSize.TryGetValue(cKeyString, out size);
 
-                        cKeys.Add((cKeyString, size));
-                    }
+                    cKeys.Add((cKeyString, size));
                 }
 
                 if (Listfile.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
