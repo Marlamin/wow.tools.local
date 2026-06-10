@@ -83,7 +83,7 @@ Outside of some glue and all the parts pretty much taken directly from WoW.tools
 **(compared to maintaining the main wow.tools site)*
 
 - [BLPSharp](https://github.com/wowdev/BLPSharp) used to read convert WoW's BLP textures to PNGs.
-- [CascLib](https://github.com/WoW-Tools/CascLib) or [TACTSharp](https://github.com/wowdev/TACTSharp) are used to retrieve files from WoW's file storage.
+- [TACTSharp](https://github.com/wowdev/TACTSharp) is used to retrieve files from WoW's file storage.
 - [DBCD](https://github.com/wowdev/DBCD) used to read WoW's DB2 tables.
 - [Deamon's WebWowViewerCpp](https://github.com/Deamon87/WebWowViewerCpp) (Emscripten version) which also powers the WoW.tools modelviewer. Does the actual model rendering.
 - [WoWDBDefs](https://github.com/wowdev/WoWDBDefs) definitions required to read WoW's DB2 tables.

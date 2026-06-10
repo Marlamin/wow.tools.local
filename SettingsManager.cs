@@ -31,7 +31,6 @@ namespace wow.tools.local
             {"showAllFiles", new WTLSetting { Key = "showAllFiles", Value = "false", Description = "Whether to show all files in WTL, including those not present in the loaded build.", Type = "bool", DefaultValue = "false" }},
             {"locale", new WTLSetting { Key = "locale", Value = "enUS", Description = "The locale to use (e.g. enUS, deDE, zhCN, etc.).", Type = "string", DefaultValue = "enUS" }},
             {"preferHighResTextures", new WTLSetting { Key = "preferHighResTextures", Value = "false", Description = "Whether to prefer high-res textures when available (Classic only).", Type = "bool", DefaultValue = "false" }},
-            {"useTACTSharp", new WTLSetting { Key = "useTACTSharp", Value = "false", Description = "Whether to use TACTSharp for TACT operations. Uses CASCLib if disabled.", Type = "bool", DefaultValue = "true" }},
             {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDN hosts to use for downloading files, separated by commas.", Type = "string", DefaultValue = "casc.wago.tools,cdn.arctium.tools,archive.wow.tools" }},
             {"buildConfigFile", new WTLSetting { Key = "buildConfigFile", Value = string.Empty, Description = "Path to a build config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"cdnConfigFile", new WTLSetting { Key = "cdnConfigFile", Value = string.Empty, Description = "Path to a CDN config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
@@ -42,7 +41,6 @@ namespace wow.tools.local
             {"bnetClientSecret", new WTLSetting { Key = "bnetClientSecret", Value = string.Empty, Description = "Battle.net Web API client secret (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
         };
 
-        private static CASCLib.LocaleFlags cascLocale;
         private static RootInstance.LocaleFlags tactLocale;
 
         // Strings
@@ -66,12 +64,10 @@ namespace wow.tools.local
         // Bools
         public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
         public static bool PreferHighResTextures { get => bool.Parse(Settings["preferHighResTextures"].Value); set => Settings["preferHighResTextures"].Value = value.ToString().ToLower(); }
-        public static bool UseTACTSharp { get => bool.Parse(Settings["useTACTSharp"].Value); set => Settings["useTACTSharp"].Value = value.ToString().ToLower(); }
         public static bool ReadOnly { get => bool.Parse(Settings["readOnly"].Value); set => Settings["readOnly"].Value = value.ToString().ToLower(); }
 
         // Enums
         public static RootInstance.LocaleFlags TACTLocale { get => tactLocale; set => tactLocale = value; }
-        public static CASCLib.LocaleFlags CASCLocale { get => cascLocale; set => cascLocale = value; }
 
         // Arrays
         public static string[] AdditionalCDNs
@@ -160,29 +156,9 @@ namespace wow.tools.local
         {
             if (locValue == null)
             {
-                cascLocale = CASCLib.LocaleFlags.enUS;
                 tactLocale = RootInstance.LocaleFlags.enUS;
                 return;
             }
-
-            cascLocale = locValue switch
-            {
-                "deDE" => CASCLib.LocaleFlags.deDE,
-                "enUS" => CASCLib.LocaleFlags.enUS,
-                "enGB" => CASCLib.LocaleFlags.enGB,
-                "ruRU" => CASCLib.LocaleFlags.ruRU,
-                "zhCN" => CASCLib.LocaleFlags.zhCN,
-                "zhTW" => CASCLib.LocaleFlags.zhTW,
-                "enTW" => CASCLib.LocaleFlags.enTW,
-                "esES" => CASCLib.LocaleFlags.esES,
-                "esMX" => CASCLib.LocaleFlags.esMX,
-                "frFR" => CASCLib.LocaleFlags.frFR,
-                "itIT" => CASCLib.LocaleFlags.itIT,
-                "koKR" => CASCLib.LocaleFlags.koKR,
-                "ptBR" => CASCLib.LocaleFlags.ptBR,
-                "ptPT" => CASCLib.LocaleFlags.ptPT,
-                _ => throw new Exception("Invalid locale. Available locales: deDE, enUS, enGB, ruRU, zhCN, zhTW, enTW, esES, esMX, frFR, itIT, koKR, ptBR, ptPT"),
-            };
 
             tactLocale = locValue switch
             {
@@ -352,7 +328,6 @@ namespace wow.tools.local
                     else
                         return (true, string.Empty);
                 case "showAllFiles":
-                case "useTACTSharp":
                 case "preferHighResTextures":
                 case "readOnly":
                     if (bool.TryParse(value, out _))

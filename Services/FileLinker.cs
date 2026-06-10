@@ -43,13 +43,7 @@ namespace wow.tools.local.Services
 
             if (!FileProvider.HasProvider(CASC.BuildName))
             {
-                if (CASC.IsCASCLibInit)
-                {
-                    var casc = new CASCFileProvider();
-                    casc.InitCasc(CASC.cascHandler);
-                    FileProvider.SetProvider(casc, CASC.BuildName);
-                }
-                else if (CASC.IsTACTSharpInit)
+                if (CASC.IsTACTSharpInit)
                 {
                     var tact = new TACTSharpFileProvider();
                     tact.InitTACT(CASC.buildInstance);

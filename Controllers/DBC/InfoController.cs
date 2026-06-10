@@ -1,7 +1,7 @@
-﻿using CASCLib;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
+using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Controllers
 {

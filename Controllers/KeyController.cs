@@ -1,5 +1,4 @@
-﻿using CASCLib;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text.Json;
 using wow.tools.local.Managers;

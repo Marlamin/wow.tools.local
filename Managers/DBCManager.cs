@@ -1,10 +1,10 @@
-﻿using CASCLib;
-using DBCD;
+﻿using DBCD;
 using DBCD.IO;
 using DBCD.Providers;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Concurrent;
 using wow.tools.local.Providers;
+using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Managers
 {

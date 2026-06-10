@@ -1,5 +1,4 @@
-﻿using CASCLib;
-using DBCD.Providers;
+﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
 using System.Globalization;
@@ -18,7 +17,7 @@ namespace wow.tools.local.Controllers
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
         private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
 
-        private readonly Jenkins96 hasher = new();
+        private readonly TACTSharp.Jenkins96 hasher = new();
 
         private static Dictionary<int, List<uint>>? MFDMap;
         private static Dictionary<int, List<uint>>? TFDMap;
@@ -344,17 +343,17 @@ namespace wow.tools.local.Controllers
 
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
-                installResults = installResults.Where(x => x.Name.Contains(search!)).ToList();
+                installResults = installResults.Where(x => x.name.Contains(search!)).ToList();
             }
 
             foreach (var installResult in installResults.Skip(start).Take(length))
             {
                 result.data.Add(
                     [
-                        installResult.Name,
-                        installResult.Size.ToString(),
-                        string.Join(", ", installResult.Tags),
-                        installResult.MD5.ToHexString()
+                        installResult.name,
+                        installResult.size.ToString(),
+                        string.Join(", ", installResult.tags),
+                        Convert.ToHexStringLower(installResult.md5)
                     ]);
             }
 
@@ -576,13 +575,7 @@ namespace wow.tools.local.Controllers
             {
                 if (!FileProvider.HasProvider(CASC.BuildName))
                 {
-                    if (CASC.IsCASCLibInit)
-                    {
-                        var casc = new CASCFileProvider();
-                        casc.InitCasc(CASC.cascHandler);
-                        FileProvider.SetProvider(casc, CASC.BuildName);
-                    }
-                    else if (CASC.IsTACTSharpInit)
+                    if (CASC.IsTACTSharpInit)
                     {
                         var tact = new TACTSharpFileProvider();
                         tact.InitTACT(CASC.buildInstance);
@@ -847,7 +840,7 @@ namespace wow.tools.local.Controllers
             var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "unk_listfile.txt");
 
             System.IO.File.Delete(lookupPath);
-            var hasher = new Jenkins96();
+            var hasher = new TACTSharp.Jenkins96();
             using (var sw = new StreamWriter(lookupPath))
             {
                 var sortedMap = Listfile.LookupMap.ToDictionary();

@@ -42,9 +42,7 @@ namespace wow.tools.local.Controllers
                 Namer.SetHotfixes(HotfixManager.hotfixReaders);
 
                 var availabileFDIDs = CASC.AvailableFDIDs.ToList();
-                if (CASC.IsCASCLibInit)
-                    Namer.SetCASC(ref CASC.cascHandler!, ref availabileFDIDs);
-                else if (CASC.IsTACTSharpInit)
+                if (CASC.IsTACTSharpInit)
                     Namer.SetTACT(ref CASC.buildInstance!, ref availabileFDIDs);
 
                 Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);

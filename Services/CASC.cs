@@ -1,18 +1,18 @@
-﻿using CASCLib;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
+using System.Collections;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using TACTSharp;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
+using static TACTSharp.InstallInstance;
+using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Services
 {
     public static partial class CASC
     {
-        public static CASCHandler? cascHandler;
-        public static bool IsCASCLibInit = false;
         public static bool IsTACTSharpInit = false;
 
         public static string BuildName = "";
@@ -32,7 +32,7 @@ namespace wow.tools.local.Services
         public static Dictionary<int, List<Version>> VersionHistory = [];
         public static List<AvailableBuild> AvailableBuilds = [];
         public static List<int> OtherLocaleOnlyFiles = [];
-        public static List<InstallEntry> InstallEntries = [];
+        public static List<TACTSharp.InstallInstance.InstallFileEntry> InstallEntries = [];
 
         private static readonly Lock CHashLock = new();
 
@@ -261,42 +261,15 @@ namespace wow.tools.local.Services
             FDIDToCHash.Clear();
             FDIDToCHashSet.Clear();
 
-            #region Install entry conversion between TACTSharp and CASCLib
-            var hasher = new CASCLib.Jenkins96();
-
-            var installTags = new Dictionary<string, InstallTag>();
+            #region Install entries
+            var installTags = new Dictionary<string, InstallInstance.InstallTagEntry>();
             foreach (var installTag in buildInstance.Install.Tags)
             {
-                var cascInstallTag = new InstallTag()
-                {
-                    Name = installTag.name,
-                    Type = (short)installTag.type,
-                    Bits = installTag.files
-                };
-
-                installTags.Add(installTag.name, cascInstallTag);
+                installTags.Add(installTag.name, installTag);
             }
 
             InstallEntries.Clear();
-
-            foreach (var installEntry in buildInstance.Install.Entries)
-            {
-                var cascInstallEntry = new InstallEntry()
-                {
-                    MD5 = installEntry.md5.ToMD5(),
-                    Size = (int)installEntry.size,
-                    Name = installEntry.name,
-                    Hash = hasher.ComputeHash(installEntry.name),
-                    Tags = new List<InstallTag>()
-                };
-
-                foreach (var usedTag in installEntry.tags)
-                {
-                    cascInstallEntry.Tags.Add(installTags[usedTag.Split('=')[1]]);
-                }
-
-                InstallEntries.Add(cascInstallEntry);
-            }
+            InstallEntries.AddRange(buildInstance.Install.Entries);
             #endregion
 
             if (buildInstance.Settings.BaseDir != null)
@@ -313,7 +286,7 @@ namespace wow.tools.local.Services
 
                             string keyringContents;
                             if (!string.IsNullOrEmpty(build.Armadillo))
-                                keyringContents = new StreamReader(new ArmadilloCrypt(build.Armadillo).DecryptFileToStream(build.KeyRing, keyring)).ReadToEnd();
+                                throw new Exception("Encrypted keyrings are not yet supported");
                             else
                                 keyringContents = new StreamReader(keyring).ReadToEnd();
 
@@ -442,7 +415,7 @@ namespace wow.tools.local.Services
 
                     if (matches.Count > 0)
                     {
-                        var keys = matches.Cast<Match>().Select(m => BitConverter.ToUInt64(m.Value.FromHexString(), 0)).ToList();
+                        var keys = matches.Cast<Match>().Select(m => BitConverter.ToUInt64(Convert.FromHexString(m.Value), 0)).ToList();
                         if (keys.Count > 0)
                         {
                             lock (EncryptedFDIDs)
@@ -485,293 +458,6 @@ namespace wow.tools.local.Services
             }
 
             IsTACTSharpInit = true;
-
-            Console.WriteLine("Finished loading " + BuildName);
-        }
-
-        public static void InitCasc(string? basedir = null, string program = "wowt", LocaleFlags locale = LocaleFlags.enUS)
-        {
-            IsCASCLibInit = false;
-
-            WebClient.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
-
-            CASCConfig.ValidateData = false;
-            CASCConfig.ThrowOnFileNotFound = false;
-            CASCConfig.UseWowTVFS = false;
-            CASCConfig.LoadFlags = LoadFlags.Install;
-            CASCConfig.BuildConfigOverride = "fakebuildconfig";
-            CASCConfig.CDNConfigOverride = "fakecdnconfig";
-
-            locale = SettingsManager.CASCLocale;
-
-            if (basedir == null)
-            {
-                Console.WriteLine("Initializing CASC from web for program " + program + " and locale " + locale);
-                cascHandler = CASCHandler.OpenOnlineStorage(program, SettingsManager.Region);
-                IsCASCLibInit = true;
-                IsOnline = true;
-            }
-            else
-            {
-                basedir = basedir.Replace("_retail_", "").Replace("_ptr_", "");
-                Console.WriteLine("Initializing CASC from local disk with basedir " + basedir + " and program " + program + " and locale " + locale);
-                cascHandler = CASCHandler.OpenLocalStorage(basedir, program);
-                IsCASCLibInit = true;
-
-                LoadBuildInfo();
-
-                foreach (var build in AvailableBuilds)
-                {
-                    if (!string.IsNullOrEmpty(build.KeyRing))
-                    {
-                        try
-                        {
-                            var keyring = WebClient.GetStreamAsync("https://blzddist1-a.akamaihd.net/" + build.CDNPath + "/config/" + build.KeyRing[0] + build.KeyRing[1] + "/" + build.KeyRing[2] + build.KeyRing[3] + "/" + build.KeyRing).Result;
-
-                            string keyringContents;
-                            if (!string.IsNullOrEmpty(build.Armadillo))
-                                keyringContents = new StreamReader(new ArmadilloCrypt(build.Armadillo).DecryptFileToStream(build.KeyRing, keyring)).ReadToEnd();
-                            else
-                                keyringContents = new StreamReader(keyring).ReadToEnd();
-
-                            foreach (var line in keyringContents.Split("\n"))
-                            {
-                                var splitLine = line.Split(" = ");
-                                if (splitLine.Length != 2)
-                                    continue;
-
-                                var lookup = splitLine[0].Replace("key-", "");
-                                if (lookup.Length != 16)
-                                {
-                                    Console.WriteLine("Warning: KeyRing lookup " + lookup + " is not 16 characters long, skipping..");
-                                    continue;
-                                }
-
-                                var parsedLookup = BitConverter.ToUInt64(Convert.FromHexString(lookup), 0);
-
-                                if (WTLKeyService.HasKey(parsedLookup))
-                                    continue;
-
-                                Console.WriteLine("Setting key " + parsedLookup.ToString("X") + " from KeyRing " + build.KeyRing);
-                                WTLKeyService.SetKey(parsedLookup, Convert.FromHexString(splitLine[1]));
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Error loading keyring: " + e.Message);
-                        }
-                    }
-                }
-            }
-
-            WTLKeyService.LoadKeys();
-
-            CurrentProduct = program;
-
-            FullBuildName = cascHandler.Config.BuildName;
-            var splitName = FullBuildName.Replace("WOW-", "").Split("patch");
-            BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
-
-            cascHandler.Root.SetFlags(locale, false, SettingsManager.PreferHighResTextures);
-
-            Directory.CreateDirectory(SettingsManager.ManifestFolder);
-
-            InstallEntries = cascHandler.Install.GetEntries().ToList();
-
-            try
-            {
-                SQLiteDB.InsertBuildIfNotExists(CurrentProduct, BuildName, cascHandler.Config.GetVersionsVariable("BuildConfig"), cascHandler.Config.GetVersionsVariable("CDNConfig"));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error inserting build into database: " + e.Message);
-            }
-
-            AvailableFDIDs.Clear();
-
-            if (cascHandler.Root is WowTVFSRootHandler wtrh)
-            {
-                AvailableFDIDs.UnionWith(wtrh.RootEntries.Keys);
-                if (!ManifestManager.ExistsForVersion(BuildName))
-                {
-                    var manifestEntries = new List<(uint FileDataID, byte[] MD5)>();
-                    foreach (var entry in wtrh.RootEntries)
-                    {
-                        var preferredEntry = entry.Value.FirstOrDefault(subentry =>
-                       subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-
-                        if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
-                            preferredEntry = entry.Value.First();
-
-                        manifestEntries.Add(((uint)entry.Key, Convert.FromHexString(preferredEntry.cKey.ToHexString())));
-                    }
-
-                    ManifestManager.Write(BuildName, manifestEntries);
-
-                    SQLiteDB.ImportBuildIntoFileHistory(BuildName);
-
-                    Console.WriteLine("Force updating DBDs after new build..");
-                    DBDProvider.GetBDBDStream(true);
-                }
-            }
-            else if (cascHandler.Root is WowRootHandler wrh)
-            {
-                AvailableFDIDs.UnionWith(wrh.RootEntries.Keys);
-                if (!ManifestManager.ExistsForVersion(BuildName))
-                {
-                    var manifestEntries = new List<(uint FileDataID, byte[] MD5)>();
-                    foreach (var entry in wrh.RootEntries)
-                    {
-                        var preferredEntry = entry.Value.FirstOrDefault(subentry =>
-                       subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-
-                        if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
-                            preferredEntry = entry.Value.First();
-
-                        manifestEntries.Add(((uint)entry.Key, Convert.FromHexString(preferredEntry.cKey.ToHexString())));
-                    }
-
-                    ManifestManager.Write(BuildName, manifestEntries);
-
-                    SQLiteDB.ImportBuildIntoFileHistory(BuildName);
-
-                    Console.WriteLine("Force updating DBDs after new build..");
-                    DBDProvider.GetBDBDStream(true);
-                }
-            }
-
-            EncryptedFDIDs.Clear();
-            EncryptionStatuses.Clear();
-
-            Listfile.LoadLookups();
-            Listfile.EnsureFDIDsPresent(AvailableFDIDs);
-
-            bool listfileRes;
-
-            try
-            {
-                listfileRes = Listfile.Load();
-            }
-            catch (Exception e)
-            {   // attempt automatic redownload of the listfile if it wasn't able to be parsed - this will also backup the old listfile to listfile.csv.bak
-                Console.WriteLine("Good heavens! Encountered an error reading listfile (" + e.Message + "). Attempting redownload...");
-                listfileRes = Listfile.Load(true);
-            }
-
-            if (!listfileRes)
-            {   // still no listfile, exit
-                Console.WriteLine("Failed to read listfile after automatic redownload.");
-                Environment.Exit(1);
-            }
-
-            Console.WriteLine("Analyzing files");
-            if (cascHandler.Root is WowTVFSRootHandler ewtrh)
-            {
-                foreach (var entry in ewtrh.RootEntries)
-                {
-                    var preferredEntry = entry.Value.FirstOrDefault(subentry =>
-subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-
-                    if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
-                    {
-                        preferredEntry = entry.Value.First();
-                        OtherLocaleOnlyFiles.Add(entry.Key);
-                    }
-
-                    foreach (var subentry in entry.Value)
-                    {
-                        if (EncryptedFDIDs.ContainsKey(entry.Key))
-                            continue;
-
-                        if (subentry.ContentFlags.HasFlag(ContentFlags.Encrypted))
-                            EncryptedFDIDs.Add(entry.Key, []);
-
-                        if (cascHandler.Encoding.GetEntry(subentry.cKey, out var eKey))
-                        {
-                            var usedKeys = cascHandler.Encoding.GetEncryptionKeys(eKey.Keys[0]);
-                            if (usedKeys != null)
-                            {
-                                if (EncryptedFDIDs.TryGetValue(entry.Key, out List<ulong>? encryptedIDs))
-                                {
-                                    encryptedIDs.AddRange(usedKeys);
-                                }
-                                else
-                                {
-                                    EncryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else if (cascHandler.Root is WowRootHandler ewrh)
-            {
-                // Encryption
-                foreach (var entry in ewrh.RootEntries)
-                {
-                    var preferredEntry = entry.Value.FirstOrDefault(subentry =>
-subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-
-                    if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
-                    {
-                        preferredEntry = entry.Value.First();
-                        OtherLocaleOnlyFiles.Add(entry.Key);
-                    }
-
-                    foreach (var subentry in entry.Value)
-                    {
-                        if (EncryptedFDIDs.ContainsKey(entry.Key))
-                            continue;
-
-                        if (subentry.ContentFlags.HasFlag(ContentFlags.Encrypted))
-                            EncryptedFDIDs.Add(entry.Key, []);
-
-                        if (cascHandler.Encoding.GetEntry(subentry.cKey, out var eKey))
-                        {
-                            var usedKeys = cascHandler.Encoding.GetEncryptionKeys(eKey.Keys[0]);
-                            if (usedKeys != null)
-                            {
-                                if (EncryptedFDIDs.TryGetValue(entry.Key, out List<ulong>? encryptedIDs))
-                                {
-                                    encryptedIDs.AddRange(usedKeys);
-                                }
-                                else
-                                {
-                                    EncryptedFDIDs.Add(entry.Key, new List<ulong>(usedKeys));
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Lookups
-                foreach (var entry in ewrh.FileDataToLookup)
-                {
-                    if (!Listfile.LookupMap.ContainsKey(entry.Key) && entry.Value != FileDataHash.ComputeHash(entry.Key))
-                    {
-                        Listfile.LookupMap.Add(entry.Key, entry.Value);
-                    }
-                }
-
-                // Only write out cached lookups if we added new ones, to avoid unnecessary file writes
-                if (Listfile.CachedLookupCount != Listfile.LookupMap.Count)
-                    File.WriteAllLines("cachedLookups.txt", Listfile.LookupMap.Select(x => x.Key + ";" + x.Value));
-            }
-
-            Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");
-            RefreshEncryptionStatus();
-            Console.WriteLine("Done analyzing encrypted files");
-
-            Listfile.LoadCachedUnknowns();
-
-            try
-            {
-                HotfixManager.LoadCaches();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error loading hotfixes: " + e.Message);
-            }
 
             Console.WriteLine("Finished loading " + BuildName);
         }
@@ -861,19 +547,16 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             }
         }
 
-        public static Stream? GetFileByEKey(MD5Hash EKey, long decodedSize)
+        public static Stream? GetFileByEKey(MD5 EKey, long decodedSize)
         {
-            if (IsCASCLibInit)
-                return cascHandler!.OpenFile(EKey);
-            else if (IsTACTSharpInit)
+            if (IsTACTSharpInit)
             {
-                var eKey = Convert.FromHexString(EKey.ToHexString());
-                var (offset, size, archiveIndex) = buildInstance!.GroupIndex!.GetIndexInfo(eKey);
+                var (offset, size, archiveIndex) = buildInstance!.GroupIndex!.GetIndexInfo(EKey);
                 byte[] fileBytes;
                 if (offset == -1)
-                    fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, (ulong)decodedSize, true);
+                    fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(EKey), 0, (ulong)decodedSize, true);
                 else
-                    fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
+                    fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(EKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
 
                 return new MemoryStream(fileBytes);
             }
@@ -881,22 +564,25 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 return null;
         }
 
-        public static bool TryGetEKeysByCKey(MD5Hash CKey, out EncodingEntry EKeys)
+        public struct EncodingEntry
         {
-            if (IsCASCLibInit)
-                return cascHandler!.Encoding.GetEntry(CKey, out EKeys);
-            else if (IsTACTSharpInit)
+            public List<MD5> Keys;
+            public long Size;
+        }
+
+        public static bool TryGetEKeysByCKey(MD5 CKey, out EncodingEntry EKeys)
+        {
+            if (IsTACTSharpInit)
             {
-                var ckey = Convert.FromHexString(CKey.ToHexString());
-                var TEKeys = buildInstance!.Encoding!.FindContentKey(ckey);
+                var TEKeys = buildInstance!.Encoding!.FindContentKey(CKey);
 
                 if (TEKeys)
                 {
-                    var md5HashEkeys = new List<MD5Hash>();
+                    var md5HashEkeys = new List<MD5>();
                     for (var i = 0; i < TEKeys.Length; i++)
                     {
                         var ekey = TEKeys[i];
-                        md5HashEkeys.Add(ekey.ToArray().ToMD5());
+                        md5HashEkeys.Add(new MD5(ekey));
                     }
 
                     EKeys = new EncodingEntry
@@ -915,13 +601,13 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             }
             else
             {
-                throw new Exception("No CASC or TACTSharp handler initialized");
+                throw new Exception("No TACTSharp handler initialized");
             }
         }
 
         public static uint GetFileDataIDByName(string name)
         {
-            // TODO: native CASCLib/TACTSharp functions instead of relying on listfile.
+            // TODO: native TACTSharp function instead of relying on listfile.
             return (uint)Listfile.NameMap.Where(x => x.Value.Equals(name, StringComparison.CurrentCultureIgnoreCase)).Select(x => x.Key).FirstOrDefault();
         }
 
@@ -932,26 +618,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
             if (build == BuildName)
             {
-                if (IsCASCLibInit)
-                {
-                    try
-                    {
-                        return cascHandler!.OpenFile((int)filedataid);
-                    }
-                    catch (Exception e)
-                    {
-                        if (!e.Message.Contains("keyname"))
-                        {
-                            Console.WriteLine("Exception retrieving FileDataID " + filedataid + ": " + e.Message);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Missing key for " + filedataid + ": " + e.Message);
-                        }
-                        return null;
-                    }
-                }
-                else if (IsTACTSharpInit)
+                if (IsTACTSharpInit)
                 {
                     var tactLocale = (RootInstance.LocaleFlags)locale;
 
@@ -1023,7 +690,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 }
                 else
                 {
-                    throw new Exception("No CASC or TACTSharp handler initialized");
+                    throw new Exception("No TACTSharp handler initialized");
                 }
             }
             else
@@ -1078,9 +745,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
 
         public static bool FileExists(uint filedataid)
         {
-            if (IsCASCLibInit)
-                return cascHandler!.FileExists((int)filedataid);
-            else if (IsTACTSharpInit)
+            if (IsTACTSharpInit)
                 return buildInstance!.Root!.FileExists(filedataid);
             else
                 return false;
@@ -1092,72 +757,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             {
                 // Load when requesting for first time to keep resource use low
 
-                if (IsCASCLibInit)
-                {
-                    if (cascHandler!.Root is WowTVFSRootHandler wtrh)
-                    {
-                        foreach (var entry in wtrh.RootEntries)
-                        {
-                            var preferredEntry = entry.Value.FirstOrDefault(subentry =>
-                            subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-
-                            var ckey = preferredEntry.cKey.ToHexString();
-
-                            if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
-                            {
-                                preferredEntry = entry.Value.First();
-                                ckey = preferredEntry.cKey.ToHexString();
-                            }
-
-                            FDIDToCHash.Add(entry.Key, Convert.FromHexString(ckey));
-
-                            if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
-                            {
-                                value.Add(entry.Key);
-                            }
-                            else
-                            {
-                                CHashToFDID.Add(ckey, [entry.Key]);
-                            }
-                        }
-                    }
-                    else if (cascHandler.Root is WowRootHandler wrh)
-                    {
-                        foreach (var entry in wrh.RootEntries)
-                        {
-                            var preferredEntry = entry.Value.FirstOrDefault(subentry =>
-                           subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.LocaleFlags.HasFlag(LocaleFlags.All_WoW) || subentry.LocaleFlags.HasFlag(LocaleFlags.enUS)));
-
-                            var ckey = preferredEntry.cKey.ToHexString();
-
-                            if (preferredEntry.cKey.lowPart == 0 && preferredEntry.cKey.highPart == 0)
-                            {
-                                preferredEntry = entry.Value.First();
-                                ckey = preferredEntry.cKey.ToHexString();
-                            }
-
-                            FDIDToCHash.Add(entry.Key, Convert.FromHexString(ckey));
-
-                            if (CHashToFDID.TryGetValue(ckey, out List<int>? value))
-                            {
-                                value.Add(entry.Key);
-                            }
-                            else
-                            {
-                                CHashToFDID.Add(ckey, [entry.Key]);
-                            }
-                        }
-                    }
-
-                    foreach (var chash in CHashToFDID.Keys)
-                    {
-                        if (cascHandler.Encoding.GetEntry(chash.FromHexString().ToMD5(), out var eKey))
-                        {
-                            CHashToSize.Add(chash, (uint)eKey.Size);
-                        }
-                    }
-                }
-                else if (IsTACTSharpInit)
+                if (IsTACTSharpInit)
                 {
                     Parallel.ForEach(buildInstance!.Root!.GetAvailableFDIDs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, fdid =>
                     {
@@ -1202,7 +802,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
                 }
                 else
                 {
-                    throw new Exception("No CASC or TACTSharp handler initialized");
+                    throw new Exception("No TACTSharp handler initialized");
                 }
             }
 
@@ -1213,30 +813,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
         {
             var result = new List<(byte[], ContentFlags contentFlags, LocaleFlags localeFlags)>();
 
-            if (IsCASCLibInit)
-            {
-                if (cascHandler!.Root is WowTVFSRootHandler wtrh)
-                {
-                    if (wtrh.RootEntries.TryGetValue(fileDataID, out var entries))
-                    {
-                        foreach (var entry in entries)
-                        {
-                            result.Add((entry.cKey.ToHexString().FromHexString(), entry.ContentFlags, entry.LocaleFlags));
-                        }
-                    }
-                }
-                else if (cascHandler.Root is WowRootHandler wrh)
-                {
-                    if (wrh.RootEntries.TryGetValue(fileDataID, out var entries))
-                    {
-                        foreach (var entry in entries)
-                        {
-                            result.Add((entry.cKey.ToHexString().FromHexString(), entry.ContentFlags, entry.LocaleFlags));
-                        }
-                    }
-                }
-            }
-            else if (IsTACTSharpInit)
+            if (IsTACTSharpInit)
             {
                 var rootEntries = buildInstance!.Root!.GetEntriesByFDID((uint)fileDataID);
                 foreach (var entry in rootEntries)
@@ -1246,7 +823,7 @@ subentry.ContentFlags.HasFlag(ContentFlags.Alternate) == false && (subentry.Loca
             }
             else
             {
-                throw new Exception("No CASC or TACTSharp handler initialized");
+                throw new Exception("No TACTSharp handler initialized");
             }
 
             return result;

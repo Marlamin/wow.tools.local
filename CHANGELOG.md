@@ -10,6 +10,7 @@
 - Improved speed of build diffs.
 - Updated config.json creation to have community CDNs set as additional CDNs by default.
 - Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
+- Removed CASCLib.
 
 0.9.4 (25-05-2026)
 - Added support for naming new and still unknown map files.

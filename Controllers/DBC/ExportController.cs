@@ -1,5 +1,4 @@
-﻿using CASCLib;
-using DBCD;
+﻿using DBCD;
 using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using wow.tools.local;
@@ -10,6 +9,7 @@ using wow.tools.local.Utils;
 
 namespace wow.tools.Local.Controllers
 {
+    using static TACTSharp.RootInstance;
     using Parameters = IReadOnlyDictionary<string, string>;
 
     [Route("dbc/export")]

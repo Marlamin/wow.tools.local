@@ -1,5 +1,4 @@
-﻿using CASCLib;
-using DBCD.Providers;
+﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -18,6 +17,7 @@ using WoWFormatLib.FileReaders;
 using WoWFormatLib.Structs.WDT;
 using WoWNamingLib;
 using WoWNamingLib.Namers;
+using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Controllers
 {
@@ -68,7 +68,7 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                if (CASC.TryGetEKeysByCKey(contenthash.FromHexString().ToMD5(), out var eKey))
+                if (CASC.TryGetEKeysByCKey(new MD5(Convert.FromHexString(contenthash)), out var eKey))
                 {
                     using (var ms = new MemoryStream())
                     {
@@ -111,11 +111,11 @@ namespace wow.tools.local.Controllers
         {
             foreach (var entry in CASC.InstallEntries)
             {
-                if (CASC.TryGetEKeysByCKey(entry.MD5, out var eKey))
+                if (CASC.TryGetEKeysByCKey(new MD5(entry.md5), out var eKey))
                 {
                     using (var ms = new MemoryStream())
                     {
-                        var fileName = Path.DirectorySeparatorChar != '\\' ? entry.Name.Replace("\\", Path.DirectorySeparatorChar.ToString()) : entry.Name;
+                        var fileName = Path.DirectorySeparatorChar != '\\' ? entry.name.Replace("\\", Path.DirectorySeparatorChar.ToString()) : entry.name;
                         var directoryName = System.IO.Path.GetDirectoryName(fileName) ?? string.Empty;
                         var outputDir = Path.Combine(SettingsManager.ExtractionDir, CASC.BuildName, directoryName);
                         Directory.CreateDirectory(outputDir);
@@ -152,18 +152,12 @@ namespace wow.tools.local.Controllers
             if (SettingsManager.ReadOnly)
                 return false;
 
-            if (SettingsManager.UseTACTSharp)
-                CASC.InitTACT(SettingsManager.WoWFolder, product);
-            else
-                CASC.InitCasc(SettingsManager.WoWFolder, product);
+            CASC.InitTACT(SettingsManager.WoWFolder, product);
 
             // Don't respond until things are done loading
             while (true)
             {
-                if (SettingsManager.UseTACTSharp && CASC.IsTACTSharpInit)
-                    return true;
-
-                if (!SettingsManager.UseTACTSharp && CASC.IsCASCLibInit)
+                if (CASC.IsTACTSharpInit)
                     return true;
             }
         }
@@ -172,7 +166,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public bool SwitchConfigs(string product, string buildconfig, string cdnconfig)
         {
-            if (!SettingsManager.UseTACTSharp || SettingsManager.ReadOnly)
+            if (SettingsManager.ReadOnly)
                 return false;
 
             CASC.InitTACT(SettingsManager.WoWFolder, product, buildconfig, cdnconfig);
@@ -917,7 +911,7 @@ namespace wow.tools.local.Controllers
 
             if (Listfile.LookupMap.TryGetValue(filedataid, out var lookup))
             {
-                var hasher = new Jenkins96();
+                var hasher = new TACTSharp.Jenkins96();
                 html += "<td>" + lookup.ToString("X16");
 
                 if (Listfile.NameMap.TryGetValue(filedataid, out var lookupFilename) && lookupFilename != "")
@@ -1653,7 +1647,7 @@ namespace wow.tools.local.Controllers
             var filenames = rawContent.Split("\n").ToList();
             var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
             var reverseLookup = Listfile.LookupMap.ToDictionary(x => x.Value, x => x.Key);
-            var hasher = new Jenkins96();
+            var hasher = new TACTSharp.Jenkins96();
             var results = new List<string>();
             foreach (var filename in filenames)
             {
@@ -1676,7 +1670,7 @@ namespace wow.tools.local.Controllers
             var filenames = System.IO.File.ReadAllLines(file);
             var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
             var reverseLookup = Listfile.LookupMap.ToDictionary(x => x.Value, x => x.Key);
-            var hasher = new Jenkins96();
+            var hasher = new TACTSharp.Jenkins96();
             var results = new List<string>();
             foreach (var filename in filenames)
             {
@@ -1723,13 +1717,7 @@ namespace wow.tools.local.Controllers
             {
                 if (build == CASC.BuildName)
                 {
-                    if (CASC.IsCASCLibInit)
-                    {
-                        var casc = new CASCFileProvider();
-                        casc.InitCasc(CASC.cascHandler);
-                        FileProvider.SetProvider(casc, CASC.BuildName);
-                    }
-                    else if (CASC.IsTACTSharpInit)
+                    if (CASC.IsTACTSharpInit)
                     {
                         var tact = new TACTSharpFileProvider();
                         tact.InitTACT(CASC.buildInstance);
@@ -1887,13 +1875,7 @@ namespace wow.tools.local.Controllers
             {
                 if (build == CASC.BuildName)
                 {
-                    if (CASC.IsCASCLibInit)
-                    {
-                        var casc = new CASCFileProvider();
-                        casc.InitCasc(CASC.cascHandler);
-                        FileProvider.SetProvider(casc, CASC.BuildName);
-                    }
-                    else if (CASC.IsTACTSharpInit)
+                    if (CASC.IsTACTSharpInit)
                     {
                         var tact = new TACTSharpFileProvider();
                         tact.InitTACT(CASC.buildInstance);

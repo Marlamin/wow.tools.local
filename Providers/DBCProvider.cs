@@ -1,7 +1,7 @@
-﻿using CASCLib;
-using DBCD.Providers;
+﻿using DBCD.Providers;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
+using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Providers
 {

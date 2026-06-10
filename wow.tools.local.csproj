@@ -14,7 +14,6 @@
   <ItemGroup>
     <Compile Remove="caches\**" />
     <Compile Remove="cache\**" />
-    <Compile Remove="CascLib\**" />
     <Compile Remove="DBCD\**" />
     <Compile Remove="dbcs\**" />
     <Compile Remove="DBDiffer\**" />
@@ -29,7 +28,6 @@
     <Compile Remove="WoWTools.SpellDescParser\**" />
     <Content Remove="caches\**" />
     <Content Remove="cache\**" />
-    <Content Remove="CascLib\**" />
     <Content Remove="DBCD\**" />
     <Content Remove="dbcs\**" />
     <Content Remove="DBDiffer\**" />
@@ -44,7 +42,6 @@
     <Content Remove="WoWTools.SpellDescParser\**" />
     <EmbeddedResource Remove="caches\**" />
     <EmbeddedResource Remove="cache\**" />
-    <EmbeddedResource Remove="CascLib\**" />
     <EmbeddedResource Remove="DBCD\**" />
     <EmbeddedResource Remove="dbcs\**" />
     <EmbeddedResource Remove="DBDiffer\**" />
@@ -59,7 +56,6 @@
     <EmbeddedResource Remove="WoWTools.SpellDescParser\**" />
     <None Remove="caches\**" />
     <None Remove="cache\**" />
-    <None Remove="CascLib\**" />
     <None Remove="DBCD\**" />
     <None Remove="dbcs\**" />
     <None Remove="DBDiffer\**" />
@@ -112,7 +108,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="CascLib\CascLib\CascLib.csproj" />
     <ProjectReference Include="DBCD\DBCD\DBCD.csproj" />
     <ProjectReference Include="DBDiffer\DBDiffer\DBDiffer.csproj" />
     <ProjectReference Include="TACTSharp\TACTSharp\TACTSharp.csproj" />
