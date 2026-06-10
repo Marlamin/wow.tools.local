@@ -223,7 +223,7 @@ namespace wow.tools.local.Controllers
             var overrideVO = form.ContainsKey("overrideVO") && form["overrideVO"] == "on";
             Namer.AllowCaseRenames = form.ContainsKey("allowCaseRenames") && form["allowCaseRenames"] == "on";
 
-            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "ContentHashes" };
+            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "Install", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x!)).ToArray();
 
             var buildMap = new Dictionary<uint, string>();
@@ -270,6 +270,9 @@ namespace wow.tools.local.Controllers
                         break;
                     case "GDI": // Not NOD
                         Namer.NameGODisplayInfo();
+                        break;
+                    case "Install":
+                        Namer.NameInstall(CASC.GetCKeyDict(), CASC.InstallEntries.Select(x => (x.md5, x.name)).ToList());
                         break;
                     case "Interface":
                         Namer.NameInterface();
