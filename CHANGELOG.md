@@ -11,6 +11,7 @@
 - Improved memory footprint/reduced contenthash initialization time, again.
 - Updated config.json creation to have community CDNs set as additional CDNs by default.
 - Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
+- Updated screenshot combo feature in modelviewer to support linked fields (by @WainPetopia).
 - Removed CASCLib.
 
 0.9.4 (25-05-2026)
