@@ -26,7 +26,6 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<int, List<ulong>> EncryptedFDIDs = [];
 
         public static readonly Dictionary<string, List<int>> CHashToFDID = [];
-        public static readonly Dictionary<int, byte[]> FDIDToCHash = [];
         public static readonly Dictionary<int, HashSet<string>> FDIDToCHashSet = [];
         public static readonly Dictionary<string, uint> CHashToSize = [];
         public static Dictionary<int, List<Version>> VersionHistory = [];
@@ -258,7 +257,6 @@ namespace wow.tools.local.Services
 
             CHashToFDID.Clear();
             CHashToSize.Clear();
-            FDIDToCHash.Clear();
             FDIDToCHashSet.Clear();
 
             #region Install entries
@@ -753,7 +751,7 @@ namespace wow.tools.local.Services
 
         public static bool EnsureCHashesLoaded()
         {
-            if (FDIDToCHash.Count == 0)
+            if (CHashToFDID.Count == 0)
             {
                 // Load when requesting for first time to keep resource use low
 
@@ -783,8 +781,6 @@ namespace wow.tools.local.Services
 
                         lock (CHashLock)
                         {
-                            FDIDToCHash.Add((int)preferredEntry.fileDataID, preferredEntry.md5.AsSpan().ToArray());
-
                             if (CHashToFDID.TryGetValue(ckey, out List<int>? currentFDIDs))
                                 currentFDIDs.Add((int)preferredEntry.fileDataID);
                             else
@@ -807,6 +803,47 @@ namespace wow.tools.local.Services
             }
 
             return true;
+        }
+
+        public static byte[] GetPreferredCKey(List<(byte[] cKey, ContentFlags contentFlags, LocaleFlags localeFlags)> cKeys)
+        {
+            if(cKeys.Count == 0)
+                throw new Exception("CKey list cannot be empty.");
+
+            var preferredEntry = cKeys.FirstOrDefault(subentry =>
+                           !subentry.contentFlags.HasFlag(RootInstance.ContentFlags.LowViolence) &&
+                           (subentry.localeFlags.HasFlag((RootInstance.LocaleFlags)buildInstance!.Settings.Locale) || subentry.localeFlags.HasFlag(RootInstance.LocaleFlags.All_WoW)));
+
+            if (preferredEntry.cKey == null)
+            {
+                preferredEntry = cKeys.FirstOrDefault(e => !e.contentFlags.HasFlag(ContentFlags.LowViolence));
+                preferredEntry = preferredEntry.cKey != null ? preferredEntry : cKeys[0];
+            }
+
+            return preferredEntry.cKey ?? throw new InvalidOperationException("No valid CKey found.");
+        }
+
+        public static Dictionary<int, byte[]> GetCKeyDict()
+        {
+            if (!IsTACTSharpInit)
+                throw new Exception("TACTSharp not initialized");
+
+            var dict = new Dictionary<int, byte[]>();
+            var dictLock = new Lock();
+
+            Parallel.ForEach(buildInstance!.Root!.GetAvailableFDIDs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, fdid =>
+            {
+                var rootEntries = buildInstance.Root.GetEntriesByFDID(fdid);
+                if (rootEntries.Count == 0)
+                    return;
+
+                var preferredCKey = CASC.GetPreferredCKey(rootEntries.Select(x => (x.md5.AsSpan().ToArray(), x.contentFlags, x.localeFlags)).ToList());
+
+                lock (dictLock)
+                    dict.Add((int)rootEntries.First().fileDataID, preferredCKey);
+            });
+
+            return dict;
         }
 
         public static List<(byte[] cKey, ContentFlags contentFlags, LocaleFlags localeFlags)> GetCKeysAndFlagsByFDID(int fileDataID)

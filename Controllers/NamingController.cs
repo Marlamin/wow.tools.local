@@ -172,8 +172,7 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            CASC.EnsureCHashesLoaded();
-            Namer.NameByContentHashes(CASC.FDIDToCHash, Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key).ToList());
+            Namer.NameByContentHashes(CASC.GetCKeyDict(), Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key).ToList());
 
             return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
@@ -578,8 +577,7 @@ namespace wow.tools.local.Controllers
                         Namer.NameWWF();
                         break;
                     case "ContentHashes":
-                        CASC.EnsureCHashesLoaded();
-                        Namer.NameByContentHashes(CASC.FDIDToCHash);
+                        Namer.NameByContentHashes(CASC.GetCKeyDict());
                         break;
                     case "Decals":
                         Namer.NameDecals();

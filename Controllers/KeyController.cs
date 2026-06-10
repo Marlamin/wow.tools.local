@@ -263,16 +263,15 @@ namespace wow.tools.local.Controllers
                 var filedataid = file.Key;
                 List<(string cKey, uint size)> cKeys = [];
                 uint size = 0;
-                if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
-                {
-                    var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
-                    foreach(var cKey in allCKeys)
-                    {
-                        var cKeyString = Convert.ToHexStringLower(cKeyBytes);
-                        CASC.CHashToSize.TryGetValue(cKeyString, out size);
 
-                        cKeys.Add((cKeyString, size));
-                    }
+                var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+                var cKeyBytes = CASC.GetPreferredCKey(allCKeys);
+                foreach (var cKey in allCKeys)
+                {
+                    var cKeyString = Convert.ToHexStringLower(cKey.cKey);
+                    CASC.CHashToSize.TryGetValue(cKeyString, out size);
+
+                    cKeys.Add((cKeyString, size));
                 }
 
                 if (string.IsNullOrEmpty(fileType) && (size == 6660 || size == 88612 || size == 175972))
