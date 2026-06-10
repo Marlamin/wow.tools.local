@@ -598,9 +598,21 @@ namespace wow.tools.local.Controllers
                             case "?PNG":
                                 type = "png";
                                 break;
+                            case "NIBA":
+                                type = "nib";
+                                break;
+                            case "APPL":
+                                type = "PkgInfo";
+                                break;
                             default:
                                 break;
                         }
+
+                        if (magic[0] == 0xCA && magic[1] == 0xFE && magic[2] == 0xBA && magic[3] == 0xBE)
+                            type = "macbin";
+
+                        if (magic[0] == 'M' && magic[1] == 'Z')
+                            type = "exe";
 
                         if (magicString.StartsWith("ID3") || (magic[0] == 0xFF && magic[1] == 0xFB))
                             type = "mp3";
