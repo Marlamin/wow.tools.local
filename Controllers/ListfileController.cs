@@ -28,6 +28,8 @@ namespace wow.tools.local.Controllers
         private static Dictionary<int, List<uint>>? SoundKitMap;
         private static Dictionary<uint, List<int>>? SoundKitMapReverse;
 
+        private static Lock dbcLock = new Lock();
+
         public void ensureSoundKitMapInitialized()
         {
             if (SoundKitMap == null)
@@ -40,21 +42,24 @@ namespace wow.tools.local.Controllers
 
                     if (soundKitEntryDB != null)
                     {
-                        SoundKitMap = new Dictionary<int, List<uint>>();
-                        SoundKitMapReverse = new Dictionary<uint, List<int>>();
-                        foreach (var row in soundKitEntryDB.Values)
+                        lock (dbcLock)
                         {
-                            var soundKitID = row.Field<uint>("SoundKitID");
-                            var fileDataID = row.Field<int>("FileDataID");
-                            if (SoundKitMap.TryGetValue(fileDataID, out List<uint>? soundKitIDs))
-                                soundKitIDs.Add(soundKitID);
-                            else
-                                SoundKitMap[fileDataID] = new List<uint> { soundKitID };
+                            SoundKitMap = new Dictionary<int, List<uint>>();
+                            SoundKitMapReverse = new Dictionary<uint, List<int>>();
+                            foreach (var row in soundKitEntryDB.Values)
+                            {
+                                var soundKitID = row.Field<uint>("SoundKitID");
+                                var fileDataID = row.Field<int>("FileDataID");
+                                if (SoundKitMap.TryGetValue(fileDataID, out List<uint>? soundKitIDs))
+                                    soundKitIDs.Add(soundKitID);
+                                else
+                                    SoundKitMap[fileDataID] = new List<uint> { soundKitID };
 
-                            if (SoundKitMapReverse.TryGetValue(soundKitID, out List<int>? fileDataIDs))
-                                fileDataIDs.Add((int)fileDataID);
-                            else
-                                SoundKitMapReverse[soundKitID] = new List<int> { (int)fileDataID };
+                                if (SoundKitMapReverse.TryGetValue(soundKitID, out List<int>? fileDataIDs))
+                                    fileDataIDs.Add((int)fileDataID);
+                                else
+                                    SoundKitMapReverse[soundKitID] = new List<int> { (int)fileDataID };
+                            }
                         }
                     }
                 }
@@ -77,15 +82,18 @@ namespace wow.tools.local.Controllers
 
                     if (modelFileDataDB != null)
                     {
-                        MFDMap = new Dictionary<int, List<uint>>();
-                        foreach (var row in modelFileDataDB.Values)
+                        lock (dbcLock)
                         {
-                            var modelResoucesID = row.Field<int>("ModelResourcesID");
-                            var fileDataID = row.Field<int>("FileDataID");
-                            if (MFDMap.TryGetValue(fileDataID, out List<uint>? modelResourceIDs))
-                                modelResourceIDs.Add((uint)modelResoucesID);
-                            else
-                                MFDMap[fileDataID] = new List<uint> { (uint)modelResoucesID };
+                            MFDMap = new Dictionary<int, List<uint>>();
+                            foreach (var row in modelFileDataDB.Values)
+                            {
+                                var modelResoucesID = row.Field<int>("ModelResourcesID");
+                                var fileDataID = row.Field<int>("FileDataID");
+                                if (MFDMap.TryGetValue(fileDataID, out List<uint>? modelResourceIDs))
+                                    modelResourceIDs.Add((uint)modelResoucesID);
+                                else
+                                    MFDMap[fileDataID] = new List<uint> { (uint)modelResoucesID };
+                            }
                         }
                     }
                 }
@@ -108,15 +116,18 @@ namespace wow.tools.local.Controllers
 
                     if (textureFileDataDB != null)
                     {
-                        TFDMap = new Dictionary<int, List<uint>>();
-                        foreach (var row in textureFileDataDB.Values)
+                        lock (dbcLock)
                         {
-                            var materialResourcesID = row.Field<int>("MaterialResourcesID");
-                            var fileDataID = row.Field<int>("FileDataID");
-                            if (TFDMap.TryGetValue(fileDataID, out List<uint>? materialResouceIDs))
-                                materialResouceIDs.Add((uint)materialResourcesID);
-                            else
-                                TFDMap[fileDataID] = new List<uint> { (uint)materialResourcesID };
+                            TFDMap = new Dictionary<int, List<uint>>();
+                            foreach (var row in textureFileDataDB.Values)
+                            {
+                                var materialResourcesID = row.Field<int>("MaterialResourcesID");
+                                var fileDataID = row.Field<int>("FileDataID");
+                                if (TFDMap.TryGetValue(fileDataID, out List<uint>? materialResouceIDs))
+                                    materialResouceIDs.Add((uint)materialResourcesID);
+                                else
+                                    TFDMap[fileDataID] = new List<uint> { (uint)materialResourcesID };
+                            }
                         }
                     }
                 }
@@ -139,15 +150,18 @@ namespace wow.tools.local.Controllers
 
                     if (creatureModelDataDB != null)
                     {
-                        CMDMap = new Dictionary<int, List<uint>>();
-                        foreach (var row in creatureModelDataDB.Values)
+                        lock (dbcLock)
                         {
-                            var cmdID = row.Field<int>("ID");
-                            var fileDataID = row.Field<int>("FileDataID");
-                            if (CMDMap.TryGetValue(fileDataID, out List<uint>? creatureModelDataIDs))
-                                creatureModelDataIDs.Add((uint)cmdID);
-                            else
-                                CMDMap[fileDataID] = new List<uint> { (uint)cmdID };
+                            CMDMap = new Dictionary<int, List<uint>>();
+                            foreach (var row in creatureModelDataDB.Values)
+                            {
+                                var cmdID = row.Field<int>("ID");
+                                var fileDataID = row.Field<int>("FileDataID");
+                                if (CMDMap.TryGetValue(fileDataID, out List<uint>? creatureModelDataIDs))
+                                    creatureModelDataIDs.Add((uint)cmdID);
+                                else
+                                    CMDMap[fileDataID] = new List<uint> { (uint)cmdID };
+                            }
                         }
                     }
                 }

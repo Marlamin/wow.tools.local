@@ -151,8 +151,6 @@ namespace wow.tools.local.Controllers
             if (SettingsManager.ReadOnly)
                 return "";
 
-            string resultNames = "";
-
             var results = Listfile.DoSearch(Listfile.NameMap, search).Where(x => Listfile.PlaceholderFiles.Contains(x.Key)).ToList();
             foreach (var result in results)
             {
