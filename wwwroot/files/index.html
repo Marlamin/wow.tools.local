@@ -626,16 +626,16 @@
             Elements.filesTable.on('draw.dt', function () {
                 var searchInput = document.getElementById("dt-search-0");
                 var currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
-                var currentPage = table.page() + 1;
+                var currentPage = Elements.filesTable.page() + 1;
 
-                var sort = table.order();
+                var sort = Elements.filesTable.order();
                 var sortCol = sort[0][0];
                 var sortDir = sort[0][1];
 
                 if (sortDir == "" || sortDir == null)
                     sortDir = "asc";
 
-                var build = table.ajax.url().split("buildConfig=")[1];
+                var build = Elements.filesTable.ajax.url().split("buildConfig=")[1];
 
                 var url = "search=" + currentSearch + "&page=" + currentPage + "&sort=" + sortCol + "&desc=" + sortDir;
                 if (build) {
