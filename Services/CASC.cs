@@ -76,8 +76,7 @@ namespace wow.tools.local.Services
 
             buildInstance = new BuildInstance();
 
-            if (!string.IsNullOrEmpty(product))
-                buildInstance.Settings.Product = product;
+            buildInstance.Settings.Product = product;
 
             string? overrideBuildConfig = null;
             if ((File.Exists(SettingsManager.BuildConfigFile) && (overrideBuildConfig = SettingsManager.BuildConfigFile) != null) ||
@@ -97,9 +96,6 @@ namespace wow.tools.local.Services
 
             buildInstance.Settings.Locale = SettingsManager.TACTLocale;
             buildInstance.Settings.Region = SettingsManager.Region;
-
-            if (SettingsManager.PreferHighResTextures)
-                Console.WriteLine("!!!! Warning: High res textures setting is not supported when using TACTSharp.");
 
             if (SettingsManager.WoWProduct != product || (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC)))
             {
