@@ -19,50 +19,141 @@ namespace wow.tools.local.Controllers
 
         private readonly TACTSharp.Jenkins96 hasher = new();
 
+        private bool DB2Init = false;
+
         private static Dictionary<int, List<uint>>? MFDMap;
         private static Dictionary<int, List<uint>>? TFDMap;
         private static Dictionary<int, List<uint>>? CMDMap;
 
         private static Dictionary<int, List<uint>>? SoundKitMap;
         private static Dictionary<uint, List<int>>? SoundKitMapReverse;
-        private static readonly Lock dbcLock = new Lock();
 
         public void ensureSoundKitMapInitialized()
         {
-            lock (dbcLock)
+            if (SoundKitMap == null)
             {
-                if (SoundKitMap == null)
+                try
                 {
-                    try
+                    var soundKitEntryDB = dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName).Result;
+                    if (!soundKitEntryDB.AvailableColumns.Contains("SoundKitID") || !soundKitEntryDB.AvailableColumns.Contains("FileDataID"))
+                        throw new Exception("Missing required columns in SoundKitEntry");
+
+                    if (soundKitEntryDB != null)
                     {
-                        var soundKitEntryDB = dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName).Result;
-                        if (!soundKitEntryDB.AvailableColumns.Contains("SoundKitID") || !soundKitEntryDB.AvailableColumns.Contains("FileDataID"))
-                            throw new Exception("Missing required columns in SoundKitEntry");
-
-                        if (soundKitEntryDB != null)
+                        SoundKitMap = new Dictionary<int, List<uint>>();
+                        SoundKitMapReverse = new Dictionary<uint, List<int>>();
+                        foreach (var row in soundKitEntryDB.Values)
                         {
-                            SoundKitMap = new Dictionary<int, List<uint>>();
-                            SoundKitMapReverse = new Dictionary<uint, List<int>>();
-                            foreach (var row in soundKitEntryDB.Values)
-                            {
-                                var soundKitID = row.Field<uint>("SoundKitID");
-                                var fileDataID = row.Field<int>("FileDataID");
-                                if (SoundKitMap.TryGetValue(fileDataID, out List<uint>? soundKitIDs))
-                                    soundKitIDs.Add(soundKitID);
-                                else
-                                    SoundKitMap[fileDataID] = new List<uint> { soundKitID };
+                            var soundKitID = row.Field<uint>("SoundKitID");
+                            var fileDataID = row.Field<int>("FileDataID");
+                            if (SoundKitMap.TryGetValue(fileDataID, out List<uint>? soundKitIDs))
+                                soundKitIDs.Add(soundKitID);
+                            else
+                                SoundKitMap[fileDataID] = new List<uint> { soundKitID };
 
-                                if (SoundKitMapReverse.TryGetValue(soundKitID, out List<int>? fileDataIDs))
-                                    fileDataIDs.Add((int)fileDataID);
-                                else
-                                    SoundKitMapReverse[soundKitID] = new List<int> { (int)fileDataID };
-                            }
+                            if (SoundKitMapReverse.TryGetValue(soundKitID, out List<int>? fileDataIDs))
+                                fileDataIDs.Add((int)fileDataID);
+                            else
+                                SoundKitMapReverse[soundKitID] = new List<int> { (int)fileDataID };
                         }
                     }
-                    catch (Exception e)
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
+                }
+            }
+        }
+
+        public void ensureModelFileDataMapInitialized()
+        {
+            if (MFDMap == null)
+            {
+                try
+                {
+                    var modelFileDataDB = dbcManager.GetOrLoad("ModelFileData", CASC.BuildName).Result;
+                    if (!modelFileDataDB.AvailableColumns.Contains("ModelResourcesID") || !modelFileDataDB.AvailableColumns.Contains("FileDataID"))
+                        throw new Exception("Missing required columns in ModelFileData");
+
+                    if (modelFileDataDB != null)
                     {
-                        Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
+                        MFDMap = new Dictionary<int, List<uint>>();
+                        foreach (var row in modelFileDataDB.Values)
+                        {
+                            var modelResoucesID = row.Field<int>("ModelResourcesID");
+                            var fileDataID = row.Field<int>("FileDataID");
+                            if (MFDMap.TryGetValue(fileDataID, out List<uint>? modelResourceIDs))
+                                modelResourceIDs.Add((uint)modelResoucesID);
+                            else
+                                MFDMap[fileDataID] = new List<uint> { (uint)modelResoucesID };
+                        }
                     }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load ModelFileData: " + e.Message);
+                }
+            }
+        }
+
+        public void ensureTextureFileDataMapInitialized()
+        {
+            if (TFDMap == null)
+            {
+                try
+                {
+                    var textureFileDataDB = dbcManager.GetOrLoad("TextureFileData", CASC.BuildName).Result;
+                    if (!textureFileDataDB.AvailableColumns.Contains("MaterialResourcesID") || !textureFileDataDB.AvailableColumns.Contains("FileDataID"))
+                        throw new Exception("Missing required columns in TextureFileData");
+
+                    if (textureFileDataDB != null)
+                    {
+                        TFDMap = new Dictionary<int, List<uint>>();
+                        foreach (var row in textureFileDataDB.Values)
+                        {
+                            var materialResourcesID = row.Field<int>("MaterialResourcesID");
+                            var fileDataID = row.Field<int>("FileDataID");
+                            if (TFDMap.TryGetValue(fileDataID, out List<uint>? materialResouceIDs))
+                                materialResouceIDs.Add((uint)materialResourcesID);
+                            else
+                                TFDMap[fileDataID] = new List<uint> { (uint)materialResourcesID };
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load TextureFileData: " + e.Message);
+                }
+            }
+        }
+
+        public void ensureCreatureModelDataMapInitialized()
+        {
+            if (CMDMap == null)
+            {
+                try
+                {
+                    var creatureModelDataDB = dbcManager.GetOrLoad("CreatureModelData", CASC.BuildName).Result;
+                    if (!creatureModelDataDB.AvailableColumns.Contains("FileDataID") || !creatureModelDataDB.AvailableColumns.Contains("ID"))
+                        throw new Exception("Missing required columns in CreatureModelData");
+
+                    if (creatureModelDataDB != null)
+                    {
+                        CMDMap = new Dictionary<int, List<uint>>();
+                        foreach (var row in creatureModelDataDB.Values)
+                        {
+                            var cmdID = row.Field<int>("ID");
+                            var fileDataID = row.Field<int>("FileDataID");
+                            if (CMDMap.TryGetValue(fileDataID, out List<uint>? creatureModelDataIDs))
+                                creatureModelDataIDs.Add((uint)cmdID);
+                            else
+                                CMDMap[fileDataID] = new List<uint> { (uint)cmdID };
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load CreatureModelData: " + e.Message);
                 }
             }
         }
@@ -72,103 +163,18 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public DataTablesResult FileDataTables(int draw, int start, int length)
         {
-            ensureSoundKitMapInitialized();
-
-            if (MFDMap == null)
+            if (!DB2Init)
             {
-                lock (dbcLock)
-                {
-                    try
-                    {
-                        var modelFileDataDB = dbcManager.GetOrLoad("ModelFileData", CASC.BuildName).Result;
-                        if (!modelFileDataDB.AvailableColumns.Contains("ModelResourcesID") || !modelFileDataDB.AvailableColumns.Contains("FileDataID"))
-                            throw new Exception("Missing required columns in ModelFileData");
+                DB2Init = true;
 
-                        if (modelFileDataDB != null)
-                        {
-                            MFDMap = new Dictionary<int, List<uint>>();
-                            foreach (var row in modelFileDataDB.Values)
-                            {
-                                var modelResoucesID = row.Field<int>("ModelResourcesID");
-                                var fileDataID = row.Field<int>("FileDataID");
-                                if (MFDMap.TryGetValue(fileDataID, out List<uint>? modelResourceIDs))
-                                    modelResourceIDs.Add((uint)modelResoucesID);
-                                else
-                                    MFDMap[fileDataID] = new List<uint> { (uint)modelResoucesID };
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to load ModelFileData: " + e.Message);
-                    }
-                }
-            }
+                var dbTasks = new List<Task>();
 
-            if (TFDMap == null)
-            {
-                lock (dbcLock)
-                {
-                    try
-                    {
-                        var textureFileDataDB = dbcManager.GetOrLoad("TextureFileData", CASC.BuildName).Result;
-                        if (!textureFileDataDB.AvailableColumns.Contains("MaterialResourcesID") || !textureFileDataDB.AvailableColumns.Contains("FileDataID"))
-                            throw new Exception("Missing required columns in TextureFileData");
+                dbTasks.Add(Task.Run(() => ensureSoundKitMapInitialized()));
+                dbTasks.Add(Task.Run(() => ensureModelFileDataMapInitialized()));
+                dbTasks.Add(Task.Run(() => ensureTextureFileDataMapInitialized()));
+                dbTasks.Add(Task.Run(() => ensureCreatureModelDataMapInitialized()));
 
-                        if (textureFileDataDB != null)
-                        {
-                            TFDMap = new Dictionary<int, List<uint>>();
-                            foreach (var row in textureFileDataDB.Values)
-                            {
-                                var materialResourcesID = row.Field<int>("MaterialResourcesID");
-                                var fileDataID = row.Field<int>("FileDataID");
-                                if (TFDMap.TryGetValue(fileDataID, out List<uint>? materialResouceIDs))
-                                    materialResouceIDs.Add((uint)materialResourcesID);
-                                else
-                                    TFDMap[fileDataID] = new List<uint> { (uint)materialResourcesID };
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to load TextureFileData: " + e.Message);
-                    }
-                }
-            }
-
-            if (CMDMap == null)
-            {
-                lock (dbcLock)
-                {
-                    try
-                    {
-                        var creatureModelDataDB = dbcManager.GetOrLoad("CreatureModelData", CASC.BuildName).Result;
-                        if (!creatureModelDataDB.AvailableColumns.Contains("FileDataID") || !creatureModelDataDB.AvailableColumns.Contains("ID"))
-                        {
-                            Console.WriteLine("Missing required columns in CreatureModelData");
-                        }
-                        else
-                        {
-                            if (creatureModelDataDB != null)
-                            {
-                                CMDMap = new Dictionary<int, List<uint>>();
-                                foreach (var row in creatureModelDataDB.Values)
-                                {
-                                    var cmdID = row.Field<int>("ID");
-                                    var fileDataID = row.Field<int>("FileDataID");
-                                    if (CMDMap.TryGetValue(fileDataID, out List<uint>? creatureModelDataIDs))
-                                        creatureModelDataIDs.Add((uint)cmdID);
-                                    else
-                                        CMDMap[fileDataID] = new List<uint> { (uint)cmdID };
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to load CreatureModelData: " + e.Message);
-                    }
-                }
+                Task.WaitAll(dbTasks.ToArray());
             }
 
             var result = new DataTablesResult()
@@ -240,26 +246,23 @@ namespace wow.tools.local.Controllers
                         lookupMatch = true;
                 }
 
-                lock (dbcLock)
-                {
-                    result.data.Add(
-                    [
-                        listfileResult.Key.ToString(), // ID
-                        listfileResult.Value, // Filename
-                        lookup != 0 ? lookup.ToString("X16") : "", // Lookup
-                        CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
-                        Listfile.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
-                        CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encryptionStatus) ? encryptionStatus.ToString() : "",
-                        CASC.OtherLocaleOnlyFiles.Contains(listfileResult.Key) ? "true" : "false", // Non-native locale
-                        "", // Placeholder filename
-                        lookupMatch ? "true" : "false", // Lookup match
-                        SoundKitMap != null ? SoundKitMap.TryGetValue(listfileResult.Key, out var soundKits) ? string.Join(", ", soundKits) : "" : "", // SoundKits
-                        MFDMap != null ? MFDMap.TryGetValue(listfileResult.Key, out var modelResourceIDs) ? string.Join(", ", modelResourceIDs) : "" : "", // ModelFileData
-                        TFDMap != null ? TFDMap.TryGetValue(listfileResult.Key, out var materialResourceIDs) ? string.Join(", ", materialResourceIDs) : "" : "", // TextureFileData
-                        CMDMap != null ? CMDMap.TryGetValue(listfileResult.Key, out var creatureModelDataIDs) ? string.Join(", ", creatureModelDataIDs) : "" : "", // CreatureModelData
-                        FDIDParentCounts.Count > 0 && FDIDParentCounts.TryGetValue(listfileResult.Key, out var parentCount) ? parentCount.ToString() : ""
-                    ]);
-                }
+                result.data.Add(
+                [
+                    listfileResult.Key.ToString(), // ID
+                    listfileResult.Value, // Filename
+                    lookup != 0 ? lookup.ToString("X16") : "", // Lookup
+                    CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
+                    Listfile.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
+                    CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encryptionStatus) ? encryptionStatus.ToString() : "",
+                    CASC.OtherLocaleOnlyFiles.Contains(listfileResult.Key) ? "true" : "false", // Non-native locale
+                    "", // Placeholder filename
+                    lookupMatch ? "true" : "false", // Lookup match
+                    SoundKitMap != null ? SoundKitMap.TryGetValue(listfileResult.Key, out var soundKits) ? string.Join(", ", soundKits) : "" : "", // SoundKits
+                    MFDMap != null ? MFDMap.TryGetValue(listfileResult.Key, out var modelResourceIDs) ? string.Join(", ", modelResourceIDs) : "" : "", // ModelFileData
+                    TFDMap != null ? TFDMap.TryGetValue(listfileResult.Key, out var materialResourceIDs) ? string.Join(", ", materialResourceIDs) : "" : "", // TextureFileData
+                    CMDMap != null ? CMDMap.TryGetValue(listfileResult.Key, out var creatureModelDataIDs) ? string.Join(", ", creatureModelDataIDs) : "" : "", // CreatureModelData
+                    FDIDParentCounts.Count > 0 && FDIDParentCounts.TryGetValue(listfileResult.Key, out var parentCount) ? parentCount.ToString() : ""
+                ]);
             }
 
             return result;
