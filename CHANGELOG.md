@@ -5,13 +5,19 @@
   Table now also optionally lists previously seen/historical builds.
   Build switching/DB2 extraction tasks no longer refresh the full page when done.
 - Added support for PNG previews (for some reason there's 4 of them in the game?).
+- Added namer for files from install (only does something when WoW is loaded with TVFS).
+- Added naming of dye textures during model naming.
 - Fixed custom-listfile.csv entries being overwritten, should be easier to test submissions now.
 - Fixed Shift-A not working on files page, Ctrl-Shift-A is now the key combo to add all files to DL queue.
+- Fixes files page table not initializing fully (e.g. hovering on file metadata icons was broken).
 - Improved speed of build diffs.
+- Improved initial load speed of files page.
 - Improved memory footprint/reduced contenthash initialization time, again.
 - Updated config.json creation to have community CDNs set as additional CDNs by default.
 - Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
 - Updated screenshot combo feature in modelviewer to support linked fields (by @WainPetopia).
+- Updated TACTSharp (now has rudimentary fallback support to TVFS if root were to ever go away).
+- Updated WoWFormatLib/WoWNamingLib.
 - Removed CASCLib.
 
 0.9.4 (25-05-2026)
