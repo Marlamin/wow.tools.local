@@ -552,7 +552,7 @@ namespace wow.tools.local.Controllers
 
         [Route("extractFileList")]
         [HttpGet]
-        public async Task<bool> ExtractFileList(string listfile, bool related = false, string exceptInBuild = "")
+        public async Task<bool> ExtractFileList(string listfile, bool related = false, string exceptInBuild = "", bool byID = false)
         {
             if (string.IsNullOrEmpty(listfile) || SettingsManager.ReadOnly)
                 return false;
@@ -775,6 +775,9 @@ namespace wow.tools.local.Controllers
                             else
                                 filePath = "unknown/" + result.Key.ToString() + ".unk";
                         }
+
+                        if (byID)
+                            filePath = "file/" + result.Key;
 
                         var path = Path.Combine(SettingsManager.ExtractionDir, filePath);
 
