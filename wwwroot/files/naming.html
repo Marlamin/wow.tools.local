@@ -93,6 +93,9 @@
             <li class="nav-item">
                 <a class="nav-link active" id="manual-tab" data-bs-toggle="tab" href="#manual" role="tab" aria-controls="m2" aria-selected="true">Manual</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" id="contenthash-tab" data-bs-toggle="tab" href="#contenthash" role="tab" aria-controls="contenthash" aria-selected="false">Contenthashes</a>
+            </li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane fade" id="namers" role="tabpanel" aria-labelledby="namers-tab">
@@ -200,7 +203,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="col-md-4"  style="z-index: 2">
+                    <div class="col-md-4" style="z-index: 2">
                         <div class="row">
                             <div id="modelPreview">
                                 Model preview
@@ -213,7 +216,7 @@
                                     <div class="input-group-append">
                                         <button id="m2Suffix" class="btn btn-primary" onclick="setSuffix('.m2')">.m2</button>
                                         <button id="wmoSuffix" class="btn btn-primary" disabled>.wmo</button>
-                                        <button id="lastName"class="btn btn-danger" onclick="loadLastName()">Last</button>
+                                        <button id="lastName" class="btn btn-danger" onclick="loadLastName()">Last</button>
                                     </div>
                                 </div>
                                 <button id="nameButton" class="btn btn-success form-control" style="margin-top:4px;">Name single file</button>
@@ -341,9 +344,21 @@
                         </div>
                     </div>
                 </div>
-                </div>
+            </div>
+            <div class="tab-pane fade" id="contenthash" role="tabpanel" aria-labelledby="contenthash-tab">
+                <table id='chashTable' class="table table-striped table-bordered table-condensed" cellspacing="0" style='margin: auto; ' width="100%">
+                    <thead>
+                        <tr>
+                            <th style='width: 50px;'>ID</th>
+                            <th>Filename</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
     <div id="resultHolder">
         <h4 id="resultTitle">Result</h4>
         <a onClick="toggleResults()" id="collapseResults"><i id="collapseResultsIcon" class="fa fa-expand"></i></a>
@@ -578,6 +593,77 @@
                                 rowData[13] = 0;
 
                             return rowData[13];
+                        }
+                    }
+                ]
+            });
+
+            var chashSearchString = "type:blp,!maptextures,available,!baked,multiuse,lookupmatch,!character,!interface,!minimaps,!maps";
+            Elements.chashTable = new DataTable('#chashTable', {
+                "processing": true,
+                "serverSide": true,
+                "search": { "search": chashSearchString },
+                "ajax": {
+                    url: '/listfile/files',
+                    type: 'GET'
+                },
+                "pageLength": 30,
+                "language": {
+                    "search": "Search: _INPUT_",
+                    "info": "_START_ to _END_ of _TOTAL_ files",
+                    "infoFiltered": ""
+                },
+                "displayStart": page * 30,
+                "autoWidth": false,
+                "lengthMenu": [
+                    [15, 25, 30, 50, 100, 1000, -1],
+                    [15, 25, 30, 50, 100, 1000, "All"]
+                ],
+                "orderMulti": false,
+                "order": [[sortCol, sortDesc]],
+                "columnDefs": [
+                    {
+                        "targets": 1,
+                        "createdCell": function (td, cellData, rowData, row, col) {
+                            if (!cellData) {
+                                if (!rowData[7] || rowData[1].includes(rowData[0])) {
+                                    td.style.backgroundColor = '#ff585850';
+                                } else {
+                                    td.style.backgroundColor = '#673ab750';
+                                }
+                            }
+
+                            if (rowData[1].includes(rowData[0])) {
+                                td.style.backgroundColor = '#ff585850';
+                            }
+                        },
+                        "render": function (data, type, full, meta) {
+                            if (full[1]) {
+                                var test = full[1];
+                            } else {
+                                var test = "";
+                                if (full[7]) {
+                                    test = full[7];
+                                }
+                            }
+
+                            if (full[2]) {
+                                test += "<span style='float: right'><a tabindex='0' role='button' data-bs-trigger='hover' data-bs-container='body' data-bs-html='true' data-bs-toggle='popover' style='color: ;'";
+
+                                if (full[8] == "true") {
+                                    test += "data-bs-content='Lookup " + full[2] + " matches filename'><i class='text-success fa fa-check'></i>&nbsp;</a>";
+                                } else {
+                                    if (full[1]) {
+                                        test += "data-bs-content='Lookup " + full[2] + " does not match filename'><i class='text-danger fa fa-close'></i>&nbsp;</a>";
+                                    } else {
+                                        test += "data-bs-content='Lookup " + full[2] + " does not match unknown filename'><i class='text-warning fa fa-question'></i>&nbsp;</a>";
+                                    }
+                                }
+
+                                test += "</span>";
+                            }
+
+                            return test;
                         }
                     }
                 ]

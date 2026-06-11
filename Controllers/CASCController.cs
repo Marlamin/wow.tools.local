@@ -792,7 +792,7 @@ namespace wow.tools.local.Controllers
                         {
                             var fromDB2 = dbcProvider.StreamForTableName(basename, from);
                             var toDB2 = dbcProvider.StreamForTableName(basename, to);
-                     
+
                             if (fromDB2.Length != toDB2.Length)
                             {
                                 modifiedFiles.Add(new KeyValuePair<int, string>(entry, toDict[entry]));
@@ -907,6 +907,69 @@ namespace wow.tools.local.Controllers
             return html;
         }
 
+        [Route("hashbyid")]
+        [HttpGet]
+        public (string, int) HashByID(int filedataid)
+        {
+            CASC.EnsureCHashesLoaded();
+
+            var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+            if (allCKeys.Count > 0)
+            {
+                var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(allCKeys));
+                var filedataids = CASC.GetSameFiles(primaryCKey).Order();
+
+                return (primaryCKey, filedataids.Count());
+            }
+            return ("N/A", 0);
+        }
+
+        [Route("suggestCHashes")]
+        public static string SuggestCHashes()
+        {
+            var suggestions = "";
+
+            var knownHashes = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Keys.ToHashSet();
+            var knownNames = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Values.ToHashSet();
+
+            var search = "type:blp,!maptextures,available,!baked,multiuse,lookupmatch,!character,!interface,!minimaps,!maps,!_lod";
+            var listfileResults = Listfile.DoSearch(Listfile.NameMap, search);
+
+            var filesToCheck = new Dictionary<string, int>();
+            foreach (var result in listfileResults)
+            {
+                var basename = Path.GetFileNameWithoutExtension(result.Value);
+                if (!filesToCheck.ContainsKey(basename))
+                    filesToCheck.Add(basename, result.Key);
+            }
+
+            foreach (var fileToCheck in filesToCheck)
+            {
+                var basename = fileToCheck.Key;
+                var fdid = fileToCheck.Value;
+                var cKeys = CASC.GetCKeysAndFlagsByFDID(fdid);
+                if (cKeys.Count > 0)
+                {
+                    var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(cKeys));
+                    if(!knownHashes.Contains(primaryCKey) && !knownNames.Contains(basename, StringComparer.OrdinalIgnoreCase))
+                    {
+                        knownHashes.Add(primaryCKey);
+                        knownNames.Add(basename);
+                        suggestions += "{\"" + primaryCKey + "\", \"" + basename + "\"},\n";
+                    }
+                }
+            }
+
+            return suggestions;
+        }
+
+        [Route("knownChashes")]
+        [HttpGet]
+        public Dictionary<string, string> KnownCHashes()
+        {
+            return WoWNamingLib.Namers.ContentHashNamer.knownHashes;
+        }
+
         [Route("moreinfo")]
         [HttpGet]
         public async Task<string> MoreInfo(int filedataid)
@@ -952,7 +1015,7 @@ namespace wow.tools.local.Controllers
             html += "<tr><td>Type</td><td>" + (Listfile.Types.TryGetValue(filedataid, out string? value) ? value : "unk") + "</td></tr>";
 
             var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
-            if(allCKeys.Count > 0)
+            if (allCKeys.Count > 0)
             {
                 var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(allCKeys));
 

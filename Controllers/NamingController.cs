@@ -170,7 +170,7 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            Namer.NameByContentHashes(CASC.GetCKeyDict(), Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key).ToList());
+            Namer.NameByContentHashes(CASC.GetCKeyDict(), [], Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key).ToList());
 
             return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
@@ -578,7 +578,40 @@ namespace wow.tools.local.Controllers
                         Namer.NameWWF();
                         break;
                     case "ContentHashes":
-                        Namer.NameByContentHashes(CASC.GetCKeyDict());
+                        var knownHashes = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Keys.ToHashSet();
+                        var knownNames = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Values.ToHashSet();
+
+                        var search = "type:blp,!maptextures,available,!baked,multiuse,lookupmatch,!character,!interface,!minimaps,!maps,!_lod";
+                        var listfileResults = Listfile.DoSearch(Listfile.NameMap, search);
+
+                        var filesToCheck = new Dictionary<string, int>();
+                        foreach (var result in listfileResults)
+                        {
+                            var basename = Path.GetFileNameWithoutExtension(result.Value);
+                            if (!filesToCheck.ContainsKey(basename))
+                                filesToCheck.Add(basename, result.Key);
+                        }
+
+                        var additionalHashes = new Dictionary<string, string>();
+
+                        foreach (var fileToCheck in filesToCheck)
+                        {
+                            var basename = fileToCheck.Key;
+                            var fdid = fileToCheck.Value;
+                            var cKeys = CASC.GetCKeysAndFlagsByFDID(fdid);
+                            if (cKeys.Count > 0)
+                            {
+                                var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(cKeys));
+                                if (!knownHashes.Contains(primaryCKey) && !knownNames.Contains(basename, StringComparer.OrdinalIgnoreCase))
+                                {
+                                    knownHashes.Add(primaryCKey);
+                                    knownNames.Add(basename);
+                                    additionalHashes.Add(primaryCKey, basename);
+                                }
+                            }
+                        }
+
+                        Namer.NameByContentHashes(CASC.GetCKeyDict(), additionalHashes);
                         break;
                     case "Decals":
                         Namer.NameDecals();

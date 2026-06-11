@@ -7,6 +7,7 @@
 - Added support for PNG previews (for some reason there's 4 of them in the game?).
 - Added namer for files from install (only does something when WoW is loaded with TVFS).
 - Added naming of dye textures during model naming.
+- Added mass-naming of contenthashes based on some new logic (experimental).
 - Fixed custom-listfile.csv entries being overwritten, should be easier to test submissions now.
 - Fixed Shift-A not working on files page, Ctrl-Shift-A is now the key combo to add all files to DL queue.
 - Fixes files page table not initializing fully (e.g. hovering on file metadata icons was broken).

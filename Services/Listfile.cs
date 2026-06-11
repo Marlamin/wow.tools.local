@@ -592,6 +592,11 @@ namespace wow.tools.local.Services
                     return x => resultFDIDs.Contains(x.Key);
                 }
             }
+            else if(search == "multiuse")
+            {
+                var multiUseFDIDs = CASC.CHashToFDID.Where(x => x.Value.Count > 1).SelectMany(x => x.Value).ToHashSet();
+                return p => multiUseFDIDs.Contains(p.Key);
+            }
             else if (search == "haslookup")
             {
                 var fdids = new HashSet<int>(Listfile.LookupMap.Keys);
