@@ -1,12 +1,10 @@
 ﻿using Microsoft.Data.Sqlite;
 using Newtonsoft.Json;
-using System.Collections;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using TACTSharp;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
-using static TACTSharp.InstallInstance;
 using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Services
@@ -74,16 +72,16 @@ namespace wow.tools.local.Services
         {
             IsTACTSharpInit = false;
 
-            buildInstance = new BuildInstance();
-
-            buildInstance.Settings.Product = product;
+            var buildConfig = "";
+            var cdnConfig = "";
+            var productConfig = "";
 
             string? overrideBuildConfig = null;
             if ((File.Exists(SettingsManager.BuildConfigFile) && (overrideBuildConfig = SettingsManager.BuildConfigFile) != null) ||
                 (File.Exists("fakebuildconfig") && (overrideBuildConfig = "fakebuildconfig") != null))
             {
                 Console.WriteLine("Using override build config: " + overrideBuildConfig);
-                buildInstance.Settings.BuildConfig = overrideBuildConfig;
+                buildConfig = overrideBuildConfig;
             }
 
             string? overrideCDNConfig = null;
@@ -91,156 +89,28 @@ namespace wow.tools.local.Services
                 (File.Exists("fakecdnconfig") && (overrideCDNConfig = "fakecdnconfig") != null))
             {
                 Console.WriteLine("Using override CDN config: " + overrideCDNConfig);
-                buildInstance.Settings.CDNConfig = overrideCDNConfig;
-            }
-
-            buildInstance.Settings.Locale = SettingsManager.TACTLocale;
-            buildInstance.Settings.Region = SettingsManager.Region;
-
-            if (SettingsManager.WoWProduct != product || (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC)))
-            {
-                Console.WriteLine("Switching builds, resetting configs..");
-                buildInstance.Settings.BuildConfig = null;
-                buildInstance.Settings.CDNConfig = null;
-                buildInstance.ResetCDN();
-            }
-
-            buildInstance.Settings.RootMode = RootInstance.LoadMode.Full;
-
-            if (SettingsManager.AdditionalCDNs.Length > 0 && !string.IsNullOrEmpty(SettingsManager.AdditionalCDNs[0]))
-                buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.AdditionalCDNs);
-
-            bool loadOnline = false;
-            if (!string.IsNullOrEmpty(wowFolder))
-            {
-                // Load from build.info
-                var buildInfoPath = Path.Combine(wowFolder, ".build.info");
-                if (!File.Exists(buildInfoPath))
-                    throw new Exception("No build.info found in base directory");
-
-                buildInstance.Settings.BaseDir = wowFolder;
-
-                var buildInfo = new BuildInfo(buildInfoPath, buildInstance.Settings, buildInstance.cdn);
-
-                if (!buildInfo.Entries.Any(x => x.Product == product))
-                {
-                    Console.WriteLine("No .build.info found for product " + product + ", falling back to online mode.");
-                    loadOnline = true;
-                }
-                else
-                {
-                    var build = buildInfo.Entries.First(x => x.Product == product);
-
-                    if (buildInstance.Settings.BuildConfig == null)
-                        buildInstance.Settings.BuildConfig = build.BuildConfig;
-
-                    if (buildInstance.Settings.CDNConfig == null)
-                        buildInstance.Settings.CDNConfig = build.CDNConfig;
-
-                    if (!string.IsNullOrEmpty(build.Armadillo))
-                        buildInstance.cdn.ArmadilloKeyName = build.Armadillo;
-                }
-            }
-            else
-            {
-                loadOnline = true;
+                cdnConfig = overrideCDNConfig;
             }
 
             if (!string.IsNullOrEmpty(overrideBC) && !string.IsNullOrEmpty(overrideCDNC))
             {
-                buildInstance.Settings.BuildConfig = overrideBC;
-                buildInstance.Settings.CDNConfig = overrideCDNC;
+                buildConfig = overrideBC;
+                cdnConfig = overrideCDNC;
             }
 
-            if (loadOnline)
-            {
-                IsOnline = true;
-                if (string.IsNullOrEmpty(overrideBC) && string.IsNullOrEmpty(overrideCDNC))
-                {
-                    var versions = await buildInstance.cdn.GetPatchServiceFile(product);
-                    foreach (var line in versions.Split('\n'))
-                    {
-                        if (!line.StartsWith(buildInstance.Settings.Region + "|"))
-                            continue;
-
-                        var splitLine = line.Split('|');
-
-                        if (buildInstance.Settings.BuildConfig == null)
-                            buildInstance.Settings.BuildConfig = splitLine[1];
-
-                        if (buildInstance.Settings.CDNConfig == null)
-                            buildInstance.Settings.CDNConfig = splitLine[2];
-
-                        if (splitLine.Length >= 7 && !string.IsNullOrEmpty(splitLine[6]))
-                            buildInstance.Settings.ProductConfig = splitLine[6];
-                    }
-                }
-            }
-
-            #region Configs
-            if (SettingsManager.WoWProduct == "wowdev")
-            {
-                buildInstance.cdn.ProductDirectory = "tpr/wowdev";
-            }
-            else
-            {
-                buildInstance.cdn.ProductDirectory = "tpr/wow";
-            }
-
-            if (!string.IsNullOrEmpty(SettingsManager.CDNFolder))
-                buildInstance.Settings.CDNDir = SettingsManager.CDNFolder;
-
-            buildInstance.cdn.OpenLocal();
-
-            try
-            {
-                if (buildInstance.Settings.BuildConfig == null || buildInstance.Settings.CDNConfig == null)
-                    throw new Exception("BuildConfig or CDNConfig is null");
-
-                if (!string.IsNullOrEmpty(buildInstance.Settings.ProductConfig))
-                    buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig, buildInstance.Settings.ProductConfig);
-                else
-                    buildInstance.LoadConfigs(buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
-
-                if (buildInstance.BuildConfig == null || buildInstance.CDNConfig == null)
-                    throw new Exception("Failed to load configs");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Failed to load configs: " + e.Message);
-                return;
-            }
-
-            try
-            {
-                buildInstance.Load();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Failed to load build: " + e.Message);
-                Console.WriteLine(e.StackTrace);
-                return;
-            }
-
-            if (!buildInstance.BuildConfig.Values.TryGetValue("encoding", out var encodingKey))
-                throw new Exception("No encoding key found in build config");
-
-            if (buildInstance.Encoding == null || buildInstance.Root == null || buildInstance.Install == null)
-                throw new Exception("Encoding, root or install are null");
-
-            #endregion
+            buildInstance = BuildManager.LoadBuild(product, buildConfig, cdnConfig, productConfig);
 
             var totalTimer = new Stopwatch();
             totalTimer.Start();
 
             CurrentProduct = product;
-            FullBuildName = buildInstance.BuildConfig.Values["build-name"][0];
+            FullBuildName = buildInstance.BuildConfig!.Values["build-name"][0];
             var splitName = FullBuildName.Replace("WOW-", "").Split("patch");
             BuildName = splitName[1].Split("_")[0] + "." + splitName[0];
 
             try
             {
-                SQLiteDB.InsertBuildIfNotExists(CurrentProduct, BuildName, buildInstance.Settings.BuildConfig, buildInstance.Settings.CDNConfig);
+                SQLiteDB.InsertBuildIfNotExists(CurrentProduct, BuildName, buildInstance.Settings.BuildConfig!, buildInstance.Settings.CDNConfig!);
             }
             catch (Exception e)
             {
@@ -257,10 +127,8 @@ namespace wow.tools.local.Services
 
             #region Install entries
             var installTags = new Dictionary<string, InstallInstance.InstallTagEntry>();
-            foreach (var installTag in buildInstance.Install.Tags)
-            {
+            foreach (var installTag in buildInstance.Install!.Tags)
                 installTags.Add(installTag.name, installTag);
-            }
 
             InstallEntries.Clear();
             InstallEntries.AddRange(buildInstance.Install.Entries);
@@ -803,7 +671,7 @@ namespace wow.tools.local.Services
 
         public static byte[] GetPreferredCKey(List<(byte[] cKey, ContentFlags contentFlags, LocaleFlags localeFlags)> cKeys)
         {
-            if(cKeys.Count == 0)
+            if (cKeys.Count == 0)
                 throw new Exception("CKey list cannot be empty.");
 
             var preferredEntry = cKeys.FirstOrDefault(subentry =>
