@@ -328,6 +328,13 @@ namespace wow.tools.local.Services
         {
             AvailableBuilds.Clear();
 
+            if (!Directory.Exists(SettingsManager.WoWFolder))
+                return;
+
+            var buildInfoPath = Path.Combine(SettingsManager.WoWFolder, ".build.info");
+            if (!File.Exists(buildInfoPath))
+                return;
+
             var folderMap = new Dictionary<string, string>();
             foreach (var flavorFile in Directory.GetFiles(SettingsManager.WoWFolder, ".flavor.info", SearchOption.AllDirectories))
             {
@@ -339,7 +346,7 @@ namespace wow.tools.local.Services
             }
 
             var headerMap = new Dictionary<string, byte>();
-            foreach (var line in File.ReadAllLines(Path.Combine(SettingsManager.WoWFolder, ".build.info")))
+            foreach (var line in File.ReadAllLines(buildInfoPath))
             {
                 var splitLine = line.Split("|");
                 if (splitLine[0] == "Branch!STRING:0")
