@@ -1,6 +1,4 @@
-﻿using DBDefsLib;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.RegularExpressions;
+﻿using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
 using static wow.tools.local.Services.SQLiteDB;
@@ -38,7 +36,7 @@ namespace wow.tools.local.Controllers
 
             if (Request.Method == "POST")
             {
-                if(Request.Form.TryGetValue("draw", out var drawValue) && int.TryParse(drawValue, out var draw))
+                if (Request.Form.TryGetValue("draw", out var drawValue) && int.TryParse(drawValue, out var draw))
                     result.draw = draw;
 
                 _ = Request.Form.TryGetValue("showLocal", out var showLocalString) && bool.TryParse(showLocalString, out showLocal);
@@ -56,7 +54,7 @@ namespace wow.tools.local.Controllers
                 foreach (var availableBuild in CASC.AvailableBuilds)
                     availableBuilds.Add((availableBuild.Product, availableBuild.Version, availableBuild.BuildConfig, availableBuild.CDNConfig, false));
 
-            if(showOnline)
+            if (showOnline)
             {
                 var httpClient = new HttpClient();
                 RibbitCache["v2/summary"] = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/v2/summary").Result;
@@ -92,8 +90,8 @@ namespace wow.tools.local.Controllers
                     }
                 }
             }
-            
-            if(showArchived)
+
+            if (showArchived)
             {
                 var archivedBuilds = SQLiteDB.GetBuilds();
 
@@ -124,25 +122,42 @@ namespace wow.tools.local.Controllers
 
                 var hasManifest = ManifestManager.ExistsForBuild(patch, build);
                 var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
-                
+
                 result.data.Add([patch, build, availableBuild.product, availableBuild.buildConfig, availableBuild.cdnConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString(), availableBuild.isRemote.ToString()]);
             }
 
-            if(orderDir == "asc")
-                result.data = result.data.OrderBy(x => x[orderCol]).ToList();
+            // special sorting for patch
+            if (orderCol == 0)
+            {
+                if (orderDir == "asc")
+                    result.data = result.data.OrderBy(x => NumericalPatch(x[orderCol])).ToList();
+                else
+                    result.data = result.data.OrderByDescending(x => NumericalPatch(x[orderCol])).ToList();
+            }
             else
-                result.data = result.data.OrderByDescending(x => x[orderCol]).ToList();
+            {
+                if (orderDir == "asc")
+                    result.data = result.data.OrderBy(x => x[orderCol]).ToList();
+                else
+                    result.data = result.data.OrderByDescending(x => x[orderCol]).ToList();
+            }
 
             result.recordsTotal = result.data.Count;
             result.recordsFiltered = result.data.Count;
 
-            if(!string.IsNullOrEmpty(search))
+            if (!string.IsNullOrEmpty(search))
             {
                 result.data = result.data.Where(x => x.Any(field => field.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();
                 result.recordsFiltered = result.data.Count;
             }
 
             return result;
+        }
+
+        private static uint NumericalPatch(string patch)
+        {
+            var firstBuild = patch.Split('.');
+            return (uint)((int.Parse(firstBuild[0]) * 10000) + (int.Parse(firstBuild[1]) * 100) + int.Parse(firstBuild[2]));
         }
     }
 }
