@@ -19,6 +19,8 @@
 - Updated screenshot combo feature in modelviewer to support linked fields (by @WainPetopia).
 - Updated TACTSharp (now has rudimentary fallback support to TVFS if root were to ever go away).
 - Updated WoWFormatLib/WoWNamingLib.
+- Replaced Newtonsoft.Json dependency with System.Text.Json.
+- Replaced ImageSharp dependency with NetVips.
 - Removed CASCLib.
 
 0.9.4 (25-05-2026)
