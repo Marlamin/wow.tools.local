@@ -7,10 +7,41 @@
     <RepositoryUrl>https://github.com/Marlamin/wow.tools.local</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>0.9.4</Version>
+    <Version>0.9.5</Version>
     <ApplicationIcon>wwwroot\img\cog.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <!-- Trimming -->
+  <PropertyGroup>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <PublishSingleFile>true</PublishSingleFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <!-- Trim workarounds from https://github.com/dotnet/aspnetcore/issues/58926#issuecomment-4024085605-->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <MvcEnhancedModelMetadataSupport>true</MvcEnhancedModelMetadataSupport>
+    <!-- End workaround-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="wow.tools.local" />
+    <TrimmerRootAssembly Include="System.ComponentModel.TypeConverter" />
+    <TrimmerRootAssembly Include="Microsoft.AspNetCore.Mvc.Core" />
+  </ItemGroup>
+  
+  <!-- Delete unneeded files from publish -->
+  <Target Name="DeleteFiles" AfterTargets="Publish">
+    <ItemGroup>
+      <FilesToDelete Include="$(PublishDir)*.pdb;"/>
+      <FilesToDelete Include="$(PublishDir)*.xml;"/>
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)">
+      <Output TaskParameter="DeletedFiles" ItemName="FilesDeleted"/>
+    </Delete>
+  </Target>
+  
+  <!-- Trimming end -->
   <ItemGroup>
     <Compile Remove="caches\**" />
     <Compile Remove="cache\**" />

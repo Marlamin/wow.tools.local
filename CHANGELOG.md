@@ -4,6 +4,8 @@
   Table now supports ordering/searching.
   Table now also optionally lists previously seen/historical builds.
   Build switching/DB2 extraction tasks no longer refresh the full page when done.
+- Enabled partial trimming & single-file publish for WTL and stopped shipping debug files.
+  This significantly reduces the amount of files WTL ships with in its main folder.
 - Added support for PNG previews (for some reason there's 4 of them in the game?).
 - Added namer for files from install (only does something when WoW is loaded with TVFS).
 - Added naming of dye textures during model naming.
