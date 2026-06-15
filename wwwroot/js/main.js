@@ -51,14 +51,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    fetch("/header.html")
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById("navbar").innerHTML = html;
-            updateTitle();
-            checkForUpdates();
-            setTheme(getPreferredTheme());
-        });
+    var navbar = document.getElementById("navbar");
+
+    if (navbar) {
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("navbar").innerHTML = html;
+                updateTitle();
+                checkForUpdates();
+                setTheme(getPreferredTheme());
+            });
+    }
+ 
 
     document.addEventListener('init.dt', function (e) {
         const pageInput = document.querySelector(".dt-paging-input input");

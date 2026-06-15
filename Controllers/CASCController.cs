@@ -1,19 +1,21 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using System.Web;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
+using WoWFormatLib.Structs.M2;
 using WoWFormatLib.Structs.WDT;
 using WoWNamingLib;
 using WoWNamingLib.Namers;
@@ -678,6 +680,11 @@ namespace wow.tools.local.Controllers
                 Modified = Array.Empty<DiffEntry>()
             };
 
+            var jsonOptions = new JsonSerializerOptions()
+            {
+                IncludeFields = true
+            };
+
             if (BuildDiffCache.Get(from, to, out ApiDiff diff))
             {
                 if (type == "normal")
@@ -688,7 +695,7 @@ namespace wow.tools.local.Controllers
                         modified = diff.Modified.Count(),
                         removed = diff.Removed.Count(),
                         data = diff.All.ToArray()
-                    });
+                    }, jsonOptions);
                 }
                 else
                 {
@@ -886,7 +893,7 @@ namespace wow.tools.local.Controllers
                 modified = modifiedDiffEntries.Length,
                 removed = removedDiffEntries.Length,
                 data = allEntries
-            });
+            }, jsonOptions);
         }
 
         [Route("samehashes")]
@@ -1284,7 +1291,7 @@ namespace wow.tools.local.Controllers
         public string DiffFile(int fileDataID, string from, string to)
         {
             var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt", "hlsl" };
-            var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt", "m3", "tex" };
+            var jsonTypes = new List<string>() { "m2", "wmo", /*"wdt",*/ "adt", "m3", "tex" };
             var imageTypes = new List<string>() { "blp", "png", };
 
             var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
@@ -1781,7 +1788,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat", "wdt", "wdl", "tex" };
+            var supportedTypes = new List<string> { "wmo", "m2", "adt", "bls", "m3", "gfat", /*"wdt",*/ "wdl", "tex" };
 
             if (!(Listfile.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
@@ -1820,20 +1827,28 @@ namespace wow.tools.local.Controllers
 
             FileProvider.SetDefaultBuild(build);
 
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new JsonStringEnumConverter() },
+                WriteIndented = true,
+                IncludeFields = true
+            };
+
             switch (!string.IsNullOrEmpty(overrideType) ? overrideType : fileType)
             {
-                case "wdt":
-                    var wdtReader = new WDTReader();
-                    wdtReader.LoadWDT(fileDataID);
-                    return JsonConvert.SerializeObject(wdtReader.wdtfile, Formatting.Indented);
+                // TODO: Tuple conversion for System.Text.JSON
+                //case "wdt":
+                //    var wdtReader = new WDTReader();
+                //    wdtReader.LoadWDT(fileDataID);
+                //    return JsonSerializer.Serialize(wdtReader.wdtfile, options);
                 case "wdl":
                     var wdlReader = new WDLReader();
                     wdlReader.LoadWDL(fileDataID);
-                    return JsonConvert.SerializeObject(wdlReader.wdlfile, Formatting.Indented);
+                    return JsonSerializer.Serialize(wdlReader.wdlfile, options);
                 case "tex":
                     var texReader = new TEXReader();
                     var tex = texReader.LoadTEX(fileDataID);
-                    return JsonConvert.SerializeObject(tex, Formatting.Indented);
+                    return JsonSerializer.Serialize(tex, options);
                 case "wmo":
                     var wmoReader = new WMOReader();
                     var wmo = wmoReader.LoadWMO(fileDataID);
@@ -1844,7 +1859,7 @@ namespace wow.tools.local.Controllers
                         wmo.group[i].mogp.normals = [];
                         wmo.group[i].mogp.textureCoords = [];
                     }
-                    return JsonConvert.SerializeObject(wmo, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(wmo, options);
                 case "adt":
                     var adtReader = new ADTReader();
 
@@ -1879,7 +1894,7 @@ namespace wow.tools.local.Controllers
                         }
                     }
 
-                    return JsonConvert.SerializeObject(adtReader.adtfile, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(adtReader.adtfile, options);
                 case "m2":
                     var m2Reader = new M2Reader();
                     m2Reader.LoadM2(fileDataID);
@@ -1894,11 +1909,11 @@ namespace wow.tools.local.Controllers
                             m2Reader.model.skins[i].properties = [];
                         }
                     }
-                    return JsonConvert.SerializeObject(m2Reader.model, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(m2Reader.model, options);
                 case "m3":
                     var m3Reader = new M3Reader();
                     m3Reader.LoadM3(fileDataID);
-                    return JsonConvert.SerializeObject(m3Reader.model, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(m3Reader.model, options);
                 case "bls":
                     var blsReader = new BLSReader();
 
@@ -1919,7 +1934,7 @@ namespace wow.tools.local.Controllers
                     //if (!Directory.Exists(extractDir))
                     //    Directory.CreateDirectory(extractDir);
 
-                    var json = JsonConvert.SerializeObject(blsReader.shaderFile, Formatting.Indented, new StringEnumConverter());
+                    var json = JsonSerializer.Serialize(blsReader.shaderFile, options);
                     //System.IO.File.WriteAllText(Path.Combine(Path.Combine("extract", "bls"), baseName + ".json"), json);
                     //var shaderIndex = 0;
                     //foreach(var decompressedShader in blsReader.shaderFile.decompressedShaders)
@@ -1934,7 +1949,7 @@ namespace wow.tools.local.Controllers
                     if (!string.IsNullOrEmpty(overrideCKey))
                         gfat = gfatReader.LoadGFAT(Convert.FromHexString(overrideCKey));
 
-                    return JsonConvert.SerializeObject(gfat, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(gfat, options);
                 default:
                     throw new Exception("Unsupported file type");
             }

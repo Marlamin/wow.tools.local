@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
 
@@ -234,8 +234,8 @@ namespace wow.tools.local.Controllers
                 result.data.Add(
                    [
                        soundKitID.ToString(), // ID
-                       JsonConvert.SerializeObject(voFiles), // Files
-                       JsonConvert.SerializeObject(bcTexts), // BroadcastTexts
+                       JsonSerializer.Serialize(voFiles), // Files
+                       JsonSerializer.Serialize(bcTexts), // BroadcastTexts
                    ]);
             }
 

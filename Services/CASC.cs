@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
-using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using TACTSharp;
 using wow.tools.local.Managers;
@@ -795,7 +795,12 @@ namespace wow.tools.local.Services
                 Console.WriteLine(Path.GetFileNameWithoutExtension(manifest));
             }
 
-            File.WriteAllText("versionHistory.json", JsonConvert.SerializeObject(VersionHistory, Formatting.Indented));
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+
+            File.WriteAllText("versionHistory.json", JsonSerializer.Serialize(VersionHistory, options));
 
             return true;
         }
@@ -808,7 +813,7 @@ namespace wow.tools.local.Services
                 return false;
             }
 
-            VersionHistory = JsonConvert.DeserializeObject<Dictionary<int, List<Version>>>(File.ReadAllText("versionHistory.json")) ?? [];
+            VersionHistory = JsonSerializer.Deserialize<Dictionary<int, List<Version>>>(File.ReadAllText("versionHistory.json")) ?? [];
 
             return true;
         }

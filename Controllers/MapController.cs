@@ -2,6 +2,7 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
 
@@ -66,7 +67,7 @@ namespace wow.tools.local.Controllers
 
         [Route("list")]
         [HttpGet]
-        public async Task<List<MapInfo>> Info()
+        public async Task<ActionResult> Info()
         {
             var list = new List<MapInfo>();
             var seenMaps = new HashSet<string>();
@@ -119,7 +120,12 @@ namespace wow.tools.local.Controllers
                 seenMaps.Add(mapName);
             }
 
-            return list;
+            var jsonOptions = new JsonSerializerOptions
+            {
+                IncludeFields = true
+            };
+
+            return Json(list, jsonOptions);
         }
 
         [Route("wdtMask")]

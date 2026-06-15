@@ -104,13 +104,13 @@ async function InitializeMapOptions(maps) {
 	maps.forEach(function (map, i) {
 		option = document.createElement('option');
 		option.dataset.internal = map.internalName;
-		option.dataset.imapid = map.id;
+		option.dataset.imapid = map.ID;
 		option.dataset.wdtfiledataid = map.wdtFileDataID;
 		option.setAttribute('data-custom-properties', JSON.stringify({
 			internal: map.internalName,
-			imapid: map.id
+			imapid: map.ID
 		}));
-		option.value = map.id;
+		option.value = map.ID;
 		option.textContent = map.displayName;
 
 		fragment.appendChild(option);
@@ -118,9 +118,9 @@ async function InitializeMapOptions(maps) {
 		// Either first map, or specified map
 		if (i === 0 || map.internal === decodeURIComponent(url[2])) {
 
-			Current.Map = map.id;
+			Current.Map = map.ID;
 			Current.InternalMap = map.internalName;
-			Current.InternalMapID = map.id;
+			Current.InternalMapID = map.ID;
 			Current.wdtFileDataID = map.wdtFileDataID;
 			Current.Version = '' + parseInt(url[3], 10);
 			if (map.internal === decodeURIComponent(url[2])) {

@@ -1,6 +1,6 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
@@ -106,7 +106,7 @@ namespace wow.tools.local.Controllers
                 return "";
 
             var compiledPackage = Namer.GetSceneScriptCompiledDebug(pid);
-            return JsonConvert.SerializeObject(compiledPackage, Formatting.Indented);
+            return JsonSerializer.Serialize(compiledPackage);
         }
 
         [HttpGet]
