@@ -102,8 +102,9 @@
 
   <ItemGroup>
     <PackageReference Include="BLPSharp" Version="0.1.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.5" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <PackageReference Include="NetVips" Version="3.2.0" />
+    <PackageReference Include="NetVips.Native" Version="8.18.3" />
   </ItemGroup>
   
   <ItemGroup>

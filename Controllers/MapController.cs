@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+using NetVips;
 using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
@@ -24,14 +22,16 @@ namespace wow.tools.local.Controllers
 
         [Route("tile")]
         [HttpGet]
-        public FileContentResult Tile(uint fileDataID, int targetSize)
+        public FileStreamResult Tile(uint fileDataID, int targetSize)
         {
             if (!CASC.FileExists(fileDataID))
             {
-                var emptyImage = new Image<Rgba32>(targetSize, targetSize);
+                var emptyImage = Image.Black(targetSize, targetSize);
                 var emptyPixels = new byte[targetSize * targetSize * 4];
-                emptyImage.CopyPixelDataTo(emptyPixels);
-                return new FileContentResult(emptyPixels, "application/octet-stream");
+                var emptyMS = new MemoryStream();
+                emptyImage.WriteToStream(emptyMS, ".png");
+                emptyMS.Position = 0;
+                return new FileStreamResult(emptyMS, "image/png");
             }
 
             var blp = new BLPSharp.BLPFile(CASC.GetFileByID(fileDataID));
@@ -46,23 +46,22 @@ namespace wow.tools.local.Controllers
                     break;
             }
 
+            // TODO: I would prefer to ditch ImageSharp here
             var pixels = blp.GetPixels(bestMipLevel, out var w, out var h);
-            var image = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(pixels, w, h);
-            var sortedImage = image.CloneAs<Rgba32>();
-            var pixelBytes = new byte[targetSize * targetSize * 4];
+            using var raw = NetVips.Image.NewFromMemory(pixels, w, h, 4, Enums.BandFormat.Uchar);
+            using var image = raw[2].Bandjoin(new[] { raw[1], raw[0], raw[3] }).Copy(interpretation: Enums.Interpretation.Srgb);
 
-            if (sortedImage.Width == targetSize)
-            {
-                sortedImage.CopyPixelDataTo(pixelBytes);
-            }
-            else
-            {
-                // Minimaps dont have mipmaps, so resize :( (maptextures do, so we support mips above anyways)
-                sortedImage.Mutate(x => x.Resize(new Size(targetSize, targetSize)));
-                sortedImage.CopyPixelDataTo(pixelBytes);
-            }
+            var sortedImage = image.Copy();
 
-            return new FileContentResult(pixelBytes, "application/octet-stream");
+            if (sortedImage.Width != targetSize)
+                sortedImage = sortedImage.Resize((double)targetSize / sortedImage.Width);
+
+            byte[] rawPixels = sortedImage.WriteToMemory<byte>();
+
+            var ms = new MemoryStream();
+            ms.Write(rawPixels);
+            ms.Position = 0;
+            return new FileStreamResult(ms, "application/octet-stream");
         }
 
         [Route("list")]

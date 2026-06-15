@@ -1,7 +1,6 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+using NetVips;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -1535,10 +1534,12 @@ namespace wow.tools.local.Controllers
 
             var blp = new BLPSharp.BLPFile(file);
             var pixels = blp.GetPixels(0, out var w, out var h);
-            var image = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(pixels, w, h);
+
+            using var raw = NetVips.Image.NewFromMemory(pixels, w, h, 4, Enums.BandFormat.Uchar);
+            using var image = raw[2].Bandjoin(new[] { raw[1], raw[0], raw[3] }).Copy(interpretation: Enums.Interpretation.Srgb);
 
             var ms = new MemoryStream();
-            image.SaveAsPng(ms);
+            image.WriteToStream(ms, ".png");
             ms.Position = 0;
             return new FileStreamResult(ms, "image/png");
         }
