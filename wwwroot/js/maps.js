@@ -34,8 +34,8 @@ const state = {
 	offsetY: 0,
 	zoomFactor: 2,
 	tileQueue: [],
+	tilesLoading: 0,
 	cache: new Array(CONSTANTS.MAP_SIZE_SQ),
-	awaitingTile: false,
 	isPanning: false,
 	tileSize: 512,
 	mask: [],
@@ -310,31 +310,27 @@ function notify(msg, level = "danger") {
 }
 
 function checkTileQueue() {
-	const tile = state.tileQueue.shift();
-	if (tile)
+	// load a max of 5 tiles at a time so backend doesnt implode
+	while (state.tilesLoading < 5 && state.tileQueue.length > 0) {
+		const tile = state.tileQueue.shift();
+		state.tilesLoading++;
 		loadTile(tile);
-	else
-		state.awaitingTile = false;
+	}
 }
 
 function queueTile(x, y, index, tileSize) {
 	const node = { x, y, index, tileSize };
-	if (state.awaitingTile)
-		state.tileQueue.push(node);
-	else
-		loadTile(node);
+	state.tileQueue.push(node);
+	checkTileQueue();
 }
 
 async function loadTile(tile) {
-	state.awaitingTile = true;
-
-	const cache = state.cache;
-
 	const data = await loadMapTile(tile.x, tile.y, tile.tileSize, tile.index);
-	cache[tile.index] = data;
+	state.cache[tile.index] = data;
 	if (data !== false)
 		render();
 
+	state.tilesLoading--;
 	checkTileQueue();
 }
 

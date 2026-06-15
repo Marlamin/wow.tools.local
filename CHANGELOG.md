@@ -14,6 +14,7 @@
 - Improved speed of build diffs.
 - Improved initial load speed of files page.
 - Improved memory footprint/reduced contenthash initialization time, again.
+- Improved tile loading speed on maps page.
 - Updated config.json creation to have community CDNs set as additional CDNs by default.
 - Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
 - Updated screenshot combo feature in modelviewer to support linked fields (by @WainPetopia).
