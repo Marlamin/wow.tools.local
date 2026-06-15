@@ -657,9 +657,9 @@
 
                     data.forEach((version) => {
                         var option = document.createElement("option");
-                        option.value = version.item1;
-                        option.text = version.item1 + " (" + version.item2 + ")";
-                        validBuilds.push(version.item1);
+                        option.value = version.Item1;
+                        option.text = version.Item1 + " (" + version.Item2 + ")";
+                        validBuilds.push(version.Item1);
 
                         if (!preselected && (option.value == currentParams["build"])) {
                             option.selected = true;
@@ -678,7 +678,7 @@
                             if (Settings.lockedBuild !== null) {
                                 currentParams["build"] = Settings.lockedBuild;
                             } else {
-                                currentParams["build"] = data[0].item1;
+                                currentParams["build"] = data[0].Item1;
                             }
                         }
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
@@ -409,7 +410,7 @@ namespace wow.tools.local.Controllers
         }
 
         [HttpGet("db2/{databaseName}/versions")]
-        public List<(Version, string)> BuildsForDatabase(string databaseName, bool uniqueOnly = false)
+        public ActionResult BuildsForDatabase(string databaseName, bool uniqueOnly = false)
         {
             var versionList = new SortedDictionary<Version, string>();
 
@@ -467,7 +468,8 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            return versionList.Select(kvp => (kvp.Key, kvp.Value)).OrderByDescending(x => x.Key).ToList();
+            var jsonOptions = new JsonSerializerOptions() { IncludeFields = true };
+            return Json(versionList.Select(kvp => (kvp.Key, kvp.Value)).OrderByDescending(x => x.Key).ToList(), jsonOptions);
         }
 
         [HttpGet("db2/builds")]
