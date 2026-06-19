@@ -25,13 +25,19 @@ namespace wow.tools.local.Controllers.DBC
 
         [Route("getMappings")]
         [HttpGet]
-        public async Task<List<MappingWithEntries>> GetMappings(string? tableName = null, string? build = null)
+        public async Task<ActionResult> GetMappings(string? tableName = null, string? build = null)
         {
             var mappings = string.IsNullOrEmpty(tableName)
                 ? enumProvider.Mappings
                 : enumProvider.Mappings.Where(x => x.tableName.ToLower() == tableName.ToLower()).ToList();
 
-            return mappings.Select(m =>
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IncludeFields = true
+            };
+
+            return new JsonResult(mappings.Select(m =>
             {
                 List<EnumEntry>? entries = null;
                 if (m.meta is MetaType.ENUM or MetaType.FLAGS)
@@ -64,7 +70,7 @@ namespace wow.tools.local.Controllers.DBC
 
                 return new MappingWithEntries(m.meta, m.tableName, m.columnName, m.arrIndex,
                     m.conditionalTable, m.conditionalColumn, m.conditionalValue, entries);
-            }).ToList();
+            }).ToList(), jsonOptions);
         }
 
         [Route("getMeta")]
