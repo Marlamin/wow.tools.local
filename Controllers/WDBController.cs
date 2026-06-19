@@ -56,7 +56,7 @@ namespace wow.tools.local.Controllers
             if (SettingsManager.ReadOnly)
                 return result;
 
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_ptr_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
             //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
 
             result.recordsFiltered = questWDB.entries.Count;
@@ -89,7 +89,7 @@ namespace wow.tools.local.Controllers
             if (SettingsManager.ReadOnly)
                 return "";
 
-            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_retail_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
+            var questWDB = WDBReader.Read("C:\\World of Warcraft\\_ptr_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
             //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
 
             if (id == 0)

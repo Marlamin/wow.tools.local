@@ -16,8 +16,6 @@
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>partial</TrimMode>
     <PublishSingleFile>true</PublishSingleFile>
-    <DebugType>none</DebugType>
-    <DebugSymbols>false</DebugSymbols>
     <!-- Trim workarounds from https://github.com/dotnet/aspnetcore/issues/58926#issuecomment-4024085605-->
     <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     <MvcEnhancedModelMetadataSupport>true</MvcEnhancedModelMetadataSupport>

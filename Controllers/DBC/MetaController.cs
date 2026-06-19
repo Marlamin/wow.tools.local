@@ -75,8 +75,14 @@ namespace wow.tools.local.Controllers.DBC
 
         [Route("getMeta")]
         [HttpGet]
-        public async Task<EnumDefinition?> GetMeta(string tableName, string columnName)
+        public async Task<ActionResult> GetMeta(string tableName, string columnName)
         {
+            var jsonOptions = new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IncludeFields = true
+            };
+
             int? arrayIndex = null;
 
             if (columnName.Contains('['))
@@ -89,7 +95,7 @@ namespace wow.tools.local.Controllers.DBC
             }
 
             Console.WriteLine($"Requesting Table: {tableName} and Column: {columnName} (Array: {arrayIndex})");
-            return enumProvider.GetEnumDefinition(tableName, columnName, arrayIndex);
+            return new JsonResult(enumProvider.GetEnumDefinition(tableName, columnName, arrayIndex), jsonOptions);
         }
     }
 
