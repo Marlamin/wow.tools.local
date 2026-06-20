@@ -1233,6 +1233,24 @@ namespace wow.tools.local.Controllers
                         html += "</table></td></tr>";
                     }
                 }
+
+                if (type == "wmo" && Namer.isInitialized)
+                {
+                    var wmoFile = CASC.GetFileByID((uint)filedataid);
+                    if (wmoFile != null)
+                    {
+                        var reader = new WMOReader();
+                        var parsedWMO = reader.LoadWMO(wmoFile);
+
+                        html += "<tr><td colspan='2'><b>Group names for this WMO</b></td></tr>";
+                        html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
+                        foreach (var mogn in parsedWMO.groupNames)
+                        {
+                            html += "<tr><td>" + mogn.name + "</td></tr>";
+                        }
+                        html += "</table></td></tr>";
+                    }
+                }
             }
 
             var linkedChildFiles = SQLiteDB.GetFilesByParent(filedataid);
