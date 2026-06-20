@@ -476,8 +476,13 @@ namespace wow.tools.local.Services
 
         public static uint GetFileDataIDByName(string name)
         {
-            // TODO: native TACTSharp function instead of relying on listfile.
-            return (uint)Listfile.NameMap.Where(x => x.Value.Equals(name, StringComparison.CurrentCultureIgnoreCase)).Select(x => x.Key).FirstOrDefault();
+            var hasher = new Jenkins96();
+            var entries = buildInstance!.Root!.GetEntriesByLookup(hasher.ComputeHash(name));
+            if (entries.Count > 0)
+                return entries[0].fileDataID;
+
+            // Fallback to listfile (very slow!)
+            return (uint)Listfile.NameMap.Where(x => x.Value.Equals(name, StringComparison.OrdinalIgnoreCase)).Select(x => x.Key).FirstOrDefault();
         }
 
         public static Stream? GetFileByID(uint filedataid, string? build = null, LocaleFlags locale = LocaleFlags.All_WoW)
