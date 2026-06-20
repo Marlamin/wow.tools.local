@@ -30,6 +30,8 @@ namespace wow.tools.local.Controllers
             var showOnline = false;
             var showArchived = false;
 
+            var start = 0;
+            var length = 20;
             var orderCol = 1; // Build
             var orderDir = "desc";
             var search = "";
@@ -38,6 +40,9 @@ namespace wow.tools.local.Controllers
             {
                 if (Request.Form.TryGetValue("draw", out var drawValue) && int.TryParse(drawValue, out var draw))
                     result.draw = draw;
+
+                _ = Request.Form.TryGetValue("start", out var startValue) && int.TryParse(startValue, out start);
+                _ = Request.Form.TryGetValue("length", out var lengthValue) && int.TryParse(lengthValue, out length);
 
                 _ = Request.Form.TryGetValue("showLocal", out var showLocalString) && bool.TryParse(showLocalString, out showLocal);
                 _ = Request.Form.TryGetValue("showOnline", out var showOnlineString) && bool.TryParse(showOnlineString, out showOnline);
@@ -150,6 +155,8 @@ namespace wow.tools.local.Controllers
                 result.data = result.data.Where(x => x.Any(field => field.Contains(search, StringComparison.OrdinalIgnoreCase))).ToList();
                 result.recordsFiltered = result.data.Count;
             }
+
+            result.data = result.data.Skip(start).Take(length).ToList();
 
             return result;
         }
