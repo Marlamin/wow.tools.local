@@ -92,6 +92,7 @@
 
     <script type='text/javascript'>
         let currentBuild = "";
+        let firstInit = false;
 
         var buildTable = new DataTable("#buildtable", {
             "pageLength": 25,
@@ -118,6 +119,10 @@
                 url: "/build/table",
                 type: "POST",
                 data: function (ajaxData) {
+                    if (!firstInit) {
+                        updateCheckboxStatus();
+                        firstInit = true;
+                    }
                     ajaxData.showLocal = document.getElementById("localBuilds").checked;
                     ajaxData.showOnline = document.getElementById("onlineBuilds").checked;
                     ajaxData.showArchived = document.getElementById("archivedBuilds").checked;
@@ -223,14 +228,39 @@
             ],
         });
 
+        function updateCheckboxStatus() {
+            var localBuilds = localStorage.getItem("buildTypes[localBuilds]");
+            if (localBuilds && localBuilds == "true") {
+                document.getElementById("localBuilds").checked = true;
+            }
+
+            var onlineBuilds = localStorage.getItem("buildTypes[onlineBuilds]");
+            if (onlineBuilds && onlineBuilds == "true") {
+                document.getElementById("onlineBuilds").checked = true;
+            }
+
+            var archivedBuilds = localStorage.getItem("buildTypes[archivedBuilds]");
+            if (archivedBuilds && archivedBuilds == "true") {
+                document.getElementById("archivedBuilds").checked = true;
+            }
+        }
+
         function reloadBuildTable() {
             buildTable.ajax.reload();
         }
 
+        function buildTypeChange(element) {
+            reloadBuildTable();
+
+            var type = element.srcElement.id;
+            localStorage.setItem("buildTypes[" + type + "]", document.getElementById(type).checked == true);
+        }
+
         reloadDiffSection();
-        document.getElementById("localBuilds").addEventListener("change", reloadBuildTable);
-        document.getElementById("onlineBuilds").addEventListener("change", reloadBuildTable);
-        document.getElementById("archivedBuilds").addEventListener("change", reloadBuildTable);
+
+        document.getElementById("localBuilds").addEventListener("change", buildTypeChange);
+        document.getElementById("onlineBuilds").addEventListener("change", buildTypeChange);
+        document.getElementById("archivedBuilds").addEventListener("change", buildTypeChange);
 
         async function reloadDiffSection() {
             document.getElementById("diffFormButton").disabled = true;
