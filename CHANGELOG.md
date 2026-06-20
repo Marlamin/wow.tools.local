@@ -24,6 +24,7 @@
 - Updated WoWFormatLib/WoWNamingLib.
 - Replaced Newtonsoft.Json dependency with System.Text.Json.
 - Replaced ImageSharp dependency with NetVips.
+- Disabled Wowhead Looter support for VO naming.
 - Removed CASCLib.
 
 0.9.4 (25-05-2026)
