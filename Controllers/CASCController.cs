@@ -1859,6 +1859,12 @@ namespace wow.tools.local.Controllers
                         wmo.group[i].mogp.vertices = [];
                         wmo.group[i].mogp.normals = [];
                         wmo.group[i].mogp.textureCoords = [];
+                        wmo.group[i].mogp.colors = [];
+                        wmo.group[i].mogp.colors2 = [];
+                        wmo.group[i].mogp.colors3 = [];
+                        wmo.group[i].mogp.bspIndices = [];
+                        wmo.group[i].mogp.bspNodes = [];
+                        wmo.group[i].mogp.materialInfo = [];
                     }
                     return JsonSerializer.Serialize(wmo, options);
                 case "adt":
