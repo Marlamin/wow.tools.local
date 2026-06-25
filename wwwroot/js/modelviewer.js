@@ -1413,7 +1413,7 @@ function exportScene(){
                     } );
                 }
             },
-            "pageLength": 30,
+            "pageLength": 25,
             "autoWidth": false,
             "orderMulti": false,
             "ordering": true,
