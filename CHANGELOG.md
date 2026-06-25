@@ -22,6 +22,7 @@
 - Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
 - Updated screenshot combo feature in modelviewer to support linked fields (by @WainPetopia).
 - Updated TACTSharp (now has rudimentary fallback support to TVFS if root were to ever go away).
+- Updated Interface file naming to add placeholder files given Blizzard's removal of interface texture names.
 - Updated WoWFormatLib/WoWNamingLib.
 - Replaced Newtonsoft.Json dependency with System.Text.Json.
 - Replaced ImageSharp dependency with NetVips.
