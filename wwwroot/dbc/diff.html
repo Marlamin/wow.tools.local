@@ -52,8 +52,7 @@
             <input type="checkbox" class="form-check-input" id="useHotfixes" name="useHotfixes">
             <input style="margin-bottom: 5px; margin-right: 5px" type="submit" id="browseButton" class="form-control form-control-sm btn btn-sm btn-primary" value="Diff">
         </form>
-        <br />
-        <a style='display: none; vertical-align: top;' id='toDBCButton' class='btn btn-secondary btn-sm' href='' target="_parent"><i class='fa fa-table'></i> Open DBC</a>
+        <a style='display: none; vertical-align: top; margin-left: 10px;' id='toDBCButton' class='btn btn-secondary btn-sm' href='' target="_parent"><i class='fa fa-table'></i> Open DBC</a>
         <a style='display: none; vertical-align: top;' id='toCompareButton' class='btn btn-secondary btn-sm' href='' target="_parent"><i class='fa fa-columns'></i> Open to Compare</a>
         <div id='tableContainer'></div>
     </div>
@@ -109,8 +108,8 @@
                 document.querySelector("nav").style.display = "none";
                 document.getElementById("fileFilter").style.display = "none";
                 document.getElementById("dbcform").style.display = "none";
-                document.getElementById("toCompareButton").style.display = "block";
-                document.getElementById("toDBCButton").style.display = "block";
+                document.getElementById("toCompareButton").style.display = "inline-block";
+                document.getElementById("toDBCButton").style.display = "inline-block";
 
                 updateComparehref(urlParams.get('dbc'), urlParams.get('old'), urlParams.get('new'));
                 updateToDBChref(urlParams.get('dbc'), urlParams.get('new'));
@@ -207,7 +206,7 @@
                     fetch(header2URL).then(response => response.json())
                 ]).then(function ([resp1, resp2]) {
                     // show 'open DBC' button after diff
-                    document.getElementById("toDBCButton").style.display = "block";
+                    document.getElementById("toDBCButton").style.display = "inline-block";
                     updateToDBChref(urlParams.get('dbc'), urlParams.get('new'));
 
                     //this callback will be fired once all ajax calls have finished.
