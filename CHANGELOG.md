@@ -23,6 +23,7 @@
 - Updated screenshot combo feature in modelviewer to support linked fields (by @WainPetopia).
 - Updated TACTSharp (now has rudimentary fallback support to TVFS if root were to ever go away).
 - Updated Interface file naming to add placeholder files given Blizzard's removal of interface texture names.
+- Updated modelviewer file table to show 25 rows instead of 30 to better fit on some resolutions.
 - Updated WoWFormatLib/WoWNamingLib.
 - Replaced Newtonsoft.Json dependency with System.Text.Json.
 - Replaced ImageSharp dependency with NetVips.
