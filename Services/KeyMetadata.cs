@@ -884,7 +884,7 @@
             KeyInfo.Add(0x1AC527F3666CB6BA, (8211, "WOW-66xxxpatch12.0.5_PTR", "Lunar New Year decor"));
             KeyInfo.Add(0xCB43DFFF5677B5F7, (8212, "WOW-67xxxpatch5.5.4_Classic", "Palanquin Mount (China)"));
             KeyInfo.Add(0xDD9EA834C9585585, (8213, "WOW-67227patch12.0.7_XPTR", "Unknown housing decor (3x)"));
-            KeyInfo.Add(0x7BF5FACE236254CD, (8214, "WOW-68209patch12.1.0_PTR", "Unknown battle pet"));
+            KeyInfo.Add(0x7BF5FACE236254CD, (8214, "WOW-68209patch12.1.0_PTR", "Axolotl battle pet"));
             KeyInfo.Add(0x7BDD464D413AF047, (8215, "WOW-68209patch12.1.0_PTR", "Unknown battle pet"));
             KeyInfo.Add(0x4F1CF1A7FBB50AEF, (8220, "WOW-66xxxpatch12.0.5_PTR", "Skyborne elf decor (5x)"));
             KeyInfo.Add(0x939A45AAB997ECED, (8222, "WOW-67xxxpatch5.5.4_Classic", "Unknown mount"));

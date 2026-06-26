@@ -25,6 +25,7 @@
 - Updated Interface file naming to add placeholder files given Blizzard's removal of interface texture names.
 - Updated modelviewer file table to show 25 rows instead of 30 to better fit on some resolutions.
 - Updated WoWFormatLib/WoWNamingLib.
+- Updated TACT key metadata (and made it faster for myself to update in the future).
 - Replaced Newtonsoft.Json dependency with System.Text.Json.
 - Replaced ImageSharp dependency with NetVips.
 - Disabled Wowhead Looter support for VO naming.
