@@ -84,10 +84,18 @@
                 if (entry.FirstSeen.length == 23)
                     descriptionPadding = "   ";
 
-                output += " <a target='_BLANK' href='/files/#search=encrypted%3A" + entry.Lookup + "&page=1&sort=0&desc=asc'>" + entry.Lookup + "</a>  " + keyBytes + "  salsa20   " + entry.ID + idPadding + entry.FirstSeen + descriptionPadding + entry.Description + "<a data-bs-toggle='modal' data-bs-target='#moreInfoModal' href='#' onclick='moreInfo(\"" + entry.Lookup + "\");event.preventDefault();' style='user-select: none;'>  More info</a>\n";
+                output += " <a target='_BLANK' href='/files/#search=encrypted%3A" + entry.Lookup + "&page=1&sort=0&desc=asc'>" + entry.Lookup + "</a>  " + keyBytes + "  salsa20   " + entry.ID + idPadding + entry.FirstSeen + descriptionPadding + entry.Description + "<a data-bs-toggle='modal' data-bs-target='#moreInfoModal' href='#' onclick='moreInfo(\"" + entry.Lookup + "\");event.preventDefault();' style='user-select: none;'>  More info</a>";
+                if (!entry.HasMetaData) {
+                    output += " <a onClick='copyAsCSharp(\"" + entry.Lookup + "\", " + entry.ID + ", \"" + entry.FirstSeen + "\");' style='user-select: none;'>  Copy as C#</a>";
+                }
+                output += "\n";
             });
 
             document.getElementById("output").innerHTML = output;
+        }
+
+        function copyAsCSharp(lookup, id, firstseen) {
+            navigator.clipboard.writeText("KeyInfo.Add(0x" + lookup + ", (" + id + ", \"" + firstseen + "\", ));");
         }
 
         function moreInfo(lookup) {

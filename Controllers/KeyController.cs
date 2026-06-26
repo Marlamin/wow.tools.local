@@ -20,6 +20,7 @@ namespace wow.tools.local.Controllers
             public string Key { get; set; } = "";
             public string FirstSeen { get; set; } = "";
             public string Description { get; set; } = "";
+            public bool HasMetaData { get; set; } = false;
         }
 
         [Route("info")]
@@ -29,6 +30,7 @@ namespace wow.tools.local.Controllers
             KeyMetadata.ReloadKeys();
 
             var tklStorage = dbcManager.GetOrLoad("TactKeyLookup", CASC.BuildName, true).Result;
+            var keysWithoutMetaData = new List<ulong>();
 
             var newKeysFound = false;
             foreach (dynamic tklRow in tklStorage.Values)
@@ -43,6 +45,8 @@ namespace wow.tools.local.Controllers
                         CASC.FullBuildName,
                         CASC.EncryptedFDIDs.Where(x => x.Value.Contains(key)).Select(x => x.Key).ToList().Count.ToString() + " file(s) as of " + CASC.BuildName)
                     );
+
+                    keysWithoutMetaData.Add(key);
                 }
                 else if (metaData.Description == "" || metaData.Description.Contains("file(s) as of"))
                 {
@@ -172,14 +176,21 @@ namespace wow.tools.local.Controllers
                        Lookup = string.Format("{0:X}", keyInfo.Key).PadLeft(16, '0'),
                        Key = WTLKeyService.HasKey(keyInfo.Key) ? Convert.ToHexString(WTLKeyService.GetKey(keyInfo.Key)) : "",
                        FirstSeen = keyInfo.Value.FirstSeen,
-                       Description = keyInfo.Value.Description
+                       Description = keyInfo.Value.Description,
+                       HasMetaData = !keysWithoutMetaData.Contains(keyInfo.Key)
                    });
             }
 
             if (newKeysFound)
                 CASC.RefreshEncryptionStatus();
 
-            return JsonSerializer.Serialize(keyInfos.OrderBy(x => x.ID));
+            var jsonProperties = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IncludeFields = true,
+            };
+
+            return JsonSerializer.Serialize(keyInfos.OrderBy(x => x.ID), jsonProperties);
         }
 
         [Route("moreinfo")]
