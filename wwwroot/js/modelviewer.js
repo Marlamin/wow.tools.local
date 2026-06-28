@@ -50,6 +50,7 @@ var Current =
     type: "m2",
     embedded: false,
     displayID: 0,
+    itemDisplayID: 0,
     availableGeosets: [],
     enabledGeosets: [],
     geosetsDone: false,
@@ -203,7 +204,12 @@ try {
     showError("WebAssembly support is required but not supported by your browser.");
 }
 
-var searchParams = new URLSearchParams(window.location.search);
+var searchParamsRaw = new URLSearchParams(window.location.search);
+
+const searchParams = new URLSearchParams();
+for (const [name, value] of searchParamsRaw) {
+    searchParams.append(name.toLowerCase(), value);
+}
 
 var urlFileDataID = searchParams.get("filedataid");
 if (urlFileDataID){
@@ -224,7 +230,7 @@ if (urlEmbed){
     console.log("Running modelviewer in embedded mode!");
 }
 
-var urlClearColor = searchParams.get("clearColor");
+var urlClearColor = searchParams.get("clearcolor");
 if (urlClearColor){
     var r = parseInt('0x' + urlClearColor.substring(0, 2)) / 255;
     var g = parseInt('0x' + urlClearColor.substring(2, 4)) / 255;
@@ -244,9 +250,14 @@ var posZ = searchParams.get("z");
 if (posZ)
     Current.posZ = posZ;
 
-var urlDisplayID = searchParams.get("displayID");
+var urlDisplayID = searchParams.get("displayid");
 if (urlDisplayID){
     Current.displayID = urlDisplayID;
+}
+
+var urlItemDisplayID = searchParams.get("itemdisplayid");
+if (urlItemDisplayID) {
+    Current.itemDisplayID = urlItemDisplayID;
 }
 
 window.createscene = async function () {
@@ -266,9 +277,16 @@ window.createscene = async function () {
 
     Module._setClearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2]);
 
-    if (Current.fileDataID == 397940 && Current.displayID != 0){
-        Current.fileDataID = await getFileDataIDByDisplayID(Current.displayID);
-        Settings.newDisplayInfo = true;
+    if (Current.fileDataID == 397940) {
+        if (Current.displayID != 0) {
+            Current.fileDataID = await getFileDataIDByCreatureDisplayID(Current.displayID);
+            Settings.newDisplayInfo = true;
+        }
+
+        if (Current.itemDisplayID != 0) {
+            Current.fileDataID = await getFileDataIDByItemDisplayID(Current.itemDisplayID);
+            Settings.newDisplayInfo = true;
+        }
     }
 
     loadModel(Current.type, Current.fileDataID);
@@ -824,13 +842,17 @@ async function loadModelDisplays() {
         }
 
         // TODO: If display ID is given (through URL params??), set to selected otherwise select first
-        if (Current.displayID == 0){
+        if (Current.displayID == 0 && Current.itemDisplayID == 0) {
             if (skinSelect.children.length == 0){
                 opt.selected = true;
                 setModelDisplay(result.ID, result.ResultType);   
             }
         }
         else if (Current.displayID != 0 && result.ID == Current.displayID){
+            opt.selected = true;
+            setModelDisplay(result.ID, result.ResultType);
+        }
+        else if (Current.itemDisplayID != 0 && result.ID == Current.itemDisplayID) {
             opt.selected = true;
             setModelDisplay(result.ID, result.ResultType);
         }
@@ -842,7 +864,6 @@ async function loadModelDisplays() {
         opt.selected = true;
         setModelDisplay(result.ID, result.ResultType);   
     }
-
 
     // prefill screenshot combo tab with valid texture options for this model. Hide fields that should be irrelevant.
     for (i = 0; i < Current.availableTextures.length; i++){
@@ -921,7 +942,7 @@ async function loadItemDisplays(){
     return result;
 }
 
-async function getFileDataIDByDisplayID(displayID){
+async function getFileDataIDByCreatureDisplayID(displayID){
     const cdiResponse = await fetch("/dbc/peek/CreatureDisplayInfo/?build=" + Current.buildName + "&col=ID&val=" + displayID);
     const cdiJson = await cdiResponse.json();
     
@@ -930,6 +951,22 @@ async function getFileDataIDByDisplayID(displayID){
 
     if (cmdJson.values['FileDataID'] !== undefined){
         return cmdJson.values['FileDataID'];
+    }
+}
+
+async function getFileDataIDByItemDisplayID(displayID) {
+    const idiResponse = await fetch("/dbc/peek/ItemDisplayInfo/?build=" + Current.buildName + "&col=ID&val=" + displayID);
+    const idiJson = await idiResponse.json();
+
+    if (idiJson.values['ModelResourcesID[0]'] === undefined)
+        return Current.fileDataID;
+
+    const modelResourcesID = idiJson.values['ModelResourcesID[0]'];
+    const mdfResponse = await fetch("/dbc/peek/ModelFileData/?build=" + Current.buildName + "&col=ModelResourcesID&val=" + modelResourcesID);
+    const mdfJson = await mdfResponse.json();
+
+    if (mdfJson.values['FileDataID'] !== undefined) {
+        return mdfJson.values['FileDataID'];
     }
 }
 
