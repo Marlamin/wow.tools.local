@@ -387,7 +387,7 @@ namespace wow.tools.local.Controllers
             {
                 foreach (var id in split)
                 {
-                    if (Listfile.NameMap.TryGetValue(int.Parse(id), out var name))
+                    if (int.TryParse(id, out var idInt) && Listfile.NameMap.TryGetValue(idInt, out var name))
                         return name;
                 }
 
@@ -395,7 +395,7 @@ namespace wow.tools.local.Controllers
             }
             else
             {
-                if (Listfile.NameMap.TryGetValue(int.Parse(filedataid), out var name))
+                if (int.TryParse(filedataid, out var fileDataIDInt) && Listfile.NameMap.TryGetValue(fileDataIDInt, out var name))
                     return name;
                 else
                     return "";
