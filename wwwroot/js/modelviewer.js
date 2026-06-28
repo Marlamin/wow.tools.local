@@ -534,6 +534,10 @@ document.getElementById('mvfiles').addEventListener('click', function(e) {
             el.classList.remove("selected");
         });
 
+        if (!embeddedMode) {
+            history.pushState({ id: 'modelviewer' }, 'Model Viewer', '/mv/?filedataid=' + data[0]);
+        }
+
         row.classList.add('selected');
         loadModel(data[4], data[0]);
     }
@@ -655,10 +659,6 @@ function loadModel(type, filedataid){
             Current.filename = filename;
 
             updateURLs();
-
-            if (!embeddedMode){
-                history.pushState({id: 'modelviewer'}, 'Model Viewer', '/mv/?filedataid=' + Current.fileDataID);
-            }
 
             document.getElementById("animationSelect").style.display = "none";
             document.getElementById("skinSelect").style.display = "none";
