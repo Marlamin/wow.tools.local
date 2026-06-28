@@ -64,8 +64,11 @@
         </div>
         <br />
         <h3>Manual build</h3>
-        <div class="alert alert-warning">Note: Only supported when loading with TACTSharp. Only use if you know what you're doing. Inputting invalid config hashes will crash WTL.</div>
+        <div class="alert alert-warning">Note: Only use if you know what you're doing. Inputting invalid config hashes will crash WTL.</div>
         <div class="row" style="width: 40vw">
+            <div class="col">
+                <input class="form-control" placeholder="Product" type="text" id="manualProduct" value="wow" />
+            </div>
             <div class="col">
                 <input class="form-control" placeholder="Build config hash" type="text" id="buildConfig" />
             </div>
@@ -294,6 +297,7 @@
         }
 
         async function loadManualConfigs(source) {
+            var manualProduct = document.getElementById("manualProduct").value;
             var buildconfig = document.getElementById("buildConfig").value;
             var cdnconfig = document.getElementById("cdnConfig").value;
 
@@ -302,7 +306,7 @@
                 return;
             }
 
-            loadConfigs("wow", buildconfig, cdnconfig, source);
+            loadConfigs(manualProduct, buildconfig, cdnconfig, source);
         }
 
         async function loadConfigs(product, buildconfig, cdnconfig, source) {
