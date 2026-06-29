@@ -1,3 +1,6 @@
+0.9.6 (xx-07-2026)
+- Updated pagination on build page to use input pagination.
+
 0.9.5 (29-06-2025)
 - Reworked builds page:
   Combined the previously separate local/online tables into 1 table.
