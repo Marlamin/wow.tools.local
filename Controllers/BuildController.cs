@@ -56,8 +56,11 @@ namespace wow.tools.local.Controllers
             }
 
             if (showLocal && SettingsManager.WoWFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.WoWFolder, ".build.info")))
+            {
+                CASC.LoadBuildInfo();
                 foreach (var availableBuild in CASC.AvailableBuilds)
                     availableBuilds.Add((availableBuild.Product, availableBuild.Version, availableBuild.BuildConfig, availableBuild.CDNConfig, false));
+            }
 
             if (showOnline)
             {
