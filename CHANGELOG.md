@@ -1,5 +1,6 @@
 0.9.6 (xx-07-2026)
-- Updated pagination on build page to use input pagination.
+- Updated pagination on builds page to use input pagination.
+- Updated TACT key metadata.
 
 0.9.5 (29-06-2025)
 - Reworked builds page:

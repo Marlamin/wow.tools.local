@@ -895,10 +895,10 @@
             KeyInfo.Add(0xFC852D42866CE038, (8231, "WOW-67227patch12.0.7_XPTR", "Unknown toy"));
             KeyInfo.Add(0xA250EC5C5E8C7B11, (8234, "WOW-68209patch12.1.0_PTR", "Unknown item set"));
             KeyInfo.Add(0x7D750600B7516941, (8235, "WOW-68209patch12.1.0_PTR", "Unknown item set"));
-            KeyInfo.Add(0xE3E29771C59289DA, (8236, "WOW-68209patch12.1.0_PTR", "Unknown model"));
-            KeyInfo.Add(0xD85BB012349CEC40, (8237, "WOW-68209patch12.1.0_PTR", "Unknown model"));
+            KeyInfo.Add(0xE3E29771C59289DA, (8236, "WOW-68209patch12.1.0_PTR", "Unknown cape item"));
+            KeyInfo.Add(0xD85BB012349CEC40, (8237, "WOW-68209patch12.1.0_PTR", "Unknown mount"));
             KeyInfo.Add(0xB54F974DE5243D80, (8238, "WOW-68209patch12.1.0_PTR", "Unknown item"));
-            KeyInfo.Add(0xF9E242FAE22E8307, (8239, "WOW-68209patch12.1.0_PTR", "Unknown files (5x)"));
+            KeyInfo.Add(0xF9E242FAE22E8307, (8239, "WOW-68209patch12.1.0_PTR", "Unknown item"));
             KeyInfo.Add(0x570ED145F83E8B7B, (8243, "WOW-67525patch12.0.7_XPTR", "Spring armor"));
             KeyInfo.Add(0x8033CEF7FDE556C9, (8244, "WOW-67525patch12.0.7_XPTR", "BabyFaerieDragon2 battle pet"));
             KeyInfo.Add(0x9D96EBE2096AE3EE, (8246, "WOW-67525patch12.0.7_XPTR", "StormCrowMount_Ink mount"));
@@ -914,17 +914,17 @@
             KeyInfo.Add(0xB3353F1504F9FA6C, (8269, "WOW-68209patch12.1.0_PTR", "Unknown item"));
             KeyInfo.Add(0x59DA7F744D5CCF8E, (8270, "WOW-68209patch12.1.0_PTR", "Unknown mount"));
             KeyInfo.Add(0x7F283DC60447885B, (8271, "WOW-68209patch12.1.0_PTR", "Unknown toy"));
-            KeyInfo.Add(0xC605B7DC45CC1DAC, (8272, "WOW-68209patch12.1.0_PTR", "Unknown models"));
-            KeyInfo.Add(0xBBAE9630BE1C18E3, (8273, "WOW-68209patch12.1.0_PTR", "Unknown models"));
-            KeyInfo.Add(0xC3656BF7EC13F356, (8274, "WOW-68209patch12.1.0_PTR", "Unknown model"));
-            KeyInfo.Add(0x2FEF3AA89FFBBE7F, (8275, "WOW-68209patch12.1.0_PTR", "Unknown models"));
+            KeyInfo.Add(0xC605B7DC45CC1DAC, (8272, "WOW-68209patch12.1.0_PTR", "Tuskarr housing decor models"));
+            KeyInfo.Add(0xBBAE9630BE1C18E3, (8273, "WOW-68209patch12.1.0_PTR", "Unknown housing decor"));
+            KeyInfo.Add(0xC3656BF7EC13F356, (8274, "WOW-68209patch12.1.0_PTR", "Unknown toy"));
+            KeyInfo.Add(0x2FEF3AA89FFBBE7F, (8275, "WOW-68209patch12.1.0_PTR", "Unknown housing decor"));
             KeyInfo.Add(0xEE25C1489C6CB47A, (8276, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x3B53C72B48FAD89F, (8277, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x47B4F7D68E6AC272, (8278, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x1DACCE2B44C78902, (8279, "WOW-68209patch12.1.0_PTR", "Unknown mount"));
-            KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown models"));
+            KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior"));
             KeyInfo.Add(0x7A67F3392ACC41D2, (8281, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
-
+            KeyInfo.Add(0x055C2C56039A6E5E, (8282, "WOW-68412patch12.1.0_PTR", "Wearable shark item"));
 
             // ID? FDC778C58B2FE080 Golden Ashened Cataclysm mount
         }
