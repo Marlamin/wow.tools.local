@@ -1,6 +1,7 @@
 0.9.6 (xx-07-2026)
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.
+- Fixed diff cache not being reset after scanning unknown files.
 
 0.9.5 (29-06-2025)
 - Reworked builds page:

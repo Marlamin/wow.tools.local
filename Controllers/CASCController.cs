@@ -665,6 +665,9 @@ namespace wow.tools.local.Controllers
 
             System.IO.File.WriteAllLines("cachedUnknowns.txt", knownUnknowns.Where(x => x.Value != "unk").Select(x => x.Key + ";" + x.Value));
             Console.WriteLine("Finished unknown file analysis");
+
+            BuildDiffCache.Invalidate();
+
             return true;
         }
 
