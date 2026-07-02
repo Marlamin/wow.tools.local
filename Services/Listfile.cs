@@ -397,6 +397,8 @@ namespace wow.tools.local.Services
                     LookupMap[int.Parse(splitLine[0])] = ulong.Parse(splitLine[1], System.Globalization.NumberStyles.HexNumber);
                 }
             }
+
+            Console.WriteLine("Loaded " + LookupMap.Count + " lookups");
         }
 
         public static void ExportLookups()
