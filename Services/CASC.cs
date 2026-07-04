@@ -742,6 +742,16 @@ namespace wow.tools.local.Services
             return result;
         }
 
+        public static EncodingInstance.EncodingResult GetEKeysByCKey(ReadOnlySpan<byte> cKey)
+        {
+            return buildInstance!.Encoding!.FindContentKey(cKey);
+        }
+
+        public static (string eSpec, ulong encodedFileSize) GetESpecByEKey(ReadOnlySpan<byte> eKey)
+        {
+            return buildInstance!.Encoding!.GetESpec(eKey);
+        }
+
         public static List<int> GetSameFiles(string contenthash)
         {
             EnsureCHashesLoaded();

@@ -31,11 +31,11 @@
   <!-- Delete unneeded files from publish -->
   <Target Name="DeleteFiles" AfterTargets="Publish">
     <ItemGroup>
-      <FilesToDelete Include="$(PublishDir)*.pdb;"/>
-      <FilesToDelete Include="$(PublishDir)*.xml;"/>
+      <FilesToDelete Include="$(PublishDir)*.pdb;" />
+      <FilesToDelete Include="$(PublishDir)*.xml;" />
     </ItemGroup>
     <Delete Files="@(FilesToDelete)">
-      <Output TaskParameter="DeletedFiles" ItemName="FilesDeleted"/>
+      <Output TaskParameter="DeletedFiles" ItemName="FilesDeleted" />
     </Delete>
   </Target>
   
@@ -112,6 +112,7 @@
     <Content Remove="wwwroot\db\broadcasttext.html" />
     <Content Remove="wwwroot\db\creatures.html" />
     <Content Remove="wwwroot\db\quests.html" />
+    <Content Remove="wwwroot\experiments\size.html" />
     <Content Remove="wwwroot\files\install.html" />
     <Content Remove="wwwroot\files\naming.html" />
     <Content Remove="wwwroot\files\tagging.html" />
