@@ -1,0 +1,353 @@
+﻿<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>WoW.tools - World maps</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/tooltips.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+    <link rel="stylesheet" href="/css/choices.min.css" />
+    <script type="text/javascript" src="/js/choices.min.js"></script>
+
+    <script src="/js/bufo.js"></script>
+    <script src="/js/js-blp.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" id="navbar"></nav>
+    <div class="container-fluid">
+        <p style='height: 35px;'>
+            <select name='map' id='mapSelect' DISABLED>
+                <option id='firstOption' value=''>Loading..</option>
+            </select>
+            <input type='checkbox' id='showExplored' CHECKED> <label for='showExplored'>Show explored?</label>
+        </p>
+        <div id='breadcrumbs'>
+        </div>
+        <div id="canvasContainer" style="width: 50vw;">
+            <canvas id='mapCanvas' width='1024' height='1024' style="width: 100%; height: 100%"></canvas>
+        </div>
+    </div>
+    <script type="module">
+        var build = await getBuild();
+
+        async function getBuild() {
+            const response = await fetch("/casc/buildName");
+            const data = await response.text();
+            return data;
+        }
+
+        /* Required DBs */
+        const dbsToLoad = ["uimap", "uimapxmapart", "uimaparttile", "worldmapoverlay", "worldmapoverlaytile", "uimapart", "uimapartstylelayer"];
+        const dbPromises = dbsToLoad.map(db => loadDatabase(db, build));
+        Promise.all(dbPromises).then(loadedDBs => databasesAreLoadedNow(loadedDBs));
+
+        var uiMap = {};
+        var uiMapXMapArt = {};
+        var uiMapArtTile = {};
+        var worldMapOverlay = {};
+        var worldMapOverlayTile = {};
+        var uiMapArt = {};
+        var uiMapArtStyleLayer = {};
+
+        /* Secondary DBs */
+        // const secondaryDBsToLoad = ["questpoiblob", "questpoipoint"];
+        // const secondaryDBPromises = secondaryDBsToLoad.map(db => loadDatabase(db, build));
+        // Promise.all(secondaryDBPromises).then(loadedDBs => secondaryDatabasesAreLoadedNow(loadedDBs));
+
+        // var questPOIBlob = {};
+        // var questPOIPoint = {};
+
+        function databasesAreLoadedNow(loadedDBs) {
+            uiMap = loadedDBs[0];
+            uiMapXMapArt = loadedDBs[1];
+            uiMapArtTile = loadedDBs[2];
+            worldMapOverlay = loadedDBs[3];
+            worldMapOverlayTile = loadedDBs[4];
+            uiMapArt = loadedDBs[5];
+            uiMapArtStyleLayer = loadedDBs[6];
+
+            var mapSelect = document.getElementById('mapSelect');
+            loadedDBs[0].forEach(function (data) {
+                var option = document.createElement("option");
+                option.value = data.ID;
+                option.text = data.ID + " - " + data.Name_lang.replace(/&#39;/g, "'");;
+                mapSelect.appendChild(option);
+            });
+
+            mapSelect.disabled = false;
+            document.getElementById('firstOption').text = "Select a map..";
+
+            let params = (new URL(document.location)).searchParams;
+            if (params.has('id')) {
+                var id = params.get('id');
+                renderMap(id);
+            }
+        }
+
+        function secondaryDatabasesAreLoadedNow(loadedDBs) {
+            questPOIBlob = loadedDBs[0];
+            questPOIPoint = loadedDBs[1];
+        }
+
+        async function loadDatabase(database, build) {
+            console.log("Loading database " + database + " for build " + build);
+            const header = await loadHeaders(database, build);
+            const data = await loadData(database, build);
+            return mapEntries(database, header, data);
+        }
+
+        async function loadHeaders(database, build) {
+            console.log("Loading " + database + " headers for build " + build);
+            var headerFetch = await fetch("/dbc/header/" + database + "/?build=" + build);
+            var headerJSON = await headerFetch.json();
+            return headerJSON;
+        }
+
+        async function loadData(database, build) {
+            console.log("Loading " + database + " data for build " + build);
+            var dataFetch = await fetch("/dbc/data/" + database + "/?build=" + build + "&useHotfixes=true&length=100000", {
+                method: "POST",
+                body: JSON.stringify({ draw: 1, start: 0, length: 100000 }),
+                headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" }
+            });
+            var dataJSON = await dataFetch.json();
+            return dataJSON;
+        }
+
+        async function mapEntries(database, header, data) {
+            await header;
+            await data;
+
+            var dbEntries = [];
+
+            var idCol = -1;
+            header.headers.forEach(function (data, key) {
+                if (data == "ID") {
+                    idCol = key;
+                }
+            });
+
+            data.data.forEach(function (data, rowID) {
+                dbEntries[data[idCol]] = {};
+                Object.values(data).map(function (value, key) {
+                    dbEntries[data[idCol]][header.headers[key]] = value;
+                });
+            });
+
+            return dbEntries;
+        }
+
+        function generateBreadcrumb(uiMapID) {
+            var parent = uiMapID;
+
+            var breadcrumbs = [];
+            while (parent != 0) {
+                var row = getParentMapByUIMapID(parent);
+
+                if (row == false) {
+                    return;
+                }
+
+                parent = row.ParentUiMapID;
+                breadcrumbs.unshift([row.ID, row.Name_lang]);
+            }
+
+            var breadcrumbContainer = document.getElementById("breadcrumbs");
+            breadcrumbContainer.innerHTML = "<nav aria-label='breadcrumb'><ol id='breadcrumbList' class='breadcrumb'></ol></nav>";
+
+            var breadcrumbList = document.getElementById("breadcrumbList");
+            breadcrumbs.forEach(function (breadcrumb) {
+                var li = document.createElement("li");
+                li.className = "breadcrumb-item";
+                var a = document.createElement("a");
+                a.href = "#";
+                a.onclick = function () { renderMap(breadcrumb[0]); };
+                a.textContent = breadcrumb[1].replace(/&#39;/g, "'");
+                li.appendChild(a);
+                breadcrumbList.appendChild(li);
+            });
+
+        }
+
+        function getParentMapByUIMapID(uiMapID) {
+            if (uiMapID in uiMap) {
+                return uiMap[uiMapID];
+            } else {
+                return false;
+            }
+        }
+
+        function renderMap(uiMapID) {
+            var mapSelect = document.getElementById("mapSelect");
+            if (mapSelect.value != uiMapID) {
+                mapSelect.value = uiMapID;
+            }
+
+            generateBreadcrumb(uiMapID);
+
+            const artStyle = getArtStyleByUIMapID(uiMapID);
+            const canvas = document.getElementById("mapCanvas");
+            canvas.width = artStyle.LayerWidth;
+            canvas.height = artStyle.LayerHeight;
+
+            const showExplored = document.getElementById("showExplored").checked;
+
+            const uiMapXMapArtRow = uiMapXMapArt.find(row => row && row.UiMapID == uiMapID);
+            const uiMapArtID = uiMapXMapArtRow.UiMapArtID;
+
+            if (uiMapXMapArtRow.PhaseID > 0) {
+                console.log("Ignoring PhaseID " + uiMapXMapArtRow.PhaseID);
+                return;
+            }
+
+            const unexploredPromises = uiMapArtTile
+                .filter(row => row.UiMapArtID == uiMapArtID)
+                .map(row => {
+                    const imagePosX = row.RowIndex * (artStyle.TileWidth / 1);
+                    const imagePosY = row.ColIndex * (artStyle.TileHeight / 1);
+                    const bgURL = `/casc/blp2png?fileDataID=${row.FileDataID}`;
+
+                    // fetch and render to canvas at the correct position
+                    var bgFetch = fetch(bgURL)
+                        .then(response => response.blob())
+                        .then(blob => {
+                            var img = new Image();
+                            img.src = URL.createObjectURL(blob);
+                            img.onload = function () {
+                                var canvas = document.getElementById("mapCanvas");
+                                var ctx = canvas.getContext("2d");
+                                ctx.drawImage(img, imagePosY, imagePosX); //note: swapped
+                            };
+                        });
+                });
+
+            Promise.all(unexploredPromises).then(_ => {
+                if (showExplored) {
+                    renderExplored();
+                }
+            });
+
+            updateURL();
+        }
+
+        function getArtStyleByUIMapID(uiMapID) {
+            const uiMapXMapArtRow = uiMapXMapArt.find(row => row && row.UiMapID == uiMapID);
+            const uiMapArtID = uiMapXMapArtRow.UiMapArtID;
+            const uiMapArtRow = uiMapArt[uiMapArtID];
+            return uiMapArtStyleLayer.find(row => row && row.UiMapArtStyleID == uiMapArtRow.UiMapArtStyleID);
+        }
+
+        function renderExplored() {
+            var showExplored = document.getElementById("showExplored").checked;
+
+            var uiMapID = document.getElementById("mapSelect").value;
+
+            const artStyle = getArtStyleByUIMapID(uiMapID);
+            const uiMapXMapArtRow = uiMapXMapArt.find(row => row && row.UiMapID == uiMapID);
+            const uiMapArtID = uiMapXMapArtRow.UiMapArtID;
+
+            worldMapOverlay.forEach(function (wmoRow) {
+                if (wmoRow.UiMapArtID == uiMapArtID) {
+                    worldMapOverlayTile.forEach(function (wmotRow) {
+                        if (wmotRow.WorldMapOverlayID == wmoRow.ID) {
+                            var layerPosX = parseInt(wmoRow.OffsetX) + (wmotRow.ColIndex * (artStyle.TileWidth / 1));
+                            var layerPosY = parseInt(wmoRow.OffsetY) + (wmotRow.RowIndex * (artStyle.TileHeight / 1));
+                            var bgURL = "/casc/blp2png?fileDataID=" + wmotRow.FileDataID;
+                            // fetch and render to canvas at the correct position
+                            var tileFetch = fetch(bgURL)
+                                .then(response => response.blob())
+                                .then(blob => {
+                                    var img = new Image();
+                                    img.src = URL.createObjectURL(blob);
+                                    img.onload = function () {
+                                        var canvas = document.getElementById("mapCanvas");
+                                        var ctx = canvas.getContext("2d");
+                                        ctx.drawImage(img, layerPosX, layerPosY);
+                                    };
+                                });
+                        }
+                    });
+                }
+            });
+        }
+
+        function updateURL() {
+            const uiMapID = document.getElementById("mapSelect").value;
+            if (uiMapID in uiMap) {
+                var title = "WoW.tools | Map Browser | " + uiMap[uiMapID].Name_lang;
+            } else {
+                var title = "WoW.tools | Map Browser";
+            }
+
+            var url = '/maps/worldmap.html?id=' + uiMapID;
+
+            window.history.pushState({ uiMapID: uiMapID }, title, url);
+
+            document.title = title;
+        }
+
+        // function renderQuestBlob(){
+        //  const uiMapID =  $("#mapSelect").val();
+        //  const results = questPOIBlob.filter(row => row && row.UiMapID == uiMapID && row.NumPoints > 1);
+
+        //  const canvas = document.getElementById('mapCanvas');
+        //  const ctx = canvas.getContext('2d');
+
+        //  results.forEach(function(result){
+        //      console.log(result);
+        //      const pointResults = questPOIPoint.filter(row => row && row.QuestPOIBlobID == result.ID);
+
+        //      ctx.beginPath();
+        //      pointResults.forEach(function(pointResult){
+        //          const x = (parseInt(pointResult.X) + 10000) + canvas.width / 2;
+        //          const y = (parseInt(pointResult.Y) + 0) + canvas.height / 2z;
+        //          console.log("Drawing line between " + pointResult.X + " (" + x + ") and " + y);
+        //          ctx.lineTo(x, y);
+        //      });
+        //      ctx.fill();
+        //  });
+        // }
+
+        var mapSelect = document.getElementById("mapSelect");
+        mapSelect.addEventListener('change', function () {
+            renderMap(this.value);
+        });
+
+
+        var showExplored = document.getElementById("showExplored");
+        showExplored.addEventListener("click", function () {
+            if (showExplored.checked == false) {
+                renderMap(document.getElementById("mapSelect").value);
+            } else {
+                renderExplored();
+            }
+        });
+    </script>
+</body>
+</html>

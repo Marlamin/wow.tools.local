@@ -122,6 +122,7 @@
     <Content Remove="wwwroot\files\tagging.html" />
     <Content Remove="wwwroot\header.html" />
     <Content Remove="wwwroot\js\m3modelviewer.js" />
+    <Content Remove="wwwroot\maps\worldmap.html" />
     <Content Remove="wwwroot\mv\m3.html" />
   </ItemGroup>
   
