@@ -38,6 +38,7 @@ namespace wow.tools.local
             {"readOnly", new WTLSetting { Key = "readOnly", Value = "false", Description = "Whether to operate in read-only mode. Disables various functionality.", Type = "bool", DefaultValue = "false" }},
             {"bnetClientID", new WTLSetting { Key = "bnetClientID", Value = string.Empty, Description = "Battle.net Web API client ID (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
             {"bnetClientSecret", new WTLSetting { Key = "bnetClientSecret", Value = string.Empty, Description = "Battle.net Web API client secret (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
+            {"useWago", new WTLSetting { Key = "useWago", Value = "true", Description = "Whether to use wago.tools to load older versions of specific files, loads the build in TACTSharp if disabled.", Type = "bool", DefaultValue = "true" } },
         };
 
         private static RootInstance.LocaleFlags tactLocale;
@@ -63,6 +64,7 @@ namespace wow.tools.local
         // Bools
         public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
         public static bool ReadOnly { get => bool.Parse(Settings["readOnly"].Value); set => Settings["readOnly"].Value = value.ToString().ToLower(); }
+        public static bool UseWago { get => bool.Parse(Settings["useWago"].Value); set => Settings["useWago"].Value = value.ToString().ToLower(); }
 
         // Enums
         public static RootInstance.LocaleFlags TACTLocale { get => tactLocale; set => tactLocale = value; }
@@ -327,6 +329,7 @@ namespace wow.tools.local
                         return (true, string.Empty);
                 case "showAllFiles":
                 case "readOnly":
+                case "useWago":
                     if (bool.TryParse(value, out _))
                         return (true, string.Empty);
                     else

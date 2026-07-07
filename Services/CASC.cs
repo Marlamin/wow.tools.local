@@ -579,11 +579,24 @@ namespace wow.tools.local.Services
 
                     if (!File.Exists("temp/" + build + "/" + filedataid))
                     {
-                        var stream = WebClient.GetStreamAsync("https://wago.tools/api/casc/" + filedataid + "/?version=" + build + "&download").Result;
-                        using (var fs = new FileStream("temp/" + build + "/" + filedataid, FileMode.Create))
+                        if (SettingsManager.UseWago)
                         {
-                            stream.CopyTo(fs);
-                            fs.Close();
+                            var stream = WebClient.GetStreamAsync("https://wago.tools/api/casc/" + filedataid + "/?version=" + build + "&download").Result;
+                            using (var fs = new FileStream("temp/" + build + "/" + filedataid, FileMode.Create))
+                            {
+                                stream.CopyTo(fs);
+                                fs.Close();
+                            }
+                        }
+                        else
+                        {
+                            var buildInstance = BuildManager.GetBuildByVersion(build);
+                            using (var ms = new MemoryStream(buildInstance.OpenFileByFDID(filedataid)))
+                            using (var fs = new FileStream("temp/" + build + "/" + filedataid, FileMode.Create))
+                            {
+                                ms.CopyTo(fs);
+                                fs.Close();
+                            }
                         }
                     }
 
