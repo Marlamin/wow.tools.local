@@ -1,4 +1,5 @@
 0.9.6 (xx-07-2026)
+- Added the old world map page from wow.tools back.
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.
 - Fixed diff cache not being reset after scanning unknown files.
