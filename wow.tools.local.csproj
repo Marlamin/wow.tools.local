@@ -52,6 +52,7 @@
     <Compile Remove="TACTSharp\**" />
     <Compile Remove="temp\**" />
     <Compile Remove="wow-filetags\**" />
+    <Compile Remove="wow-listfile\**" />
     <Compile Remove="WoWFormatLib\**" />
     <Compile Remove="WoWNamingLib\**" />
     <Compile Remove="WoWTools.SpellDescParser\**" />
@@ -66,6 +67,7 @@
     <Content Remove="TACTSharp\**" />
     <Content Remove="temp\**" />
     <Content Remove="wow-filetags\**" />
+    <Content Remove="wow-listfile\**" />
     <Content Remove="WoWFormatLib\**" />
     <Content Remove="WoWNamingLib\**" />
     <Content Remove="WoWTools.SpellDescParser\**" />
@@ -80,6 +82,7 @@
     <EmbeddedResource Remove="TACTSharp\**" />
     <EmbeddedResource Remove="temp\**" />
     <EmbeddedResource Remove="wow-filetags\**" />
+    <EmbeddedResource Remove="wow-listfile\**" />
     <EmbeddedResource Remove="WoWFormatLib\**" />
     <EmbeddedResource Remove="WoWNamingLib\**" />
     <EmbeddedResource Remove="WoWTools.SpellDescParser\**" />
@@ -94,6 +97,7 @@
     <None Remove="TACTSharp\**" />
     <None Remove="temp\**" />
     <None Remove="wow-filetags\**" />
+    <None Remove="wow-listfile\**" />
     <None Remove="WoWFormatLib\**" />
     <None Remove="WoWNamingLib\**" />
     <None Remove="WoWTools.SpellDescParser\**" />
