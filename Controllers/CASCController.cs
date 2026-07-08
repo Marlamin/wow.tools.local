@@ -1190,7 +1190,7 @@ namespace wow.tools.local.Controllers
                     html += "<tr><td>" + linkedFile.linkType + "</td>";
                     html += "<td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + linkedFile.fileDataID + "' onclick='fillModal(" + linkedFile.fileDataID + ")'>" + linkedFile.fileDataID + "</a> <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                 }
-                html += "</table></td></tr></table>";
+                html += "</table></td></tr>";
             }
 
             if (Listfile.Types.TryGetValue(filedataid, out string? type) && (type == "m2" || type == "wmo"))
@@ -1222,7 +1222,7 @@ namespace wow.tools.local.Controllers
 
                     if (Model.spellNamesClean.TryGetValue((uint)filedataid, out var spellNameClean))
                     {
-                        html += "<tr><td><b>Generated name (spell)</b></td><td>" + spellNameClean + "</td></tr>";
+                        html += "<tr><td><b>Generated name (spell)</b></td><td onclick='copyToClipboard(\"" + spellNameClean + "\")'>" + spellNameClean + "</td></tr>";
                     }
 
                     if (Model.spellNames.TryGetValue((uint)filedataid, out var spellEntries))
