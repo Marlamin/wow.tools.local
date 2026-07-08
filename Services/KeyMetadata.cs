@@ -879,7 +879,7 @@
             KeyInfo.Add(0x107C1DBA85F3C0DF, (8206, "WOW-66407patch12.0.5_PTR", "Lush Garden/Spring Blossom housing exteriors"));
             KeyInfo.Add(0x91FBF3086A7A0323, (8207, "WOW-66407patch12.0.5_PTR", "Cherry blossom/Spring decor sets part 2"));
             KeyInfo.Add(0xD7486AE7F33E357B, (8208, "WOW-66407patch12.0.5_PTR", "Unknown mount"));
-            KeyInfo.Add(0xCF9022A9913B1B4D, (8209, "WOW-66407patch12.0.5_PTR", "World Cup housing decor (12x)"));
+            KeyInfo.Add(0xCF9022A9913B1B4D, (8209, "WOW-66407patch12.0.5_PTR", "Unknown housing decor (12x)"));
             KeyInfo.Add(0xB728EC2C7D03EAA5, (8210, "WOW-67227patch12.0.7_XPTR", "Unknown toy"));
             KeyInfo.Add(0x1AC527F3666CB6BA, (8211, "WOW-66xxxpatch12.0.5_PTR", "Lunar New Year decor"));
             KeyInfo.Add(0xCB43DFFF5677B5F7, (8212, "WOW-67xxxpatch5.5.4_Classic", "Palanquin Mount (China)"));
@@ -925,6 +925,8 @@
             KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior"));
             KeyInfo.Add(0x7A67F3392ACC41D2, (8281, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x055C2C56039A6E5E, (8282, "WOW-68412patch12.1.0_PTR", "Wearable shark item"));
+            KeyInfo.Add(0xA1513D5A172E3475, (8286, "WOW-68569patch12.1.0_PTR", "Unknown (BlizzCon?) housing decor/achievement/holiday"));
+            KeyInfo.Add(0xB6BE7B4AB73DD862, (8289, "WOW-68569patch12.1.0_PTR", "Veteran Adventurer's Loyal Companion mount"));
 
             // ID? FDC778C58B2FE080 Golden Ashened Cataclysm mount
         }
