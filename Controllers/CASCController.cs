@@ -1242,16 +1242,22 @@ namespace wow.tools.local.Controllers
                     var wmoFile = CASC.GetFileByID((uint)filedataid);
                     if (wmoFile != null)
                     {
-                        var reader = new WMOReader();
-                        var parsedWMO = reader.LoadWMO(wmoFile);
-
-                        html += "<tr><td colspan='2'><b>Group names for this WMO</b></td></tr>";
-                        html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
-                        foreach (var mogn in parsedWMO.groupNames)
+                        var bin = new BinaryReader(wmoFile);
+                        var magic = bin.ReadUInt32();
+                        if(magic != 0)
                         {
-                            html += "<tr><td>" + mogn.name + "</td></tr>";
+                            bin.BaseStream.Position = 0;
+                            var reader = new WMOReader();
+                            var parsedWMO = reader.LoadWMO(wmoFile);
+
+                            html += "<tr><td colspan='2'><b>Group names for this WMO</b></td></tr>";
+                            html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
+                            foreach (var mogn in parsedWMO.groupNames)
+                            {
+                                html += "<tr><td>" + mogn.name + "</td></tr>";
+                            }
+                            html += "</table></td></tr>";
                         }
-                        html += "</table></td></tr>";
                     }
                 }
             }
@@ -1874,18 +1880,21 @@ namespace wow.tools.local.Controllers
                 case "wmo":
                     var wmoReader = new WMOReader();
                     var wmo = wmoReader.LoadWMO(fileDataID);
-                    for (var i = 0; i < wmo.group.Length; i++)
+                    if(wmo.group != null)
                     {
-                        wmo.group[i].mogp.indices = [];
-                        wmo.group[i].mogp.vertices = [];
-                        wmo.group[i].mogp.normals = [];
-                        wmo.group[i].mogp.textureCoords = [];
-                        wmo.group[i].mogp.colors = [];
-                        wmo.group[i].mogp.colors2 = [];
-                        wmo.group[i].mogp.colors3 = [];
-                        wmo.group[i].mogp.bspIndices = [];
-                        wmo.group[i].mogp.bspNodes = [];
-                        wmo.group[i].mogp.materialInfo = [];
+                        for (var i = 0; i < wmo.group.Length; i++)
+                        {
+                            wmo.group[i].mogp.indices = [];
+                            wmo.group[i].mogp.vertices = [];
+                            wmo.group[i].mogp.normals = [];
+                            wmo.group[i].mogp.textureCoords = [];
+                            wmo.group[i].mogp.colors = [];
+                            wmo.group[i].mogp.colors2 = [];
+                            wmo.group[i].mogp.colors3 = [];
+                            wmo.group[i].mogp.bspIndices = [];
+                            wmo.group[i].mogp.bspNodes = [];
+                            wmo.group[i].mogp.materialInfo = [];
+                        }
                     }
                     return JsonSerializer.Serialize(wmo, options);
                 case "adt":

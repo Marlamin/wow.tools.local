@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using wow.tools.local.Services;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
+using WoWNamingLib.Utils;
 
 namespace wow.tools.local.Controllers
 {
@@ -32,8 +33,21 @@ namespace wow.tools.local.Controllers
 
             if (type == "wmo")
             {
+                var wmoFile = CASC.GetFileByID((uint)fileDataID);
+                if (wmoFile != null)
+                {
+                    var bin = new BinaryReader(wmoFile);
+                    var magic = bin.ReadUInt32();
+                    if (magic == 0)
+                        return "";
+                }
+                else
+                {
+                    return "";
+                }
+
                 var wmoReader = new WMOReader();
-                var wmo = wmoReader.LoadWMO((uint)fileDataID);
+                var wmo = wmoReader.LoadWMO(wmoFile);
 
                 returnString += "<h3>Groups</h3>";
                 returnString += "<table class='table table-striped'>";
