@@ -72,11 +72,7 @@ namespace wow.tools.local.Controllers
 
                 // No dbc/db2 found. No need to go any further.
                 if (fs == null)
-                {
-                    result.error = "Could not find DBCs on disk for build " + build + "!";
-                    return result;
-                }
-
+                    continue;
 
                 using (var bin = new BinaryReader(fs))
                 {
