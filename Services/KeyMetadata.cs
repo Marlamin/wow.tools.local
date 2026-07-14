@@ -389,7 +389,7 @@
             KeyInfo.Add(0x81EEFCCFC9DF862A, (7629, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Mount Day 2"));
             KeyInfo.Add(0x38CB18F712F9C63E, (7630, "WOW-49516patch10.1.5_VANPTR", "Secrets of Azeroth Mount Day 3"));
             KeyInfo.Add(0xEE0541B6CAF0AB77, (7631, "WOW-49516patch10.1.5_VANPTR", "Chromie/Morchie scene"));
-            KeyInfo.Add(0x9DDF72DFC13DFBD3, (7632, "WOW-49516patch10.1.5_VANPTR", "Unknown mount"));
+            //KeyInfo.Add(0x9DDF72DFC13DFBD3, (7632, "WOW-49516patch10.1.5_VANPTR", "Unknown mount"));
             KeyInfo.Add(0x26947FF164DA0962, (7633, "WOW-49516patch10.1.5_VANPTR", "Rewind and Reconcile quest/item"));
             KeyInfo.Add(0x4028F29E55EA5247, (7634, "WOW-49516patch10.1.5_VANPTR", "A Matter of Time in-game cinematic"));
             KeyInfo.Add(0x5DBE4562C104CCBE, (7635, "WOW-49516patch10.1.5_VANPTR", "Dawn of the Infinite Cinematic 1"));
@@ -836,7 +836,8 @@
             KeyInfo.Add(0x8E8AB7C6CBF5487A, (8158, "WOW-66407patch12.0.5_PTR", "Sha Owl Mount"));
             KeyInfo.Add(0xFCBD5547B165C10E, (8159, "WOW-66407patch12.0.5_PTR", "Sha Beaky Pet"));
             KeyInfo.Add(0x74CA527029A95ACA, (8160, "WOW-66407patch12.0.5_PTR", "Bat Pet"));
-            KeyInfo.Add(0xB2177B2A818C3355, (8162, "WOW-66407patch12.0.5_PTR", "Unknown battle pet"));
+            KeyInfo.Add(0x9DDF72DFC13DFBD3, (8161, "WOW-66407patch12.0.5_PTR", "Sunflare Driftmoth sub mount"));
+            KeyInfo.Add(0xB2177B2A818C3355, (8162, "WOW-66407patch12.0.5_PTR", "Sunflicker Driftmoth sub battle pet"));
             KeyInfo.Add(0xAA78EA5B391B184E, (8163, "WOW-64xxxpatch12.0.1_PTR", ""));
             KeyInfo.Add(0x5BA00993EA167A4C, (8164, "WOW-68044patch3.80.1_ClassicTitan", "Horse Dragon Mount (China)"));
             KeyInfo.Add(0xD138A92654D2B366, (8165, "WOW-66407patch12.0.5_PTR", "Zothwing Darkseeker/Deepseeker mounts"));
