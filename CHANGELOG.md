@@ -1,5 +1,10 @@
 0.9.6 (xx-07-2026)
 - Added the old world map page from wow.tools back.
+- Added foreign key search back to DBC pages.
+- Added label search to DBC pages (clicking LabelID column values also searches).
+- Added reset button to all search modals on DBC pages.
+- DB2 search result modals now have tooltips/clickable columns where applicable.
+- DB2 search result modals now show the amount of results in tab headers.
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.
 - Fixed diff cache not being reset after scanning unknown files.

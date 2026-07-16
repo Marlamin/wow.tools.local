@@ -357,14 +357,14 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
             //        columnValue + ", \"SoundKit::ID\",\"" +
             //        build + "\")'>" + columnValue +
             //        "</a>";
-            } else if (fk == "Item::ID" && columnValue > 0) {
-                returnVar =
-                    "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='item' data-id='" +
-                    columnValue +
-                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
-                    columnValue + ", \"" + fk + "\", \"" +
-                    build + "\")'>" + columnValue +
-                    "</a>";
+        } else if (fk == "Item::ID" && columnValue > 0) {
+            returnVar =
+                "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='item' data-id='" +
+                columnValue +
+                "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+                columnValue + ", \"" + fk + "\", \"" +
+                build + "\")'>" + columnValue +
+                "</a>";
             //} else if (fk.toLowerCase() == "questv2::id" && columnValue > 0) {
             //    returnVar =
             //        "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='quest' data-id='" +
@@ -381,22 +381,24 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
             //        columnValue + ", \"" + fk + "\", \"" +
             //        build + "\")'>" + columnValue +
             //        "</a>";
-            } else if (fk.toLowerCase() == "spell::id" && columnValue > 0) {
-                returnVar =
-                    "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
-                    columnValue +
-                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
-                    columnValue + ", \"" + fk + "\", \"" +
-                    build + "\")'>" + columnValue +
-                    "</a>";
+        } else if (fk.toLowerCase() == "spell::id" && columnValue > 0) {
+            returnVar =
+                "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='spell' data-id='" +
+                columnValue +
+                "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+                columnValue + ", \"" + fk + "\", \"" +
+                build + "\")'>" + columnValue +
+                "</a>";
         } else {
             returnVar =
                 "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-id='" + columnValue + "' data-fk='" + fk +
-            "' data-build= '" + build + "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
+                "' data-build= '" + build + "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
                 columnValue + ", \"" + fk + "\", \"" +
                 build + "\")'>" + columnValue +
                 "</a>";
         }
+    } else if (columnName == "LabelID") {
+        returnVar = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#labelSearchModal' onclick='labelDBSearch(\"" + columnValue + "\")'>" + columnValue + "</a>";
     } else if (columnName.startsWith("Flags") || flagMap.has(columnWithTable)) {
         returnVar = " <span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-build= '" + build + "' data-tooltip='flags' data-table='" + tableName + "' data-col='" + columnName + "' data-id='" + columnValue + "'>0x" + dec2hex(columnValue) + "</span>";
     } else if (columnWithTable == "item.ID") {

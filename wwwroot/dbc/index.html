@@ -56,14 +56,19 @@
             <label class="btn btn-sm btn-info active">
                 <input type="checkbox" autocomplete="off" id="hotfixToggle"> Use hotfixes?
             </label>
-            <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href=''
-               data-bs-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
-            <a id='dbdButton' style='vertical-align: top; display: none;' class='btn btn-secondary btn-sm disabled' href=''
-               target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
-            <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-secondary btn-sm'
-               data-bs-toggle='modal' href='' data-bs-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
-            <a style='vertical-align: top;' id='globalSearchButton' class='btn btn-secondary btn-sm'
-               data-bs-toggle='modal' href='' data-bs-target='#globalSearchModal'><i class='fa fa-search'></i> Global Search</a>
+            <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href='' data-bs-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
+            <a id='dbdButton' style='vertical-align: top; display: none;' class='btn btn-secondary btn-sm disabled' href='' target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
+            <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href='' data-bs-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
+            <div class='btn-group'>
+                <a style='vertical-align: top;' id='globalSearchButton' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href='' data-bs-target='#globalSearchModal'><i class='fa fa-search'></i> Global Search</a>
+                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" data-bs-toggle='modal' data-bs-target='#foreignKeySearchModal'><i class="fa fa-arrows-h"></i> FK Search</a>
+                    <a class="dropdown-item" href="#" data-bs-toggle='modal' data-bs-target='#labelSearchModal'><i class="fa fa-tags"></i> Label Search</a>
+                </div>
+            </div>
             <a style='vertical-align: top;' id='compareButton' class='btn btn-secondary btn-sm' href='/dbc/diff.html'><i class='fa fa-columns'></i> Compare</a>
             <div class="btn-group" style="vertical-align: top">
                 <a style='vertical-align: top;' id='updateDefsButton' class='btn btn-danger btn-sm' onclick="updateDefs();" href="#"><i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache</a>
@@ -211,13 +216,42 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="resetFKSearch()">Reset</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal" id="globalSearchModal" tabindex="-1" role="dialog" aria-labelledby=globalSearchLabel"
+    <div class="modal" id="labelSearchModal" tabindex="-1" role="dialog" aria-labelledby="labelSearchLabel"
          aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="labelSearchLabel">Label search</h5>
+                </div>
+                <div class="modal-body" id="labelSearchContent">
+                    <form class='form-inline' id='labelSearchForm' onsubmit="labelSearchSubmit()">
+                        <div class="row">
+                            <div class="col">
+                                <input class='form-control' style='height: 26px;' type='text' placeholder='Value' id='labelSearchValue'>
+                            </div>
+                            <div class="col">
+                                <input class='form-control btn btn-success' type='submit' value='Search'>
+                            </div>
+                        </div><br>
+                    </form>
+                    <div id='labelSearchResultHolder'>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="resetLabelSearch()">Reset</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="globalSearchModal" tabindex="-1" role="dialog" aria-labelledby="globalSearchLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -240,6 +274,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="resetGlobalSearch()">Reset</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -690,9 +725,9 @@
                     //    buildFilter.classList.add("disabled");
                     //    buildFilter.title = "Build locked in settings";
                     //} else {
-                        buildFilter.disabled = false;
-                        buildFilter.classList.remove("disabled");
-                        buildFilter.title = "";
+                    buildFilter.disabled = false;
+                    buildFilter.classList.remove("disabled");
+                    buildFilter.title = "";
                     //}
 
                 }).catch(function (error) {
@@ -738,6 +773,15 @@
 
             globalDBSearch(searchValue, false);
         }
+
+        function labelSearchSubmit() {
+            event.preventDefault();
+
+            const searchValue = document.getElementById("labelSearchValue").value;
+
+            labelDBSearch(searchValue);
+        }
+
         function fkDBSearchSubmit() {
             event.preventDefault();
 
@@ -784,6 +828,48 @@
             await Promise.all(dbsToSearch);
         }
 
+        async function labelDBSearch(label) {
+            document.getElementById("labelSearchForm").style.display = "none";
+            document.getElementById("labelSearchResultHolder").innerHTML =
+                "<ul class='nav nav-tabs' id='fkresultTabList' role='tablist'></ul><div class='tab-content' id='fkresultTabs'></div><div id='noResultHolder'></div>";
+
+            const dbsToSearch = [];
+            const labelResult = await fetch("/dbc/labelColumns");
+            const labelJSON = await labelResult.json();
+
+            labelJSON.forEach((labelColumn) => {
+                const splitFK = labelColumn.split("::");
+                dbsToSearch.push(async () => {
+                    try {
+                        const result = await fetch("/dbc/find/" + splitFK[0] + "?build=" + currentParams["build"] + "&col=" + splitFK[1] + "&val=" + label);
+                        const json = await result.json();
+                        await fkDBResults(splitFK, json, label);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                });
+            });
+
+            dbsToSearch.forEach(anonPromise => anonPromise());
+
+            await Promise.all(dbsToSearch);
+        }
+
+        function resetLabelSearch() {
+            document.getElementById("labelSearchForm").style.display = "block";
+            document.getElementById("labelSearchResultHolder").innerHTML = "";
+        }
+
+        function resetFKSearch() {
+            document.getElementById("foreignKeySearchForm").style.display = "block";
+            document.getElementById("fkSearchResultHolder").innerHTML = "";
+        }
+
+        function resetGlobalSearch() {
+            document.getElementById("globalSearchForm").style.display = "block";
+            document.getElementById("globalSearchResultHolder").innerHTML = "";
+        }
+
         async function fkDBSearch(db, col, val, isInline = false) {
             if (!isInline) {
                 document.getElementById("foreignKeySearchForm").style.display = "none";
@@ -802,10 +888,9 @@
                 const splitFK = foreignKey.split("::");
                 dbsToSearch.push(async () => {
                     try {
-                        const result = await fetch("/dbc/find/" + splitFK[0] + "?build=" +
-                            currentParams["build"] + "&col=" + splitFK[1] + "&val=" + val);
+                        const result = await fetch("/dbc/find/" + splitFK[0] + "?build=" + currentParams["build"] + "&col=" + splitFK[1] + "&val=" + val);
                         const json = await result.json();
-                        fkDBResults(splitFK, json, val);
+                        await fkDBResults(splitFK, json, val);
                     } catch (e) {
                         console.log(e);
                     }
@@ -817,9 +902,7 @@
             await Promise.all(dbsToSearch);
         }
 
-        function fkDBResults(splitFK, results, searchVal) {
-            console.log("Search results for " + splitFK, results);
-
+        async function fkDBResults(splitFK, results, searchVal) {
             const tabHolder = document.getElementById("fkresultTabList");
             const resultHolder = document.getElementById("fkresultTabs");
             const fkNoResultHolder = document.getElementById("fkresultTabs");
@@ -827,10 +910,10 @@
             if (results.length) {
                 if (tabHolder.children.length == 0) {
                     tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link active' data-bs-toggle='tab' href='#tab" +
-                        splitFK[0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + "</a></li>";
+                        splitFK[0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + " <i>(" + results.length + " results)</i></a></li>";
                 } else {
                     tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link' data-bs-toggle='tab' href='#tab" + splitFK[
-                        0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + "</a></li>";
+                        0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + " <i>(" + results.length + " results)</i></a></li>";
                 }
 
                 let resultsHTML = "";
@@ -856,19 +939,43 @@
                     resultsHTML += "</tr></thead><tbody></tbody>";
                     var externalResultURL = "/dbc/?dbc=" + splitFK[0].toLowerCase() + "&build=" + currentParams["build"] + "#page=1&colFilter[" + targetCol + "]=exact:" + encodeURIComponent(searchVal);
                     resultsHTML += "</table><br><a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>View " + splitFK[0] + "::" + splitFK[1] + " results in new tab</a></div>";
-                    resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
-                    const dt = new DataTable("#FKResults" + splitFK[0] + splitFK[1], {
-                        "searching": false,
-                        "pageLength": 10,
-                        "displayStart": 0,
-                        "autoWidth": true
-                    });
+                    fetch("/dbc/header/" + splitFK[0] + "/?build=" + currentParams["build"])
+                        .then(function (response) {
+                            return response.json();
+                        }).then(function (json) {
+                            if (json['error'] != "") {
+                                console.log("Error loading headers for " + splitFK[0] + ": " + json['error']);
+                                return;
+                            }
 
-                    results.forEach((result) => {
-                        dt.rows.add([Object.values(result)]);
-                    });
+                            const allCols = [];
+                            for (let i = 0; i < json['headers'].length; i++) {
+                                allCols.push(i);
+                            }
 
-                    dt.draw();
+                            const fkCols = getFKCols(json['headers'], json['fks']);
+
+                            resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
+
+                            const dt = new DataTable("#FKResults" + splitFK[0] + splitFK[1], {
+                                "searching": false,
+                                "pageLength": 10,
+                                "displayStart": 0,
+                                "autoWidth": true,
+                                "columnDefs": [{
+                                    "targets": allCols,
+                                    "render": function (data, type, full, meta) {
+                                        return columnRender(full, json.headers[meta.col], data, splitFK[0], currentParams["build"], json, fkCols, null, conditionalFKs);
+                                    }
+                                }],
+                            });
+
+                            results.forEach((result) => {
+                                dt.rows.add([Object.values(result)]);
+                            });
+
+                            dt.draw();
+                        });
                 } else {
                     let targetCol = 0;
                     Object.keys(results[0]).forEach((key) => {
@@ -1028,7 +1135,7 @@
                         if (colName in json['relationsToColumns']) {
                             tableHeaders +=
                                 " <i class='fa fa-reply' style='font-size: 10px' title='The following tables point to this column: " +
-                            json['relationsToColumns'][colName].join(", ") + "'></i> ";
+                                json['relationsToColumns'][colName].join(", ") + "'></i> ";
                         }
 
                         tableHeaders += colName;
@@ -1044,7 +1151,7 @@
                         if (colName in json['fks']) {
                             tableHeaders +=
                                 " <i class='fa fa-share' style='font-size: 10px' title='This column points to " +
-                            json['fks'][colName] + "'></i> ";
+                                json['fks'][colName] + "'></i> ";
                         }
 
                         tableHeaders += "</th>";
@@ -1065,11 +1172,9 @@
                         searchString = decodeURIComponent(searchString);
                     }
 
-                    let page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1],10) || 1) - 1;
+                    let page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
                     let highlightRow = parseInt(searchHash.substr(searchHash.indexOf('row=')).split('&')[0].split('=')[1], 10) - 1;
                     DataTable.ext.errMode = 'none';
-
-                  
 
                     var colSearchSet = false;
                     var colSearches = [];
@@ -1222,25 +1327,25 @@
                 }
             }
 
-             if (vars["locale"] == null) {
-                 currentParams["locale"] = "enUS";
-             } else {
-                 currentParams["locale"] = vars["locale"];
-             }
+            if (vars["locale"] == null) {
+                currentParams["locale"] = "enUS";
+            } else {
+                currentParams["locale"] = vars["locale"];
+            }
 
-             const localeSelection = document.getElementById("localeSelection");
+            const localeSelection = document.getElementById("localeSelection");
 
-             for (let value of Object.entries(Locales)) {
-                 var option = document.createElement("option");
-                 option.val = value[1];
-                 option.text = value[0];
+            for (let value of Object.entries(Locales)) {
+                var option = document.createElement("option");
+                option.val = value[1];
+                option.text = value[0];
 
-                 if(currentParams["locale"] == value[0]){
-                     option.selected = true;
-                 }
+                if (currentParams["locale"] == value[0]) {
+                    option.selected = true;
+                }
 
-                 localeSelection.appendChild(option);
-             }
+                localeSelection.appendChild(option);
+            }
 
             currentParams["hotfixes"] = false;
             if (vars["hotfixes"] == "true") {
@@ -1276,10 +1381,10 @@
                 loadTable();
             });
 
-             document.getElementById('localeSelection').addEventListener('change', function() {
-                 currentParams["locale"] = document.getElementById('localeSelection').value;
-                 loadTable();
-             });
+            document.getElementById('localeSelection').addEventListener('change', function () {
+                currentParams["locale"] = document.getElementById('localeSelection').value;
+                loadTable();
+            });
 
             document.getElementById('hotfixToggle').addEventListener('change', function () {
                 if (document.getElementById('hotfixToggle').checked) {

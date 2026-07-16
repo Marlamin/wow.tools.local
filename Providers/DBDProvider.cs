@@ -9,6 +9,7 @@ namespace wow.tools.local.Providers
         private readonly DBDReader dbdReader;
         private Dictionary<string, (string FilePath, DBDefinition Definition)> definitionLookup = new(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, List<string>> relationshipMap = [];
+        public static List<string> labelColumns = [];
         public bool isUsingBDBD = false;
         public static Lock bdbdLock = new Lock();
 
@@ -98,31 +99,31 @@ namespace wow.tools.local.Providers
                 Console.WriteLine("Loaded " + definitionLookup.Count + " definitions from definitions folder!");
             }
 
-            Console.WriteLine("Reloading relationship map");
-
             relationshipMap = [];
+            labelColumns = [];
 
             foreach (var definition in definitionLookup)
             {
                 foreach (var column in definition.Value.Definition.columnDefinitions)
                 {
+                    var currentName = definition.Key + "::" + column.Key;
+
+                    if (column.Key == "LabelID")
+                        if(!labelColumns.Contains(currentName))
+                            labelColumns.Add(currentName);
+                    
                     if (string.IsNullOrEmpty(column.Value.foreignTable))
                         continue;
 
-                    var currentName = definition.Key + "::" + column.Key;
                     var foreignName = column.Value.foreignTable + "::" + column.Value.foreignColumn;
                     if (relationshipMap.TryGetValue(foreignName, out List<string>? relations))
-                    {
                         relations.Add(currentName);
-                    }
                     else
-                    {
                         relationshipMap.Add(foreignName, [currentName]);
-                    }
                 }
             }
 
-            Console.WriteLine("Reloaded relationship map: " + relationshipMap.Count + " relations");
+            Console.WriteLine("Loaded " + relationshipMap.Count + " relations and " + labelColumns.Count + " label columns");
 
             return definitionLookup.Count;
         }
@@ -155,6 +156,11 @@ namespace wow.tools.local.Providers
         public Dictionary<string, List<string>> GetAllRelations()
         {
             return relationshipMap;
+        }
+
+        public List<string> GetAllLabelColumns()
+        {
+            return labelColumns;
         }
 
         public List<string> GetRelationsToColumn(string foreignColumn, bool fixCase = false)
