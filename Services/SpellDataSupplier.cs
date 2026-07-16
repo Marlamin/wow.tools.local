@@ -83,10 +83,10 @@ namespace wow.tools.local.Services
             }
         }
 
-        public int? SupplyEffectAmplitude(int spellID, uint? effectIndex)
+        public float? SupplyEffectAmplitude(int spellID, uint? effectIndex)
         {
             var spellEffect = SupplyEffectRow(spellID, effectIndex);
-            return (int?)spellEffect?["EffectAmplitude"];
+            return (float?)spellEffect?["EffectAmplitude"];
         }
 
         public int? SupplyAuraPeriod(int spellID, uint? effectIndex)

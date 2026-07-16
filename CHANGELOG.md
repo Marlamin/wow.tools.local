@@ -8,6 +8,7 @@
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.
 - Fixed diff cache not being reset after scanning unknown files.
+- Fixed some spell tooltips crashing due to incorrect EffectAmplitude handling.
 
 0.9.5 (29-06-2025)
 - Reworked builds page:
