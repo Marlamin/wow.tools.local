@@ -12,6 +12,7 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<string, HashSet<int>> newFilesBetweenVersion = [];
         private static readonly Dictionary<int, int> broadcastTextCache = [];
         public static readonly Dictionary<int, int> creatureCache = [];
+        private static readonly Dictionary<int, int> questCache = [];
         private static readonly Dictionary<int, string> VOFDIDToCreatureNameCache = [];
         public static readonly Dictionary<int, List<int>> displayIDToCreatureIDCache = [];
         public static readonly Dictionary<int, string> buildToVersion = [];
@@ -62,6 +63,13 @@ namespace wow.tools.local.Services
             createCmd.ExecuteNonQuery();
 
             indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_creatures_idx ON wow_creatures (creatureID)", dbConn);
+            indexCmd.ExecuteNonQuery();
+
+            // wow_quests
+            createCmd = new SqliteCommand("CREATE TABLE IF NOT EXISTS wow_quests (questID INTEGER, name TEXT, LastUpdatedBuild INTEGER)", dbConn);
+            createCmd.ExecuteNonQuery();
+
+            indexCmd = new SqliteCommand("CREATE UNIQUE INDEX IF NOT EXISTS wow_quests_idx ON wow_quests (questID)", dbConn);
             indexCmd.ExecuteNonQuery();
 
             // wow_broadcasttext 
@@ -247,6 +255,18 @@ namespace wow.tools.local.Services
                     displayIDToCreatureIDCache[displayID].Add(int.Parse(reader["creatureID"].ToString()!));
                 }
             }
+
+            // prepare questcache
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT questID, LastUpdatedBuild FROM wow_quests";
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    questCache[reader.GetInt32(0)] = reader.GetInt32(1);
+                }
+                reader.Close();
+            }
         }
 
         public static string GetVersionByBuild(int build)
@@ -379,6 +399,53 @@ namespace wow.tools.local.Services
                 {
                     Console.WriteLine("Failed to insert build {0} into wow_builds (probably fine don't worry about it) with message {1}", version, e.Message);
                 }
+            }
+        }
+
+        public static void InsertOrUpdateQuest(int questID, string name, int build)
+        {
+            var insertNew = false;
+            var updateExisting = false;
+
+            if (!questCache.TryGetValue(questID, out var cachedBuild))
+            {
+                insertNew = true;
+                updateExisting = false;
+            }
+            else if (cachedBuild < build)
+            {
+                updateExisting = true;
+            }
+            else if (cachedBuild > build)
+            {
+                updateExisting = false;
+            }
+
+            if (insertNew)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "INSERT INTO wow_quests (questID, name, LastUpdatedBuild) VALUES (@questID, @name, @build)";
+                    cmd.Parameters.AddWithValue("@questID", questID);
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@build", build);
+                    cmd.ExecuteNonQuery();
+
+                    questCache[questID] = build;
+                }
+            }
+            else if (updateExisting)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "UPDATE wow_quests SET name = @name, LastUpdatedBuild = @build WHERE questID = @questID";
+                    cmd.Parameters.AddWithValue("@questID", questID);
+                    cmd.Parameters.AddWithValue("@name", name);
+                    cmd.Parameters.AddWithValue("@build", build);
+                    cmd.ExecuteNonQuery();
+                }
+
+                questCache[questID] = build;
             }
         }
 
@@ -1166,6 +1233,24 @@ namespace wow.tools.local.Services
             }
 
             return results;
+        }
+
+        public static string GetQuestNameByID(string questID)
+        {
+            lock (SQLiteLock)
+            {
+                using (var cmd = dbConn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT name FROM wow_quests WHERE questID = @questID";
+                    cmd.Parameters.AddWithValue("@questID", questID);
+                    var reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        return reader["name"].ToString()!;
+                    }
+                }
+                return "";
+            }
         }
     }
 }

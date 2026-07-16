@@ -82,10 +82,6 @@ async function tooltip2(el, event){
             generateSpellTooltip(tooltipTargetValue, tooltipDiv);
         } else if (tooltipType == 'item'){
             generateItemTooltip(tooltipTargetValue, tooltipDiv);
-        //} else if (tooltipType == 'creature'){
-        //    generateCreatureTooltip(tooltipTargetValue, tooltipDiv);
-        //} else if (tooltipType == 'quest'){
-        //    generateQuestTooltip(tooltipTargetValue, tooltipDiv);
         } else if (tooltipType == 'fk') {
             if (el.dataset.fk == "FileData::ID") {
                 generateFileTooltip(tooltipTargetValue, tooltipDiv);
@@ -292,7 +288,7 @@ function generateSpellTooltip(id, tooltip) {
         });
 }
 
-function generateFKTooltip(targetFK, value, tooltip, build)
+async function generateFKTooltip(targetFK, value, tooltip, build)
 {
     console.log("Generating foreign key tooltip for " + value);
 
@@ -320,7 +316,7 @@ function generateFKTooltip(targetFK, value, tooltip, build)
     ])
         .then(function (responses) {
             return Promise.all(responses.map(function (response) {
-                if (tooltipDesc == undefined){
+                if (tooltipDesc == undefined) {
                     console.log("Tooltip closed before rendering finished, nevermind");
                     return;
                 }
@@ -329,21 +325,45 @@ function generateFKTooltip(targetFK, value, tooltip, build)
                 console.log("An error occurred retrieving data to generate the tooltip: " + error);
                 tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
             });
-        }).then(function (data) {
-            if (tooltipDesc == undefined){
+        }).then(async function (data) {
+            if (tooltipDesc == undefined) {
                 console.log("Tooltip closed before rendering finished, nevermind");
                 return;
             }
 
-            const json = data[0];
-            let tooltipTable = "<table class='tooltip-table'><tr><td colspan='2'><h2 class='q2'>" + targetFK + " value " + value +"</h2></td></tr>";
+            var json = data[0];
+            let tooltipTable = "<table class='tooltip-table'><tr><td colspan='2'><h2 class='q2'>" + targetFK + " value " + value + "</h2></td></tr>";
 
-            if (!json || Object.keys(json.values).length == 0){
-                if (table == "creature" && col == "ID"){
-                    generateCreatureTooltip(value, tooltip);
+            if (!json || Object.keys(json.values).length == 0) {
+                if (table.toLowerCase() == "creature" && col == "ID") {
+                    await fetch("/sql/getCreatureName?creatureID=" + value).then(function (response) {
+                        if (response.ok) {
+                            return response.text();
+                        }
+                        throw new Error("Failed to fetch creature name");
+                    }).then(function (creatureName) {
+                        tooltipTable += "<tr><td colspan='2'>No DB2 entry for Creature, known information:</td><td>";
+                        json = { values: { ID: value, Name: creatureName } };
+                    }).catch(function (error) {
+                    });
                 }
 
-                tooltipTable += "<tr><td colspan='2'>Row not available in client DB</td><td>";
+                if (!json || Object.keys(json.values).length == 0) {
+                    tooltipTable += "<tr><td colspan='2'>Row not available in client DB</td><td>";
+                }
+            }
+
+            if (table.toLowerCase() == "questv2" && col == "ID") {
+                // augment quest tooltips with quest names
+                await fetch("/sql/getQuestName?questID=" + value).then(function (response) {
+                    if (response.ok) {
+                        return response.text();
+                    }
+                    throw new Error("Failed to fetch quest name");
+                }).then(function (questName) {
+                    json.values["Name (not from DB2)"] = questName;
+                }).catch(function (error) {
+                });
             }
 
             Object.keys(json.values).forEach(function (key) {
