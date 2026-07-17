@@ -292,36 +292,6 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                var mfdStorage = await dbcManager.GetOrLoad("ModelFileData", CASC.BuildName);
-                foreach (dynamic mfdEntry in mfdStorage.Values)
-                {
-                    var fdid = (int)mfdEntry.FileDataID;
-
-                    // Skip these for now -- contains M3s
-                    if (mfdEntry.ModelResourcesID == 0)
-                    {
-                        Console.WriteLine("Skipping MFD => M2 mapping for " + fdid + " for having ModelResourcesID 0, likely an M3 file.");
-                        continue;
-                    }
-
-                    if (fdid == 5569152 || fdid == 5916032 || fdid == 6022679) // M3, hopefully these get separate out at some point in ModelFileData through a flag or something
-                        continue;
-
-                    if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
-                    {
-                        knownUnknowns.TryAdd(fdid, "m2");
-                        unknownFiles.Remove(fdid);
-                        Listfile.SetFileType(fdid, "m2");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception during type guessing with ModelFileData:" + e.Message);
-            }
-
-            try
-            {
                 var tfdStorage = await dbcManager.GetOrLoad("TextureFileData", CASC.BuildName);
                 foreach (dynamic tfdEntry in tfdStorage.Values)
                 {
@@ -650,6 +620,27 @@ namespace wow.tools.local.Controllers
 
                 numFilesDone++;
             });
+
+            try
+            {
+                var mfdStorage = await dbcManager.GetOrLoad("ModelFileData", CASC.BuildName);
+                foreach (dynamic mfdEntry in mfdStorage.Values)
+                {
+                    var fdid = (int)mfdEntry.FileDataID;
+
+                    // Likely an encrypted file if we got this far, these could also be M3s but just assume they are M2s for now.
+                    if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                    {
+                        knownUnknowns.TryAdd(fdid, "m2");
+                        unknownFiles.Remove(fdid);
+                        Listfile.SetFileType(fdid, "m2");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with ModelFileData:" + e.Message);
+            }
 
             try
             {

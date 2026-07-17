@@ -221,7 +221,7 @@ namespace wow.tools.local.Controllers
             var overrideVO = form.ContainsKey("overrideVO") && form["overrideVO"] == "on";
             Namer.AllowCaseRenames = form.ContainsKey("allowCaseRenames") && form["allowCaseRenames"] == "on";
 
-            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "Install", "ContentHashes" };
+            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "M3", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "Install", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x!)).ToArray();
 
             var buildMap = new Dictionary<uint, string>();
@@ -380,6 +380,10 @@ namespace wow.tools.local.Controllers
                         }
 
                         Namer.NameM2s([], true, fdidToObjectName);
+                        break;
+                    case "M3":
+                        var m3s = Listfile.TypeMap.TryGetValue("m3", out HashSet<int>? m3sSet) ? m3sSet.ToList() : new List<int>();
+                        Namer.NameM3s(m3s, true);
                         break;
                     case "Map":
                         Namer.NameMap();

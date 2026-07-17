@@ -229,7 +229,7 @@ function fillPreviewModal(buildconfig, filedataid, type) {
                     html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
                 }
             } else if (type == "m3") {
-                html += "<p>Note: The M3 modelviewer is a work in progress, any textures you see have been manually mapped.</p>";
+                html += "<p>Note: The M3 modelviewer is a work in progress.</p>";
                 html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/m3.html?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
                 html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/m3.html?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
             }
