@@ -6,6 +6,7 @@
 - Added tooltips/clickable columns to DB2 search results where applicable.
 - Added the amount of results in DB2 search result tab headers.
 - Added Creature/Quest names to tooltips (retrieved from local information or from archavon.kruithne.net)
+- Added support for new M3 instance chunk version (fixes M3 parsing).
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.
 - Fixed diff cache not being reset after scanning unknown files.
