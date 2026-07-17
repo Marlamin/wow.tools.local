@@ -103,7 +103,14 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            return Ok(hashesWithUsages);
+            var jsonSerializerSettings = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IncludeFields = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            return Json(hashesWithUsages, jsonSerializerSettings);
         }
 
         [Route("dumpInstall")]
