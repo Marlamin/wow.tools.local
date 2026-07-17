@@ -34,6 +34,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer();
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setSize(window.innerWidth, window.innerHeight);
 Elements.MVContainer.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -64,6 +65,7 @@ function loadModel(filedataid) {
             texture.minFilter = THREE.LinearFilter;
             texture.wrapT = THREE.RepeatWrapping;
             texture.wrapS = THREE.RepeatWrapping;
+            texture.colorSpace = THREE.SRGBColorSpace;
             texture.channel = 0;
             const material = new THREE.MeshBasicMaterial({
                 map: texture,
@@ -137,6 +139,8 @@ function loadModel(filedataid) {
                 const materialIndex = geosetToMaterialMap.get(geosetIndex);
                 console.log("\t\tUsing material index " + materialIndex + " for geoset " + geosetIndex);
                 const model = new THREE.Mesh(bufferGeo, textureArray[materialIndex]);
+                model.rotation.y = Math.PI / 2;
+                model.rotation.z = Math.PI;
                 scene.add(model);
             }
         }
@@ -156,7 +160,7 @@ function clearScene() {
 
 camera.position.x = 0;
 camera.position.y = 0;
-camera.position.z = 10;
+camera.position.z = 5;
 controls.update();
 renderer.setAnimationLoop(animate);
 
