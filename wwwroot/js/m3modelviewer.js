@@ -188,7 +188,8 @@ if (urlEmbed) {
     Current.embedded = true;
     document.getElementById("navbar").style.display = "none";
     document.getElementById("js-sidebar-button").style.display = "none";
-    document.getElementById("fpsLabel").style.display = "none";
+    if (document.getElementById("fpsLabel"))
+        document.getElementById("fpsLabel").style.display = "none";
     console.log("Running modelviewer in embedded mode!");
 }
 
