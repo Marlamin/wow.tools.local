@@ -281,7 +281,7 @@ function generateSpellTooltip(id, tooltip) {
             if (calcData["description"] != null) {
                 tooltipDesc.innerHTML += "<p class='yellow'>" + calcData["description"].replace("\n", "<br><br>");
             }
-            tooltipIcon.innerHTML = '<img src="/casc/blp2png?filedataid=' + calcData["iconFileDataID"] + '">';
+            tooltipIcon.innerHTML = '<img style="max-width: 200px;" src="/casc/blp2png?filedataid=' + calcData["iconFileDataID"] + '">';
         }).catch(function (error) {
             console.log("An error occurred retrieving data to generate the tooltip: " + error);
             tooltipDesc.innerHTML = "An error occured generating the tooltip: " + error;
