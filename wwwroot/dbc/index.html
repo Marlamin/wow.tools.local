@@ -884,6 +884,7 @@
             const headerResult = await fetch("/dbc/header/" + db + "/?build=" + currentParams["build"]);
             const headerJSON = await headerResult.json();
 
+            window.hasFKResults = false;
             headerJSON.relationsToColumns[col].forEach((foreignKey) => {
                 const splitFK = foreignKey.split("::");
                 dbsToSearch.push(async () => {
@@ -900,6 +901,8 @@
             dbsToSearch.forEach(anonPromise => anonPromise());
 
             await Promise.all(dbsToSearch);
+
+            window.hasFKResults = false;
         }
 
         async function fkDBResults(splitFK, results, searchVal) {
@@ -917,7 +920,8 @@
                 }
 
                 let resultsHTML = "";
-                if (resultHolder.children.length == 0) {
+                if (window.hasFKResults == false) {
+                    window.hasFKResults = true;
                     resultsHTML += "<div class='tab-pane show active' id='tab" + splitFK[0] + splitFK[1] + "'>";
                 } else {
                     resultsHTML += "<div class='tab-pane' id='tab" + splitFK[0] + splitFK[1] + "'>";
