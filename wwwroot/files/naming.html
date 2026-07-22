@@ -213,7 +213,7 @@
                         <div class="row">
                             <div id="nameForm">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="filename" name="name" placeholder="File name"><br />
+                                    <input type="text" style="font-size: 14px" class="form-control" id="filename" name="name" placeholder="File name"><br />
                                     <div class="input-group-append">
                                         <button id="m2Suffix" class="btn btn-primary" onclick="setSuffix('.m2')">.m2</button>
                                         <button id="wmoSuffix" class="btn btn-primary" disabled>.wmo</button>
@@ -271,26 +271,73 @@
                                     </div>
                                     <div class="col-md-4">
                                         <h3>12 WMO</h3>
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/12PH_Room_{id}.wmo')">PH Room Unk</button>
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/12PH_Room_Component_{id}.wmo')">Component</button> 
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/12PH_Room_Doorway_{id}.wmo')">Doorway</button> 
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/12PH_Room_Ceiling_{id}.wmo')">Ceiling</button>
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/12PH_Room_Wall_{id}.wmo')">Wall</button> 
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/12PH_Room_Floor_{id}.wmo')">Floor</button> 
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Exterior/12PH_Exterior_{id}.wmo')">Ext Unk</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Human/12HU_Human_{id}.wmo')">Human</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Orc/12OR_Orc_{id}.wmo')">Orc</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/WildElves/12WE_WildElves_{id}.wmo')">Wild Elf/Haronir</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/BloodElf/12BE_BloodElf_{id}.wmo')">Blood Elf</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Troll/12TR_Amani_{id}.wmo')">Amani</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Rutaani/12RU_Rutaani_{id}.wmo')">Rutaani</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Troll/12TR_Ulatek_{id}.wmo')">Ulatek</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Void/12VD_Void_{id}.wmo')">Void</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/12XP_{id}.wmo')">Generic</button> <br />
-                                        <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Exterior/Blockouts/12XT_{id}.wmo')">Blockouts</button>
+                                        <ul class="nav nav-tabs" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="ph-human-tab" data-bs-toggle="tab" href="#ph-human" role="tab" aria-controls="ph-human" aria-selected="false">PH Human</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="ph-orc-tab" data-bs-toggle="tab" href="#ph-orc" role="tab" aria-controls="ph-orc" aria-selected="false">PH Orc</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="ph-nelf-tab" data-bs-toggle="tab" href="#ph-nelf" role="tab" aria-controls="ph-nelf" aria-selected="false">PH Nelf</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="ph-belf-tab" data-bs-toggle="tab" href="#ph-belf" role="tab" aria-controls="ph-belf" aria-selected="false">PH Belf</a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane fade" id="ph-human" role="tabpanel" aria-labelledby="ph-human-tab">
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Human/12PH_Room_{id}.wmo')">PH Room Unk</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Human/12PH_Room_Component_{id}.wmo')">Component</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Human/12PH_Room_Doorway_{id}.wmo')">Doorway</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Human/12PH_Room_Ceiling_{id}.wmo')">Ceiling</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Human/12PH_Room_Wall_{id}.wmo')">Wall</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Human/12PH_Room_Floor_{id}.wmo')">Floor</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Exterior/Human/12PH_Exterior_{id}.wmo')">Ext Unk</button> <br />
+                                            </div>
+                                            <div class="tab-pane fade" id="ph-orc" role="tabpanel" aria-labelledby="ph-orc-tab">
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Orc/12PH_Room_{id}.wmo')">PH Room Unk</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Orc/12PH_Room_Component_{id}.wmo')">Component</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Orc/12PH_Room_Doorway_{id}.wmo')">Doorway</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Orc/12PH_Room_Ceiling_{id}.wmo')">Ceiling</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Orc/12PH_Room_Wall_{id}.wmo')">Wall</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/Orc/12PH_Room_Floor_{id}.wmo')">Floor</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Exterior/Orc/12PH_Exterior_{id}.wmo')">Ext Unk</button> <br />
+                                            </div>
+                                            <div class="tab-pane fade" id="ph-nelf" role="tabpanel" aria-labelledby="ph-nelf-tab">
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/NightElf/12PH_Room_{id}.wmo')">PH Room Unk</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/NightElf/12PH_Room_Component_{id}.wmo')">Component</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/NightElf/12PH_Room_Doorway_{id}.wmo')">Doorway</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/NightElf/12PH_Room_Ceiling_{id}.wmo')">Ceiling</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/NightElf/12PH_Room_Wall_{id}.wmo')">Wall</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/NightElf/12PH_Room_Floor_{id}.wmo')">Floor</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Exterior/NightElf/12PH_Exterior_{id}.wmo')">Ext Unk</button> <br />
+                                            </div>
+                                            <div class="tab-pane fade" id="ph-belf" role="tabpanel" aria-labelledby="ph-belf-tab">
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/BloodElf/12PH_Room_{id}.wmo')">PH Room Unk</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/BloodElf/12PH_Room_Component_{id}.wmo')">Component</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/BloodElf/12PH_Room_Doorway_{id}.wmo')">Doorway</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/BloodElf/12PH_Room_Ceiling_{id}.wmo')">Ceiling</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/BloodElf/12PH_Room_Wall_{id}.wmo')">Wall</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Room/BloodElf/12PH_Room_Floor_{id}.wmo')">Floor</button>
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/PlayerHousing/Exterior/BloodElf/12PH_Exterior_{id}.wmo')">Ext Unk</button> <br />
+                                            </div>
+                                        </div>
+                                    
+                                               
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Human/12HU_Human_{id}.wmo')">Human</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Orc/12OR_Orc_{id}.wmo')">Orc</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/WildElves/12WE_WildElves_{id}.wmo')">Wild Elf/Haronir</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/BloodElf/12BE_BloodElf_{id}.wmo')">Blood Elf</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Troll/12TR_Amani_{id}.wmo')">Amani</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Rutaani/12RU_Rutaani_{id}.wmo')">Rutaani</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Troll/12TR_Ulatek_{id}.wmo')">Ulatek</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Void/12VD_Void_{id}.wmo')">Void</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/12XP_{id}.wmo')">Generic</button> <br />
+                                                <button class="btn btn-primary" onclick="setNameTemplate('World/WMO/Expansion11/Exterior/Blockouts/12XT_{id}.wmo')">Blockouts</button>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div class="col-md-5">
