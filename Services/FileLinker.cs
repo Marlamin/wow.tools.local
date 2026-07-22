@@ -77,6 +77,9 @@ namespace wow.tools.local.Services
             if (!CASC.FileExists(fileDataID))
                 return;
 
+            if (needTransaction)
+                clearCmd.Transaction = SQLiteDB.dbConn.BeginTransaction();
+
             if (!forceRecheck)
             {
                 if (existingParents.Contains((int)fileDataID))
@@ -86,14 +89,15 @@ namespace wow.tools.local.Services
             {
                 clearCmd.Parameters[0].Value = fileDataID;
                 clearCmd.ExecuteNonQuery();
+
+                if (needTransaction)
+                    clearCmd.Transaction!.Commit();
+
                 existingParents.Remove((int)fileDataID);
             }
 
             if (needTransaction)
-            {
-                var transaction = SQLiteDB.dbConn.BeginTransaction();
-                insertCmd.Transaction = transaction;
-            }
+                insertCmd.Transaction = SQLiteDB.dbConn.BeginTransaction();
 
             try
             {
@@ -328,6 +332,8 @@ namespace wow.tools.local.Services
 
             Console.WriteLine("[WDT] Loading " + wdtid + " (" + wdtFilename + ")");
 
+            var alreadyInsertedQuery = new SqliteCommand("SELECT child FROM wow_rootfiles_links WHERE parent = @parent", SQLiteDB.dbConn);
+            alreadyInsertedQuery.Parameters.AddWithValue("@parent", 0);
             insertCmd.Parameters[0].Value = wdtid;
 
             try
@@ -363,15 +369,29 @@ namespace wow.tools.local.Services
                     if (records.Value.rootADT == 0)
                         continue;
 
-                    if (existingParents.Contains((int)records.Value.rootADT))
-                        continue;
+                    //if (existingParents.Contains((int)records.Value.rootADT))
+                    //    continue;
 
                     // Switch to ADT FDID                            
                     insertCmd.Parameters[0].Value = records.Value.rootADT;
 
-                    var inserted = new List<uint>();
+                    var inserted = new HashSet<uint>();
+
+                    insertCmd.Transaction.Commit();
+
+                    alreadyInsertedQuery.Parameters[0].Value = records.Value.rootADT;
+                    using(var reader = alreadyInsertedQuery.ExecuteReader())
+                    {
+                        while (reader.Read())
+                            inserted.Add((uint)reader.GetInt32(0));
+                    }
+
+                    transaction = SQLiteDB.dbConn.BeginTransaction();
+                    insertCmd.Transaction = transaction;
 
                     var adtreader = new ADTReader();
+                    adtreader.readMCNKs = false;
+
                     try
                     {
                         adtreader.LoadADT(wdtreader.wdtfile, records.Key.Item1, records.Key.Item2);
@@ -409,7 +429,7 @@ namespace wow.tools.local.Services
 
                     foreach (var texture in adtreader.adtfile.diffuseTextureFileDataIDs)
                     {
-                        if (texture == 0)
+                        if (texture == 0 || inserted.Contains(texture))
                             continue;
 
                         InsertEntry(insertCmd, texture, "adt diffuse texture");
@@ -417,7 +437,7 @@ namespace wow.tools.local.Services
 
                     foreach (var texture in adtreader.adtfile.heightTextureFileDataIDs)
                     {
-                        if (texture == 0)
+                        if (texture == 0 || inserted.Contains(texture))
                             continue;
 
                         InsertEntry(insertCmd, texture, "adt height texture");
