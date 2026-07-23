@@ -77,8 +77,10 @@ namespace wow.tools.local.Services
             if (!CASC.FileExists(fileDataID))
                 return;
 
+            SqliteTransaction? transaction = null;
+
             if (needTransaction)
-                clearCmd.Transaction = SQLiteDB.dbConn.BeginTransaction();
+                transaction = SQLiteDB.dbConn.BeginTransaction();
 
             if (!forceRecheck)
             {
@@ -91,13 +93,16 @@ namespace wow.tools.local.Services
                 clearCmd.ExecuteNonQuery();
 
                 if (needTransaction)
-                    clearCmd.Transaction!.Commit();
+                {
+                    transaction?.Commit();
+                    transaction = SQLiteDB.dbConn.BeginTransaction();
+                }
 
                 existingParents.Remove((int)fileDataID);
             }
 
             if (needTransaction)
-                insertCmd.Transaction = SQLiteDB.dbConn.BeginTransaction();
+                insertCmd.Transaction = transaction;
 
             try
             {
