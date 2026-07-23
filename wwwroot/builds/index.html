@@ -106,7 +106,7 @@
                     div: {
                         html: `<form class="form-inline">
                                <label class="btn btn-sm btn-success active">
-                                   <input type="checkbox" autocomplete="off" id="localBuilds" CHECKED> Local
+                                   <input type="checkbox" autocomplete="off" id="localBuilds"> Local
                                </label>
                                <label class="btn btn-sm btn-primary active">
                                    <input type="checkbox" autocomplete="off" id="onlineBuilds"> Online
@@ -234,6 +234,11 @@
 
         function updateCheckboxStatus() {
             var localBuilds = localStorage.getItem("settings[localBuilds]");
+            if (localBuilds == null) {
+                localStorage.setItem("settings[localBuilds]", true);
+                localBuilds = "true";
+            }
+
             if (localBuilds && localBuilds == "true") {
                 document.getElementById("localBuilds").checked = true;
             }
