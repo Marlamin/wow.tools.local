@@ -92,8 +92,9 @@ const BLPFile = ((Bufo) => {
 		 * Obtain the pixels for the given mipmap.
 		 * @param {number} [mipmap]
 		 * @param {HTMLElement} [canvas]
+		 * @param {boolean} [discardAlpha]
 		 */
-		getPixels(mipmap, canvas = null) {
+		getPixels(mipmap, canvas = null, discardAlpha = false) {
 			// Constrict the requested mipmap to a valid range..
 			mipmap = Math.max(0, Math.min(mipmap || 0, this.mapCount - 1));
 
@@ -129,8 +130,21 @@ const BLPFile = ((Bufo) => {
 					break;
 			}
 
+
+
 			if (canvas !== null) {
-				this.imageContext.putImageData(this.imageData, 0, 0);
+				if (discardAlpha) {
+					if (this.imageData) {
+						let data = this.imageData.data;
+						for (let i = 0; i < this.scaledLength; i++)
+							data[i * 4 + 3] = 0xFF;
+
+						this.imageContext.putImageData(this.imageData, 0, 0);
+					}
+				} else {
+					this.imageContext.putImageData(this.imageData, 0, 0);
+				}
+
 				return this.imageContext;
 			}
 		}

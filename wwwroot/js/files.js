@@ -209,7 +209,8 @@ function fillPreviewModal(buildconfig, filedataid, type) {
 
         if (type == "blp") {
             html += "<canvas id='mapCanvas' width='1' height='1'></canvas>";
-            renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true);
+            var discardBLPAlpha = localStorage.getItem('settings[discardBLPAlpha]') === '1';
+            renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true, discardBLPAlpha);
         } else if (type == "png") {
             html += "<img src=\"" + url + "\" style=\"max-width: 100%; max-height: 80vh;\" />";
         } else if (type == "mp3" || type == "ogg") {

@@ -9,6 +9,7 @@
 - Added Creature/Quest names to tooltips (retrieved from local information or from archavon.kruithne.net).
 - Added basic naming support for M3 and M3-referenced files.
 - Added support for new M3 instance chunk version (fixes M3 parsing).
+- Added setting for turning off BLP transparency in previews.
 - Updated M3 modelviewer with basic texture loading.
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.

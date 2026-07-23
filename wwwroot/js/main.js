@@ -163,30 +163,7 @@ function forceUpdateCheck() {
     checkForUpdates(true);
 }
 
-function renderBLPToIMGElement(url, elementID){
-    fetch(url).then(function(response) {
-        return response.arrayBuffer();
-    }).then(function(arrayBuffer) {
-        let data = new Bufo(arrayBuffer);
-        let blp = new BLPFile(data);
-
-        let canvas = document.createElement('canvas');
-        canvas.width = blp.width;
-        canvas.height = blp.height;
-
-        let image = blp.getPixels(0, canvas);
-
-        let img = document.getElementById(elementID);
-        if (!img){
-            console.log("Target image element does not exist: " + elementID);
-            return;
-        }
-        img.src = canvas.toDataURL();
-        img.setAttribute('data-loaded', true);
-    });
-}
-
-function renderBLPToCanvasElement(url, elementID, canvasX, canvasY, resize = false) {
+function renderBLPToCanvasElement(url, elementID, canvasX, canvasY, resize = false, discardAlpha = false) {
     return fetch(url)
         .then(function (response) {
             return response.arrayBuffer();
@@ -200,18 +177,6 @@ function renderBLPToCanvasElement(url, elementID, canvasX, canvasY, resize = fal
                 canvas.width = blp.width;
                 canvas.height = blp.height;
             }
-            let image = blp.getPixels(0, canvas, canvasX, canvasY);
-        });
-}
-
-function renderBLPToCanvas(url, canvas, canvasX, canvasY) {
-    return fetch(url)
-        .then(function(response) {
-            return response.arrayBuffer();
-        })
-        .then(function(arrayBuffer) {
-            let data = new Bufo(arrayBuffer);
-            let blp = new BLPFile(data);
-            let image = blp.getPixels(0, canvas, canvasX, canvasY);
+            let image = blp.getPixels(0, canvas, discardAlpha);
         });
 }
