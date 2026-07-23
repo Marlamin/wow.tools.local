@@ -87,7 +87,7 @@
             const toBuildNameSpan = document.getElementById("toBuildName");
             toBuildNameSpan.innerHTML = to;
 
-            const lsDiffPageLength = localStorage.getItem("diffPageLength");
+            const lsDiffPageLength = localStorage.getItem("settings[diffPageLength]");
             if (lsDiffPageLength) {
                 var pageLength = parseInt(lsDiffPageLength);
             } else {
@@ -305,7 +305,7 @@
             window.table = table;
 
             table.on('length.dt', function (e, settings, len) {
-                localStorage.setItem("diffPageLength", len);
+                localStorage.setItem("settings[diffPageLength]", len);
             });
 
             table.on('xhr', function () {

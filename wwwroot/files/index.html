@@ -398,7 +398,7 @@
 
             var build = searchHash.substr(searchHash.indexOf('build=')).split('&')[0].split('=')[1];
 
-            var lsFileLength = localStorage.getItem("filesPageLength");
+            var lsFileLength = localStorage.getItem("settings[filesPageLength]");
             if (lsFileLength) {
                 var pageLength = parseInt(lsFileLength);
             } else {
@@ -674,7 +674,7 @@
             });
 
             Elements.filesTable.on('length.dt', function (e, settings, len) {
-                localStorage.setItem("filesPageLength", len);
+                localStorage.setItem("settings[filesPageLength]", len);
             });
         }());
 

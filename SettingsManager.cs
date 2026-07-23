@@ -259,7 +259,6 @@ namespace wow.tools.local
         {
             switch (key)
             {
-
                 case "wowProduct":
                     if (string.IsNullOrEmpty(value) || !value.StartsWith("wow", StringComparison.OrdinalIgnoreCase))
                         return (false, "Product is empty or does not start with 'wow'");
@@ -330,6 +329,11 @@ namespace wow.tools.local
                 case "showAllFiles":
                 case "readOnly":
                 case "useWago":
+                    if(value == "1" || value == "on")
+                        value = "true";
+                    else if(value == "0" || value == "off")
+                        value = "false";
+
                     if (bool.TryParse(value, out _))
                         return (true, string.Empty);
                     else

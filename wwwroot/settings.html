@@ -37,33 +37,65 @@
     <nav class="navbar navbar-expand-lg" id="navbar"></nav>
     <div class="container-fluid">
         <h3>Settings</h3>
-        <p>Certain settings might need a restart to apply.</p>
-        <div id="settingsContainer">
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="settings-server" data-bs-toggle="tab" href="#settings-server-tab" role="tab" aria-controls="ph-human" aria-selected="false">Server</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="settings-client" data-bs-toggle="tab" href="#settings-client-tab" role="tab" aria-controls="ph-orc" aria-selected="false">Client</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane show active" id="settings-server-tab" role="tabpanel" aria-labelledby="settings-server-tab">
+                <p>These settings control how the WTL server behaves. Certain settings might need a restart to apply.</p>
+                <div id="serverSettingsContainer">
 
+                </div>
+            </div>
+            <div class="tab-pane" id="settings-client-tab" role="tabpanel" aria-labelledby="settings-client-tab">
+                <p>These settings control how the WTL frontend behaves. Most changes take effect immediately, some might need page refreshes.</p>
+                <div id="clientSettingsContainer">
+
+                </div>
+            </div>
         </div>
     </div>
     <script type="text/javascript">
-        LoadSettings();
+        loadServerSettings();
+        loadClientSettings();
 
-        async function LoadSettings() {
-            const settingsHolder = document.getElementById("settingsContainer");
+        async function loadServerSettings() {
+            const settingsHolder = document.getElementById("serverSettingsContainer");
             settingsHolder.innerHTML = "";
 
             const settingsResult = await fetch("/settings/list");
             const settings = await settingsResult.json();
 
-            var output = "<form id='settingsForm' onsubmit='event.preventDefault(); saveSettings()' method='POST'><table class='table'>";
+            var output = "<form id='settingsForm' onsubmit='event.preventDefault(); saveServerSettings()' method='POST'><table class='table'>";
             output += "<thead><tr><th style='width: 200px'>Key</th><th style='width: 500px;'>Value</th><th style='width: 200px'>Default</th><th>Description</th></tr></thead>";
 
             for (let i = 0; i < settings.length; i++) {
                 const setting = settings[i];
+
+                // dont allow setting readonly in web interface
+                if (setting.key == "readOnly")
+                    continue;
+
                 output += "<tr>";
                 output += "<td><label for='field_" + setting.key + "'>" + setting.key + "</label></td>";
                 var type = "text";
                 if (setting.key == "bnetClientSecret")
                     type = "password";
 
-                output += "<td><input class='form-control' id='field_" + setting.key + "' oninput='validateSetting(\"" + setting.key + "\")' style='width: 100%' type='" + type + "' name='" + setting.key + "' value='" + setting.value + "'/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                var currentSetting = setting.value;
+                if (setting.type == "checkbox" || setting.type == "bool") {
+                    output += "<td><input type='checkbox' class='form-check-input' data-type='" + setting.type + "' id='field_" + setting.key + "' oninput='validateServerSetting(\"" + setting.key + "\")' name='" + setting.key + "' " + (currentSetting == "1" || currentSetting == "true" ? "checked" : "") + "/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                } else if (setting.type == "number") {
+                    output += "<td><input class='form-control' data-type='" + setting.type + "' id='field_" + setting.key + "' oninput='validateServerSetting(\"" + setting.key + "\")' style='width: 100%' type='number' name='" + setting.key + "' value='" + currentSetting + "'/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                } else {
+                    output += "<td><input class='form-control' data-type='" + setting.type + "' id='field_" + setting.key + "' oninput='validateServerSetting(\"" + setting.key + "\")' style='width: 100%' type='" + type + "' name='" + setting.key + "' value='" + currentSetting + "'/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                }
+
                 if (setting.defaultValue == "")
                     output += "<td style='font-size: 15px;' class='text-muted'><i>Empty</i></td>";
                 else
@@ -74,29 +106,166 @@
 
             output += "</table>";
             output += "<button id='settingsSubmit' class='btn btn-success'>Save</button>";
-            output +="</form>";
+            output += "</form>";
 
             settingsHolder.innerHTML = output;
 
             for (let i = 0; i < settings.length; i++) {
-                validateSetting(settings[i].key);
+                validateServerSetting(settings[i].key);
             }
         }
 
-        async function saveSettings() {
+        async function loadClientSettings() {
+            const availableSettings = [];
+            // Builds page
+            availableSettings.push({ category: 'Builds', key: 'onlineBuilds', type: 'bool', default: 'true', description: 'Show online builds' });
+            availableSettings.push({ category: 'Builds', key: 'localBuilds', type: 'bool', default: 'true', description: 'Show local builds' });
+            availableSettings.push({ category: 'Builds', key: 'archivedBuilds', type: 'bool', default: 'false', description: 'Show archived builds' });
+
+            // DBC pages
+            availableSettings.push({ category: 'DBC', key: 'alwaysEnableFilters', type: 'checkbox', default: '0', description: 'Always enables column filters on DBC pages' });
+            availableSettings.push({ category: 'DBC', key: 'dbcPageLength', type: 'number', default: '25', description: 'Number of rows per page on DBC pages' });
+            availableSettings.push({ category: 'DBC', key: 'dbcDiffPageLength', type: 'number', default: '25', description: 'Number of rows per page on DBC diff pages' });
+
+            // MV
+            availableSettings.push({ category: 'MV', key: 'customClearColor', type: 'color', default: '#1e3564', description: 'Background color'});
+            availableSettings.push({ category: 'MV', key: 'farClipCull', type: 'number', default: '250', description: 'Model cull distance' });
+            availableSettings.push({ category: 'MV', key: 'farClip', type: 'number', default: '500', description: 'Far clip distance' });
+            availableSettings.push({ category: 'MV', key: 'portalCulling', type: 'checkbox', default: '1', description: 'Enable portal culling' });
+            availableSettings.push({ category: 'MV', key: 'showFPS', type: 'checkbox', default: '1', description: 'Show stats' });
+            availableSettings.push({ category: 'MV', key: 'newDisplayInfo', type: 'checkbox', default: '1', description: ' Use new DisplayID based skin selection' });
+
+            // Tooltips
+            availableSettings.push({ category: 'Tooltips', key: 'tooltipToggle', type: 'checkbox', default: '1', description: 'Show tooltips' });
+
+            // Previews
+            availableSettings.push({ category: 'Preview', key: 'discardBLPAlpha', type: 'checkbox', default: '0', description: 'Discard BLP transparency in previews' }); 
+
+            var output = "<form id='clientSettingsForm' onsubmit='event.preventDefault(); saveClientSettings()' method='POST'><table class='table'>";
+            output += "<thead><tr><th style='width: 200px'>Category</th><th style='width: 200px'>Key</th><th style='width: 300px;'>Value</th><th style='width: 200px'>Default</th><th>Description</th></tr></thead>";
+
+            for (let i = 0; i < availableSettings.length; i++) {
+                const setting = availableSettings[i];
+                output += "<tr>";
+                output += "<td>" + setting.category + "</td>";
+                output += "<td><label for='field_" + setting.key + "'>" + setting.key + "</label></td>";
+
+                var currentSetting = localStorage.getItem("settings[" + setting.key + "]");
+                if (currentSetting == null)
+                    currentSetting = setting.default;
+
+                if (setting.type == "checkbox" || setting.type == "bool") {
+                    output += "<td><input type='checkbox' class='form-check-input' data-type='" + setting.type + "' id='field_" + setting.key + "' oninput='validateClientSetting(\"" + setting.key + "\")' name='" + setting.key + "' " + (currentSetting == "1" || currentSetting == "true" ? "checked" : "") + "/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                } else if (setting.type == "number") {
+                    output += "<td><input class='form-control' data-type='" + setting.type + "' id='field_" + setting.key + "' oninput='validateClientSetting(\"" + setting.key + "\")' style='width: 100%' type='number' name='" + setting.key + "' value='" + currentSetting + "'/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                } else {
+                    output += "<td><input class='form-control' data-type='" + setting.type + "' id='field_" + setting.key + "' oninput='validateClientSetting(\"" + setting.key + "\")' style='width: 100%' type='text' name='" + setting.key + "' value='" + currentSetting + "'/><div class='invalid-feedback' id='field_" + setting.key + "_feedback'></div></td>";
+                }
+
+                if (setting.default == "")
+                    output += "<td style='font-size: 15px;' class='text-muted'><i>Empty</i></td>";
+                else
+                    output += "<td style='font-size: 15px;'>" + setting.default + "</td>";
+
+                output += "<td>" + setting.description + "</td>";
+                output += "</tr>";
+            }
+
+            output += "</table>";
+            output += "<button id='clientSettingsSubmit' class='btn btn-success'>Save</button>";
+            output += "</form>";
+
+            document.getElementById("clientSettingsContainer").innerHTML = output;
+
+            for (let i = 0; i < availableSettings.length; i++) {
+                validateClientSetting(availableSettings[i].key);
+            }
+        }
+
+        async function validateClientSetting(setting) {
+            const source = document.getElementById("field_" + setting);
+            const value = source.value;
+            const feedbackDiv = document.getElementById("field_" + setting + "_feedback");
+
+            const type = source.getAttribute("data-type");
+            let ok = false;
+            let feedback = "";
+
+            if (type == "checkbox" || type == "boolean") {
+                ok = true;
+            } else if (type == "number") {
+                ok = !isNaN(value);
+                feedback = "Value must be a number.";
+            } else if (type == "color") {
+                ok = /^#([0-9A-F]{3}){1,2}$/i.test(value);
+                if (!ok) {
+                    feedback = "Invalid color format. Use hex format (e.g., #RRGGBB).";
+                }
+            } else {
+                ok = true;
+            }
+
+            if (ok) {
+                source.classList.remove('is-invalid');
+
+                if (feedback != "Not checked")
+                    source.classList.add('is-valid');
+
+                feedbackDiv.innerHTML = "";
+            } else {
+                source.classList.remove('is-valid');
+                source.classList.add('is-invalid');
+
+                feedbackDiv.innerHTML = "Invalid input: " + feedback;
+            }
+
+            const allInputs = document.getElementsByClassName('is-invalid');
+            const submitButton = document.getElementById('clientSettingsSubmit');
+            if (allInputs.length > 0) {
+                submitButton.classList.add('disabled');
+            } else {
+                submitButton.classList.remove('disabled');
+            }
+        }
+
+        async function saveClientSettings() {
+            const clientSettings = document.getElementById("clientSettingsForm");
+            clientSettings.querySelectorAll("input").forEach(input => {
+                var type = input.getAttribute("data-type");
+                if (type == "checkbox") {
+                    localStorage.setItem("settings[" + input.name + "]", input.checked ? "1" : "0");
+                } else if (type == "bool") {
+                    localStorage.setItem("settings[" + input.name + "]", input.checked ? "true" : "false");
+                } else {
+                    localStorage.setItem("settings[" + input.name + "]", input.value);
+                }
+            });
+        }
+
+        async function saveServerSettings() {
             const allInputs = document.getElementsByClassName('is-invalid');
             if (allInputs.length > 0)
                 return false;
 
-            const newSettings = new URLSearchParams(new FormData(document.getElementById("settingsForm")));
+            const formData = new FormData(document.getElementById("settingsForm"));
+
+            // ensure checkboxes even in off state are included, stupid default behavior imo >:(
+            const checkboxes = document.querySelectorAll('#settingsForm input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                if (!formData.has(checkbox.name)) {
+                    formData.append(checkbox.name, checkbox.checked ? "1" : "0");
+                }
+            });
+            
+            const newSettings = new URLSearchParams(formData);
             const saveResult = await fetch("/settings/save", { method: 'POST', body: newSettings });
             if (saveResult.ok)
-                LoadSettings();
+                loadServerSettings();
 
             return false;
         }
 
-        async function validateSetting(setting) {
+        async function validateServerSetting(setting) {
             const source = document.getElementById("field_" + setting);
             const value = source.value;
             const feedbackDiv = document.getElementById("field_" + setting + "_feedback");
@@ -110,7 +279,7 @@
             if (checkResult.ok) {
                 source.classList.remove('is-invalid');
 
-                if(feedback != "Not checked")
+                if (feedback != "Not checked")
                     source.classList.add('is-valid');
 
                 feedbackDiv.innerHTML = "";

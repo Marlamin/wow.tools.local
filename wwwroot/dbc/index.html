@@ -1202,7 +1202,7 @@
                         clearState = false;
                     }
 
-                    var lsDBCLength = localStorage.getItem("dbcPageLength");
+                    var lsDBCLength = localStorage.getItem("settings[dbcPageLength]");
                     if (lsDBCLength) {
                         var pageLength = parseInt(lsDBCLength);
                     } else {
@@ -1296,7 +1296,7 @@
                     });
 
                     table.on('length.dt', function (e, settings, len) {
-                        localStorage.setItem("dbcPageLength", len);
+                        localStorage.setItem("settings[dbcPageLength]", len);
                     });
                 });
         }

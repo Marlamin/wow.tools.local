@@ -1,5 +1,6 @@
 0.9.6 (xx-07-2026)
 - Added the old world map page from wow.tools back.
+- Added tab for frontend settings oon settings page, some settings (builds page and table row lengths) may have been reset.
 - Added foreign key search back to DBC pages.
 - Added label search to DBC pages (clicking LabelID column values also searches).
 - Added reset button to all search modals on DBC pages.
@@ -11,6 +12,7 @@
 - Updated M3 modelviewer with basic texture loading.
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.
+- Updated boolean settings to be checkboxes instead of text inputs.
 - Fixed diff cache not being reset after scanning unknown files.
 - Fixed some spell tooltips crashing due to incorrect EffectAmplitude handling.
 

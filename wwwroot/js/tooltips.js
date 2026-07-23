@@ -13,6 +13,10 @@ async function tooltip2(el, event){
         }
     }
 
+    var tooltipSetting = localStorage.getItem("tooltipToggle");
+    if (tooltipSetting != null && tooltipSetting == 0)
+        return;
+
     el.addEventListener("mouseout", hideTooltip2, el);
     el.addEventListener("click", hideTooltip2, el);
 

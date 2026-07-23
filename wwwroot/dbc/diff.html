@@ -227,7 +227,7 @@
                     });
 
 
-                    var lsDBCDiffLength = localStorage.getItem("dbcDiffPageLength");
+                    var lsDBCDiffLength = localStorage.getItem("settings[dbcDiffPageLength]");
                     if (lsDBCDiffLength) {
                         var pageLength = parseInt(lsDBCDiffLength);
                     } else {
@@ -397,7 +397,7 @@
                     });
 
                     diffTable.on('length.dt', function (e, settings, len) {
-                        localStorage.setItem("dbcDiffPageLength", len);
+                        localStorage.setItem("settings[dbcDiffPageLength]", len);
                     });
                 });
             }

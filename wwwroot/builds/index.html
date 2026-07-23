@@ -233,17 +233,17 @@
         });
 
         function updateCheckboxStatus() {
-            var localBuilds = localStorage.getItem("buildTypes[localBuilds]");
+            var localBuilds = localStorage.getItem("settings[localBuilds]");
             if (localBuilds && localBuilds == "true") {
                 document.getElementById("localBuilds").checked = true;
             }
 
-            var onlineBuilds = localStorage.getItem("buildTypes[onlineBuilds]");
+            var onlineBuilds = localStorage.getItem("settings[onlineBuilds]");
             if (onlineBuilds && onlineBuilds == "true") {
                 document.getElementById("onlineBuilds").checked = true;
             }
 
-            var archivedBuilds = localStorage.getItem("buildTypes[archivedBuilds]");
+            var archivedBuilds = localStorage.getItem("settings[archivedBuilds]");
             if (archivedBuilds && archivedBuilds == "true") {
                 document.getElementById("archivedBuilds").checked = true;
             }
@@ -257,7 +257,7 @@
             reloadBuildTable();
 
             var type = element.srcElement.id;
-            localStorage.setItem("buildTypes[" + type + "]", document.getElementById(type).checked == true);
+            localStorage.setItem("settings[" + type + "]", document.getElementById(type).checked == true);
         }
 
         reloadDiffSection();
