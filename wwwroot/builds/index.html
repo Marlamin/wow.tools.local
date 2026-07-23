@@ -316,8 +316,10 @@
         }
 
         async function loadConfigs(product, buildconfig, cdnconfig, source) {
+            let oldInnerHTML = "";
+
             if (source != undefined) {
-                console.log(source);
+                oldInnerHTML = source.innerHTML;
                 source.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Loading, please wait!";
                 source.classList.remove("btn-success");
                 source.classList.add("btn-danger");
@@ -328,6 +330,12 @@
             if (result == "true") {
                 reloadBuildTable();
                 reloadDiffSection();
+
+                if (source != undefined) {
+                    source.innerHTML = oldInnerHTML;
+                    source.classList.remove("btn-danger");
+                    source.classList.add("btn-success");
+                }
             }
         }
 
