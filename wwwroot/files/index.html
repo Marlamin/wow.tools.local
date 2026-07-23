@@ -610,9 +610,9 @@
                                 } else {
                                     var filesPreview = document.getElementById("files_preview");
                                     if (filesPreview && filesPreview.style.display !== "none") {
-                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(" + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
                                     } else {
-                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(" + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
                                     }
                                 }
 
@@ -662,7 +662,7 @@
                         var row = e.target.closest('tr');
                         var data = table.row(row).data();
                         if (Settings.previewTypes.includes(data[4])) {
-                            fillPreviewModal("", data[0], data[4]);
+                            fillPreviewModal(data[0], data[4]);
                         }
                         var selectedElements = document.querySelectorAll(".selected");
                         selectedElements.forEach(function(el) {

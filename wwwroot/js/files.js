@@ -157,7 +157,12 @@ function finishEditing(){
     console.log(this.innerText);
 }
 
-function fillPreviewModal(buildconfig, filedataid, type) {
+function toggleBLPAlpha(filedataid) {
+    var discardBLPAlpha = localStorage.getItem('settings[discardBLPAlpha]') === '1';
+    localStorage.setItem('settings[discardBLPAlpha]', discardBLPAlpha ? '0' : '1');
+    fillPreviewModal(filedataid, "blp");
+}
+function fillPreviewModal(filedataid, type) {
     var html = "";
     var url = "/casc/fdid?fileDataID=" + filedataid + "&filename=preview";
 
@@ -211,6 +216,9 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             html += "<canvas id='mapCanvas' width='1' height='1'></canvas>";
             var discardBLPAlpha = localStorage.getItem('settings[discardBLPAlpha]') === '1';
             renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true, discardBLPAlpha);
+
+            var buttonText = discardBLPAlpha ? "Enable transparency" : "Disable transparency";
+            html += "<br><button class='btn btn-sm btn-outline-secondary' onclick='toggleBLPAlpha(" + filedataid + ")' id='discardBLPAlphaButton''>" + buttonText + "</button>";
         } else if (type == "png") {
             html += "<img src=\"" + url + "\" style=\"max-width: 100%; max-height: 80vh;\" />";
         } else if (type == "mp3" || type == "ogg") {

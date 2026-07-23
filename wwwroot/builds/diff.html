@@ -169,7 +169,7 @@
                                 //}
 
                                 if (previewTypes.includes(full.type)) {
-                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a>";
+                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(" + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a>";
                                 } else {
                                     content = "<i class='fa fa-ban' style='opacity: 0.3'></i>";
                                 }

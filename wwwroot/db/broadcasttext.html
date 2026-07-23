@@ -87,7 +87,7 @@
                             for (const file of files) {
                                 test += "<tr><td style='min-width: 100px; width: 100px'>";
                                 if (file.available) {
-                                    test += "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(\"\"," + file.fileDataID + "\,\"ogg\")'><i class='fa fa-play'></i> " + file.fileDataID + "</a>";
+                                    test += "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(" + file.fileDataID + "\,\"ogg\")'><i class='fa fa-play'></i> " + file.fileDataID + "</a>";
                                 } else {
                                     test += file.fileDataID;
                                 }
