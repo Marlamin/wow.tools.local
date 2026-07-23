@@ -876,10 +876,10 @@
             KeyInfo.Add(0xD08954A6307C4773, (8202, "WOW-67xxxpatch5.5.4_Classic", "Bat pet"));
             KeyInfo.Add(0x59EA247E0185EE0D, (8203, "WOW-66407patch12.0.5_PTR", "Azshara's Raiment transmog sets"));
             KeyInfo.Add(0x6F72D3708201E596, (8204, "WOW-66407patch12.0.5_PTR", "Venthyr housing decor"));
-            KeyInfo.Add(0xBE7D592CD36508A2, (8205, "WOW-67227patch12.0.7_XPTR", "Unknown battle pet"));
+            KeyInfo.Add(0xBE7D592CD36508A2, (8205, "WOW-67227patch12.0.7_XPTR", "BlizzCon 2026 mount, pet, items, decor"));
             KeyInfo.Add(0x107C1DBA85F3C0DF, (8206, "WOW-66407patch12.0.5_PTR", "Lush Garden/Spring Blossom housing exteriors"));
             KeyInfo.Add(0x91FBF3086A7A0323, (8207, "WOW-66407patch12.0.5_PTR", "Cherry blossom/Spring decor sets part 2"));
-            KeyInfo.Add(0xD7486AE7F33E357B, (8208, "WOW-66407patch12.0.5_PTR", "Unknown mount"));
+            KeyInfo.Add(0xD7486AE7F33E357B, (8208, "WOW-66407patch12.0.5_PTR", "Spring Panda mount"));
             KeyInfo.Add(0xCF9022A9913B1B4D, (8209, "WOW-66407patch12.0.5_PTR", "Unknown housing decor (12x)"));
             KeyInfo.Add(0xB728EC2C7D03EAA5, (8210, "WOW-67227patch12.0.7_XPTR", "Unknown toy"));
             KeyInfo.Add(0x1AC527F3666CB6BA, (8211, "WOW-66xxxpatch12.0.5_PTR", "Lunar New Year decor"));
@@ -921,7 +921,7 @@
             KeyInfo.Add(0x2FEF3AA89FFBBE7F, (8275, "WOW-68209patch12.1.0_PTR", "Unknown housing decor"));
             KeyInfo.Add(0xEE25C1489C6CB47A, (8276, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x3B53C72B48FAD89F, (8277, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
-            KeyInfo.Add(0x47B4F7D68E6AC272, (8278, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
+            KeyInfo.Add(0x47B4F7D68E6AC272, (8278, "WOW-68209patch12.1.0_PTR", "12.1 artisanal housing room(s)"));
             KeyInfo.Add(0x1DACCE2B44C78902, (8279, "WOW-68209patch12.1.0_PTR", "Unknown mount"));
             KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior"));
             KeyInfo.Add(0x7A67F3392ACC41D2, (8281, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
