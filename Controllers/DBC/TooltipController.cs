@@ -287,7 +287,7 @@ namespace wow.tools.local.Controllers
             return Ok(result);
         }
 
-        private string GetDamageDBByItemSubClass(byte itemSubClassID, bool isCasterWeapon)
+        private static string GetDamageDBByItemSubClass(byte itemSubClassID, bool isCasterWeapon)
         {
             switch (itemSubClassID)
             {

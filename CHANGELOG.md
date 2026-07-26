@@ -8,7 +8,7 @@
 - Added the amount of results in DB2 search result tab headers.
 - Added Creature/Quest names to tooltips (retrieved from local information or from archavon.kruithne.net).
 - Added basic naming support for M3 and M3-referenced files.
-- Added naming of icon names from the web API.
+- Added naming of icon names from the web API (API stuff can be skipped with new checkbox).
 - Added support for new M3 instance chunk version (fixes M3 parsing).
 - Added button/setting for turning off BLP transparency in previews.
 - Added ability to take transparent screenshots in the modelviewer (can be turned off in settings).
@@ -16,6 +16,7 @@
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.
 - Updated boolean settings to be checkboxes instead of text inputs.
+- Updated behavior of several automatic namers to be more consistent in when to override existing names.
 - Fixed diff cache not being reset after scanning unknown files.
 - Fixed some spell tooltips crashing due to incorrect EffectAmplitude handling.
 
