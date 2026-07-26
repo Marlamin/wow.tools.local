@@ -33,15 +33,15 @@ namespace wow.tools.local.Controllers
             var keysWithoutMetaData = new List<ulong>();
 
             var newKeysFound = false;
-            foreach (dynamic tklRow in tklStorage.Values)
+            foreach (var tklRow in tklStorage.Values)
             {
-                ulong key = BitConverter.ToUInt64(tklRow.TACTID);
+                ulong key = BitConverter.ToUInt64((byte[])tklRow["TACTID"]);
 
                 if (!KeyMetadata.KeyInfo.TryGetValue(key, out (int ID, string FirstSeen, string Description) metaData))
                 {
                     KeyMetadata.KeyInfo.Add(
                         key,
-                        ((int)tklRow.ID,
+                        ((int)tklRow["ID"],
                         CASC.FullBuildName,
                         CASC.EncryptedFDIDs.Where(x => x.Value.Contains(key)).Select(x => x.Key).ToList().Count.ToString() + " file(s) as of " + CASC.BuildName)
                     );
@@ -57,18 +57,18 @@ namespace wow.tools.local.Controllers
             }
 
             var tkStorage = dbcManager.GetOrLoad("TactKey", CASC.BuildName, true).Result;
-            foreach (dynamic tkRow in tkStorage.Values)
+            foreach (var tkRow in tkStorage.Values)
             {
                 foreach (var keyInfo in KeyMetadata.KeyInfo)
                 {
-                    if (keyInfo.Value.ID != (int)tkRow.ID)
+                    if (keyInfo.Value.ID != (int)tkRow["ID"])
                         continue;
 
                     if (WTLKeyService.HasKey(keyInfo.Key))
                         continue;
 
-                    Console.WriteLine("Setting key " + (int)tkRow.ID + " from TactKey.db2");
-                    WTLKeyService.SetKey(keyInfo.Key, tkRow.Key);
+                    Console.WriteLine("Setting key " + (int)tkRow["ID"] + " from TactKey.db2");
+                    WTLKeyService.SetKey(keyInfo.Key, (byte[])tkRow["Key"]);
                     newKeysFound = true;
                 }
             }

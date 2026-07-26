@@ -198,6 +198,12 @@ namespace wow.tools.local.Controllers
                 }
             }
 
+            var jsonSerializerOptions = new JsonSerializerOptions
+            {
+                IncludeFields = true,
+                WriteIndented = false
+            };
+
             foreach (var soundKitID in voSoundKitView.Skip(start).Take(length))
             {
                 var bcTexts = new List<BCText>();
@@ -234,8 +240,8 @@ namespace wow.tools.local.Controllers
                 result.data.Add(
                    [
                        soundKitID.ToString(), // ID
-                       JsonSerializer.Serialize(voFiles), // Files
-                       JsonSerializer.Serialize(bcTexts), // BroadcastTexts
+                       JsonSerializer.Serialize<List<VOFile>>(voFiles, jsonSerializerOptions), // Files
+                       JsonSerializer.Serialize<List<BCText>>(bcTexts, jsonSerializerOptions), // BroadcastTexts
                    ]);
             }
 

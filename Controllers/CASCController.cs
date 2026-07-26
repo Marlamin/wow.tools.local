@@ -1,4 +1,5 @@
-﻿using DBCD.Providers;
+﻿using DBCD;
+using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using NetVips;
 using System.Collections.Concurrent;
@@ -293,9 +294,9 @@ namespace wow.tools.local.Controllers
             try
             {
                 var tfdStorage = await dbcManager.GetOrLoad("TextureFileData", CASC.BuildName);
-                foreach (dynamic tfdEntry in tfdStorage.Values)
+                foreach (var tfdEntry in tfdStorage.Values)
                 {
-                    var fdid = (int)tfdEntry.FileDataID;
+                    var fdid = (int)tfdEntry["FileDataID"];
                     if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "blp");
@@ -312,9 +313,9 @@ namespace wow.tools.local.Controllers
             try
             {
                 var mfdStorage = await dbcManager.GetOrLoad("MovieFileData", CASC.BuildName);
-                foreach (dynamic mfdEntry in mfdStorage.Values)
+                foreach (var mfdEntry in mfdStorage.Values)
                 {
-                    var fdid = (int)mfdEntry.ID;
+                    var fdid = (int)mfdEntry["ID"];
                     if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "avi");
@@ -331,9 +332,9 @@ namespace wow.tools.local.Controllers
             try
             {
                 var movieStorage = await dbcManager.GetOrLoad("Movie", CASC.BuildName);
-                foreach (dynamic movieEntry in movieStorage.Values)
+                foreach (var movieEntry in movieStorage.Values)
                 {
-                    var audioFDID = (int)movieEntry.AudioFileDataID;
+                    var audioFDID = (int)movieEntry["AudioFileDataID"];
                     if (audioFDID != 0)
                     {
                         if (!Listfile.Types.TryGetValue(audioFDID, out string? value) || value == "unk")
@@ -344,12 +345,12 @@ namespace wow.tools.local.Controllers
                         }
                     }
 
-                    var subtitleFDID = (int)movieEntry.SubtitleFileDataID;
+                    var subtitleFDID = (int)movieEntry["SubtitleFileDataID"];
                     if (subtitleFDID != 0)
                     {
                         if (!Listfile.Types.TryGetValue(subtitleFDID, out string? value) || value == "unk")
                         {
-                            var format = (int)movieEntry.SubtitleFileFormat;
+                            var format = (int)movieEntry["SubtitleFileFormat"];
                             var subtitleType = "srt";
                             if (format == 118)
                                 subtitleType = "srt";
@@ -378,9 +379,9 @@ namespace wow.tools.local.Controllers
                 if (CASC.FileExists(1375802))
                 {
                     var mp3Storage = await dbcManager.GetOrLoad("ManifestMP3", CASC.BuildName);
-                    foreach (dynamic mp3Entry in mp3Storage.Values)
+                    foreach (DBCDRow mp3Entry in mp3Storage.Values)
                     {
-                        var fdid = (int)mp3Entry.ID;
+                        var fdid = (int)mp3Entry["ID"];
                         if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                         {
                             knownUnknowns.TryAdd(fdid, "mp3");
@@ -624,9 +625,9 @@ namespace wow.tools.local.Controllers
             try
             {
                 var mfdStorage = await dbcManager.GetOrLoad("ModelFileData", CASC.BuildName);
-                foreach (dynamic mfdEntry in mfdStorage.Values)
+                foreach (var mfdEntry in mfdStorage.Values)
                 {
-                    var fdid = (int)mfdEntry.FileDataID;
+                    var fdid = (int)mfdEntry["FileDataID"];
 
                     // Likely an encrypted file if we got this far, these could also be M3s but just assume they are M2s for now.
                     if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
@@ -645,9 +646,9 @@ namespace wow.tools.local.Controllers
             try
             {
                 var skStorage = await dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName);
-                foreach (dynamic skEntry in skStorage.Values)
+                foreach (var skEntry in skStorage.Values)
                 {
-                    var fdid = (int)skEntry.FileDataID;
+                    var fdid = (int)skEntry["FileDataID"];
                     if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "ogg");
