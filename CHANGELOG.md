@@ -11,6 +11,7 @@
 - Added naming of icon names from the web API.
 - Added support for new M3 instance chunk version (fixes M3 parsing).
 - Added button/setting for turning off BLP transparency in previews.
+- Added ability to take transparent screenshots in the modelviewer (can be turned off in settings).
 - Updated M3 modelviewer with basic texture loading.
 - Updated pagination on builds page to use input pagination.
 - Updated TACT key metadata.

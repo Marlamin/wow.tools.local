@@ -107,16 +107,20 @@
         <div class='row justify-content-md-center'>
             <div class='col-md-11'>
                 <ul class="nav nav-pills nav-fill">
+                    <li class="nav-item">
                         <a class="nav-link active" href="#textures" data-bs-toggle="tab" role="tab">Textures</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#geosets" data-bs-toggle="tab" role="tab" id="mapViewerButton">Geosets</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#camera" data-bs-toggle="tab" role="tab">Camera (WIP)</a>
                     </li>
                     <li class="nav-item" id="screenshotsTabItem">
                         <a class="nav-link" href="#screenshots" data-bs-toggle="tab" role="tab"><i class='fa fa-camera'></i></a>
                     </li>
                 </ul>
                 <div class="tab-content">
-                    
                     <div class="tab-pane fade show active" id="textures" role="tabpanel" aria-labelledby="textures-tab">
                         <p>Changing the skin/displayID will reset these values. Changing values in this form will let you assign FileDataIDs of your choosing to a certain texture slot.</p>
                         <form id='textureForm'><div id="textureRow" class="row"></div></form>
@@ -124,6 +128,43 @@
                     </div>
                     <div class="tab-pane fade" id="geosets" role="tabpanel" aria-labelledby="geosets-tab">
 
+                    </div>
+                    <div class="tab-pane fade" id="camera" role="tabpanel" aria-labelledby="camera-tab">
+                        <form id="cameraForm">
+                            <div class="row">
+                                <b>Current camera position</b>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="text" id="posX" name="posX" DISABLED />
+                                </div>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="text" id="posY" name="posY" DISABLED />
+                                </div>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="text" id="posZ" name="posZ" DISABLED /><br />
+                                </div>
+                                <div class="col-md-3">
+                                    <button id='savePosButton' type="button" class="btn btn-primary" onclick="savePos();">Save</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <b>Custom camera position</b>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="text" id="posXInput" name="posXInput" />
+                                </div>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="text" id="posYInput" name="posYInput" />
+                                </div>
+                                <div class="col-md-3">
+                                    <input class="form-control" type="text" id="posZInput" name="posZInput" /><br />
+                                </div>
+                                <div class="col-md-3">
+                                    <button id='setPosButton' type="button" class="btn btn-primary" onclick="setPos();">Set</button>
+                                </div>
+                            </div>
+                            <b>Saved camera positions</b>
+                            <div id="savedPositions">
+                            </div>
+                        </form>
                     </div>
                     <div class="tab-pane fade" id="screenshots" role="tabpanel" aria-labelledby="screenshots-tab">
                         <p><strong>Experimental:</strong> Take screenshots covering multiple texture and/or geoset combos.</p>
@@ -164,7 +205,8 @@
                         <input type='text' id='farClip' name='settings[farClip]'> <label for='farClip'>View distance</label><br>
                         <input type='text' id='farClipCull' name='settings[farClipCull]'> <label for='farClipCull'>Model culling distance</label><br>
                         <input type='checkbox' id='portalCulling' name='settings[portalCulling]'> <label for='portalCulling'>Enable portal culling?</label><br>
-                        <input type='checkbox' id='newDisplayInfo' name='settings[newDisplayInfo]'> <label for='newDisplayInfo'>(WIP) Use new DisplayID based skin selection?</label>
+                        <input type='checkbox' id='newDisplayInfo' name='settings[newDisplayInfo]'> <label for='newDisplayInfo'>(WIP) Use new DisplayID based skin selection?</label><br>
+                        <input type='checkbox' id='transparentScreenshot' name='settings[transparentScreenshot]'> <label for='transparentScreenshot'>Transparent background in screenshots?</label><br>
                     </form>
                 </div>
                 <div class="modal-footer">

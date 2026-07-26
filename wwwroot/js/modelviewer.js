@@ -40,6 +40,7 @@ var Settings =
     speed: 1000.0,
     portalCulling: true,
     newDisplayInfo: true,
+    transparentScreenshot: true,
     buildName: ""
 }
 
@@ -143,6 +144,18 @@ function loadSettings(applyNow = false){
 
     document.getElementById("newDisplayInfo").checked = Settings.newDisplayInfo;
 
+    /* Transparent Screenshot */
+    var transparentScreenshot = localStorage.getItem('settings[transparentScreenshot]');
+    if (transparentScreenshot) {
+        if (transparentScreenshot == "1") {
+            Settings.transparentScreenshot = true;
+        } else {
+            Settings.transparentScreenshot = false;
+        }
+    }
+
+    document.getElementById("transparentScreenshot").checked = Settings.transparentScreenshot;
+
     /* If settings should be applied now (don't do this on page load!) */
     if (applyNow){
         Module._setClearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2]);
@@ -174,6 +187,12 @@ function saveSettings(){
     } else {
         localStorage.setItem('settings[newDisplayInfo]', '0');
     }
+
+    if (document.getElementById("transparentScreenshot").checked) {
+        localStorage.setItem('settings[transparentScreenshot]', '1');
+    } else {
+        localStorage.setItem('settings[transparentScreenshot]', '0');
+    }   
     loadSettings(true);
 }
 
@@ -506,6 +525,11 @@ window.createscene = async function () {
         Current.geosetsDone = true;
     };
 
+    // define these here so we dont do gets in the render loop
+    var inputPosX = document.getElementById("posX");
+    var inputPosY = document.getElementById("posY");
+    var inputPosZ = document.getElementById("posZ");
+
     var renderfunc = function(now){
         stats.begin();
 
@@ -522,6 +546,11 @@ window.createscene = async function () {
         // if (numDownloading > 0){
         //     Elements.DownloadLabel.innerText = "Downloading " + numDownloading + " files..";
         // }
+
+        let pos = getScenePos();
+        inputPosX.value = pos.x.toFixed(3);
+        inputPosY.value = pos.y.toFixed(3);
+        inputPosZ.value = pos.z.toFixed(3);
 
         stats.end();
         window.requestAnimationFrame(renderfunc);
@@ -612,7 +641,7 @@ window.addEventListener('keydown', function(event){
 }, true);
 
 window.addEventListener('keyup', function(event){
-    if (event.key == "PrintScreen" && !event.shiftKey && !event.ctrlKey && !event.altKey) Module._createScreenshot();
+    if (event.key == "PrintScreen" && !event.shiftKey && !event.ctrlKey && !event.altKey) Module._createScreenshot(Settings.transparentScreenshot);
     if (document.activeElement.tagName == "INPUT" || document.activeElement.tagName == "SELECT"){
         event.stopImmediatePropagation();
     }
@@ -1095,7 +1124,7 @@ function asyncTimeout() {
 
 function takescreenShotCombo()
 {
-  Module._createScreenshot();
+    Module._createScreenshot(Settings.transparentScreenshot);
 }
 
 async function screenShotComboGeo(geoNumIndex, allGeosets, texArray, linking)
@@ -1209,21 +1238,50 @@ function screenShotCombos()
     screenShotComboTex(0, new Int32Array(NUM_TEXTURE_SLOTS), allTextures, allGeosets, -1);
 }
 
-function getScenePos(){
-    var data = new Float32Array(3);
+function getScenePos() {
+    try {
+        var data = new Float32Array(3);
 
-    var nDataBytes = data.length * data.BYTES_PER_ELEMENT;
-    var dataPtr = Module._malloc(nDataBytes);
+        var nDataBytes = data.length * data.BYTES_PER_ELEMENT;
+        var dataPtr = Module._malloc(nDataBytes);
 
-    var dataHeap = new Uint8Array(Module.HEAPU8.buffer, dataPtr, nDataBytes);
-    dataHeap.set(new Uint8Array(data.buffer));
+        var dataHeap = new Uint8Array(Module.HEAPU8.buffer, dataPtr, nDataBytes);
+        dataHeap.set(new Uint8Array(data.buffer));
 
-    Module._getScenePos(dataHeap.byteOffset);
+        Module._getScenePos(dataHeap.byteOffset);
 
-    var pos = new Float32Array(dataHeap.buffer, dataHeap.byteOffset, data.length);
-    console.log(pos);
+        var pos = new Float32Array(dataHeap.buffer, dataHeap.byteOffset, data.length);
+        return { x: pos[0], y: pos[1], z: pos[2] };
+    } finally {
+        Module._free(dataHeap.byteOffset);
+    }
+}
 
-    Module._free(dataHeap.byteOffset);
+function setPos() {
+    const posXInput = document.getElementById("posXInput");
+    const posYInput = document.getElementById("posYInput");
+    const posZInput = document.getElementById("posZInput");
+
+    Module._setScenePos(parseFloat(posXInput.value), parseFloat(posYInput.value), parseFloat(posZInput.value));
+}
+
+function setGivenPos(x, y, z) {
+    Module._setScenePos(parseFloat(x), parseFloat(y), parseFloat(z));
+    event.preventDefault();
+    return false;
+}
+
+function savePos() {
+    const posX = document.getElementById("posX").value;
+    const posY = document.getElementById("posY").value;
+    const posZ = document.getElementById("posZ").value;
+
+    const savedPositions = document.getElementById("savedPositions");
+    let saveHtml = "<div class='row'><div class='col-md-8'>X: " + posX + ", Y: " + posY + ", Z: " + posZ + "</div>";
+    saveHtml += "<div class='col-md-2'><button class='btn btn-sm btn-primary' onclick='setGivenPos(" + posX + ", " + posY + ", " + posZ + ")'>Set</button></div>";
+    saveHtml += "<div class='col-md-2'><button class='btn btn-sm btn-danger' onclick='this.parentElement.parentElement.remove()'>Delete</button></div>";
+    saveHtml += "</div>";
+    savedPositions.insertAdjacentElement('afterbegin', document.createElement('div')).innerHTML = saveHtml;
 }
 
 async function setModelDisplay(displayID, type){
