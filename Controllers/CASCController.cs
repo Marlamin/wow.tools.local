@@ -334,7 +334,7 @@ namespace wow.tools.local.Controllers
                 var movieStorage = await dbcManager.GetOrLoad("Movie", CASC.BuildName);
                 foreach (var movieEntry in movieStorage.Values)
                 {
-                    var audioFDID = (int)movieEntry["AudioFileDataID"];
+                    var audioFDID = int.Parse(movieEntry["AudioFileDataID"].ToString()!);
                     if (audioFDID != 0)
                     {
                         if (!Listfile.Types.TryGetValue(audioFDID, out string? value) || value == "unk")
@@ -345,12 +345,12 @@ namespace wow.tools.local.Controllers
                         }
                     }
 
-                    var subtitleFDID = (int)movieEntry["SubtitleFileDataID"];
+                    var subtitleFDID = int.Parse(movieEntry["SubtitleFileDataID"].ToString()!);
                     if (subtitleFDID != 0)
                     {
                         if (!Listfile.Types.TryGetValue(subtitleFDID, out string? value) || value == "unk")
                         {
-                            var format = (int)movieEntry["SubtitleFileFormat"];
+                            var format = int.Parse(movieEntry["SubtitleFileFormat"].ToString()!);
                             var subtitleType = "srt";
                             if (format == 118)
                                 subtitleType = "srt";
