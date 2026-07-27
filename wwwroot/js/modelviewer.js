@@ -582,7 +582,7 @@ document.getElementById('mvfiles').addEventListener('click', function(e) {
         });
 
         if (!embeddedMode) {
-            history.pushState({ id: 'modelviewer' }, 'Model Viewer', '/mv/?filedataid=' + data[0]);
+            history.pushState({ id: 'modelviewer' }, 'Model Viewer', '/mv/?filedataid=' + data[0] + '&type=' + data[4]);
         }
 
         row.classList.add('selected');
