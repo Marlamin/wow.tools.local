@@ -19,6 +19,7 @@
 - Updated TACT key metadata.
 - Updated boolean settings to be checkboxes instead of text inputs.
 - Updated behavior of several automatic namers to be more consistent in when to override existing names.
+- Updated DataTables from 3.0.0-beta.2 to 3.0.0.
 - Fixed missing type in modelviewer URLs leading to crashes when F5ing loaded WMOs.
 - Fixed diff cache not being reset after scanning unknown files.
 - Fixed some spell tooltips crashing due to incorrect EffectAmplitude handling.
