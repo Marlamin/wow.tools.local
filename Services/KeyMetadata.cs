@@ -908,6 +908,9 @@
             KeyInfo.Add(0x6E42AB01FA720EA9, (8257, "WOW-68317patch5.5.4_ClassicRetail", "Unknown mount"));
             KeyInfo.Add(0xAAED518EE738C555, (8259, "WOW-68317patch5.5.4_ClassicRetail", "Unknown battle pet"));
             KeyInfo.Add(0x99E2F2F9A3D02260, (8261, "WOW-68317patch5.5.4_ClassicRetail", ""));
+            KeyInfo.Add(0x042A707E69029B42, (8262, "WOW-68943patch3.80.2_ClassicTitan", ""));
+            KeyInfo.Add(0xA63847CAC552F9F8, (8263, "WOW-68943patch3.80.2_ClassicTitan", "Axolotl battle pet (CN)"));
+            KeyInfo.Add(0x4FD7D9D414AFDA7A, (8264, "WOW-68943patch3.80.2_ClassicTitan", "Unknown battle pet (CN)"));
             KeyInfo.Add(0x7FACE8DE6DCC7C95, (8265, "WOW-68184patch2.5.6_ClassicPTR", "Unknown model"));
             KeyInfo.Add(0x2C3AF1AA2A86A6B8, (8266, "WOW-68184patch2.5.6_ClassicPTR", "Unknown model"));
             KeyInfo.Add(0xCA58EFD382342EE5, (8267, "WOW-68209patch12.1.0_PTR", "Unknown item"));
@@ -918,7 +921,7 @@
             KeyInfo.Add(0xC605B7DC45CC1DAC, (8272, "WOW-68209patch12.1.0_PTR", "Tuskarr housing decor models"));
             KeyInfo.Add(0xBBAE9630BE1C18E3, (8273, "WOW-68209patch12.1.0_PTR", "Unknown housing decor"));
             KeyInfo.Add(0xC3656BF7EC13F356, (8274, "WOW-68209patch12.1.0_PTR", "Unknown toy"));
-            KeyInfo.Add(0x2FEF3AA89FFBBE7F, (8275, "WOW-68209patch12.1.0_PTR", "Unknown housing decor"));
+            KeyInfo.Add(0x2FEF3AA89FFBBE7F, (8275, "WOW-68209patch12.1.0_PTR", "Unknown housing decor (Small, Alliance/Horde)"));
             KeyInfo.Add(0xEE25C1489C6CB47A, (8276, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x3B53C72B48FAD89F, (8277, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x47B4F7D68E6AC272, (8278, "WOW-68209patch12.1.0_PTR", "12.1 artisanal housing room(s)"));
@@ -926,9 +929,20 @@
             KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior"));
             KeyInfo.Add(0x7A67F3392ACC41D2, (8281, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x055C2C56039A6E5E, (8282, "WOW-68412patch12.1.0_PTR", "Wearable shark item"));
+            KeyInfo.Add(0xAC95744D4736242E, (8285, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             KeyInfo.Add(0xA1513D5A172E3475, (8286, "WOW-68569patch12.1.0_PTR", "Unknown (BlizzCon?) housing decor/achievement/holiday"));
+            KeyInfo.Add(0x5773DC2C3AC2401E, (8287, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
+            KeyInfo.Add(0x9B3539FC6D2E0358, (8288, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             KeyInfo.Add(0xB6BE7B4AB73DD862, (8289, "WOW-68569patch12.1.0_PTR", "Veteran Adventurer's Loyal Companion mount"));
-
+            KeyInfo.Add(0x5DD107CB056D7387, (8295, "WOW-68943patch3.80.2_ClassicTitan", "Unknown item (CN)"));
+            KeyInfo.Add(0x1D7AC2060E365E04, (8296, "WOW-68943patch3.80.2_ClassicTitan", "Unknown item (CN)"));
+            KeyInfo.Add(0x32C3D093BD861B08, (8297, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
+            KeyInfo.Add(0x74B0ED248AF263DB, (8298, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
+            KeyInfo.Add(0x01BC7A3177A13951, (8301, "WOW-68943patch3.80.2_ClassicTitan", "Dragon throne toy (CN)"));
+            KeyInfo.Add(0xC7D27F5183AEF4E0, (8302, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
+            KeyInfo.Add(0xF2AD987F1B8E5E0D, (8303, "WOW-68943patch3.80.2_ClassicTitan", "Unknown model (CN)"));
+            KeyInfo.Add(0x593721D3B51882FF, (8304, "WOW-68943patch3.80.2_ClassicTitan", "Unknown model (CN)"));
+            KeyInfo.Add(0x1E5C7237D1EA17C7, (8305, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             // ID? FDC778C58B2FE080 Golden Ashened Cataclysm mount
         }
 
