@@ -67,21 +67,37 @@ namespace wow.tools.local.Managers
             if (string.IsNullOrEmpty(buildConfig) || string.IsNullOrEmpty(cdnConfig) || string.IsNullOrEmpty(productConfig))
             {
                 var versions = buildInstance.cdn.GetPatchServiceFile(product, "versions").Result;
+                var versionByRegion = new Dictionary<string, (string buildConfig, string cdnConfig, string productConfig)>();
+
                 foreach (var line in versions.Split('\n'))
                 {
-                    if (!line.StartsWith(buildInstance.Settings.Region + "|"))
+                    if(line.StartsWith('#') || line.StartsWith("Region") || string.IsNullOrWhiteSpace(line))
                         continue;
 
                     var splitLine = line.Split('|');
+                    versionByRegion[splitLine[0]] = (splitLine[1], splitLine[2], splitLine.Length >= 7 ? splitLine[6] : "");
+                }
+
+                // Try to get the build info for the current region if available, fall back to first region
+                if (versionByRegion.TryGetValue(SettingsManager.Region, out var regionBuildInfo))
+                {
+                    if (string.IsNullOrEmpty(buildConfig))
+                        buildConfig = regionBuildInfo.buildConfig;
+                    if (string.IsNullOrEmpty(cdnConfig))
+                        cdnConfig = regionBuildInfo.cdnConfig;
+                    if (string.IsNullOrEmpty(productConfig) && !string.IsNullOrEmpty(regionBuildInfo.productConfig))
+                        productConfig = regionBuildInfo.productConfig;
+                }
+                else
+                {
+                    var firstRegionBuildInfo = versionByRegion.Values.FirstOrDefault();
 
                     if (string.IsNullOrEmpty(buildConfig))
-                        buildConfig = splitLine[1];
-
+                        buildConfig = firstRegionBuildInfo.buildConfig;
                     if (string.IsNullOrEmpty(cdnConfig))
-                        cdnConfig = splitLine[2];
-
-                    if (splitLine.Length >= 7 && !string.IsNullOrEmpty(splitLine[6]) && string.IsNullOrEmpty(productConfig))
-                        productConfig = splitLine[6];
+                        cdnConfig = firstRegionBuildInfo.cdnConfig;
+                    if (string.IsNullOrEmpty(productConfig) && !string.IsNullOrEmpty(firstRegionBuildInfo.productConfig))
+                        productConfig = firstRegionBuildInfo.productConfig;
                 }
             }
 
