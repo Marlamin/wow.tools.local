@@ -1,3 +1,5 @@
+// NOTE TO FUTURE MARLAMIN: THIS WAS MANUALLY EDITED TO ADD SUPPORT FOR KEYBOARD NAGIVATION!!!!!!!!!!!!
+
 /*! © SpryMedia Ltd - datatables.net/license - 3.0.0-beta.2 */
 
 (function(factory){
@@ -122,6 +124,18 @@ DataTable.feature.register('inputPaging', function (settings, opts) {
             e.preventDefault();
         }
     });
+
+    // Marlamin: Manual edit to add support for keyboard navigation
+    input.addEventListener('keydown', function (e) {
+        if (e.key == 'ArrowLeft') {
+            api.page('previous').draw('page');
+            e.preventDefault();
+        } else if (e.key == 'ArrowRight') {
+            api.page('next').draw('page');
+            e.preventDefault();
+        }
+    });
+
     // On new value, redraw the table
     input.addEventListener('input', function () {
         if (input.value) {
