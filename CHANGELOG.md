@@ -1,3 +1,7 @@
+0.9.7 (xx-08-2026)
+- Updated automatic world map naming to more likely pick up on real filenames.
+- Fixed automatic contenthash names sometimes naming empty BLPs incorrectly.
+
 0.9.6 (30-07-2026)
 - Added the old world map page from wow.tools back.
 - Added tab for frontend settings on settings page, some settings (builds page and table row lengths) may have been reset.
