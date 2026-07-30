@@ -1,6 +1,6 @@
 0.9.6 (30-07-2026)
 - Added the old world map page from wow.tools back.
-- Added tab for frontend settings oon settings page, some settings (builds page and table row lengths) may have been reset.
+- Added tab for frontend settings on settings page, some settings (builds page and table row lengths) may have been reset.
 - Added foreign key search back to DBC pages.
 - Added label search to DBC pages (clicking LabelID column values also searches).
 - Added reset button to all search modals on DBC pages.
