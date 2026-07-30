@@ -1,6 +1,7 @@
 0.9.7 (xx-08-2026)
 - Added keyboard navigation in table paging inputs back (not sure when it disappeared).
 - Updated automatic world map naming to more likely pick up on real filenames.
+- Fixed row selection on files page with the preview page open (and added keyboard navigation for it).
 - Fixed automatic contenthash names sometimes naming empty BLPs incorrectly.
 
 0.9.6 (30-07-2026)

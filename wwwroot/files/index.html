@@ -623,6 +623,9 @@
                 ]
             });
 
+            var needToSelectFirstRow = false;
+            var needToSelectLastRow = false;
+
             Elements.filesTable.on('draw.dt', function () {
                 var searchInput = document.getElementById("dt-search-0");
                 var currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
@@ -653,6 +656,42 @@
                 popoverElements.forEach(function(popoverEl) {
                     new bootstrap.Popover(popoverEl);
                 });
+
+                if (needToSelectFirstRow) {
+                    var firstRow = document.querySelector("#files tbody tr:first-child");
+                    if (firstRow) {
+                        var selectedElements = document.querySelectorAll(".selected");
+                        selectedElements.forEach(function (el) {
+                            el.classList.remove("selected");
+                        });
+
+                        var data = Elements.filesTable.row(firstRow).data();
+                        if (Settings.previewTypes.includes(data[4])) {
+                            fillPreviewModal(data[0], data[4]);
+                        }
+                        firstRow.classList.add("selected");
+
+                        needToSelectFirstRow = false;
+                    }
+                }
+
+                if (needToSelectLastRow) {
+                    var lastRow = document.querySelector("#files tbody tr:last-child");
+                    if (lastRow) {
+                        var selectedElements = document.querySelectorAll(".selected");
+                        selectedElements.forEach(function (el) {
+                            el.classList.remove("selected");
+                        });
+
+                        var data = Elements.filesTable.row(lastRow).data();
+                        if (Settings.previewTypes.includes(data[4])) {
+                            fillPreviewModal(data[0], data[4]);
+                        }
+                        lastRow.classList.add("selected");
+
+                        needToSelectLastRow = false;
+                    }
+                }
             });
 
             document.getElementById('files').addEventListener('click', function (e) {
@@ -660,7 +699,7 @@
                     var filesPreview = document.getElementById("files_preview");
                     if (filesPreview && filesPreview.style.display !== "none") {
                         var row = e.target.closest('tr');
-                        var data = table.row(row).data();
+                        var data = Elements.filesTable.row(row).data();
                         if (Settings.previewTypes.includes(data[4])) {
                             fillPreviewModal(data[0], data[4]);
                         }
@@ -675,6 +714,47 @@
 
             Elements.filesTable.on('length.dt', function (e, settings, len) {
                 localStorage.setItem("settings[filesPageLength]", len);
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (document.activeElement.tagName === 'INPUT')
+                    return;
+
+                var filesPreview = document.getElementById("files_preview");
+                if (filesPreview && filesPreview.style.display !== "none") {
+                    // Left/Right are already handled by the modified input plugin
+                    if (e.key == 'ArrowUp') {
+                        e.preventDefault();
+                        var selectedRow = document.querySelector(".selected");
+                        var previousRow = selectedRow ? selectedRow.previousElementSibling : null;
+                        if (previousRow) {
+                            var data = Elements.filesTable.row(previousRow).data();
+                            if (Settings.previewTypes.includes(data[4])) {
+                                fillPreviewModal(data[0], data[4]);
+                            }
+                            selectedRow.classList.remove("selected");
+                            previousRow.classList.add("selected");
+                        } else {
+                            Elements.filesTable.page('previous').draw('page');
+                            needToSelectLastRow = true;
+                        }
+                    } else if (e.key == 'ArrowDown') {
+                        e.preventDefault();
+                        var selectedRow = document.querySelector(".selected");
+                        var nextRow = selectedRow ? selectedRow.nextElementSibling : null;
+                        if (nextRow) {
+                            var data = Elements.filesTable.row(nextRow).data();
+                            if (Settings.previewTypes.includes(data[4])) {
+                                fillPreviewModal(data[0], data[4]);
+                            }
+                            selectedRow.classList.remove("selected");
+                            nextRow.classList.add("selected");
+                        } else {
+                            Elements.filesTable.page('next').draw('page');
+                            needToSelectFirstRow = true;
+                        }
+                    }
+                }
             });
         }());
 
