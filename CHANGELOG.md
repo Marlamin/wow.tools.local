@@ -1,4 +1,4 @@
-0.9.6 (xx-07-2026)
+0.9.6 (30-07-2026)
 - Added the old world map page from wow.tools back.
 - Added tab for frontend settings oon settings page, some settings (builds page and table row lengths) may have been reset.
 - Added foreign key search back to DBC pages.
