@@ -136,9 +136,14 @@ namespace wow.tools.Local.Controllers
             if (build == null)
                 build = CASC.BuildName;
 
-            using (var zip = new MemoryStream())
+            // Generate to a unique temp file (no leftover zips in cache/), then delete after sending.
+            // Each request gets its own file, so concurrent exports never interfere.
+            var tmpPath = Path.Combine(Path.GetTempPath(), $"alldbc-{build}-{locale}-{Guid.NewGuid():N}.zip");
+
+            try
             {
-                using (var archive = new ZipArchive(zip, ZipArchiveMode.Create))
+                using (var fileStream = new FileStream(tmpPath, FileMode.Create, FileAccess.Write))
+                using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Create))
                 {
                     // TODO: Get list of DBCs for a specific build
                     foreach (var dbname in dbcManager.GetDBCNames(build))
@@ -170,10 +175,22 @@ namespace wow.tools.Local.Controllers
                     }
                 }
 
-                return new FileContentResult(zip.ToArray(), "application/octet-stream")
+                // Clean up the temp file once the response has been fully sent
+                Response.OnCompleted(() =>
                 {
-                    FileDownloadName = "alldbc-" + build + ".zip"
+                    try { System.IO.File.Delete(tmpPath); } catch { }
+                    return Task.CompletedTask;
+                });
+
+                return new PhysicalFileResult(tmpPath, "application/octet-stream")
+                {
+                    FileDownloadName = $"alldbc-{build}-{locale}.zip"
                 };
+            }
+            catch
+            {
+                try { System.IO.File.Delete(tmpPath); } catch { }
+                throw;
             }
         }
 

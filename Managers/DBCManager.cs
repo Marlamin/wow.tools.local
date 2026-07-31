@@ -66,15 +66,7 @@ namespace wow.tools.local.Managers
                 dbcProvider.localeFlags = locale;
             }
 
-            DBCD.DBCD dbcd;
-
-            // we don't feed enumProvider to DBCD for now
-            if (dbdProvider.isUsingBDBD)
-                dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
-            else
-                dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
-
-            var storage = dbcd.Load(name, build);
+            var storage = GetDBCD().Load(name, build);
 
             dbcProvider.localeFlags = locale;
 
@@ -113,6 +105,33 @@ namespace wow.tools.local.Managers
             }
 
             return storage;
+        }
+
+        private static DBCD.DBCD? _sharedDBCD;
+        private static readonly object _sharedDBCDLock = new();
+
+        /// <summary>
+        /// Returns a shared DBCD instance. Parsing all.bdbd (1320 table definitions, ~12MB)
+        /// is expensive, so only do it once instead of once per table load.
+        /// </summary>
+        private DBCD.DBCD GetDBCD()
+        {
+            if (_sharedDBCD != null)
+                return _sharedDBCD;
+
+            lock (_sharedDBCDLock)
+            {
+                if (_sharedDBCD == null)
+                {
+                    // we don't feed enumProvider to DBCD for now
+                    if (dbdProvider.isUsingBDBD)
+                        _sharedDBCD = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
+                    else
+                        _sharedDBCD = new DBCD.DBCD(dbcProvider, dbdProvider);
+                }
+            }
+
+            return _sharedDBCD;
         }
 
         public void ClearCache()
