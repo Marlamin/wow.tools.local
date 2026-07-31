@@ -2,6 +2,7 @@
 - Added keyboard navigation in table paging inputs back (not sure when it disappeared).
 - Added locale to ZIP file downloaded when exporting all DB2s to CSV.
 - Updated automatic world map naming to more likely pick up on real filenames.
+- Fixed mapviewer crash on Midnight terrain (terrain still looks corrupted).
 - Fixed row selection on files page with the preview page open (and added keyboard navigation for it).
 - Fixed exporting all DB2s to CSV being very slow for BDBD users.
 - Fixed automatic contenthash names sometimes naming empty BLPs incorrectly.
