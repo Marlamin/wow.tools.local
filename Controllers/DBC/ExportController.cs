@@ -140,7 +140,6 @@ namespace wow.tools.Local.Controllers
             {
                 using (var archive = new ZipArchive(zip, ZipArchiveMode.Create))
                 {
-                    // TODO: Get list of DBCs for a specific build
                     foreach (var dbname in dbcManager.GetDBCNames(build))
                     {
                         try
@@ -172,7 +171,7 @@ namespace wow.tools.Local.Controllers
 
                 return new FileContentResult(zip.ToArray(), "application/octet-stream")
                 {
-                    FileDownloadName = "alldbc-" + build + ".zip"
+                    FileDownloadName = "alldbc-" + build + "-" + locale + ".zip"
                 };
             }
         }
