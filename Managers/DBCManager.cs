@@ -14,6 +14,9 @@ namespace wow.tools.local.Managers
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
         private readonly EnumProvider enumProvider = (EnumProvider)enumProvider;
 
+        private DBCD.DBCD? dbcd;
+        private static readonly Lock dbcdLock = new();
+
         private MemoryCache Cache = new(new MemoryCacheOptions() { SizeLimit = 250 });
         private readonly ConcurrentDictionary<(string, string, bool, LocaleFlags), SemaphoreSlim> Locks = [];
 
@@ -66,13 +69,21 @@ namespace wow.tools.local.Managers
                 dbcProvider.localeFlags = locale;
             }
 
-            DBCD.DBCD dbcd;
-
-            // we don't feed enumProvider to DBCD for now
-            if (dbdProvider.isUsingBDBD)
-                dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
-            else
-                dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
+            if(dbcd == null)
+            {
+                lock (dbcdLock)
+                {
+                    // check again when acquiring the lock
+                    if(dbcd == null)
+                    {
+                        // we don't feed enumProvider to DBCD for now
+                        if (dbdProvider.isUsingBDBD)
+                            dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
+                        else
+                            dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
+                    }
+                }
+            }
 
             var storage = dbcd.Load(name, build);
 
@@ -118,6 +129,16 @@ namespace wow.tools.local.Managers
         public void ClearCache()
         {
             Cache.Dispose();
+
+            lock (dbcdLock)
+            {
+                // we don't feed enumProvider to DBCD for now
+                if (dbdProvider.isUsingBDBD)
+                    dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
+                else
+                    dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
+            }
+
             Cache = new MemoryCache(new MemoryCacheOptions() { SizeLimit = 250 });
         }
 
