@@ -225,6 +225,7 @@ namespace wow.tools.local.Services
             EncryptionStatuses.Clear();
 
             Listfile.LoadLookups();
+            Listfile.LoadContentHashes();
 
             #region Listfile
             bool listfileRes;

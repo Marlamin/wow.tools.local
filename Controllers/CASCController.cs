@@ -222,6 +222,17 @@ namespace wow.tools.local.Controllers
             return true;
         }
 
+        [Route("updateContentHashes")]
+        [HttpGet]
+        public bool UpdateContentHashes()
+        {
+            if (SettingsManager.ReadOnly)
+                return false;
+
+            Listfile.LoadContentHashes(true);
+            return true;
+        }
+
         [Route("exportLookups")]
         [HttpGet]
         public bool ExportLookups()

@@ -386,7 +386,7 @@ namespace wow.tools.local.Services
                 if (!File.Exists(lookupFile))
                     throw new FileNotFoundException("Could not find " + lookupFile);
 
-                Console.WriteLine("Loading lookups from " + Path.GetFileNameWithoutExtension(lookupFile));
+                Console.WriteLine("Loading lookups from " + Path.GetFileName(lookupFile));
                 var lookupLines = File.ReadAllLines(lookupFile);
                 foreach (var line in lookupLines)
                 {
@@ -399,6 +399,92 @@ namespace wow.tools.local.Services
             }
 
             Console.WriteLine("Loaded " + LookupMap.Count + " lookups");
+        }
+
+        public static void LoadContentHashes(bool forceRedownload = false)
+        {
+            var listfileMode = "downloaded";
+
+            if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
+                listfileMode = "parts";
+
+            WoWNamingLib.Namers.ContentHashNamer.knownHashes.Clear();
+
+            if (listfileMode == "downloaded")
+            {
+                var download = forceRedownload;
+                bool shouldBackup = false;
+
+                var fileName = "contenthash.csv";
+
+                if (!File.Exists(fileName))
+                {
+                    download = true;
+                }
+                else
+                {
+                    var info = new FileInfo(fileName);
+                    if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
+                    {
+                        Console.WriteLine("Contenthashes outdated, redownloading...");
+                        download = true;
+                    }
+                    shouldBackup = true;
+                }
+
+                if (download)
+                {
+                    Console.WriteLine("Downloading contenthashes");
+
+                    if (shouldBackup)
+                    {
+                        if (File.Exists(fileName + ".bak"))
+                            File.Delete(fileName + ".bak");
+
+                        File.Move(fileName, fileName + ".bak");
+                        Console.WriteLine("Existing " + fileName + " renamed to " + fileName + ".bak");
+                    }
+
+                    using var s = WebClient.GetStreamAsync("https://github.com/wowdev/wow-listfile/raw/refs/heads/master/meta/contenthash.csv").Result;
+                    using var fs = new FileStream(fileName, FileMode.Create);
+                    s.CopyTo(fs);
+                }
+
+                if (!File.Exists(fileName))
+                {
+                    throw new FileNotFoundException("Could not find " + fileName);
+                }
+
+                //formatted like hex;bane
+                var contentHashLines = File.ReadAllLines(fileName);
+                foreach (var line in contentHashLines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    WoWNamingLib.Namers.ContentHashNamer.knownHashes[splitLine[0]] = splitLine[1];
+                }
+            }
+            else if (listfileMode == "parts")
+            {
+                var fileName = Path.Combine(SettingsManager.ListfileURL, "..", "meta", "contenthash.csv");
+                if (!File.Exists(fileName))
+                    throw new FileNotFoundException("Could not find " + fileName);
+
+                Console.WriteLine("Loading contenthashes from " + Path.GetFileName(fileName));
+                var contentHashLines = File.ReadAllLines(fileName);
+                foreach (var line in contentHashLines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    WoWNamingLib.Namers.ContentHashNamer.knownHashes[splitLine[0]] = splitLine[1];
+                }
+            }
+
+            Console.WriteLine("Loaded " + WoWNamingLib.Namers.ContentHashNamer.knownHashes.Count + " contenthashes");
         }
 
         public static void ExportLookups()

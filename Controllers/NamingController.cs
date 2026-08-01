@@ -583,6 +583,7 @@ namespace wow.tools.local.Controllers
                         Namer.NameWWF();
                         break;
                     case "ContentHashes":
+                        Listfile.LoadContentHashes();
                         var knownHashes = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Keys.ToHashSet();
                         var knownNames = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Values.ToHashSet();
 

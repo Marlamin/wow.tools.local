@@ -141,6 +141,9 @@
                         <h4>Settings</h4>
                         <form method="post" class="form" id="namingForm">
                             <div class="form-group">
+                                <a id='updateContentHashesButton' class='btn btn-primary btn-sm' onclick="updateContentHashes();" href="#"><i class='fa fa-refresh'></i> Update content hashes</a>
+                            </div>
+                            <div class="form-group">
                                 <label for="creatureCacheWDBFilename">creaturecache.wdb location override (creaturecache is used for creature model and creature voice over naming)</label>
                                 <input type="text" class="form-control" id="creatureCacheWDBFilename" name="creatureCacheWDBFilename" placeholder="Override creaturecache.wdb location (default from retail WoW)">
                             </div>
@@ -584,6 +587,15 @@
                 method: 'GET'
             });
             result.innerHTML = "Nothing here yet.";
+        }
+
+        async function updateContentHashes() {
+            var button = document.getElementById("updateContentHashesButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
+
+            await fetch("/casc/updateContentHashes");
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update content hashes";
         }
 
         (function () {
