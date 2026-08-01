@@ -625,7 +625,7 @@ namespace wow.tools.local.Services
 
                 return p =>
                 {
-                    if (!lookupFDIDs.Contains(p.Key) || string.IsNullOrEmpty(p.Value))
+                    if (!lookupFDIDs.Contains(p.Key))
                         return false;
 
                     return hasher.ComputeHash(p.Value) != Listfile.LookupMap[p.Key];
