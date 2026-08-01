@@ -59,17 +59,17 @@
         </ul>
     </div>
     <div>
-        <a href="/settings.html" class="btn btn-secondary align-items-center" aria-pressed="false">
+        <button type="button" title="Light mode" onclick="themeClick('light')" class="btn align-items-center" data-bs-theme-value="light" aria-pressed="false">
+            <i class="fa fa-sun-o"></i>
+        </button>
+        <button type="button" title="Dark mode" onclick="themeClick('dark')" class="btn align-items-center active" data-bs-theme-value="dark" aria-pressed="true">
+            <i class="fa fa-moon-o"></i>
+        </button>
+        <button type="button" title="Pick mode automatically" onclick="themeClick('auto')" class="btn align-items-center" data-bs-theme-value="auto" aria-pressed="false">
+            <i class="fa fa-adjust"></i>
+        </button>
+        <a href="/settings.html" class="btn active align-items-center" aria-pressed="false">
             <i class='fa fa-gear'></i> Settings
         </a>
-        <button type="button" onclick="themeClick('light')" class="btn align-items-center" data-bs-theme-value="light" aria-pressed="false">
-            Light
-        </button>
-        <button type="button" onclick="themeClick('dark')" class="btn align-items-center active" data-bs-theme-value="dark" aria-pressed="true">
-            Dark
-        </button>
-        <button type="button" onclick="themeClick('auto')" class="btn align-items-center" data-bs-theme-value="auto" aria-pressed="false">
-            Auto
-        </button>
     </div>
 </div>

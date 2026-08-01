@@ -83,8 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function themeClick(theme) {
-    setStoredTheme(theme)
-    setTheme(theme)
+    setStoredTheme(theme);
+    setTheme(theme);
 }
 
 function shouldShowButts() {
@@ -121,7 +121,7 @@ async function checkForUpdates(force = false) {
         const json = JSON.parse(lastUpdateCheck);
         if (json.lastCheck > Date.now() - 24 * 60 * 60 * 1000) {
             let updateAvailable = json.latestVersion != currentVersion;
-            newUpdateAvailable(updateAvailable);
+            newUpdateAvailable(updateAvailable, currentVersion, json.latestVersion);
             return;
         }
     }
@@ -137,22 +137,21 @@ async function checkForUpdates(force = false) {
     localStorage.setItem("lastUpdate", JSON.stringify(updateData));
 
     if (latestReleaseTag !== currentVersion) {
-        newUpdateAvailable(true);
+        newUpdateAvailable(true, currentVersion, latestRelease.tag_name);
     } else {
-        newUpdateAvailable(false);
+        newUpdateAvailable(false, currentVersion, latestRelease.tag_name);
     }
 }
 
-function newUpdateAvailable(isUpdateAvailable) {
+function newUpdateAvailable(isUpdateAvailable, currentVersion, latestVersion) {
     var navBar = document.getElementsByTagName("nav");
     var updateDiv = document.createElement("div");
-    const lastUpdateCheck = localStorage.getItem("lastUpdate");
-
     updateDiv.id = 'updateDiv';
+
     if (isUpdateAvailable) {
-        updateDiv.innerHTML = "<i class='fa fa-exclamation-circle' style='color: red'></i> <a href='https://github.com/marlamin/wow.tools.local/releases' target='_BLANK'>An update to version " + JSON.parse(lastUpdateCheck).latestVersion + " is available!</a> <a href='#' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
+        updateDiv.innerHTML = "<button style='margin-left: 5px;' onclick='window.location.href=\"https://github.com/marlamin/wow.tools.local/releases\"' title='Update available' class='btn btn-danger active align-items-center'><i class='fa fa-download'></i> " + latestVersion + "</button>";
     } else {
-        updateDiv.innerHTML = "<i class='fa fa-check-circle' style='color: green;'></i> Up to date. <a style='cursor: pointer' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
+        updateDiv.innerHTML = "<button style='margin-left: 5px' onClick='forceUpdateCheck()' title='Check for updates' class='btn active align-items-center'><i class='fa fa-refresh'></i> Check</button>";
     }
     navBar[0].appendChild(updateDiv);
 }
