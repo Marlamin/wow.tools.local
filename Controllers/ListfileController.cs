@@ -404,9 +404,9 @@ namespace wow.tools.local.Controllers
 
         [Route("db2s")]
         [HttpGet]
-        public string[] DB2s()
+        public string[] DB2s(string build = "")
         {
-            return dbcManager.GetDBCNames();
+            return dbcManager.GetDBCNames(build);
         }
 
         [HttpGet("db2/{databaseName}/versions")]

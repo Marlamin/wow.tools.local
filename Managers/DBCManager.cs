@@ -153,7 +153,7 @@ namespace wow.tools.local.Managers
         {
             var dbcNames = dbdProvider.GetNames();
 
-            if (build != null)
+            if (!string.IsNullOrEmpty(build))
             {
                 var filteredNames = new List<string>();
                 foreach (var name in dbcNames)

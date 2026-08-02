@@ -5,6 +5,7 @@
 - Added contenthash lookup results from historical builds to the contenthash search modal.
 - Updated styling of buttons/update check in header.
 - Updated automatic world map naming to more likely pick up on real filenames.
+- Fixed global DB2 search searching in tables not in the currently loaded build.
 - Fixed empty filenames not showing up when searching for 'lookupwrong'.
 - Fixed mapviewer crash on Midnight terrain (terrain still looks corrupted).
 - Fixed row selection on files page with the preview page open (and added keyboard navigation for it).

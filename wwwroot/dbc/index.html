@@ -804,26 +804,27 @@
 
             const dbsToSearch = [];
 
-            var select = document.getElementById("fileFilter");
-            for (var i = 0; i < select.length; i++) {
-                const option = select.options[i];
-                if (option.value == "Select a table") {
-                    continue;
-                }
+            fetch("/listfile/db2s?build=" + Settings.localBuildName)
+                .then(function (fileResponse) {
+                    return fileResponse.json();
+                }).then(function (data) {
+                    data.forEach((file) => {
+                        dbsToSearch.push(async () => {
+                            try {
+                                const result = await fetch("/dbc/find/?name=" + file + "&build=" +
+                                    currentParams["build"] + "&value=" + val);
+                                const json = await result.json();
+                                globalDBResults(file, json, val);
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        });
+                    });
 
-                dbsToSearch.push(async () => {
-                    try {
-                        const result = await fetch("/dbc/find/?name=" + option.value + "&build=" +
-                            currentParams["build"] + "&value=" + val);
-                        const json = await result.json();
-                        globalDBResults(option.value, json, val);
-                    } catch (e) {
-                        console.log(e);
-                    }
+                    dbsToSearch.forEach(anonPromise => anonPromise());
+                }).catch(function (error) {
+                    console.log("An error occurred retrieving files: " + error);
                 });
-            }
-
-            dbsToSearch.forEach(anonPromise => anonPromise());
 
             await Promise.all(dbsToSearch);
         }
