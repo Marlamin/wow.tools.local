@@ -100,6 +100,12 @@ namespace wow.tools.local.Services
 
             buildInstance = BuildManager.LoadBuild(product, buildConfig, cdnConfig, productConfig);
 
+            if(buildInstance.Root == null || buildInstance.Encoding == null)
+            {
+                Console.WriteLine("Build loading failed");
+                return;
+            }
+
             var totalTimer = new Stopwatch();
             totalTimer.Start();
 
@@ -217,8 +223,11 @@ namespace wow.tools.local.Services
 
                 SQLiteDB.ImportBuildIntoFileHistory(BuildName);
 
-                Console.WriteLine("Force updating DBDs after new build..");
-                DBDProvider.GetBDBDStream(true);
+                if (string.IsNullOrEmpty(SettingsManager.DefinitionDir) || !Directory.Exists(SettingsManager.DefinitionDir))
+                {
+                    Console.WriteLine("Force updating DBDs after new build..");
+                    DBDProvider.GetBDBDStream(true);
+                }
             }
 
             EncryptedFDIDs.Clear();
