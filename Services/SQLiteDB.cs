@@ -1078,6 +1078,25 @@ namespace wow.tools.local.Services
             return versions;
         }
 
+        public static List<(uint fileDataID, string buildname)> GetFilesByContentHash(string contenthash)
+        {
+            var files = new List<(uint fileDataID, string buildname)>();
+
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT fileDataID, build FROM wow_rootfiles_chashes WHERE chash = @contenthash";
+                cmd.Parameters.AddWithValue("@contenthash", contenthash.ToUpperInvariant());
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    files.Add(((uint)reader.GetInt32(0), reader["build"].ToString()!));
+                }
+                reader.Close();
+            }
+
+            return files;
+        }
+
         public static List<int> GetSeenFileDataIDs()
         {
             var seenFileDataIDs = new List<int>();

@@ -8,14 +8,12 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 using System.Web;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
-using WoWFormatLib.Structs.M2;
 using WoWFormatLib.Structs.WDT;
 using WoWNamingLib;
 using WoWNamingLib.Namers;
@@ -914,14 +912,48 @@ namespace wow.tools.local.Controllers
         {
             CASC.EnsureCHashesLoaded();
 
-            var html = "The table below lists files that are identical in content to the requested file.<br><table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th></tr></thead>";
+            var html = "";
 
             var filedataids = CASC.GetSameFiles(chash).Order();
+            var historicFiles = SQLiteDB.GetFilesByContentHash(chash).Where(x => !filedataids.Contains((int)x.fileDataID)).OrderBy(x => x.fileDataID).ToList();
+
+            html += "<ul class='nav nav-tabs' id='samehashesTab' role='tablist'>";
+            html += "<li class='nav-item'><button class='nav-link active' id='current-build-tab' data-bs-toggle='tab' data-bs-target='#current-build' type='button' role='tab' aria-controls='current-build' aria-selected='true'>Current Build (" + filedataids.Count() + ")</button></li>";
+            html += "<li class='nav-item'><button class='nav-link' id='historic-builds-tab' data-bs-toggle='tab' data-bs-target='#historic-builds' type='button' role='tab' aria-controls='historic-builds' aria-selected='false'>History (" + historicFiles.Count + ")</button></li>";
+            html += "</ul>";
+
+            html += "<div class='tab-content' id='samehashesTabContent'>";
+
+            html += "<div class='tab-pane show active' id='current-build' role='tabpanel' aria-labelledby='current-build-tab'>";
+            html += "<p>The table below lists files in the current build that are identical in content to the requested file.</p>";
+            html += "<table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th></tr></thead>";
             foreach (var filedataid in filedataids)
             {
                 html += "<tr><td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + filedataid + "' onclick='fillModal(" + filedataid + ")'>" + filedataid + "</a></td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
             }
             html += "</table>";
+            html += "</div>";
+
+            html += "<div class='tab-pane' id='historic-builds' role='tabpanel' aria-labelledby='historic-builds-tab'>";
+            html += "<p>The table below lists files in other builds that are identical in content to the requested file, files from the current build tab are excluded.</p>";
+
+            if (historicFiles.Count > 0)
+            {
+                html += "<table class='table table-striped'><thead><tr><th>ID</th><th>Build</th><th>Name (if available)</th></tr></thead>";
+
+                foreach (var (fdid, build) in historicFiles)
+                {
+                    html += "<tr><td>" + fdid + "</td><td>" + build + "</td><td>" + (Listfile.NameMap.TryGetValue((int)fdid, out var filename) ? filename : "N/A") + "</td></tr>";
+                }
+                html += "</table>";
+            }
+            else
+            {
+                html += "<div class='alert alert-info'>No files found in history for this content hash that aren't in the current build.</div>";
+            }
+            html += "</div>";
+
+            html += "</div>";
 
             return html;
         }
@@ -970,7 +1002,7 @@ namespace wow.tools.local.Controllers
                 if (cKeys.Count > 0)
                 {
                     var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(cKeys));
-                    if(!knownHashes.Contains(primaryCKey) && !knownNames.Contains(basename, StringComparer.OrdinalIgnoreCase))
+                    if (!knownHashes.Contains(primaryCKey) && !knownNames.Contains(basename, StringComparer.OrdinalIgnoreCase))
                     {
                         knownHashes.Add(primaryCKey);
                         knownNames.Add(basename);
@@ -1254,7 +1286,7 @@ namespace wow.tools.local.Controllers
                     {
                         var bin = new BinaryReader(wmoFile);
                         var magic = bin.ReadUInt32();
-                        if(magic != 0)
+                        if (magic != 0)
                         {
                             bin.BaseStream.Position = 0;
                             var reader = new WMOReader();
@@ -1652,7 +1684,7 @@ namespace wow.tools.local.Controllers
                     Linker.LinkM2(fileDataID, true);
                 else if (fileType == "wmo")
                     Linker.LinkWMO(fileDataID, true);
-                else if(fileType == "wdt")
+                else if (fileType == "wdt")
                     Linker.LinkWDT((int)fileDataID, true);
             }
 
@@ -1892,7 +1924,7 @@ namespace wow.tools.local.Controllers
                 case "wmo":
                     var wmoReader = new WMOReader();
                     var wmo = wmoReader.LoadWMO(fileDataID);
-                    if(wmo.group != null)
+                    if (wmo.group != null)
                     {
                         for (var i = 0; i < wmo.group.Length; i++)
                         {
