@@ -22,15 +22,21 @@ jobs:
             target: osx-x64
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
       with:
         submodules: recursive
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.0.x
     - name: Restore dependencies
       run: dotnet restore
+    - name: Set version
+      shell: bash
+      run: |
+        short_sha="${GITHUB_SHA::7}"
+        sed -E -i.bak "s|<Version>[^<]+</Version>|<Version>DEV-${short_sha}</Version>|" wow.tools.local.csproj
+        rm -f wow.tools.local.csproj.bak
     - name: Build
       run: dotnet publish -c Release -r ${{ matrix.target }} --self-contained -f net10.0
     - name: Test
@@ -40,8 +46,8 @@ jobs:
       with:
         directory: ${{ github.workspace }}/bin/Release/net10.0/${{ matrix.target }}/publish
         type: 'zip'
-        filename: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
+        filename: ${{ github.workspace }}/Dev-${{ matrix.target }}.zip
     - uses: actions/upload-artifact@v7
       with:
-        name: Release-${{ matrix.target }}
-        path: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
+        name: Dev-${{ matrix.target }}
+        path: ${{ github.workspace }}/Dev-${{ matrix.target }}.zip
