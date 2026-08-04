@@ -1186,6 +1186,14 @@ namespace wow.tools.local.Controllers
                 html += "<tr><td>Encryption status</td><td>Not encrypted</td></tr>";
             }
 
+            var fileResidency = FileResidency.GetResidencyByFDID((uint)filedataid);
+            html += "<tr><td>Availability</td><td>";
+            foreach (var file in fileResidency)
+            {
+                html += "<span class='badge " + (file.Value ? "bg-success" : "bg-danger") + "'>" + file.Key + "</span> ";
+            }
+            html += "</td></tr>";
+
             // File version
             var fileVersions = SQLiteDB.GetFileVersions(filedataid);
             if (fileVersions.Count > 0)

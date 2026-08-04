@@ -339,6 +339,22 @@ namespace wow.tools.local.Services
             return null;
         }
 
+        public static List<string> GetDistinctProducts()
+        {
+            var products = new List<string>();
+            using (var cmd = dbConn.CreateCommand())
+            {
+                cmd.CommandText = "SELECT DISTINCT(`product`) FROM wow_builds";
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    products.Add(reader["product"].ToString()!);
+                }
+            }
+
+            return products;
+        }
+
         public static List<BuildMetaData> GetBuilds()
         {
             var builds = new List<BuildMetaData>();

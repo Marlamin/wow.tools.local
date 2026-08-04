@@ -230,6 +230,8 @@ namespace wow.tools.local.Services
                 }
             }
 
+            FileResidency.Reload();
+
             EncryptedFDIDs.Clear();
             EncryptionStatuses.Clear();
 
