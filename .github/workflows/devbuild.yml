@@ -1,26 +1,12 @@
-name: .NET (Release)
+name: .NET (Dev build)
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [ "main" ]
 
 jobs:
-  create_release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v0.1.13
-        with:
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          generate_release_notes: false
   build:
     name: Build Release
-    needs: create_release
     strategy:
       matrix:
         kind: ['linux', 'windows', 'macOS']
@@ -55,7 +41,7 @@ jobs:
         directory: ${{ github.workspace }}/bin/Release/net10.0/${{ matrix.target }}/publish
         type: 'zip'
         filename: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
-    - name: Release
-      uses: softprops/action-gh-release@v0.1.13
+    - uses: actions/upload-artifact@v7
       with:
-        files: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
+        name: Release-${{ matrix.target }}
+        path: ${{ github.workspace }}/Release-${{ matrix.target }}.zip
