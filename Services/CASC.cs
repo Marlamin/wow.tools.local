@@ -233,20 +233,20 @@ namespace wow.tools.local.Services
             EncryptedFDIDs.Clear();
             EncryptionStatuses.Clear();
 
-            Listfile.LoadLookups();
-            Listfile.LoadContentHashes();
+            await Listfile.LoadLookups();
+            await Listfile.LoadContentHashes();
 
             #region Listfile
             bool listfileRes;
 
             try
             {
-                listfileRes = Listfile.Load();
+                listfileRes = await Listfile.Load();
             }
             catch (Exception e)
             {   // attempt automatic redownload of the listfile if it wasn't able to be parsed - this will also backup the old listfile to listfile.csv.bak
                 Console.WriteLine("Good heavens! Encountered an error reading listfile (" + e.Message + "). Attempting redownload...");
-                listfileRes = Listfile.Load(true);
+                listfileRes = await Listfile.Load(true);
             }
 
             if (!listfileRes)
@@ -255,6 +255,8 @@ namespace wow.tools.local.Services
                 Environment.Exit(1);
             }
             #endregion
+
+            await Listfile.LoadCachedUnknowns();
 
             Console.WriteLine("Analyzing files");
             var chashLock = new Lock();
@@ -317,8 +319,6 @@ namespace wow.tools.local.Services
             Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");
             RefreshEncryptionStatus();
             Console.WriteLine("Done analyzing encrypted files");
-
-            Listfile.LoadCachedUnknowns();
 
             try
             {

@@ -138,7 +138,7 @@ namespace wow.tools.local.Services
 
             return allNames;
         }
-        public static bool Load(bool forceRedownload = false)
+        public static async Task<bool> Load(bool forceRedownload = false)
         {
             lock (LoadLock)
             {
@@ -230,6 +230,7 @@ namespace wow.tools.local.Services
 
             return true;
         }
+
         public static bool Export()
         {
             File.WriteAllLines("exported-listfile.csv", NameMap.OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value).ToArray());
@@ -253,7 +254,7 @@ namespace wow.tools.local.Services
             TypeMap[type].Add(filedataid);
         }
 
-        public static void LoadCachedUnknowns()
+        public static async Task<bool> LoadCachedUnknowns()
         {
             // Loaded cached types from disk
             if (File.Exists("cachedUnknowns.txt"))
@@ -278,6 +279,8 @@ namespace wow.tools.local.Services
                     }
                 }
             }
+
+            return true;
         }
 
         public static void EnsureFDIDsPresent(HashSet<int> fdids)
@@ -307,7 +310,7 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static void LoadLookups(bool forceRedownload = false)
+        public static async Task<bool> LoadLookups(bool forceRedownload = false)
         {
             var listfileMode = "downloaded";
 
@@ -399,9 +402,10 @@ namespace wow.tools.local.Services
             }
 
             Console.WriteLine("Loaded " + LookupMap.Count + " lookups");
+            return true;
         }
 
-        public static void LoadContentHashes(bool forceRedownload = false)
+        public static async Task<bool> LoadContentHashes(bool forceRedownload = false)
         {
             var listfileMode = "downloaded";
 
@@ -485,6 +489,7 @@ namespace wow.tools.local.Services
             }
 
             Console.WriteLine("Loaded " + WoWNamingLib.Namers.ContentHashNamer.knownHashes.Count + " contenthashes");
+            return true;
         }
 
         public static void ExportLookups()

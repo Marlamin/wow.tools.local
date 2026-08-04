@@ -188,13 +188,13 @@ namespace wow.tools.local.Controllers
 
         [Route("updateListfile")]
         [HttpGet]
-        public bool UpdateListfile()
+        public async Task<bool> UpdateListfile()
         {
             if (SettingsManager.ReadOnly)
                 return false;
 
             BuildDiffCache.Invalidate();
-            Listfile.Load(true);
+            await Listfile.Load(true);
             return true;
         }
 
@@ -211,23 +211,23 @@ namespace wow.tools.local.Controllers
 
         [Route("updateLookups")]
         [HttpGet]
-        public bool UpdateLookups()
+        public async Task<bool> UpdateLookups()
         {
             if (SettingsManager.ReadOnly)
                 return false;
 
-            Listfile.LoadLookups(true);
+            await Listfile.LoadLookups(true);
             return true;
         }
 
         [Route("updateContentHashes")]
         [HttpGet]
-        public bool UpdateContentHashes()
+        public async Task<bool> UpdateContentHashes()
         {
             if (SettingsManager.ReadOnly)
                 return false;
 
-            Listfile.LoadContentHashes(true);
+            await Listfile.LoadContentHashes(true);
             return true;
         }
 
