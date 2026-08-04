@@ -35,7 +35,7 @@ jobs:
       shell: bash
       run: |
         short_sha="${GITHUB_SHA::7}"
-        sed -E -i.bak "s|<Version>[^<]+</Version>|<Version>DEV-${short_sha}</Version>|" wow.tools.local.csproj
+        sed -E -i.bak "s|<Version>[^<]+</Version>|<Version>99.99.99-${short_sha}</Version>|" wow.tools.local.csproj
         rm -f wow.tools.local.csproj.bak
     - name: Build
       run: dotnet publish -c Release -r ${{ matrix.target }} --self-contained -f net10.0
