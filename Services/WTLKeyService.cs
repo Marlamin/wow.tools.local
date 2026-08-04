@@ -49,9 +49,9 @@
                 throw new Exception("No TACT/CASC library initialized");
         }
 
-        public static void LoadKeys()
+        public static async Task<bool> LoadKeys()
         {
-            if (!File.Exists("WoW.txt")) return;
+            if (!File.Exists("WoW.txt")) return false;
 
             foreach (var line in File.ReadAllLines("WoW.txt"))
             {
@@ -64,6 +64,8 @@
 
                 SetKey(lookup, key);
             }
+
+            return true;
         }
 
         public static bool LoadKeys(bool forceRedownload = false)

@@ -125,7 +125,6 @@ namespace wow.tools.local.Services
 
             IsTACTSharpInit = true;
 
-            WTLKeyService.LoadKeys();
 
             CHashToFDID.Clear();
             CHashToSize.Clear();
@@ -230,13 +229,14 @@ namespace wow.tools.local.Services
                 }
             }
 
-            FileResidency.Reload();
+            var residencyTask = FileResidency.Reload();
+            var lookupTask = Listfile.LoadLookups();
+            var contentHashTask = Listfile.LoadContentHashes();
+            var tactKeyTask = WTLKeyService.LoadKeys();
+            var hotfixTask = HotfixManager.LoadCaches();
 
-            EncryptedFDIDs.Clear();
-            EncryptionStatuses.Clear();
-
-            await Listfile.LoadLookups();
-            await Listfile.LoadContentHashes();
+            // start and wait for tasks
+            await Task.WhenAll(residencyTask, lookupTask, contentHashTask, tactKeyTask, hotfixTask);
 
             #region Listfile
             bool listfileRes;
@@ -258,78 +258,82 @@ namespace wow.tools.local.Services
             }
             #endregion
 
-            await Listfile.LoadCachedUnknowns();
+            // These have to run after listfile has
+            var unknownsTask = Listfile.LoadCachedUnknowns();
 
-            Console.WriteLine("Analyzing files");
-            var chashLock = new Lock();
-
-            Parallel.ForEach(buildInstance.Root.GetAvailableFDIDs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, fdid =>
+            // Lookups
+            var addLookupTask = Task.Run(() =>
             {
-                var entries = buildInstance.Root.GetEntriesByFDID(fdid);
-                if (entries.Count == 0)
-                    return;
-
-                int fdidInt = (int)fdid;
-
-                lock (EncryptedFDIDs)
+                foreach (var entry in buildInstance.Root.GetAvailableLookups())
                 {
-                    if (EncryptedFDIDs.ContainsKey(fdidInt))
+                    var fileEntries = buildInstance.Root.GetEntriesByLookup(entry);
+                    if (fileEntries.Count == 0)
+                        continue;
+
+                    Listfile.LookupMap.TryAdd((int)fileEntries[0].fileDataID, entry);
+                }
+
+                File.WriteAllLines("cachedLookups.txt", Listfile.LookupMap.Select(x => x.Key + ";" + x.Value));
+            });
+
+            var analyzeFileTask = Task.Run(() =>
+            {
+                Console.WriteLine("Analyzing files");
+                var chashLock = new Lock();
+
+                EncryptedFDIDs.Clear();
+                EncryptionStatuses.Clear();
+
+                Parallel.ForEach(buildInstance.Root.GetAvailableFDIDs(), new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, fdid =>
+                {
+                    var entries = buildInstance.Root.GetEntriesByFDID(fdid);
+                    if (entries.Count == 0)
                         return;
 
-                    if ((entries[0].contentFlags & RootInstance.ContentFlags.Encrypted) != 0)
-                        EncryptedFDIDs.TryAdd(fdidInt, new List<ulong>());
-                }
-                var cKey = entries[0].md5.AsSpan();
-                var eKeys = buildInstance.Encoding.FindContentKey(cKey);
-                if (eKeys != false)
-                {
-                    lock (chashLock)
-                        CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (uint)eKeys.DecodedFileSize);
+                    int fdidInt = (int)fdid;
 
-                    var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
-                    var matches = eKeyRegex().Matches(eSpec.eSpec);
-
-                    if (matches.Count > 0)
+                    lock (EncryptedFDIDs)
                     {
-                        var keys = matches.Cast<Match>().Select(m => BitConverter.ToUInt64(Convert.FromHexString(m.Value), 0)).ToList();
-                        if (keys.Count > 0)
+                        if (EncryptedFDIDs.ContainsKey(fdidInt))
+                            return;
+
+                        if ((entries[0].contentFlags & RootInstance.ContentFlags.Encrypted) != 0)
+                            EncryptedFDIDs.TryAdd(fdidInt, new List<ulong>());
+                    }
+
+                    var cKey = entries[0].md5.AsSpan();
+                    var eKeys = buildInstance.Encoding.FindContentKey(cKey);
+                    if (eKeys != false)
+                    {
+                        lock (chashLock)
+                            CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (uint)eKeys.DecodedFileSize);
+
+                        var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
+                        var matches = eKeyRegex().Matches(eSpec.eSpec);
+
+                        if (matches.Count > 0)
                         {
-                            lock (EncryptedFDIDs)
+                            var keys = matches.Cast<Match>().Select(m => BitConverter.ToUInt64(Convert.FromHexString(m.Value), 0)).ToList();
+                            if (keys.Count > 0)
                             {
-                                if (EncryptedFDIDs.TryGetValue(fdidInt, out List<ulong>? encryptedIDs))
-                                    encryptedIDs.AddRange(keys);
-                                else
-                                    EncryptedFDIDs[fdidInt] = new List<ulong>(keys);
+                                lock (EncryptedFDIDs)
+                                {
+                                    if (EncryptedFDIDs.TryGetValue(fdidInt, out List<ulong>? encryptedIDs))
+                                        encryptedIDs.AddRange(keys);
+                                    else
+                                        EncryptedFDIDs[fdidInt] = new List<ulong>(keys);
+                                }
                             }
                         }
                     }
-                }
+                });
+
+                Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");
+                RefreshEncryptionStatus();
+                Console.WriteLine("Done analyzing encrypted files");
             });
 
-            // Lookups
-            foreach (var entry in buildInstance.Root.GetAvailableLookups())
-            {
-                var fileEntries = buildInstance.Root.GetEntriesByLookup(entry);
-                if (fileEntries.Count == 0)
-                    continue;
-
-                Listfile.LookupMap.TryAdd((int)fileEntries[0].fileDataID, entry);
-            }
-
-            File.WriteAllLines("cachedLookups.txt", Listfile.LookupMap.Select(x => x.Key + ";" + x.Value));
-
-            Console.WriteLine("Found " + EncryptedFDIDs.Count + " encrypted files");
-            RefreshEncryptionStatus();
-            Console.WriteLine("Done analyzing encrypted files");
-
-            try
-            {
-                HotfixManager.LoadCaches();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error loading hotfixes: " + e.Message);
-            }
+            await Task.WhenAll(unknownsTask, addLookupTask, analyzeFileTask);
 
             IsTACTSharpInit = true;
 

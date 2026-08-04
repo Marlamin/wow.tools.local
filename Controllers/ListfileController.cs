@@ -206,7 +206,10 @@ namespace wow.tools.local.Controllers
             }
             else
             {
-                listfileResults = new Dictionary<int, string>(SettingsManager.ShowAllFiles ? Listfile.NameMap : Listfile.NameMap.Where(x => CASC.AvailableFDIDs.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
+                if (SettingsManager.ShowAllFiles)
+                    listfileResults = new(Listfile.NameMap);
+                else
+                    listfileResults = new Dictionary<int, string>(Listfile.NameMap.Where(x => CASC.AvailableFDIDs.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
             }
 
             result.recordsFiltered = listfileResults.Count;

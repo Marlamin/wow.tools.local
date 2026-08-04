@@ -29,12 +29,12 @@ namespace wow.tools.local.Managers
         {
             if (locale != LocaleFlags.All_WoW)
             {
-                return LoadDBC(name, build, useHotfixes, locale);
+                return await LoadDBC(name, build, useHotfixes, locale);
             }
 
             if (pushIDFilter != null)
             {
-                return LoadDBC(name, build, useHotfixes, locale, pushIDFilter);
+                return await LoadDBC(name, build, useHotfixes, locale, pushIDFilter);
             }
 
             if (Cache.TryGetValue((name, build, useHotfixes, locale), out var cachedDBC))
@@ -50,7 +50,7 @@ namespace wow.tools.local.Managers
                 {
                     // Key not in cache, load DBC
                     Console.WriteLine("DBC " + name + " for build " + build + " (hotfixes: " + useHotfixes + ") is not cached, loading!");
-                    cachedDBC = LoadDBC(name, build, useHotfixes, locale);
+                    cachedDBC = await LoadDBC(name, build, useHotfixes, locale);
                     Cache.Set((name, build, useHotfixes, locale), cachedDBC, new MemoryCacheEntryOptions().SetSize(1));
                 }
             }
@@ -59,10 +59,10 @@ namespace wow.tools.local.Managers
                 mylock.Release();
             }
 
-            return (DBCD.IDBCDStorage)cachedDBC!;
+            return (IDBCDStorage)cachedDBC!;
         }
 
-        private IDBCDStorage LoadDBC(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int>? pushIDFilter = null)
+        private async Task<IDBCDStorage> LoadDBC(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int>? pushIDFilter = null)
         {
             if (locale != LocaleFlags.All_WoW)
             {
@@ -102,7 +102,7 @@ namespace wow.tools.local.Managers
                 return storage;
 
             if (HotfixManager.hotfixReaders.Count == 0)
-                HotfixManager.LoadCaches();
+                await HotfixManager.LoadCaches();
 
             if (HotfixManager.hotfixReaders.TryGetValue(buildNumber, out HotfixReader? hotfixReaders))
             {

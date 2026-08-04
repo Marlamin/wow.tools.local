@@ -31,10 +31,11 @@ namespace wow.tools.local.Services
             Console.WriteLine("Loaded " + residencyCache.Count + " products for file availability");
         }
 
-        public static void Reload()
+        public static async Task<bool> Reload()
         {
             residencyCache.Clear();
             Load();
+            return true;
         }
 
         public static Dictionary<(string product, string build), bool> GetResidencyByFDID(uint fdid)

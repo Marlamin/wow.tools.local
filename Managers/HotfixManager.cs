@@ -106,7 +106,7 @@ namespace wow.tools.local.Managers
             }
         }
 
-        public static void LoadCaches()
+        public static async Task<bool> LoadCaches()
         {
             // Cleanup old push IDs file if it exists
             if (File.Exists("knownPushIDs.json"))
@@ -135,12 +135,14 @@ namespace wow.tools.local.Managers
                 if (string.IsNullOrEmpty(SettingsManager.WoWFolder))
                 {
                     Console.WriteLine("No WoW folder set, skipping further hotfix load");
-                    return;
+                    return false;
                 }
 
                 foreach (var file in Directory.GetFiles(SettingsManager.WoWFolder, "DBCache.bin", SearchOption.AllDirectories))
                     ParseCache(file);
             }
+
+            return true;
         }
 
         public static void ParseCache(string file)

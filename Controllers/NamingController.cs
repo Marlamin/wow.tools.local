@@ -37,7 +37,7 @@ namespace wow.tools.local.Controllers
                     Namer.SetProviders(dbcProvider, dbdProvider);
 
                 if (HotfixManager.hotfixReaders.Count == 0)
-                    HotfixManager.LoadCaches();
+                    HotfixManager.LoadCaches().Wait();
 
                 Namer.SetHotfixes(HotfixManager.hotfixReaders);
 
