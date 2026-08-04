@@ -40,17 +40,17 @@
     <div class="container-fluid" id='files_container'>
         <div id='files_buttons' class='notree'>
             <!--<a href='#' class='btn btn-primary btn-sm' data-bs-toggle='modal' data-bs-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a> -->
-            <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
+            <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles(event);"><i class='fa fa-refresh'></i> Analyze unknown files</a>
             <div class="btn-group" role="group">
-                <a id='updateListfileButton' class='btn btn-primary btn-sm' onclick="updateListfile();" href="#"><i class='fa fa-refresh'></i> Update listfile</a>
+                <a id='updateListfileButton' class='btn btn-primary btn-sm' onclick="updateListfile(event);"><i class='fa fa-refresh'></i> Update listfile</a>
                 <a id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Export listfile to exported-listfile.csv'><i class='fa fa-save'></i></a>
             </div>
             <div class="btn-group" role="group">
-                <a id='updateLookupsButton' class='btn btn-primary btn-sm' onclick="updateLookups();" href="#"><i class='fa fa-refresh'></i> Update lookups</a>
+                <a id='updateLookupsButton' class='btn btn-primary btn-sm' onclick="updateLookups(event);"><i class='fa fa-refresh'></i> Update lookups</a>
                 <a id='exportLookupsButton' class='btn btn-primary btn-sm' onclick="exportLookups();" href="#" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Export lookups to exported-lookups.csv'><i class='fa fa-save'></i></a>
             </div>
             <div class="btn-group" role="group">
-                <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
+                <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys(event);"><i class='fa fa-refresh'></i> Update TACTKeys</a>
             </div>
             <div class="btn-group" role="group">
                 <a id='extractSearchButton' class='btn btn-warning btn-sm' onclick="extractSearch();" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Extract all files from this search result to the configured extraction directory'><i class='fa fa-download'></i> Extract all</a>
@@ -245,42 +245,50 @@
             });
         }
 
-        async function updateListfile() {
+        async function updateListfile(e) {
+            e.preventDefault();
+
             var button = document.getElementById("updateListfileButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateListfile");
-            Elements.filesTable.ajax.reload(); 
+            Elements.filesTable.ajax.reload(null, false); 
 
             button.innerHTML = "<i class='fa fa-refresh'></i> Update listfile";
         }
 
-        async function updateLookups() {
+        async function updateLookups(e) {
+            e.preventDefault();
+
             var button = document.getElementById("updateLookupsButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateLookups");
-            Elements.filesTable.ajax.reload();
+            Elements.filesTable.ajax.reload(null, false);
 
             button.innerHTML = "<i class='fa fa-refresh'></i> Update lookups";
         }
 
-        async function updateTACTKeys() {
+        async function updateTACTKeys(e) {
+            e.preventDefault();
+
             var button = document.getElementById("updateTACTKeysButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateTACTKeys");
-            Elements.filesTable.ajax.reload();
+            Elements.filesTable.ajax.reload(null, false);
 
             button.innerHTML = "<i class='fa fa-refresh'></i> Update TACTKeys";
         }
 
-        async function analyzeFiles() {
+        async function analyzeFiles(e) {
+            e.preventDefault();
+
             var button = document.getElementById("analyzeFileButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Analyzing, please wait!";
 
             const response = await fetch("/casc/analyzeUnknown");
-            Elements.filesTable.ajax.reload();
+            Elements.filesTable.ajax.reload(null, false);
 
             button.innerHTML = "<i class='fa fa-refresh'></i> Analyze unknown files";
         }

@@ -8,6 +8,7 @@
 - Updated styling of buttons/update check in header.
 - Updated automatic world map naming to more likely pick up on real filenames.
 - Updated TACT key metadata.
+- Fixed update/analyze buttons on files page resetting the table to the first page.
 - Fixed global DB2 search searching in tables not in the currently loaded build.
 - Fixed empty filenames not showing up when searching for 'lookupwrong'.
 - Fixed mapviewer crash on Midnight terrain (terrain still looks corrupted).
