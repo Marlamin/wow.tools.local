@@ -3,7 +3,8 @@
 - Added locale to ZIP file downloaded when exporting all DB2s to CSV.
 - Added ability to update contenthashes from GitHub on the naming page.
 - Added contenthash lookup results from historical builds to the contenthash search modal.
-- Added file availability per product (provided they have been loaded) to more info modal.
+- Added file availability per product (last loaded build per product) to more info modal.
+- Added files page length to client settings.
 - Updated styling of buttons/update check in header.
 - Updated automatic world map naming to more likely pick up on real filenames.
 - Updated TACT key metadata.
