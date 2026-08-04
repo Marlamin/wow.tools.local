@@ -916,7 +916,7 @@
             KeyInfo.Add(0xCA58EFD382342EE5, (8267, "WOW-68209patch12.1.0_PTR", "Unknown item"));
             KeyInfo.Add(0x9B183853F48A4263, (8268, "WOW-68209patch12.1.0_PTR", "Beaver battle pet"));
             KeyInfo.Add(0xB3353F1504F9FA6C, (8269, "WOW-68209patch12.1.0_PTR", "Unknown item"));
-            KeyInfo.Add(0x59DA7F744D5CCF8E, (8270, "WOW-68209patch12.1.0_PTR", "Unknown mount"));
+            KeyInfo.Add(0x59DA7F744D5CCF8E, (8270, "WOW-68209patch12.1.0_PTR", "Tuskarr crab mount"));
             KeyInfo.Add(0x7F283DC60447885B, (8271, "WOW-68209patch12.1.0_PTR", "Unknown toy"));
             KeyInfo.Add(0xC605B7DC45CC1DAC, (8272, "WOW-68209patch12.1.0_PTR", "Tuskarr housing decor models"));
             KeyInfo.Add(0xBBAE9630BE1C18E3, (8273, "WOW-68209patch12.1.0_PTR", "Unknown housing decor"));
