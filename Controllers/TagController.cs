@@ -84,7 +84,7 @@ namespace wow.tools.local.Controllers
                 while (hasOptions)
                 {
                     var presetOption = Request.Form["presetOption[" + optionIndex + "]"]!;
-                    optionKeys.Add(presetOption);
+                    optionKeys.Add(presetOption!);
 
                     var presetDescription = "";
                     if (Request.Form.TryGetValue("presetDescription[" + optionIndex + "]", out var presetDescriptionRaw))
@@ -94,7 +94,7 @@ namespace wow.tools.local.Controllers
                     if (Request.Form.TryGetValue("presetAliases[" + optionIndex + "]", out var presetAliasesRaw))
                         presetAliases = presetAliasesRaw.First();
 
-                    Services.TagService.AddOrUpdateTagOption(key, presetOption, presetDescription, presetAliases);
+                    Services.TagService.AddOrUpdateTagOption(key, presetOption!, presetDescription!, presetAliases!);
                     optionIndex++;
 
                     hasOptions = Request.Form.ContainsKey("presetOption[" + optionIndex + "]");

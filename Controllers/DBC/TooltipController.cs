@@ -111,15 +111,15 @@ namespace wow.tools.local.Controllers
             var result = new TTItem();
 
             var itemDB = await dbcManager.GetOrLoad("Item", CASC.BuildName);
-            if (!itemDB.TryGetValue(itemID, out DBCDRow itemEntry))
+            if (!itemDB.TryGetValue(itemID, out DBCDRow? itemEntry) || itemEntry == null)
             {
                 return NotFound();
             }
 
-            result.IconFileDataID = int.Parse(itemEntry["IconFileDataID"].ToString());
-            result.ClassID = byte.Parse(itemEntry["ClassID"].ToString());
-            result.SubClassID = byte.Parse(itemEntry["SubclassID"].ToString());
-            result.InventoryType = sbyte.Parse(itemEntry["InventoryType"].ToString());
+            result.IconFileDataID = int.Parse(itemEntry["IconFileDataID"].ToString()!);
+            result.ClassID = byte.Parse(itemEntry["ClassID"].ToString()!);
+            result.SubClassID = byte.Parse(itemEntry["SubclassID"].ToString()!);
+            result.InventoryType = sbyte.Parse(itemEntry["InventoryType"].ToString()!);
 
             // Icons in Item.db2 can be 0. Look up the proper one in ItemModifiedAppearance => ItemAppearance
             if (result.IconFileDataID == 0)
@@ -128,18 +128,18 @@ namespace wow.tools.local.Controllers
                 if (itemModifiedAppearances.Count > 0)
                 {
                     var itemAppearanceDB = await dbcManager.GetOrLoad("ItemAppearance", CASC.BuildName);
-                    if (itemAppearanceDB.TryGetValue(int.Parse(itemModifiedAppearances[0]["ItemAppearanceID"].ToString()), out DBCDRow itemAppearanceRow))
+                    if (itemAppearanceDB.TryGetValue(int.Parse(itemModifiedAppearances[0]["ItemAppearanceID"].ToString()!), out DBCDRow? itemAppearanceRow) && itemAppearanceRow != null)
                     {
-                        result.IconFileDataID = int.Parse(itemAppearanceRow["DefaultIconFileDataID"].ToString());
+                        result.IconFileDataID = int.Parse(itemAppearanceRow["DefaultIconFileDataID"].ToString()!);
                     }
                 }
             }
 
             var itemSparseDB = await dbcManager.GetOrLoad("ItemSparse", CASC.BuildName);
-            if (!itemSparseDB.TryGetValue(itemID, out DBCDRow itemSparseEntry))
+            if (!itemSparseDB.TryGetValue(itemID, out DBCDRow? itemSparseEntry) || itemSparseEntry == null)
             {
                 var itemSearchNameDB = await dbcManager.GetOrLoad("ItemSearchName", CASC.BuildName);
-                if (!itemSearchNameDB.TryGetValue(itemID, out DBCDRow itemSearchNameEntry))
+                if (!itemSearchNameDB.TryGetValue(itemID, out DBCDRow? itemSearchNameEntry) || itemSearchNameEntry == null)
                 {
                     result.Name = "Unknown Item";
                 }
@@ -157,14 +157,14 @@ namespace wow.tools.local.Controllers
             else
             {
                 result.HasSparse = true;
-                result.ItemLevel = ushort.Parse(itemSparseEntry["ItemLevel"].ToString());
-                result.OverallQualityID = byte.Parse(itemSparseEntry["OverallQualityID"].ToString());
+                result.ItemLevel = ushort.Parse(itemSparseEntry["ItemLevel"].ToString()!);
+                result.OverallQualityID = byte.Parse(itemSparseEntry["OverallQualityID"].ToString()!);
                 result.Name = (string)itemSparseEntry["Display_lang"];
                 result.FlavorText = (string)itemSparseEntry["Description_lang"];
-                result.ExpansionID = int.Parse(itemSparseEntry["ExpansionID"].ToString());
-                result.RequiredLevel = sbyte.Parse(itemSparseEntry["RequiredLevel"].ToString());
-                var itemDelay = ushort.Parse(itemSparseEntry["ItemDelay"].ToString()) / 1000f;
-                var targetDamageDB = GetDamageDBByItemSubClass(byte.Parse(itemEntry["SubclassID"].ToString()), (itemSparseEntry.FieldAs<int[]>("Flags")[1] & 0x200) == 0x200);
+                result.ExpansionID = int.Parse(itemSparseEntry["ExpansionID"].ToString()!);
+                result.RequiredLevel = sbyte.Parse(itemSparseEntry["RequiredLevel"].ToString()!);
+                var itemDelay = ushort.Parse(itemSparseEntry["ItemDelay"].ToString()!) / 1000f;
+                var targetDamageDB = GetDamageDBByItemSubClass(byte.Parse(itemEntry["SubclassID"].ToString()!), (itemSparseEntry.FieldAs<int[]>("Flags")[1] & 0x200) == 0x200);
 
                 var statTypes = itemSparseEntry.FieldAs<sbyte[]>("StatModifier_bonusStat");
                 if (statTypes.Length > 0 && statTypes.Any(x => x != -1) && statTypes.Any(x => x != 0))
@@ -172,7 +172,7 @@ namespace wow.tools.local.Controllers
                     var (RandomPropField, RandomPropIndex) = TooltipUtils.GetRandomPropertyByInventoryType(result.OverallQualityID, result.InventoryType, result.SubClassID, CASC.BuildName);
                     var randomPropDB = await dbcManager.GetOrLoad("RandPropPoints", CASC.BuildName);
                     int randProp;
-                    if (randomPropDB.TryGetValue(result.ItemLevel, out DBCDRow randPropEntry))
+                    if (randomPropDB.TryGetValue(result.ItemLevel, out DBCDRow? randPropEntry) && randPropEntry != null)
                     {
                         randProp = (int)randPropEntry.FieldAs<uint[]>(RandomPropField)[RandomPropIndex];
                     }
@@ -250,10 +250,10 @@ namespace wow.tools.local.Controllers
                 result.ItemEffects = new TTItemEffect[itemEffectEntries.Count];
                 for (var i = 0; i < itemEffectEntries.Count; i++)
                 {
-                    result.ItemEffects[i].TriggerType = sbyte.Parse(itemEffectEntries[i]["TriggerType"].ToString());
+                    result.ItemEffects[i].TriggerType = sbyte.Parse(itemEffectEntries[i]["TriggerType"].ToString()!);
 
                     var ttSpell = new TTSpell { SpellID = (int)itemEffectEntries[i]["SpellID"] };
-                    if (spellDB.TryGetValue((int)itemEffectEntries[i]["SpellID"], out DBCDRow spellRow))
+                    if (spellDB.TryGetValue((int)itemEffectEntries[i]["SpellID"], out DBCDRow? spellRow) && spellRow != null)
                     {
                         var spellDescription = (string)spellRow["Description_lang"];
                         if (!string.IsNullOrWhiteSpace(spellDescription))
@@ -262,7 +262,7 @@ namespace wow.tools.local.Controllers
                         }
                     }
 
-                    if (spellNameDB.TryGetValue((int)itemEffectEntries[i]["SpellID"], out DBCDRow spellNameRow))
+                    if (spellNameDB.TryGetValue((int)itemEffectEntries[i]["SpellID"], out DBCDRow? spellNameRow) && spellNameRow != null)
                     {
                         var spellName = (string)spellNameRow["Name_lang"];
                         if (!string.IsNullOrWhiteSpace(spellName))
@@ -345,7 +345,7 @@ namespace wow.tools.local.Controllers
             result.SpellID = spellID;
 
             var spellNameDB = await dbcManager.GetOrLoad("SpellName", CASC.BuildName);
-            if (spellNameDB.TryGetValue(spellID, out DBCDRow spellNameRow))
+            if (spellNameDB.TryGetValue(spellID, out DBCDRow? spellNameRow) && spellNameRow != null)
             {
                 var spellName = (string)spellNameRow["Name_lang"];
                 if (!string.IsNullOrWhiteSpace(spellName))
