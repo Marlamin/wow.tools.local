@@ -116,6 +116,10 @@ async function checkForUpdates(force = false) {
     const currentVersionResponse = await fetch("/casc/getVersion");
     const currentVersion = await currentVersionResponse.text();
 
+    if (currentVersion == "99.99.99.0") {
+        return;
+    }
+
     const lastUpdateCheck = localStorage.getItem("lastUpdate");
     if (lastUpdateCheck != null && !force) {
         const json = JSON.parse(lastUpdateCheck);
@@ -153,6 +157,7 @@ function newUpdateAvailable(isUpdateAvailable, currentVersion, latestVersion) {
     } else {
         updateDiv.innerHTML = "<button style='margin-left: 5px' onClick='forceUpdateCheck()' title='Check for updates' class='btn active align-items-center'><i class='fa fa-refresh'></i> Check</button>";
     }
+
     navBar[0].appendChild(updateDiv);
 }
 
