@@ -721,7 +721,9 @@
             });
 
             Elements.filesTable.on('length.dt', function (e, settings, len) {
-                localStorage.setItem("settings[filesPageLength]", len);
+                if (len != -1) {
+                    localStorage.setItem("settings[filesPageLength]", len);
+                }
             });
 
             document.addEventListener('keydown', function (e) {
