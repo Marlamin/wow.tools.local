@@ -5,6 +5,7 @@
 - Added contenthash lookup results from historical builds to the contenthash search modal.
 - Added file availability per product (last loaded build per product) to more info modal.
 - Added files page length to client settings.
+- Added automatic namer for cinematics (videos, audio, subtitles).
 - Updated styling of buttons/update check in header.
 - Updated automatic world map naming to more likely pick up on real filenames.
 - Updated TACT key metadata.

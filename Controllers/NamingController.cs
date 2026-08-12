@@ -222,7 +222,7 @@ namespace wow.tools.local.Controllers
             Namer.AllowCaseRenames = form.ContainsKey("allowCaseRenames") && form["allowCaseRenames"] == "on";
             Namer.SkipAPIRequests = form.ContainsKey("skipAPIRequests") && form["skipAPIRequests"] == "on";
 
-            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "M3", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "Install", "ContentHashes" };
+            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "M3", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "Movies", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "Install", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x!)).ToArray();
 
             var buildMap = new Dictionary<uint, string>();
@@ -388,6 +388,9 @@ namespace wow.tools.local.Controllers
                         break;
                     case "Map":
                         Namer.NameMap();
+                        break;
+                    case "Movies":
+                        Namer.NameMovies();
                         break;
                     case "Music":
                         Namer.NameMusic();
