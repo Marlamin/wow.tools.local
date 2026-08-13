@@ -767,7 +767,7 @@
             KeyInfo.Add(0xA80884F26267B31B, (8084, "WOW-64xxxpatch12.0.0_Beta", "Gummi the Glow Wyrm battle pet"));
             KeyInfo.Add(0x5DF02A9D61FB346A, (8085, "WOW-64xxxpatch11.2.5_PTR", "Store: Ascended Regalia Pack"));
             KeyInfo.Add(0xBE544F7E94038018, (8086, "WOW-64xxxpatch12.0.0_Beta", "Kobold Romper item sets"));
-            KeyInfo.Add(0xFBBF041F980CE0DC, (8087, "WOW-64xxxpatch12.0.0_Beta", "Unknown item set"));
+            KeyInfo.Add(0xFBBF041F980CE0DC, (8087, "WOW-64xxxpatch12.0.0_Beta", "Unknown item set/mount"));
             KeyInfo.Add(0xF14ABB89F7D23DF1, (8088, "WOW-67xxxpatch5.5.4_Classic", "Unknown creature model"));
             KeyInfo.Add(0xA397596138D1BADF, (8089, "WOW-64xxxpatch11.2.7_XPTR", "Thunderhoof Celestial/Stormgilded Celestial mounts"));
             KeyInfo.Add(0x6754E8DAC2312246, (8090, "WOW-64xxxpatch12.0.0_Beta", ""));
@@ -805,10 +805,10 @@
             KeyInfo.Add(0x9A7FB300CA80B056, (8123, "WOW-67xxxpatch5.5.4_Classic", "Pixui Pet"));
             KeyInfo.Add(0x57A4166923176298, (8124, "WOW-67xxxpatch5.5.4_Classic", "Sandbox Fire Horse toy"));
             KeyInfo.Add(0xF563E428F193EF02, (8126, "WOW-67227patch12.0.7_XPTR", ""));
-            KeyInfo.Add(0x2555AE20C2538D36, (8127, "WOW-64xxxpatch12.0.0_Beta", "Unknown customizable mount"));
+            KeyInfo.Add(0x2555AE20C2538D36, (8127, "WOW-64xxxpatch12.0.0_Beta", "Stoneforged Sentinel customizable mount"));
             KeyInfo.Add(0x62F3139C6E30B1C7, (8128, "WOW-64xxxpatch12.0.0_Beta", "Zillow cross-promo decor"));
             KeyInfo.Add(0xAB9BEA157B2C3E2A, (8129, "WOW-64xxxpatch11.2.7_XPTR", "Unknown globalstrings"));
-            KeyInfo.Add(0x8EE361A0DD12A657, (8130, "WOW-64xxxpatch12.0.0_Beta", "Unknown mount"));
+            KeyInfo.Add(0x8EE361A0DD12A657, (8130, "WOW-64xxxpatch12.0.0_Beta", "Scarlet Lady mount"));
             KeyInfo.Add(0x8D0DD43605C74692, (8131, "WOW-67xxxpatch5.5.4_Classic", "Store DB2 records"));
             KeyInfo.Add(0x2EC5DA131A95DAF1, (8132, "WOW-64xxxpatch12.0.0_Beta", "Lil' Staropod battle pet"));
             KeyInfo.Add(0xF0E666125940E592, (8133, "WOW-64xxxpatch12.0.0_Beta", "Hypo-Speed X6000 mount"));
