@@ -913,12 +913,12 @@
             KeyInfo.Add(0x4FD7D9D414AFDA7A, (8264, "WOW-68943patch3.80.2_ClassicTitan", "Unknown battle pet (CN)"));
             KeyInfo.Add(0x7FACE8DE6DCC7C95, (8265, "WOW-68184patch2.5.6_ClassicPTR", "Unknown model"));
             KeyInfo.Add(0x2C3AF1AA2A86A6B8, (8266, "WOW-68184patch2.5.6_ClassicPTR", "Unknown model"));
-            KeyInfo.Add(0xCA58EFD382342EE5, (8267, "WOW-68209patch12.1.0_PTR", "Unknown item"));
-            KeyInfo.Add(0x9B183853F48A4263, (8268, "WOW-68209patch12.1.0_PTR", "Beaver battle pet"));
-            KeyInfo.Add(0xB3353F1504F9FA6C, (8269, "WOW-68209patch12.1.0_PTR", "Unknown item"));
-            KeyInfo.Add(0x59DA7F744D5CCF8E, (8270, "WOW-68209patch12.1.0_PTR", "Tuskarr crab mount"));
-            KeyInfo.Add(0x7F283DC60447885B, (8271, "WOW-68209patch12.1.0_PTR", "Unknown toy"));
-            KeyInfo.Add(0xC605B7DC45CC1DAC, (8272, "WOW-68209patch12.1.0_PTR", "Tuskarr housing decor models"));
+            KeyInfo.Add(0xCA58EFD382342EE5, (8267, "WOW-68209patch12.1.0_PTR", "Fisher's Pack transmog item (CN)"));
+            KeyInfo.Add(0x9B183853F48A4263, (8268, "WOW-68209patch12.1.0_PTR", "Beaver battle pet (CN)"));
+            KeyInfo.Add(0xB3353F1504F9FA6C, (8269, "WOW-68209patch12.1.0_PTR", "Puffin Pack transmog item (CN)"));
+            KeyInfo.Add(0x59DA7F744D5CCF8E, (8270, "WOW-68209patch12.1.0_PTR", "Tuskarr crab mount (CN)"));
+            KeyInfo.Add(0x7F283DC60447885B, (8271, "WOW-68209patch12.1.0_PTR", "Tuskarr ice fishing tent toy (CN)"));
+            KeyInfo.Add(0xC605B7DC45CC1DAC, (8272, "WOW-68209patch12.1.0_PTR", "Tuskarr housing decor models (CN)"));
             KeyInfo.Add(0xBBAE9630BE1C18E3, (8273, "WOW-68209patch12.1.0_PTR", "Unknown housing decor"));
             KeyInfo.Add(0xC3656BF7EC13F356, (8274, "WOW-68209patch12.1.0_PTR", "Unknown toy"));
             KeyInfo.Add(0x2FEF3AA89FFBBE7F, (8275, "WOW-68209patch12.1.0_PTR", "Unknown housing decor (Small, Alliance/Horde)"));
@@ -928,7 +928,7 @@
             KeyInfo.Add(0x1DACCE2B44C78902, (8279, "WOW-68209patch12.1.0_PTR", "Unknown mount"));
             KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior"));
             KeyInfo.Add(0x7A67F3392ACC41D2, (8281, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
-            KeyInfo.Add(0x055C2C56039A6E5E, (8282, "WOW-68412patch12.1.0_PTR", "Wearable shark item"));
+            KeyInfo.Add(0x055C2C56039A6E5E, (8282, "WOW-68412patch12.1.0_PTR", "Wearable shark item (CN)"));
             KeyInfo.Add(0xAC95744D4736242E, (8285, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             KeyInfo.Add(0xA1513D5A172E3475, (8286, "WOW-68569patch12.1.0_PTR", "Unknown (BlizzCon?) housing decor/achievement/holiday"));
             KeyInfo.Add(0x5773DC2C3AC2401E, (8287, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
