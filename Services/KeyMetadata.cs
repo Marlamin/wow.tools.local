@@ -925,7 +925,7 @@
             KeyInfo.Add(0xEE25C1489C6CB47A, (8276, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x3B53C72B48FAD89F, (8277, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x47B4F7D68E6AC272, (8278, "WOW-68209patch12.1.0_PTR", "12.1 artisanal housing room(s)"));
-            KeyInfo.Add(0x1DACCE2B44C78902, (8279, "WOW-68209patch12.1.0_PTR", "Unknown mount"));
+            KeyInfo.Add(0x1DACCE2B44C78902, (8279, "WOW-68209patch12.1.0_PTR", "Hearthkeeper's Wandering Caravan shop mount"));
             KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior"));
             KeyInfo.Add(0x7A67F3392ACC41D2, (8281, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x055C2C56039A6E5E, (8282, "WOW-68412patch12.1.0_PTR", "Wearable shark item (CN)"));
