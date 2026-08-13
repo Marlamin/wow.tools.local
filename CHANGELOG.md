@@ -6,6 +6,7 @@
 - Added file availability per product (last loaded build per product) to more info modal.
 - Added files page length to client settings.
 - Added automatic namer for cinematics (videos, audio, subtitles).
+- Added startup check to ensure WTL is always launched from the correct directory.
 - Updated styling of buttons/update check in header.
 - Updated automatic world map naming to more likely pick up on real filenames.
 - Updated TACT key metadata.
