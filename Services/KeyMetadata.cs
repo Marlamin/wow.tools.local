@@ -818,7 +818,7 @@
             KeyInfo.Add(0xF833BFFFD05C1C1D, (8137, "WOW-64xxxpatch12.0.0_Beta", "Pinterest cross-promo Backboard decor"));
             KeyInfo.Add(0x23283E33E74A9920, (8138, "WOW-64xxxpatch12.0.0_Beta", "Pinterest cross-promo Bluebird decor"));
             KeyInfo.Add(0x7C8D594344CF3B15, (8139, "WOW-67xxxpatch5.5.4_Classic", ""));
-            KeyInfo.Add(0x118D77244827DAA1, (8140, "WOW-67xxxpatch5.5.4_Classic", "Unknown mount"));
+            KeyInfo.Add(0x118D77244827DAA1, (8140, "WOW-67xxxpatch5.5.4_Classic", "Grizzly Hills Packmaster mount (Classic)"));
             KeyInfo.Add(0x44ADC8D44A59BFAF, (8141, "WOW-67xxxpatch5.5.4_Classic", "Bear Utility Mount"));
             KeyInfo.Add(0xC0A4A504EAACA37D, (8143, "WOW-64xxxpatch11.2.5_PTR", "Store: AH Brutosaur comeback 1"));
             KeyInfo.Add(0xAA4A3F0FD29A6772, (8144, "WOW-67xxxpatch5.5.4_Classic", "Store DB2 records"));
@@ -867,7 +867,7 @@
             KeyInfo.Add(0xEB31A3AFC23C590E, (8192, "WOW-68209patch12.1.0_PTR", "Unknown cutscene"));
             KeyInfo.Add(0x291AF9FE83D992E4, (8194, "WOW-66407patch12.0.5_PTR", "Venthyr transmog set"));
             KeyInfo.Add(0x430E3CF9CDDE7E62, (8195, "WOW-67xxxpatch5.5.4_Classic", "Sha Wolf Mount"));
-            KeyInfo.Add(0xEC10EF0119CB25EF, (8196, "WOW-67xxxpatch5.5.4_Classic", "Unknown mount"));
+            KeyInfo.Add(0xEC10EF0119CB25EF, (8196, "WOW-67xxxpatch5.5.4_Classic", "Sha-Warped Owl mount"));
             KeyInfo.Add(0xE0ADDAA400D1EE97, (8197, "WOW-67xxxpatch5.5.4_Classic", "Unknown battle pet"));
             KeyInfo.Add(0x7680E9CD92171361, (8198, "WOW-67xxxpatch5.5.4_Classic", "Unknown battle pet"));
             KeyInfo.Add(0xF2BB9DF81720CCF1, (8199, "WOW-67xxxpatch5.5.4_Classic", "Sha Wolf Mount"));
@@ -888,9 +888,9 @@
             KeyInfo.Add(0x7BF5FACE236254CD, (8214, "WOW-68209patch12.1.0_PTR", "Axolotl battle pet"));
             KeyInfo.Add(0x7BDD464D413AF047, (8215, "WOW-68209patch12.1.0_PTR", "Unknown battle pet"));
             KeyInfo.Add(0x4F1CF1A7FBB50AEF, (8220, "WOW-66xxxpatch12.0.5_PTR", "Skyborne elf decor (5x)"));
-            KeyInfo.Add(0x939A45AAB997ECED, (8222, "WOW-67xxxpatch5.5.4_Classic", "Unknown mount"));
+            KeyInfo.Add(0x939A45AAB997ECED, (8222, "WOW-67xxxpatch5.5.4_Classic", "Scarlet Lady mount (China)"));
             KeyInfo.Add(0xCEDE3AC160A786BC, (8223, "WOW-68044patch3.80.1_ClassicTitan", "Pink Horse (China)"));
-            KeyInfo.Add(0xFA0087A3EC2601E1, (8224, "WOW-67xxxpatch5.5.4_Classic", "Unknown mount"));
+            KeyInfo.Add(0xFA0087A3EC2601E1, (8224, "WOW-67xxxpatch5.5.4_Classic", "The Sire's Palanquin (China)"));
             KeyInfo.Add(0x62BF37A70E6D54F6, (8225, "WOW-67227patch12.0.7_XPTR", "Unknown transmog set"));
             KeyInfo.Add(0x310B6F41B276961F, (8226, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior component (6x)"));
             KeyInfo.Add(0xFC852D42866CE038, (8231, "WOW-67227patch12.0.7_XPTR", "Unknown toy"));
@@ -905,7 +905,7 @@
             KeyInfo.Add(0x9D96EBE2096AE3EE, (8246, "WOW-67525patch12.0.7_XPTR", "StormCrowMount_Ink mount"));
             KeyInfo.Add(0x698C227ECAE81223, (8255, "WOW-68317patch5.5.4_ClassicRetail", "Spring Panda mount"));
             KeyInfo.Add(0x9D6DF2962EC08AD0, (8256, "WOW-68317patch5.5.4_ClassicRetail", "BabyFaerieDragon (pink)"));
-            KeyInfo.Add(0x6E42AB01FA720EA9, (8257, "WOW-68317patch5.5.4_ClassicRetail", "Unknown mount"));
+            KeyInfo.Add(0x6E42AB01FA720EA9, (8257, "WOW-68317patch5.5.4_ClassicRetail", "Sunflash Driftmoth (Classic)"));
             KeyInfo.Add(0xAAED518EE738C555, (8259, "WOW-68317patch5.5.4_ClassicRetail", "Unknown battle pet"));
             KeyInfo.Add(0x99E2F2F9A3D02260, (8261, "WOW-68317patch5.5.4_ClassicRetail", ""));
             KeyInfo.Add(0x042A707E69029B42, (8262, "WOW-68943patch3.80.2_ClassicTitan", ""));
