@@ -1,4 +1,5 @@
-﻿using TACTSharp;
+﻿using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
+using TACTSharp;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Managers
@@ -61,43 +62,36 @@ namespace wow.tools.local.Managers
                 }
             }
 
+            var versionService = new TACTSharp.VersionServices.TACTChannels();
             var buildInstance = new BuildInstance();
 
             // If any metadata is still missing, try and load it from the versions file on the CDN
             if (string.IsNullOrEmpty(buildConfig) || string.IsNullOrEmpty(cdnConfig) || string.IsNullOrEmpty(productConfig))
             {
-                var versions = buildInstance.cdn.GetPatchServiceFile(product, "versions").Result;
-                var versionByRegion = new Dictionary<string, (string buildConfig, string cdnConfig, string productConfig)>();
-
-                foreach (var line in versions.Split('\n'))
-                {
-                    if(line.StartsWith('#') || line.StartsWith("Region") || string.IsNullOrWhiteSpace(line))
-                        continue;
-
-                    var splitLine = line.Split('|');
-                    versionByRegion[splitLine[0]] = (splitLine[1], splitLine[2], splitLine.Length >= 7 ? splitLine[6] : "");
-                }
+                var versionByRegion = versionService.GetVersions(product);
 
                 // Try to get the build info for the current region if available, fall back to first region
                 if (versionByRegion.TryGetValue(SettingsManager.Region, out var regionBuildInfo))
                 {
                     if (string.IsNullOrEmpty(buildConfig))
-                        buildConfig = regionBuildInfo.buildConfig;
+                        buildConfig = regionBuildInfo.BuildConfig;
                     if (string.IsNullOrEmpty(cdnConfig))
-                        cdnConfig = regionBuildInfo.cdnConfig;
-                    if (string.IsNullOrEmpty(productConfig) && !string.IsNullOrEmpty(regionBuildInfo.productConfig))
-                        productConfig = regionBuildInfo.productConfig;
+                        cdnConfig = regionBuildInfo.CDNConfig;
+                    if (string.IsNullOrEmpty(productConfig) && !string.IsNullOrEmpty(regionBuildInfo.ProductConfig))
+                        productConfig = regionBuildInfo.ProductConfig;
                 }
                 else
                 {
                     var firstRegionBuildInfo = versionByRegion.Values.FirstOrDefault();
-
-                    if (string.IsNullOrEmpty(buildConfig))
-                        buildConfig = firstRegionBuildInfo.buildConfig;
-                    if (string.IsNullOrEmpty(cdnConfig))
-                        cdnConfig = firstRegionBuildInfo.cdnConfig;
-                    if (string.IsNullOrEmpty(productConfig) && !string.IsNullOrEmpty(firstRegionBuildInfo.productConfig))
-                        productConfig = firstRegionBuildInfo.productConfig;
+                    if (firstRegionBuildInfo != null)
+                    {
+                        if (string.IsNullOrEmpty(buildConfig))
+                            buildConfig = firstRegionBuildInfo.BuildConfig;
+                        if (string.IsNullOrEmpty(cdnConfig))
+                            cdnConfig = firstRegionBuildInfo.CDNConfig;
+                        if (string.IsNullOrEmpty(productConfig) && !string.IsNullOrEmpty(firstRegionBuildInfo.ProductConfig))
+                            productConfig = firstRegionBuildInfo.ProductConfig;
+                    }
                 }
             }
 
@@ -132,23 +126,15 @@ namespace wow.tools.local.Managers
             // If any metadata is still missing, try and load it from the versions file on the CDN
             if (string.IsNullOrEmpty(buildConfig) || string.IsNullOrEmpty(cdnConfig) || string.IsNullOrEmpty(productConfig))
             {
-                var versions = buildInstance.cdn.GetPatchServiceFile(product, "versions").Result;
-                foreach (var line in versions.Split('\n'))
-                {
-                    if (!line.StartsWith(buildInstance.Settings.Region + "|"))
-                        continue;
+                var version = versionService.GetVersion(product, SettingsManager.Region);
+                if (string.IsNullOrEmpty(buildConfig) && !string.IsNullOrEmpty(version.BuildConfig))
+                    buildConfig = version.BuildConfig;
 
-                    var splitLine = line.Split('|');
+                if (string.IsNullOrEmpty(cdnConfig) && !string.IsNullOrEmpty(version.CDNConfig))
+                    cdnConfig = version.CDNConfig;
 
-                    if (string.IsNullOrEmpty(buildConfig))
-                        buildConfig = splitLine[1];
-
-                    if (string.IsNullOrEmpty(cdnConfig))
-                        cdnConfig = splitLine[2];
-
-                    if (splitLine.Length >= 7 && !string.IsNullOrEmpty(splitLine[6]) && string.IsNullOrEmpty(productConfig))
-                        productConfig = splitLine[6];
-                }
+                if (string.IsNullOrEmpty(productConfig) && !string.IsNullOrEmpty(version.ProductConfig))
+                    productConfig = version.ProductConfig;
             }
 
             buildInstance.Settings.Product = product;
@@ -165,17 +151,7 @@ namespace wow.tools.local.Managers
             if (SettingsManager.AdditionalCDNs.Length > 0 && !string.IsNullOrEmpty(SettingsManager.AdditionalCDNs[0]))
                 buildInstance.Settings.AdditionalCDNs.AddRange(SettingsManager.AdditionalCDNs);
 
-            var cdns = buildInstance.cdn.GetPatchServiceFile(product, "cdns").Result;
-            foreach (var line in cdns.Split('\n'))
-            {
-                if (!line.StartsWith(buildInstance.Settings.Region + "|"))
-                    continue;
-
-                var splitLine = line.Split('|');
-                var productDir = splitLine[1];
-
-                buildInstance.cdn.ProductDirectory = productDir;
-            }
+            buildInstance.cdn.ProductDirectory = versionService.GetCDNDirectory(product);
 
             if (string.IsNullOrEmpty(buildInstance.cdn.ProductDirectory))
                 buildInstance.cdn.ProductDirectory = "tpr/wow";
