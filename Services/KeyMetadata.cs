@@ -929,6 +929,7 @@
             KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior"));
             KeyInfo.Add(0x7A67F3392ACC41D2, (8281, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x055C2C56039A6E5E, (8282, "WOW-68412patch12.1.0_PTR", "Wearable shark item (CN)"));
+            KeyInfo.Add(0x02589DF97D4EB19B, (8284, "WOW-69155patch5.5.4_ClassicRetail", "Tuskarr Fishing Pit toy (CN)"));
             KeyInfo.Add(0xAC95744D4736242E, (8285, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             KeyInfo.Add(0xA1513D5A172E3475, (8286, "WOW-68569patch12.1.0_PTR", "Unknown (BlizzCon?) housing decor/achievement/holiday"));
             KeyInfo.Add(0x5773DC2C3AC2401E, (8287, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
@@ -938,11 +939,14 @@
             KeyInfo.Add(0x1D7AC2060E365E04, (8296, "WOW-68943patch3.80.2_ClassicTitan", "Unknown item (CN)"));
             KeyInfo.Add(0x32C3D093BD861B08, (8297, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
             KeyInfo.Add(0x74B0ED248AF263DB, (8298, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
+            KeyInfo.Add(0x100BE8F1E2E2BE50, (8300, "WOW-69155patch5.5.4_ClassicRetail", "Tuskarr Visual (CN)"));
             KeyInfo.Add(0x01BC7A3177A13951, (8301, "WOW-68943patch3.80.2_ClassicTitan", "Dragon throne toy (CN)"));
             KeyInfo.Add(0xC7D27F5183AEF4E0, (8302, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             KeyInfo.Add(0xF2AD987F1B8E5E0D, (8303, "WOW-68943patch3.80.2_ClassicTitan", "Unknown model (CN)"));
             KeyInfo.Add(0x593721D3B51882FF, (8304, "WOW-68943patch3.80.2_ClassicTitan", "Unknown model (CN)"));
             KeyInfo.Add(0x1E5C7237D1EA17C7, (8305, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
+            KeyInfo.Add(0xD3C81185FF9288C5, (8306, "WOW-69155patch5.5.4_ClassicRetail", "Visage of the Damned (CN)"));
+            KeyInfo.Add(0x2B4AA57F9CD885F6, (8309, "WOW-69155patch5.5.4_ClassicRetail", "Tuskarr Hermit Crab (CN)"));
             // ID? FDC778C58B2FE080 Golden Ashened Cataclysm mount
         }
 
