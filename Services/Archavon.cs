@@ -13,7 +13,7 @@ namespace wow.tools.local.Services
             HttpClient.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
         }
 
-        public static Dictionary<string, string>? GetCreatureData(int creatureID)   
+        public static Dictionary<string, string>? GetCreatureData(int creatureID)
         {
             if (CreatureCache.TryGetValue(creatureID, out var cachedData))
                 return cachedData;
@@ -22,11 +22,11 @@ namespace wow.tools.local.Services
             var json = JsonDocument.Parse(response.Content.ReadAsStringAsync().Result);
             var versions = json.RootElement.GetProperty("versions");
 
-            if(versions.GetArrayLength() == 0)
+            if (versions.GetArrayLength() == 0)
                 return null;
 
             var firstVersion = versions[0];
-            foreach(var kvp in firstVersion.EnumerateObject())
+            foreach (var kvp in firstVersion.EnumerateObject())
             {
                 if (!CreatureCache.ContainsKey(creatureID))
                     CreatureCache[creatureID] = new Dictionary<string, string>();

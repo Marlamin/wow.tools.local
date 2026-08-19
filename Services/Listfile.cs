@@ -688,7 +688,7 @@ namespace wow.tools.local.Services
                     }
                 }
             }
-            else if(search == "multiuse")
+            else if (search == "multiuse")
             {
                 lock (LoadLock)
                 {

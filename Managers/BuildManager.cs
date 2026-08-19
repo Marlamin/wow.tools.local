@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
-using TACTSharp;
+﻿using TACTSharp;
 using TACTSharp.Interfaces;
 using wow.tools.local.Services;
 

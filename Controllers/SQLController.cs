@@ -29,7 +29,7 @@ namespace wow.tools.local.Controllers
                 {
                     name = creatureName;
 
-                    if(int.TryParse(creatureData["game_build"], out var gameBuild))
+                    if (int.TryParse(creatureData["game_build"], out var gameBuild))
                         SQLiteDB.InsertOrUpdateCreature(creatureID, name, gameBuild);
                 }
             }
@@ -52,7 +52,7 @@ namespace wow.tools.local.Controllers
                 {
                     name = questName;
 
-                    if(int.TryParse(questData["game_build"], out var gameBuild))
+                    if (int.TryParse(questData["game_build"], out var gameBuild))
                         SQLiteDB.InsertOrUpdateQuest(questID, name, gameBuild);
                 }
             }

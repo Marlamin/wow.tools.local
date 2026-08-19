@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 using wow.tools.local.Services;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
-using WoWNamingLib.Utils;
 
 namespace wow.tools.local.Controllers
 {

@@ -100,7 +100,7 @@ namespace wow.tools.local.Services
 
             buildInstance = BuildManager.LoadBuild(product, buildConfig, cdnConfig, productConfig);
 
-            if(buildInstance.Root == null || buildInstance.Encoding == null)
+            if (buildInstance.Root == null || buildInstance.Encoding == null)
             {
                 Console.WriteLine("Build loading failed");
                 return;

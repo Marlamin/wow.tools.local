@@ -93,7 +93,7 @@ namespace wow.tools.local.Controllers
             {
                 var fdid = result.Key;
                 var allCKeys = CASC.GetCKeysAndFlagsByFDID(result.Key);
-                if(allCKeys.Count == 0)
+                if (allCKeys.Count == 0)
                     return;
 
                 var chash = CASC.GetPreferredCKey(allCKeys);

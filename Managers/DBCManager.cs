@@ -69,12 +69,12 @@ namespace wow.tools.local.Managers
                 dbcProvider.localeFlags = locale;
             }
 
-            if(dbcd == null)
+            if (dbcd == null)
             {
                 lock (dbcdLock)
                 {
                     // check again when acquiring the lock
-                    if(dbcd == null)
+                    if (dbcd == null)
                     {
                         // we don't feed enumProvider to DBCD for now
                         if (dbdProvider.isUsingBDBD)

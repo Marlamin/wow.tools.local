@@ -5,7 +5,7 @@ namespace wow.tools.local.Services
     public static class FileResidency
     {
         private static Dictionary<(string, string), List<uint>> residencyCache = [];
-  
+
         public static void Load()
         {
             residencyCache.Clear();

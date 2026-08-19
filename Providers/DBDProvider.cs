@@ -109,9 +109,9 @@ namespace wow.tools.local.Providers
                     var currentName = definition.Key + "::" + column.Key;
 
                     if (column.Key == "LabelID")
-                        if(!labelColumns.Contains(currentName))
+                        if (!labelColumns.Contains(currentName))
                             labelColumns.Add(currentName);
-                    
+
                     if (string.IsNullOrEmpty(column.Value.foreignTable))
                         continue;
 
