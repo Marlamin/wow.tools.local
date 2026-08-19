@@ -100,6 +100,7 @@
         var buildTable = new DataTable("#buildtable", {
             "pageLength": 25,
             "searching": true,
+            "processing": true,
             "serverSide": true,
             "layout": {
                 topStart: {
@@ -114,7 +115,9 @@
                                <label class="btn btn-sm btn-warning active">
                                    <input type="checkbox" autocomplete="off" id="archivedBuilds"> Archived
                                </label>
-                           </form>`
+                               <div style='margin-left: 10px;' class='btn btn-primary btn-sm' onClick='clearVersionServiceCache(this)' id='refreshBuildsButton'><i class='fa fa-refresh'></i> Clear version service cache</div>
+                           </form>
+                           `
                     }
                 },
                 bottomEnd: 'inputPaging'
@@ -348,6 +351,22 @@
             if (result == "true") {
                 reloadBuildTable();
             }
+        }
+
+        async function clearVersionServiceCache(source) {
+            source.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Clearing cache, please wait!";
+            source.classList.remove("btn-primary");
+            source.classList.add("btn-danger");
+
+            const response = await fetch("/build/clearVersionServiceCache");
+            var result = await response.text();
+            if (result == "true") {
+                reloadBuildTable();
+            }
+
+            source.innerHTML = "<i class='fa fa-refresh'></i> Clear version service cache";
+            source.classList.remove("btn-danger");
+            source.classList.add("btn-primary");
         }
     </script>
 </body>

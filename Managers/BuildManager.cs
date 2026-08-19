@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 using TACTSharp;
+using TACTSharp.Interfaces;
 using wow.tools.local.Services;
 
 namespace wow.tools.local.Managers
@@ -62,8 +63,17 @@ namespace wow.tools.local.Managers
                 }
             }
 
-            var versionService = new TACTSharp.VersionServices.TACTChannels();
             var buildInstance = new BuildInstance();
+
+            buildInstance.Settings.versionService = SettingsManager.UseTACTChannels ? VersionService.TACTChannels : VersionService.Ribbit;
+
+            // Set up versionService for us to use too
+            IVersionService versionService;
+
+            if (SettingsManager.UseTACTChannels)
+                versionService = new TACTSharp.VersionServices.TACTChannels();
+            else
+                versionService = new TACTSharp.VersionServices.Ribbit();
 
             // If any metadata is still missing, try and load it from the versions file on the CDN
             if (string.IsNullOrEmpty(buildConfig) || string.IsNullOrEmpty(cdnConfig) || string.IsNullOrEmpty(productConfig))

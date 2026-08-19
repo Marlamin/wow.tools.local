@@ -39,6 +39,7 @@ namespace wow.tools.local
             {"bnetClientID", new WTLSetting { Key = "bnetClientID", Value = string.Empty, Description = "Battle.net Web API client ID (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
             {"bnetClientSecret", new WTLSetting { Key = "bnetClientSecret", Value = string.Empty, Description = "Battle.net Web API client secret (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
             {"useWago", new WTLSetting { Key = "useWago", Value = "true", Description = "Whether to use wago.tools to load older versions of specific files, loads the build in TACTSharp if disabled.", Type = "bool", DefaultValue = "true" } },
+            {"useTACTChannels", new WTLSetting { Key = "useTACTChannels", Value = "false", Description = "Whether to use TACTChannels for version retrieval.", Type = "bool", DefaultValue = "false" }},
         };
 
         private static RootInstance.LocaleFlags tactLocale;
@@ -65,6 +66,7 @@ namespace wow.tools.local
         public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
         public static bool ReadOnly { get => bool.Parse(Settings["readOnly"].Value); set => Settings["readOnly"].Value = value.ToString().ToLower(); }
         public static bool UseWago { get => bool.Parse(Settings["useWago"].Value); set => Settings["useWago"].Value = value.ToString().ToLower(); }
+        public static bool UseTACTChannels { get => bool.Parse(Settings["useTACTChannels"].Value); set => Settings["useTACTChannels"].Value = value.ToString().ToLower(); }
 
         // Enums
         public static RootInstance.LocaleFlags TACTLocale { get => tactLocale; set => tactLocale = value; }
@@ -329,9 +331,10 @@ namespace wow.tools.local
                 case "showAllFiles":
                 case "readOnly":
                 case "useWago":
-                    if(value == "1" || value == "on")
+                case "useTACTChannels":
+                    if (value == "1" || value == "on")
                         value = "true";
-                    else if(value == "0" || value == "off")
+                    else if (value == "0" || value == "off")
                         value = "false";
 
                     if (bool.TryParse(value, out _))

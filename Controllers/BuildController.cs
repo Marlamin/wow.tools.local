@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TACTSharp;
+using TACTSharp.Interfaces;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
 using static wow.tools.local.Services.SQLiteDB;
@@ -9,13 +11,53 @@ namespace wow.tools.local.Controllers
     [ApiController]
     public class BuildController : Controller
     {
-        private static readonly Dictionary<string, string> RibbitCache = new();
+        private static IVersionService? versionService;
+        private static VersionService currentVersionService;
+
+        public BuildController()
+        {
+            if (versionService == null)
+            {
+                if (SettingsManager.UseTACTChannels)
+                {
+                    versionService = new TACTSharp.VersionServices.TACTChannels();
+                    currentVersionService = VersionService.TACTChannels;
+                }
+                else
+                {
+                    versionService = new TACTSharp.VersionServices.Ribbit();
+                    currentVersionService = VersionService.Ribbit;
+                }
+            }
+        }
 
         [Route("list")]
         [HttpGet]
         public List<BuildMetaData> List()
         {
             return SQLiteDB.GetBuilds();
+        }
+
+        [Route("clearVersionServiceCache")]
+        [HttpGet]
+        public bool ClearVersionServiceCache()
+        {
+            // Also reload local builds
+            CASC.LoadBuildInfo();
+
+            if (currentVersionService == VersionService.TACTChannels && !SettingsManager.UseTACTChannels)
+            {
+                versionService = new TACTSharp.VersionServices.Ribbit();
+                currentVersionService = VersionService.Ribbit;
+            }
+            else if (currentVersionService == VersionService.Ribbit && SettingsManager.UseTACTChannels)
+            {
+                versionService = new TACTSharp.VersionServices.TACTChannels();
+                currentVersionService = VersionService.TACTChannels;
+            }
+
+            versionService!.Refresh();
+            return true;
         }
 
         [Route("table")]
@@ -64,38 +106,19 @@ namespace wow.tools.local.Controllers
 
             if (showOnline)
             {
-                var httpClient = new HttpClient();
-                RibbitCache["v2/summary"] = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/v2/summary").Result;
+                var products = versionService!.GetProductVariants();
 
                 List<(string buildConfig, string cdnConfig)> availableRemoteBuilds = new();
 
-                foreach (var summaryLine in RibbitCache["v2/summary"].Split("\n"))
+                foreach (var product in products)
                 {
-                    if (summaryLine.StartsWith('#') || summaryLine.StartsWith("Product") || string.IsNullOrWhiteSpace(summaryLine))
+                    if (!product.StartsWith("wow"))
                         continue;
 
-                    var product = summaryLine.Split('|');
+                    var builds = versionService.GetVersions(product);
 
-                    // Skip products with no versions
-                    if (product[2] != "" || !product[0].StartsWith("wow"))
-                        continue;
-
-                    var endPoint = "v2/products/" + product[0] + "/versions";
-                    if (!RibbitCache.TryGetValue(endPoint, out var cachedResult))
-                    {
-                        cachedResult = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/" + endPoint).Result;
-                        RibbitCache[endPoint] = cachedResult;
-                    }
-
-                    foreach (var line in cachedResult.Split("\n"))
-                    {
-                        var splitLine = line.Split('|');
-
-                        if (splitLine[0] != "us")
-                            continue;
-
-                        availableBuilds.Add((product[0], splitLine[5], splitLine[1], splitLine[2], true));
-                    }
+                    foreach (var build in builds)
+                        availableBuilds.Add((product, build.Value.VersionString, build.Value.BuildConfig, build.Value.CDNConfig, true));
                 }
             }
 
