@@ -6,6 +6,7 @@
 - Added file availability per product (last loaded build per product) to more info modal.
 - Added files page length to client settings.
 - Added automatic namer for cinematics (videos, audio, subtitles).
+- Added setting to hide encrypted builds on the builds page (hidden by default).
 - Added startup check to ensure WTL is always launched from the correct directory.
 - Added support for Blizzard's new version service (TACT Channels), setting is off by default for now.
 - Added button to builds page to clear version service cache (and also reload local build information).

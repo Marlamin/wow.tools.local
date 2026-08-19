@@ -71,6 +71,7 @@ namespace wow.tools.local.Controllers
             var showLocal = true;
             var showOnline = false;
             var showArchived = false;
+            var showEncrypted = false;
 
             var start = 0;
             var length = 20;
@@ -89,6 +90,7 @@ namespace wow.tools.local.Controllers
                 _ = Request.Form.TryGetValue("showLocal", out var showLocalString) && bool.TryParse(showLocalString, out showLocal);
                 _ = Request.Form.TryGetValue("showOnline", out var showOnlineString) && bool.TryParse(showOnlineString, out showOnline);
                 _ = Request.Form.TryGetValue("showArchived", out var showArchivedString) && bool.TryParse(showArchivedString, out showArchived);
+                _ = Request.Form.TryGetValue("showEncrypted", out var showEncryptedString) && bool.TryParse(showEncryptedString, out showEncrypted);
 
                 _ = Request.Form.TryGetValue("order[0][column]", out var orderColString) && int.TryParse(orderColString, out orderCol);
                 _ = Request.Form.TryGetValue("order[0][dir]", out var orderDirString) && (orderDirString == "asc" || orderDirString == "desc") ? orderDir = orderDirString : orderDir = "desc";
@@ -114,6 +116,10 @@ namespace wow.tools.local.Controllers
                 {
                     if (!product.StartsWith("wow"))
                         continue;
+
+                    if (!showEncrypted)
+                        if (product.StartsWith("wowdev") || product.StartsWith("wownev") || product.StartsWith("wowv") || product == "wowlivetest2")
+                            continue;
 
                     var builds = versionService.GetVersions(product);
 

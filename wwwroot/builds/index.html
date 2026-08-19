@@ -115,6 +115,9 @@
                                <label class="btn btn-sm btn-warning active">
                                    <input type="checkbox" autocomplete="off" id="archivedBuilds"> Archived
                                </label>
+                               <label class="btn btn-sm btn-secondary active">
+                                   <input type="checkbox" autocomplete="off" id="encryptedBuilds"> Encrypted
+                               </label>
                                <div style='margin-left: 10px;' class='btn btn-primary btn-sm' onClick='clearVersionServiceCache(this)' id='refreshBuildsButton'><i class='fa fa-refresh'></i> Clear version service cache</div>
                            </form>
                            `
@@ -133,6 +136,7 @@
                     ajaxData.showLocal = document.getElementById("localBuilds").checked;
                     ajaxData.showOnline = document.getElementById("onlineBuilds").checked;
                     ajaxData.showArchived = document.getElementById("archivedBuilds").checked;
+                    ajaxData.showEncrypted = document.getElementById("encryptedBuilds").checked;
                 }
             },
             "order": [[1, 'desc']],
@@ -255,6 +259,11 @@
             if (archivedBuilds && archivedBuilds == "true") {
                 document.getElementById("archivedBuilds").checked = true;
             }
+
+            var encryptedBuilds = localStorage.getItem("settings[encryptedBuilds]");
+            if (encryptedBuilds && encryptedBuilds == "true") {
+                document.getElementById("encryptedBuilds").checked = true;
+            }
         }
 
         function reloadBuildTable() {
@@ -273,6 +282,7 @@
         document.getElementById("localBuilds").addEventListener("change", buildTypeChange);
         document.getElementById("onlineBuilds").addEventListener("change", buildTypeChange);
         document.getElementById("archivedBuilds").addEventListener("change", buildTypeChange);
+        document.getElementById("encryptedBuilds").addEventListener("change", buildTypeChange);
 
         async function reloadDiffSection() {
             document.getElementById("diffFormButton").disabled = true;
