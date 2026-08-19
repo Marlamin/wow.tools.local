@@ -11,6 +11,7 @@
 - Updated automatic world map naming to more likely pick up on real filenames.
 - Updated TACT key metadata.
 - Updated files page length saving to not save table length if set to "All".
+- Fixed error in serverside setting form validation.
 - Fixed update/analyze buttons on files page resetting the table to the first page.
 - Fixed global DB2 search searching in tables not in the currently loaded build.
 - Fixed empty filenames not showing up when searching for 'lookupwrong'.
