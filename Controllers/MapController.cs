@@ -277,16 +277,18 @@ namespace wow.tools.local.Controllers
             return CacheMask(mapID, directory, wdtFileDataID, layer);
         }
 
-        private MemoryStream CompileMap(List<int> wdtMask, string mapName, sbyte min_x, sbyte min_y, sbyte max_x, sbyte max_y)
+        private static readonly int[] right = new[] { 0, 0, 0, 255 };
+        private static readonly int[] in1 = new[] { 0, 0, 0, 0 };
+        private static MemoryStream CompileMap(List<int> wdtMask, string mapName, sbyte min_x, sbyte min_y, sbyte max_x, sbyte max_y)
         {
             var ms = new MemoryStream();
             var blpRes = 512;
 
-            Console.WriteLine("[" + DateTime.UtcNow.ToString() + "]\t Compiling map " + mapName + " (" + wdtMask.Count + " tiles)");
+            Console.WriteLine("Compiling map " + mapName + " (" + wdtMask.Count + " tiles)");
 
             var emptyTile = Image.Black(blpRes, blpRes);
-            var mask = emptyTile.Equal(new[] { 0, 0, 0, 255 }).BandAnd();
-            emptyTile = mask.Ifthenelse(new[] { 0, 0, 0, 0 }, emptyTile);
+            var mask = emptyTile.Equal(right).BandAnd();
+            emptyTile = mask.Ifthenelse(in1, emptyTile);
 
             Dictionary<string, Image> TileCache = [];
 
