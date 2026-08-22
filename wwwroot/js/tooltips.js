@@ -524,7 +524,7 @@ function generateFlagsTooltip(table, col, value, tooltip, overrideflag) {
         let toCheck = BigInt(1) << BigInt(i);
         if (BigInt(value) & toCheck) {
             if (targetFlags != null) {
-                let targetFlag = targetFlags.at(i);
+                let targetFlag = targetFlags.find(f => f.value == toCheck);
                 if (targetFlag !== undefined && targetFlag.value) {
                     usedFlags.push(['0x' + "" + dec2hex(toCheck, true), targetFlag.name]);
                 } else {
