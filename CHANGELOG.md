@@ -10,6 +10,7 @@
 - Added startup check to ensure WTL is always launched from the correct directory.
 - Added support for Blizzard's new version service (TACT Channels), setting is off by default for now.
 - Added button to builds page to clear version service cache (and also reload local build information).
+- Added link to minimaps page to generate and download full-resolution compiled minimap PNGs.
 - Updated version retrieval across WTL to go through TACTSharp's new VersionServices instead.
 - Updated styling of buttons/update check in header.
 - Updated automatic world map naming to more likely pick up on real filenames.

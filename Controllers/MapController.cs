@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BLPSharp;
+using Microsoft.AspNetCore.Mvc;
 using NetVips;
 using System.Text.Json;
 using wow.tools.local.Managers;
@@ -127,9 +128,7 @@ namespace wow.tools.local.Controllers
             return Json(list, jsonOptions);
         }
 
-        [Route("wdtMask")]
-        [HttpGet]
-        public List<int> GetWDTMask(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
+        public List<int> CacheMask(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
         {
             if (mapMaskCache.ContainsKey((mapID, layer)))
                 return mapMaskCache[(mapID, layer)];
@@ -269,6 +268,124 @@ namespace wow.tools.local.Controllers
             }
             mapMaskCache.Add((mapID, layer), mask);
             return mask;
+        }
+
+        [Route("wdtMask")]
+        [HttpGet]
+        public List<int> GetWDTMask(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
+        {
+            return CacheMask(mapID, directory, wdtFileDataID, layer);
+        }
+
+        private MemoryStream CompileMap(List<int> wdtMask, string mapName, sbyte min_x, sbyte min_y, sbyte max_x, sbyte max_y)
+        {
+            var ms = new MemoryStream();
+            var blpRes = 512;
+
+            Console.WriteLine("[" + DateTime.UtcNow.ToString() + "]\t Compiling map " + mapName + " (" + wdtMask.Count + " tiles)");
+
+            var emptyTile = Image.Black(blpRes, blpRes);
+            var mask = emptyTile.Equal(new[] { 0, 0, 0, 255 }).BandAnd();
+            emptyTile = mask.Ifthenelse(new[] { 0, 0, 0, 0 }, emptyTile);
+
+            Dictionary<string, Image> TileCache = [];
+
+            var imageList = new List<Image>();
+            for (sbyte cur_x = 0; cur_x < 64; cur_x++)
+            {
+                for (sbyte cur_y = 0; cur_y < 64; cur_y++)
+                {
+                    if (cur_x > max_x || cur_y > max_y)
+                        continue;
+
+                    if (cur_x < min_x || cur_y < min_y)
+                        continue;
+
+                    Image? image;
+
+                    var fdid = wdtMask[cur_x * 64 + cur_y];
+                    if (fdid == 0)
+                    {
+                        image = emptyTile.Copy();
+                        imageList.Add(image);
+                        continue;
+                    }
+
+                    var minimapStream = CASC.GetFileByID((uint)fdid);
+
+                    if (minimapStream == null)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Unable to extract minimap tile " + fdid);
+                        Console.ResetColor();
+                        continue;
+                    }
+
+                    var blp = new BLPFile(minimapStream);
+                    var pixels = blp.GetPixels(0, out var width, out var height);
+
+                    try
+                    {
+                        ARGBColor8.ConvertToBGRA(pixels);
+                        image = Image.NewFromMemory(pixels, width, height, 4, Enums.BandFormat.Uchar);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Failed to create new image from BLP: " + e.Message);
+                        Console.ResetColor();
+                        continue;
+                    }
+
+
+                    if (image.Width != blpRes)
+                    {
+                        if (blpRes == 512 && image.Width == 256)
+                        {
+                            image = image.Resize(2, Enums.Kernel.Nearest);
+                        }
+                    }
+
+                    imageList.Add(image);
+                }
+            }
+
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+
+            // Generate compiled map
+            Console.WriteLine("Joining " + imageList.Count + " tiles...");
+            var compiled = Image.Arrayjoin(imageList.ToArray(), (max_x - min_x) + 1);
+            Console.WriteLine("Done, took " + timer.ElapsedMilliseconds + "ms");
+            timer.Restart();
+
+            Console.WriteLine("Writing compiled map to stream...");
+            compiled.WriteToStream(ms, ".png");
+            Console.WriteLine("Done, took " + timer.ElapsedMilliseconds + "ms");
+
+            ms.Position = 0;
+
+            foreach (var img in TileCache.Values)
+                img.Dispose();
+
+            TileCache.Clear();
+            compiled.Dispose();
+            imageList.Clear();
+
+            timer.Stop();
+
+            return ms;
+        }
+
+        [Route("download")]
+        [HttpGet]
+        public FileStreamResult DownloadMap(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
+        {
+            var wdtMask = CacheMask(mapID, directory, wdtFileDataID, layer);
+
+            return new FileStreamResult(CompileMap(wdtMask, mapID, 0, 0, 63, 63), "image/png")
+            {
+                FileDownloadName = mapID + ".png"
+            };
         }
     }
 }

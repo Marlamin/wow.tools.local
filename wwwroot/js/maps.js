@@ -123,6 +123,9 @@ async function InitializeMapOptions(maps) {
 			Current.InternalMapID = map.ID;
 			Current.wdtFileDataID = map.wdtFileDataID;
 			Current.Version = '' + parseInt(url[3], 10);
+
+			document.getElementById("downloadLink").href = "/map/download?mapID=" + Current.Map + "&directory=" + Current.InternalMap + "&wdtFileDataID=" + Current.wdtFileDataID + "&layer=" + state.layer;
+
 			if (map.internal === decodeURIComponent(url[2])) {
 				option.selected = true;
 			}
@@ -151,6 +154,9 @@ async function InitializeEvents() {
 		Current.wdtFileDataID = this.options[this.selectedIndex].dataset.wdtfiledataid;
 
 		await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+
+		document.getElementById("downloadLink").href = "/map/download?mapID=" + Current.Map + "&directory=" + Current.InternalMap + "&wdtFileDataID=" + Current.wdtFileDataID + "&layer=" + state.layer;
+
 		state.zoomFactor = 2;
 		await render();
 		setDefaultPosition();
@@ -158,7 +164,11 @@ async function InitializeEvents() {
 
 	Elements.LayerSelect.addEventListener('change', async function (event) {
 		state.layer = this.value;
+
 		await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+
+		document.getElementById("downloadLink").href = "/map/download?mapID=" + Current.Map + "&directory=" + Current.InternalMap + "&wdtFileDataID=" + Current.wdtFileDataID + "&layer=" + state.layer;
+
 		await render();
 	});
 
