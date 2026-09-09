@@ -4,6 +4,7 @@ using NetVips;
 using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
+using WoWFormatLib.Structs.ADT;
 
 namespace wow.tools.local.Controllers
 {
@@ -11,8 +12,8 @@ namespace wow.tools.local.Controllers
     public class MapController(IDBCManager dbcManager) : Controller
     {
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
-        private readonly Dictionary<(string, int), List<int>> mapMaskCache = new Dictionary<(string, int), List<int>>();
 
+        private readonly Dictionary<(string, int), List<int>> mapMaskCache = new Dictionary<(string, int), List<int>>();
         public struct MapInfo
         {
             public string ID;
@@ -23,7 +24,7 @@ namespace wow.tools.local.Controllers
 
         [Route("tile")]
         [HttpGet]
-        public FileStreamResult Tile(uint fileDataID, int targetSize)
+        public FileStreamResult Tile(uint fileDataID, int targetSize, string adtMethod = "", string output = "raw")
         {
             if (!CASC.FileExists(fileDataID))
             {
@@ -33,6 +34,134 @@ namespace wow.tools.local.Controllers
                 emptyImage.WriteToStream(emptyMS, ".png");
                 emptyMS.Position = 0;
                 return new FileStreamResult(emptyMS, "image/png");
+            }
+
+            var type = "";
+            if (!Listfile.Types.TryGetValue((int)fileDataID, out type))
+                type = "blp"; // assume blp if unknown/unnamed
+
+            if (type == "adt")
+            {
+                if (string.IsNullOrEmpty(adtMethod))
+                    adtMethod = "mccv";
+
+                var adt = CASC.GetFileByID(fileDataID)!;
+
+                var outputImageSize = 128;
+                var imageBytes = new byte[outputImageSize * outputImageSize * 4];
+
+                // choosing not to use wowformatlib's full reader here for faster reading
+                using (var bin = new BinaryReader(adt))
+                {
+                    var mcnkI = 0;
+
+                    while (adt.Position < adt.Length)
+                    {
+                        var chunkName = (ADTChunks)bin.ReadUInt32();
+                        var chunkSize = bin.ReadUInt32();
+
+                        switch (chunkName)
+                        {
+                            case ADTChunks.MCNK:
+                                var mcnkData = bin.ReadBytes((int)chunkSize);
+                                using (var mcnkMS = new MemoryStream(mcnkData))
+                                using (var mcnkBin = new BinaryReader(mcnkMS))
+                                {
+                                    mcnkBin.ReadBytes(128); // mcnk header
+                                    while (mcnkMS.Position < mcnkMS.Length)
+                                    {
+                                        var subChunkName = (ADTChunks)mcnkBin.ReadUInt32();
+                                        var subChunkSize = mcnkBin.ReadUInt32();
+
+                                        switch (subChunkName)
+                                        {
+                                            case ADTChunks.MCCV: // layer 3
+                                                if (adtMethod == "mccv")
+                                                {
+                                                    // calculate the mcnk row and col based on the index, 16x16 
+                                                    var mcnkRow = mcnkI / 16;
+                                                    var mcnkCol = mcnkI % 16;
+
+                                                    var mcnkPixelSize = outputImageSize / 16; // 8px per mcnk (1px per inner vertex)
+
+                                                    var mcnkXStart = mcnkCol * mcnkPixelSize;
+                                                    var mcnkyStart = mcnkRow * mcnkPixelSize;
+
+                                                    for (var i = 0; i < 17; i++)
+                                                    {
+                                                        var isInnerVertice = (i % 2) != 0; // see mcvt on wiki
+                                                        var columns = isInnerVertice ? 8 : 9;
+
+                                                        // only care about inner vertice for MAXIMUM SPEED
+                                                        if (!isInnerVertice)
+                                                        {
+                                                            mcnkBin.BaseStream.Position += columns * 4;
+                                                            continue;
+                                                        }
+
+                                                        var innerRow = i / 2;
+                                                        var pixelY = mcnkyStart + innerRow;
+
+                                                        for (var j = 0; j < columns; j++)
+                                                        {
+                                                            var r = mcnkBin.ReadByte();
+                                                            var g = mcnkBin.ReadByte();
+                                                            var b = mcnkBin.ReadByte();
+                                                            //var a = mcnkBin.ReadByte();
+                                                            mcnkBin.BaseStream.Position += 1; // skip alpha
+
+                                                            var pixelX = mcnkXStart + j;
+                                                            var pixelByteOffset = ((pixelY * outputImageSize) + pixelX) * 4;
+                                                            imageBytes[pixelByteOffset + 0] = b;
+                                                            imageBytes[pixelByteOffset + 1] = g;
+                                                            imageBytes[pixelByteOffset + 2] = r;
+                                                            imageBytes[pixelByteOffset + 3] = 255; // idk if this is ever relevant
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    mcnkMS.Position += subChunkSize;
+                                                }
+                                                break;
+                                            case ADTChunks.MCVT: // TODO: Heightmap for layer 4
+                                            default:
+                                                mcnkMS.Position += subChunkSize;
+                                                break;
+                                        }
+                                    }
+                                }
+
+                                mcnkI++;
+                                break;
+                            default:
+                                adt.Position += chunkSize;
+                                break;
+                        }
+                    }
+                }
+
+                var adtImage = NetVips.Image.NewFromMemory(imageBytes, outputImageSize, outputImageSize, 4, Enums.BandFormat.Uchar);
+
+                if (adtImage.Width != targetSize)
+                    adtImage = adtImage.Resize((double)targetSize / adtImage.Width);
+
+     
+                if(output == "raw")
+                {
+                    byte[] adtRawPixels = adtImage.WriteToMemory<byte>();
+                    var adtms = new MemoryStream();
+                    adtms.Write(adtRawPixels);
+                    adtms.Position = 0;
+                    return new FileStreamResult(adtms, "application/octet-stream");
+                }
+                else
+                {
+                    var adtms = new MemoryStream();
+                    adtImage.WriteToStream(adtms, ".png");
+                    adtms.Position = 0;
+                    return new FileStreamResult(adtms, "image/png");
+                }
             }
 
             var blp = new BLPSharp.BLPFile(CASC.GetFileByID(fileDataID));
@@ -130,18 +259,20 @@ namespace wow.tools.local.Controllers
 
         public List<int> CacheMask(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
         {
-            if (mapMaskCache.ContainsKey((mapID, layer)))
-                return mapMaskCache[(mapID, layer)];
+            if (mapMaskCache.TryGetValue((mapID, layer), out var mask))
+                return mask;
 
-            var mask = new List<int>();
+            mask = new List<int>();
             Dictionary<string, int> allFiles;
 
-            if (layer == 0)
+            if (layer == 0) // minimaps
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/minimaps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
-            else if (layer == 1)
+            else if (layer == 1) // maptextures
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
-            else if (layer == 2)
+            else if (layer == 2) // maptexture normals
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
+            else if (layer == 3) // adt vertex colors
+                allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith(".adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_lod.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj0.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj1.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_tex0.adt", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
             else
                 throw new Exception("Unknown layer type");
 
@@ -170,6 +301,13 @@ namespace wow.tools.local.Controllers
                         else if (layer == 2)
                         {
                             if (allFiles.TryGetValue("world/maptextures/" + directory + "/" + directory + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + "_n.blp", out var fdid))
+                                mask.Add(fdid);
+                            else
+                                mask.Add(0);
+                        }
+                        else if (layer == 3 || layer == 4)
+                        {
+                            if (allFiles.TryGetValue("world/maps/" + directory + "/" + directory + "_" + y.ToString() + "_" + x.ToString() + ".adt", out var fdid))
                                 mask.Add(fdid);
                             else
                                 mask.Add(0);
@@ -206,7 +344,8 @@ namespace wow.tools.local.Controllers
                             {
                                 for (byte y = 0; y < 64; y++)
                                 {
-                                    bin.ReadBytes(20);
+                                    var rootADT = bin.ReadUInt32();
+                                    bin.ReadBytes(16);
                                     var mapTextureFDID = bin.ReadUInt32();
                                     var mapTextureNFDID = bin.ReadUInt32();
                                     var minimapFDID = bin.ReadUInt32();
@@ -251,6 +390,21 @@ namespace wow.tools.local.Controllers
                                         {
                                             var mapTextureNName = "world/maptextures/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + "_n.blp";
                                             if (allFiles.TryGetValue(mapTextureNName, out var fdid))
+                                                mask.Add(fdid);
+                                            else
+                                                mask.Add(0);
+                                        }
+                                    }
+                                    else if (layer == 3 || layer == 4) // layer 3 is vertex colors, layer 4 will be heightmap
+                                    {
+                                        if (rootADT != 0)
+                                        {
+                                            mask.Add((int)rootADT);
+                                        }
+                                        else
+                                        {
+                                            var adtName = "world/maps/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString() + "_" + x.ToString() + ".adt"; // no padding on adts
+                                            if (allFiles.TryGetValue(adtName, out var fdid))
                                                 mask.Add(fdid);
                                             else
                                                 mask.Add(0);
@@ -383,6 +537,9 @@ namespace wow.tools.local.Controllers
         public FileStreamResult DownloadMap(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
         {
             var wdtMask = CacheMask(mapID, directory, wdtFileDataID, layer);
+
+            if (layer == 3 || layer == 4)
+                throw new NotImplementedException();
 
             return new FileStreamResult(CompileMap(wdtMask, mapID, 0, 0, 63, 63), "image/png")
             {
