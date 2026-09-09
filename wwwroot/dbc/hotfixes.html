@@ -293,10 +293,11 @@
             } else if (enumMap.has(columnWithTable)) {
                 var enumRes = enumMap.get(columnWithTable);
                 if (val in enumRes) {
-                    if (Array.isArray(enumRes[val])) {
-                        returnedValue += " (" + enumRes[val][1].name + ")";
+                    var targetEnum = enumRes.find(f => f.value == val);
+                    if (Array.isArray(targetEnum)) {
+                        returnedValue += " (" + targetEnum[1].name + ")";
                     } else {
-                        returnedValue += " (" + enumRes[val].name + ")";
+                        returnedValue += " (" + targetEnum.name + ")";
                     }
                 } else {
                     returnedValue += " (unknown)";

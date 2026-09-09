@@ -8,6 +8,7 @@
 - Updated text preview types to include WTF files.
 - Updated deep map file naming to only run on maps newer than Khaz Algar.
 - Updated WoWNamingLib to name certain files in a more normalized manner (e.g. World/Minimaps instead of world/minimaps).
+- Fixed enums in hotfix diffs sometimes having incorrect descriptions.
 - Fixed issue with some files not being named with placeholders.
 - Fixed double draws on DBC page (should speed up DB2 browsing a good bit!).
 - Fixed CTRL-A not selecting anything inside DBC filter inputs. 
