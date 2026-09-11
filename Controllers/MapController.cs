@@ -13,6 +13,7 @@ namespace wow.tools.local.Controllers
     {
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
 
+        private readonly Dictionary<string, List<MapTile>> puzzleMapMaskCache = new Dictionary<string, List<MapTile>>();
         private readonly Dictionary<(string, int), List<int>> mapMaskCache = new Dictionary<(string, int), List<int>>();
         public struct MapInfo
         {
@@ -20,6 +21,135 @@ namespace wow.tools.local.Controllers
             public string internalName;
             public string displayName;
             public uint wdtFileDataID;
+        }
+
+        public struct MapTile
+        {
+            public byte x;
+            public byte y;
+
+            public uint rootADT;
+            public uint minimapTexture;
+            public uint mapTexture;
+            public uint mapTextureN;
+        }
+
+        [Route("clearCache")]
+        [HttpGet]
+        public ActionResult ClearCache()
+        {
+            puzzleMapMaskCache.Clear();
+            mapMaskCache.Clear();
+            return Ok();
+        }
+
+        private static NetVips.Image GetADTColorImage(uint fileDataID, int targetSize, string adtMethod = "")
+        {
+            if (string.IsNullOrEmpty(adtMethod))
+                adtMethod = "mccv";
+
+            var adt = CASC.GetFileByID(fileDataID)!;
+
+            var outputImageSize = 128;
+            var imageBytes = new byte[outputImageSize * outputImageSize * 4];
+
+            // choosing not to use wowformatlib's full reader here for faster reading
+            using (var bin = new BinaryReader(adt))
+            {
+                var mcnkI = 0;
+
+                while (adt.Position < adt.Length)
+                {
+                    var chunkName = (ADTChunks)bin.ReadUInt32();
+                    var chunkSize = bin.ReadUInt32();
+
+                    switch (chunkName)
+                    {
+                        case ADTChunks.MCNK:
+                            var mcnkData = bin.ReadBytes((int)chunkSize);
+                            using (var mcnkMS = new MemoryStream(mcnkData))
+                            using (var mcnkBin = new BinaryReader(mcnkMS))
+                            {
+                                mcnkBin.ReadBytes(128); // mcnk header
+                                while (mcnkMS.Position < mcnkMS.Length)
+                                {
+                                    var subChunkName = (ADTChunks)mcnkBin.ReadUInt32();
+                                    var subChunkSize = mcnkBin.ReadUInt32();
+
+                                    switch (subChunkName)
+                                    {
+                                        case ADTChunks.MCCV: // layer 3
+                                            if (adtMethod == "mccv")
+                                            {
+                                                // calculate the mcnk row and col based on the index, 16x16 
+                                                var mcnkRow = mcnkI / 16;
+                                                var mcnkCol = mcnkI % 16;
+
+                                                var mcnkPixelSize = outputImageSize / 16; // 8px per mcnk (1px per inner vertex)
+
+                                                var mcnkXStart = mcnkCol * mcnkPixelSize;
+                                                var mcnkyStart = mcnkRow * mcnkPixelSize;
+
+                                                for (var i = 0; i < 17; i++)
+                                                {
+                                                    var isInnerVertice = (i % 2) != 0; // see mcvt on wiki
+                                                    var columns = isInnerVertice ? 8 : 9;
+
+                                                    // only care about inner vertice for MAXIMUM SPEED
+                                                    if (!isInnerVertice)
+                                                    {
+                                                        mcnkBin.BaseStream.Position += columns * 4;
+                                                        continue;
+                                                    }
+
+                                                    var innerRow = i / 2;
+                                                    var pixelY = mcnkyStart + innerRow;
+
+                                                    for (var j = 0; j < columns; j++)
+                                                    {
+                                                        var r = mcnkBin.ReadByte();
+                                                        var g = mcnkBin.ReadByte();
+                                                        var b = mcnkBin.ReadByte();
+                                                        //var a = mcnkBin.ReadByte();
+                                                        mcnkBin.BaseStream.Position += 1; // skip alpha
+
+                                                        var pixelX = mcnkXStart + j;
+                                                        var pixelByteOffset = ((pixelY * outputImageSize) + pixelX) * 4;
+                                                        imageBytes[pixelByteOffset + 0] = b;
+                                                        imageBytes[pixelByteOffset + 1] = g;
+                                                        imageBytes[pixelByteOffset + 2] = r;
+                                                        imageBytes[pixelByteOffset + 3] = 255; // idk if this is ever relevant
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                mcnkMS.Position += subChunkSize;
+                                            }
+                                            break;
+                                        case ADTChunks.MCVT: // TODO: Heightmap for layer 4
+                                        default:
+                                            mcnkMS.Position += subChunkSize;
+                                            break;
+                                    }
+                                }
+                            }
+
+                            mcnkI++;
+                            break;
+                        default:
+                            adt.Position += chunkSize;
+                            break;
+                    }
+                }
+            }
+
+            var adtImage = NetVips.Image.NewFromMemory(imageBytes, outputImageSize, outputImageSize, 4, Enums.BandFormat.Uchar);
+
+            if (adtImage.Width != targetSize)
+                adtImage = adtImage.Resize((double)targetSize / adtImage.Width);
+
+            return adtImage;
         }
 
         [Route("tile")]
@@ -42,112 +172,9 @@ namespace wow.tools.local.Controllers
 
             if (type == "adt")
             {
-                if (string.IsNullOrEmpty(adtMethod))
-                    adtMethod = "mccv";
+                var adtImage = GetADTColorImage(fileDataID, targetSize, adtMethod);
 
-                var adt = CASC.GetFileByID(fileDataID)!;
-
-                var outputImageSize = 128;
-                var imageBytes = new byte[outputImageSize * outputImageSize * 4];
-
-                // choosing not to use wowformatlib's full reader here for faster reading
-                using (var bin = new BinaryReader(adt))
-                {
-                    var mcnkI = 0;
-
-                    while (adt.Position < adt.Length)
-                    {
-                        var chunkName = (ADTChunks)bin.ReadUInt32();
-                        var chunkSize = bin.ReadUInt32();
-
-                        switch (chunkName)
-                        {
-                            case ADTChunks.MCNK:
-                                var mcnkData = bin.ReadBytes((int)chunkSize);
-                                using (var mcnkMS = new MemoryStream(mcnkData))
-                                using (var mcnkBin = new BinaryReader(mcnkMS))
-                                {
-                                    mcnkBin.ReadBytes(128); // mcnk header
-                                    while (mcnkMS.Position < mcnkMS.Length)
-                                    {
-                                        var subChunkName = (ADTChunks)mcnkBin.ReadUInt32();
-                                        var subChunkSize = mcnkBin.ReadUInt32();
-
-                                        switch (subChunkName)
-                                        {
-                                            case ADTChunks.MCCV: // layer 3
-                                                if (adtMethod == "mccv")
-                                                {
-                                                    // calculate the mcnk row and col based on the index, 16x16 
-                                                    var mcnkRow = mcnkI / 16;
-                                                    var mcnkCol = mcnkI % 16;
-
-                                                    var mcnkPixelSize = outputImageSize / 16; // 8px per mcnk (1px per inner vertex)
-
-                                                    var mcnkXStart = mcnkCol * mcnkPixelSize;
-                                                    var mcnkyStart = mcnkRow * mcnkPixelSize;
-
-                                                    for (var i = 0; i < 17; i++)
-                                                    {
-                                                        var isInnerVertice = (i % 2) != 0; // see mcvt on wiki
-                                                        var columns = isInnerVertice ? 8 : 9;
-
-                                                        // only care about inner vertice for MAXIMUM SPEED
-                                                        if (!isInnerVertice)
-                                                        {
-                                                            mcnkBin.BaseStream.Position += columns * 4;
-                                                            continue;
-                                                        }
-
-                                                        var innerRow = i / 2;
-                                                        var pixelY = mcnkyStart + innerRow;
-
-                                                        for (var j = 0; j < columns; j++)
-                                                        {
-                                                            var r = mcnkBin.ReadByte();
-                                                            var g = mcnkBin.ReadByte();
-                                                            var b = mcnkBin.ReadByte();
-                                                            //var a = mcnkBin.ReadByte();
-                                                            mcnkBin.BaseStream.Position += 1; // skip alpha
-
-                                                            var pixelX = mcnkXStart + j;
-                                                            var pixelByteOffset = ((pixelY * outputImageSize) + pixelX) * 4;
-                                                            imageBytes[pixelByteOffset + 0] = b;
-                                                            imageBytes[pixelByteOffset + 1] = g;
-                                                            imageBytes[pixelByteOffset + 2] = r;
-                                                            imageBytes[pixelByteOffset + 3] = 255; // idk if this is ever relevant
-                                                        }
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    mcnkMS.Position += subChunkSize;
-                                                }
-                                                break;
-                                            case ADTChunks.MCVT: // TODO: Heightmap for layer 4
-                                            default:
-                                                mcnkMS.Position += subChunkSize;
-                                                break;
-                                        }
-                                    }
-                                }
-
-                                mcnkI++;
-                                break;
-                            default:
-                                adt.Position += chunkSize;
-                                break;
-                        }
-                    }
-                }
-
-                var adtImage = NetVips.Image.NewFromMemory(imageBytes, outputImageSize, outputImageSize, 4, Enums.BandFormat.Uchar);
-
-                if (adtImage.Width != targetSize)
-                    adtImage = adtImage.Resize((double)targetSize / adtImage.Width);
-
-     
-                if(output == "raw")
+                if (output == "raw")
                 {
                     byte[] adtRawPixels = adtImage.WriteToMemory<byte>();
                     var adtms = new MemoryStream();
@@ -433,7 +460,7 @@ namespace wow.tools.local.Controllers
 
         private static readonly int[] right = new[] { 0, 0, 0, 255 };
         private static readonly int[] in1 = new[] { 0, 0, 0, 0 };
-        private static MemoryStream CompileMap(List<int> wdtMask, string mapName, sbyte min_x, sbyte min_y, sbyte max_x, sbyte max_y)
+        private static MemoryStream CompileMap(List<int> wdtMask, string mapName, sbyte min_x, sbyte min_y, sbyte max_x, sbyte max_y, byte layer = 0)
         {
             var ms = new MemoryStream();
             var blpRes = 512;
@@ -447,64 +474,107 @@ namespace wow.tools.local.Controllers
             Dictionary<string, Image> TileCache = [];
 
             var imageList = new List<Image>();
-            for (sbyte cur_x = 0; cur_x < 64; cur_x++)
+
+            if (layer == 0 || layer == 1 || layer == 2)
             {
-                for (sbyte cur_y = 0; cur_y < 64; cur_y++)
+                for (sbyte cur_x = 0; cur_x < 64; cur_x++)
                 {
-                    if (cur_x > max_x || cur_y > max_y)
-                        continue;
-
-                    if (cur_x < min_x || cur_y < min_y)
-                        continue;
-
-                    Image? image;
-
-                    var fdid = wdtMask[cur_x * 64 + cur_y];
-                    if (fdid == 0)
+                    for (sbyte cur_y = 0; cur_y < 64; cur_y++)
                     {
-                        image = emptyTile.Copy();
-                        imageList.Add(image);
-                        continue;
-                    }
+                        if (cur_x > max_x || cur_y > max_y)
+                            continue;
 
-                    var minimapStream = CASC.GetFileByID((uint)fdid);
+                        if (cur_x < min_x || cur_y < min_y)
+                            continue;
 
-                    if (minimapStream == null)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Unable to extract minimap tile " + fdid);
-                        Console.ResetColor();
-                        continue;
-                    }
+                        Image? image;
 
-                    var blp = new BLPFile(minimapStream);
-                    var pixels = blp.GetPixels(0, out var width, out var height);
-
-                    try
-                    {
-                        ARGBColor8.ConvertToBGRA(pixels);
-                        image = Image.NewFromMemory(pixels, width, height, 4, Enums.BandFormat.Uchar);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Failed to create new image from BLP: " + e.Message);
-                        Console.ResetColor();
-                        continue;
-                    }
-
-
-                    if (image.Width != blpRes)
-                    {
-                        if (blpRes == 512 && image.Width == 256)
+                        var fdid = wdtMask[cur_x * 64 + cur_y];
+                        if (fdid == 0)
                         {
-                            image = image.Resize(2, Enums.Kernel.Nearest);
+                            image = emptyTile.Copy();
+                            imageList.Add(image);
+                            continue;
                         }
-                    }
 
-                    imageList.Add(image);
+                        var minimapStream = CASC.GetFileByID((uint)fdid);
+
+                        if (minimapStream == null)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Unable to extract minimap tile " + fdid);
+                            Console.ResetColor();
+                            continue;
+                        }
+
+                        var blp = new BLPFile(minimapStream);
+                        var pixels = blp.GetPixels(0, out var width, out var height);
+
+                        try
+                        {
+                            ARGBColor8.ConvertToBGRA(pixels);
+                            image = Image.NewFromMemory(pixels, width, height, 4, Enums.BandFormat.Uchar);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Failed to create new image from BLP: " + e.Message);
+                            Console.ResetColor();
+                            continue;
+                        }
+
+
+                        if (image.Width != blpRes)
+                        {
+                            if (blpRes == 512 && image.Width == 256)
+                            {
+                                image = image.Resize(2, Enums.Kernel.Nearest);
+                            }
+                        }
+
+                        imageList.Add(image);
+                    }
                 }
             }
+            else if (layer == 3 || layer == 4)
+            {
+                for (sbyte cur_x = 0; cur_x < 64; cur_x++)
+                {
+                    for (sbyte cur_y = 0; cur_y < 64; cur_y++)
+                    {
+                        if (cur_x > max_x || cur_y > max_y)
+                            continue;
+
+                        if (cur_x < min_x || cur_y < min_y)
+                            continue;
+
+                        Image? image;
+
+                        var fdid = wdtMask[cur_x * 64 + cur_y];
+                        if (fdid == 0)
+                        {
+                            image = emptyTile.Copy();
+                            imageList.Add(image);
+                            continue;
+                        }
+
+                        try
+                        {
+                            image = GetADTColorImage((uint)fdid, blpRes, "mccv");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Failed to create new image from ADT: " + e.Message);
+                            Console.ResetColor();
+                            continue;
+                        }
+
+                        imageList.Add(image);
+                    }
+                }
+            }
+
 
             var timer = System.Diagnostics.Stopwatch.StartNew();
 
@@ -538,10 +608,7 @@ namespace wow.tools.local.Controllers
         {
             var wdtMask = CacheMask(mapID, directory, wdtFileDataID, layer);
 
-            if (layer == 3 || layer == 4)
-                throw new NotImplementedException();
-
-            return new FileStreamResult(CompileMap(wdtMask, mapID, 0, 0, 63, 63), "image/png")
+            return new FileStreamResult(CompileMap(wdtMask, mapID, 0, 0, 63, 63, layer), "image/png")
             {
                 FileDownloadName = mapID + ".png"
             };
