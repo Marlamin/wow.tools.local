@@ -11,6 +11,7 @@
 - Updated deep map file naming to only run on maps newer than Khaz Algar.
 - Updated WoWNamingLib to name certain files in a more normalized manner (e.g. World/Minimaps instead of world/minimaps).
 - Fixed online builds being broken due to Blizzard pushing up an invalid dummy build.
+- Fixed crash during initialization upon loading 12.1.5.69848+.
 - Fixed enums in hotfix diffs sometimes having incorrect descriptions.
 - Fixed issue with some files not being named with placeholders.
 - Fixed double draws on DBC page (should speed up DB2 browsing a good bit!).

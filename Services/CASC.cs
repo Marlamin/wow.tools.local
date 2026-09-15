@@ -301,30 +301,37 @@ namespace wow.tools.local.Services
                             EncryptedFDIDs.TryAdd(fdidInt, new List<ulong>());
                     }
 
-                    var cKey = entries[0].md5.AsSpan();
-                    var eKeys = buildInstance.Encoding.FindContentKey(cKey);
-                    if (eKeys != false)
+                    try
                     {
-                        lock (chashLock)
-                            CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (uint)eKeys.DecodedFileSize);
-
-                        var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
-                        var matches = eKeyRegex().Matches(eSpec.eSpec);
-
-                        if (matches.Count > 0)
+                        var cKey = entries[0].md5.AsSpan();
+                        var eKeys = buildInstance.Encoding.FindContentKey(cKey);
+                        if (eKeys != false)
                         {
-                            var keys = matches.Cast<Match>().Select(m => BitConverter.ToUInt64(Convert.FromHexString(m.Value), 0)).ToList();
-                            if (keys.Count > 0)
+                            lock (chashLock)
+                                CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (uint)eKeys.DecodedFileSize);
+
+                            var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
+                            var matches = eKeyRegex().Matches(eSpec.eSpec);
+
+                            if (matches.Count > 0)
                             {
-                                lock (EncryptedFDIDs)
+                                var keys = matches.Cast<Match>().Select(m => BitConverter.ToUInt64(Convert.FromHexString(m.Value), 0)).ToList();
+                                if (keys.Count > 0)
                                 {
-                                    if (EncryptedFDIDs.TryGetValue(fdidInt, out List<ulong>? encryptedIDs))
-                                        encryptedIDs.AddRange(keys);
-                                    else
-                                        EncryptedFDIDs[fdidInt] = new List<ulong>(keys);
+                                    lock (EncryptedFDIDs)
+                                    {
+                                        if (EncryptedFDIDs.TryGetValue(fdidInt, out List<ulong>? encryptedIDs))
+                                            encryptedIDs.AddRange(keys);
+                                        else
+                                            EncryptedFDIDs[fdidInt] = new List<ulong>(keys);
+                                    }
                                 }
                             }
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error analyzing file " + fdid + ": " + e.Message);
                     }
                 });
 
@@ -695,10 +702,17 @@ namespace wow.tools.local.Services
 
                     Parallel.ForEach(CHashToFDID.Keys, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, chash =>
                     {
-                        var eKeys = buildInstance.Encoding!.FindContentKey(Convert.FromHexString(chash));
-                        if (eKeys)
-                            lock (CHashLock)
-                                CHashToSize.TryAdd(chash, (uint)eKeys.DecodedFileSize);
+                        try
+                        {
+                            var eKeys = buildInstance.Encoding!.FindContentKey(Convert.FromHexString(chash));
+                            if (eKeys)
+                                lock (CHashLock)
+                                    CHashToSize.TryAdd(chash, (uint)eKeys.DecodedFileSize);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error getting size for CHash " + chash + ": " + e.Message);
+                        }
                     });
                 }
                 else
