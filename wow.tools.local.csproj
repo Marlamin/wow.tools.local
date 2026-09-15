@@ -113,6 +113,7 @@
     <Content Remove="config.json" />
     <Content Remove="knownPushIDs.json" />
     <Content Remove="versionHistory.json" />
+    <Content Remove="wwwroot\dbc\tooltips.html" />
     <Content Remove="wwwroot\db\broadcasttext.html" />
     <Content Remove="wwwroot\db\creatures.html" />
     <Content Remove="wwwroot\db\quests.html" />
@@ -122,6 +123,8 @@
     <Content Remove="wwwroot\files\tagging.html" />
     <Content Remove="wwwroot\header.html" />
     <Content Remove="wwwroot\js\m3modelviewer.js" />
+    <Content Remove="wwwroot\js\puzzler.js" />
+    <Content Remove="wwwroot\maps\puzzler.html" />
     <Content Remove="wwwroot\maps\worldmap.html" />
     <Content Remove="wwwroot\mv\m3.html" />
   </ItemGroup>

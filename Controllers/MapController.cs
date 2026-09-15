@@ -284,6 +284,129 @@ namespace wow.tools.local.Controllers
             return Json(list, jsonOptions);
         }
 
+        // Slower but gives the full state for all layers in one go
+        public List<MapTile> PuzzleCacheMask(string mapID, string directory, uint wdtFileDataID)
+        {
+            if (puzzleMapMaskCache.TryGetValue(mapID, out var mask))
+                return puzzleMapMaskCache[mapID];
+
+            mask = new List<MapTile>();
+
+            var allMinimaps = Listfile.NameMap.Where(x => x.Value.StartsWith("world/minimaps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
+            var allMapTextures = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
+            var allMapTextureNs = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
+            var allRootADTs = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith(".adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_lod.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj0.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj1.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_tex0.adt", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
+
+            if (wdtFileDataID == 0)
+            {
+                // No shipped WDT, fall back to listfile-based minimap detection.
+                for (byte x = 0; x < 64; x++)
+                {
+                    for (byte y = 0; y < 64; y++)
+                    {
+                        var mapTile = new MapTile();
+                        mapTile.x = x;
+                        mapTile.y = y;
+
+                        if (!allRootADTs.TryGetValue("world/maps/" + directory + "/" + directory + "_" + y.ToString() + "_" + x.ToString() + ".adt", out mapTile.rootADT))
+                            mapTile.rootADT = 0;
+
+                        if (!allMinimaps.TryGetValue("world/minimaps/" + directory + "/map" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp", out mapTile.minimapTexture))
+                            mapTile.minimapTexture = 0;
+
+                        if (!allMapTextures.TryGetValue("world/maptextures/" + directory + "/" + directory + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp", out mapTile.mapTexture))
+                            mapTile.mapTexture = 0;
+
+                        if (!allMapTextureNs.TryGetValue("world/maptextures/" + directory + "/" + directory + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + "_n.blp", out mapTile.mapTextureN))
+                            mapTile.mapTextureN = 0;
+
+                        mask.Add(mapTile);
+                    }
+                }
+
+                return mask;
+            }
+
+            var wdtName = Listfile.NameMap.Where(x => x.Value.EndsWith(".wdt") && x.Value.StartsWith(mapID.ToString())).FirstOrDefault().Value;
+
+            var wdt = CASC.GetFileByID(wdtFileDataID);
+
+            if (wdt == null)
+                return mask;
+
+            using (var bin = new BinaryReader(wdt))
+            {
+                long position = 0;
+                while (position < wdt.Length)
+                {
+                    wdt.Position = position;
+
+                    var chunkName = bin.ReadUInt32();
+                    var chunkSize = bin.ReadUInt32();
+
+                    position = wdt.Position + chunkSize;
+
+                    switch (chunkName)
+                    {
+                        case 'M' << 24 | 'A' << 16 | 'I' << 8 | 'D' << 0:
+                            for (byte x = 0; x < 64; x++)
+                            {
+                                for (byte y = 0; y < 64; y++)
+                                {
+                                    var mapTile = new MapTile();
+
+                                    mapTile.x = x;
+                                    mapTile.y = y;
+
+                                    mapTile.rootADT = bin.ReadUInt32();
+                                    bin.ReadBytes(16);
+                                    mapTile.mapTexture = bin.ReadUInt32();
+                                    mapTile.mapTextureN = bin.ReadUInt32();
+                                    mapTile.minimapTexture = bin.ReadUInt32();
+
+                                    if (mapTile.minimapTexture == 0)
+                                    {
+                                        var minimapName = "world/minimaps/" + directory.ToLower() + "/map" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp";
+                                        if (allMinimaps.TryGetValue(minimapName, out var fdid))
+                                            mapTile.minimapTexture = fdid;
+                                    }
+
+                                    if (mapTile.mapTexture == 0)
+                                    {
+                                        var mapTextureName = "world/maptextures/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp";
+                                        if (allMapTextures.TryGetValue(mapTextureName, out var fdid))
+                                            mapTile.mapTexture = fdid;
+                                    }
+
+                                    if (mapTile.mapTextureN == 0)
+                                    {
+                                        var mapTextureNName = "world/maptextures/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + "_n.blp";
+                                        if (allMapTextureNs.TryGetValue(mapTextureNName, out var fdid))
+                                            mapTile.mapTextureN = fdid;
+                                    }
+
+                                    if (mapTile.rootADT == 0)
+                                    {
+                                        var adtName = "world/maps/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString() + "_" + x.ToString() + ".adt"; // no padding on adts
+                                        if (allRootADTs.TryGetValue(adtName, out var fdid))
+                                            mapTile.rootADT = fdid;
+                                    }
+
+                                    mask.Add(mapTile);
+                                }
+                            }
+
+                            break;
+                        default:
+                            //Console.WriteLine(string.Format("Found unknown header at offset {1} \"{0}\" while we should've already read them all!", chunkName.ToString("X"), position.ToString()));
+                            break;
+                    }
+                }
+            }
+            puzzleMapMaskCache.Add(mapID, mask);
+            return mask;
+        }
+
         public List<int> CacheMask(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
         {
             if (mapMaskCache.TryGetValue((mapID, layer), out var mask))
@@ -456,6 +579,14 @@ namespace wow.tools.local.Controllers
         public List<int> GetWDTMask(string mapID, string directory, uint wdtFileDataID, byte layer = 0)
         {
             return CacheMask(mapID, directory, wdtFileDataID, layer);
+        }
+
+        [Route("wdtMaskPuzzle")]
+        [HttpGet]
+        public ActionResult GetWDTMaskPuzzle(string mapID, string directory, uint wdtFileDataID)
+        {
+            var jsonOptions = new JsonSerializerOptions() { IncludeFields = true };
+            return Json(PuzzleCacheMask(mapID, directory, wdtFileDataID), jsonOptions);
         }
 
         private static readonly int[] right = new[] { 0, 0, 0, 255 };

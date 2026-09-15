@@ -243,3 +243,10 @@
 	z-index: 3;
 	width: 500px;
 }
+
+#js-manual-file-input {
+	position: absolute;
+	z-index: 5;
+	bottom: 0px;
+	left: 0px;
+}
