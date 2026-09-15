@@ -149,6 +149,10 @@ namespace wow.tools.local.Controllers
             foreach (var availableBuild in availableBuilds)
             {
                 var splitVersion = availableBuild.version.Split(".");
+
+                if(splitVersion.Length < 4)
+                    continue;
+
                 var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
                 var build = splitVersion[3];
 
