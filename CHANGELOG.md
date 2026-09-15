@@ -1,4 +1,4 @@
-0.9.8 (xx-09-2026)
+0.9.8 (15-09-2026)
 - Added Discord link to support-only channel.
 - Added state tracking to URL on build diff page (refreshes should now keep you in the same spot).
 - Added filter to DBC diffs to filter rows by diff type (Added/Modified/Removed).
@@ -10,6 +10,7 @@
 - Updated text preview types to include WTF files.
 - Updated deep map file naming to only run on maps newer than Khaz Algar.
 - Updated WoWNamingLib to name certain files in a more normalized manner (e.g. World/Minimaps instead of world/minimaps).
+- Fixed online builds being broken due to Blizzard pushing up an invalid dummy build.
 - Fixed enums in hotfix diffs sometimes having incorrect descriptions.
 - Fixed issue with some files not being named with placeholders.
 - Fixed double draws on DBC page (should speed up DB2 browsing a good bit!).
