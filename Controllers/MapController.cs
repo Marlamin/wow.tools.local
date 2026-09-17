@@ -416,7 +416,7 @@ namespace wow.tools.local.Controllers
 
                                     if (targetMask.liquidFlow == 0)
                                     {
-                                        var waterDirBLPName = "world/liquidflow/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString() + "_" + x.ToString() + ".blp"; // todo: proper name
+                                        var waterDirBLPName = "world/liquidflow/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString() + "_" + x.ToString() + ".blp";
                                         if (allWaterDirs.TryGetValue(waterDirBLPName, out var fdid))
                                             targetMask.liquidFlow = fdid;
                                     }
@@ -451,10 +451,10 @@ namespace wow.tools.local.Controllers
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
             else if (layer == 2) // maptexture normals
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
-            else if (layer == 3 || layer == 4) // adt vertex colors
+            else if (layer == 3 || layer == 4) // adt vertex colors/adt height map
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith(".adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_lod.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj0.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj1.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_tex0.adt", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
-            else if (layer == 5) // adt heightmap
-                allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("unkmaps/world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_unk0.blp")).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key); // todo: proper name
+            else if (layer == 5) // liquid flow
+                allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/liquidflow/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith(".blp")).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key); // todo: proper name
             else
                 throw new Exception("Unknown layer type");
 
