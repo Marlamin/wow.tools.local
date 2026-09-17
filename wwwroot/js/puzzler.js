@@ -467,12 +467,14 @@ function getFDIDForTile(index) {
 	if (state.mask && state.mask[index] !== undefined) {
 		if (state.layer == 0)
 			return state.mask[index].minimapTexture; // minimap
-        else if (state.layer == 1)
+		else if (state.layer == 1)
 			return state.mask[index].mapTexture; // maptexture
-        else if (state.layer == 2)
+		else if (state.layer == 2)
 			return state.mask[index].mapTextureN; // maptexture normals
-        else if (state.layer == 3)
+		else if (state.layer == 3 || state.layer == 4)
 			return state.mask[index].rootADT; // adt vertex colors
+		else if (state.layer == 5)
+			return state.mask[index].waterDir; // water direction blp
 	}
 }
 

@@ -32,6 +32,7 @@ namespace wow.tools.local.Controllers
             public uint minimapTexture;
             public uint mapTexture;
             public uint mapTextureN;
+            public uint waterDir;
         }
 
         [Route("clearCache")]
@@ -261,6 +262,7 @@ namespace wow.tools.local.Controllers
                 if (!CASC.FileExists((uint)minimapFile.Key))
                     continue;
 
+                // for entirely unref'd minimaps we should lowercase these first, but its ew
                 var mapName = Path.GetDirectoryName(minimapFile.Value)!.Replace("world\\minimaps\\", "");
                 if (seenMaps.Contains(mapName) || mapName.Contains('\\'))
                     continue;
@@ -296,6 +298,7 @@ namespace wow.tools.local.Controllers
             var allMapTextures = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
             var allMapTextureNs = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
             var allRootADTs = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith(".adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_lod.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj0.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj1.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_tex0.adt", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
+            var allWaterDirs = Listfile.NameMap.Where(x => x.Value.StartsWith("unkmaps/world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_unk0.blp")).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key); // todo: proper name
 
             if (wdtFileDataID == 0)
             {
@@ -397,6 +400,30 @@ namespace wow.tools.local.Controllers
                             }
 
                             break;
+                        case 'M' << 24 | 'A' << 16 | 'I' << 8 | '2' << 0:
+                            for (byte x = 0; x < 64; x++)
+                            {
+                                for (byte y = 0; y < 64; y++)
+                                {
+                                    var waterDirBLP = bin.ReadUInt32();
+                                    bin.ReadBytes(28);
+
+                                    var targetMask = mask.Where(t => t.x == x && t.y == y).FirstOrDefault();
+                                    targetMask.waterDir = waterDirBLP;
+
+                                    if (targetMask.waterDir == 0)
+                                    {
+                                        var waterDirBLPName = "unkmaps/world/maps/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString() + "_" + x.ToString() + "_unk0.blp"; // todo: proper name
+                                        if (allWaterDirs.TryGetValue(waterDirBLPName, out var fdid))
+                                            targetMask.waterDir = fdid;
+                                    }
+
+                                    var index = mask.FindIndex(t => t.x == x && t.y == y);
+                                    mask[index] = targetMask;
+                                }
+                            }
+
+                            break;
                         default:
                             //Console.WriteLine(string.Format("Found unknown header at offset {1} \"{0}\" while we should've already read them all!", chunkName.ToString("X"), position.ToString()));
                             break;
@@ -421,8 +448,10 @@ namespace wow.tools.local.Controllers
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
             else if (layer == 2) // maptexture normals
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
-            else if (layer == 3) // adt vertex colors
+            else if (layer == 3 || layer == 4) // adt vertex colors
                 allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith(".adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_lod.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj0.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj1.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_tex0.adt", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key);
+            else if (layer == 5) // adt heightmap
+                allFiles = Listfile.NameMap.Where(x => x.Value.StartsWith("unkmaps/world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_unk0.blp")).ToDictionary(x => x.Value.ToLowerInvariant(), x => x.Key); // todo: proper name
             else
                 throw new Exception("Unknown layer type");
 
@@ -555,6 +584,33 @@ namespace wow.tools.local.Controllers
                                         {
                                             var adtName = "world/maps/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString() + "_" + x.ToString() + ".adt"; // no padding on adts
                                             if (allFiles.TryGetValue(adtName, out var fdid))
+                                                mask.Add(fdid);
+                                            else
+                                                mask.Add(0);
+                                        }
+                                    }
+                                }
+                            }
+
+                            break;
+                        case 'M' << 24 | 'A' << 16 | 'I' << 8 | '2' << 0:
+                            for (byte x = 0; x < 64; x++)
+                            {
+                                for (byte y = 0; y < 64; y++)
+                                {
+                                    var waterDirBLP = bin.ReadUInt32();
+                                    bin.ReadBytes(28);
+
+                                    if (layer == 5)
+                                    {
+                                        if (waterDirBLP != 0)
+                                        {
+                                            mask.Add((int)waterDirBLP);
+                                        }
+                                        else
+                                        {
+                                            var waterDirName = "unkmaps/world/maps/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + ".blp";
+                                            if (allFiles.TryGetValue(waterDirName, out var fdid))
                                                 mask.Add(fdid);
                                             else
                                                 mask.Add(0);
