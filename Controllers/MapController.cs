@@ -32,7 +32,7 @@ namespace wow.tools.local.Controllers
             public uint minimapTexture;
             public uint mapTexture;
             public uint mapTextureN;
-            public uint waterDir;
+            public uint liquidFlow;
         }
 
         [Route("clearCache")]
@@ -298,7 +298,7 @@ namespace wow.tools.local.Controllers
             var allMapTextures = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
             var allMapTextureNs = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maptextures/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_n.blp", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
             var allRootADTs = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith(".adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_lod.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj0.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_obj1.adt", StringComparison.OrdinalIgnoreCase) && !x.Value.EndsWith("_tex0.adt", StringComparison.OrdinalIgnoreCase)).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
-            var allWaterDirs = Listfile.NameMap.Where(x => x.Value.StartsWith("unkmaps/world/maps/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith("_unk0.blp")).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key); // todo: proper name
+            var allWaterDirs = Listfile.NameMap.Where(x => x.Value.StartsWith("world/maps/liquidflow/" + directory.ToLower(), StringComparison.OrdinalIgnoreCase) && x.Value.EndsWith(".blp")).ToDictionary(x => x.Value.ToLowerInvariant(), x => (uint)x.Key);
 
             if (wdtFileDataID == 0)
             {
@@ -322,6 +322,9 @@ namespace wow.tools.local.Controllers
 
                         if (!allMapTextureNs.TryGetValue("world/maptextures/" + directory + "/" + directory + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + "_n.blp", out mapTile.mapTextureN))
                             mapTile.mapTextureN = 0;
+
+                        if(!allWaterDirs.TryGetValue("world/liquidflow/" + directory + "/" + directory + "_" + y.ToString() + "_" + x.ToString() + ".blp", out mapTile.liquidFlow))
+                            mapTile.liquidFlow = 0;
 
                         mask.Add(mapTile);
                     }
@@ -409,13 +412,13 @@ namespace wow.tools.local.Controllers
                                     bin.ReadBytes(28);
 
                                     var targetMask = mask.Where(t => t.x == x && t.y == y).FirstOrDefault();
-                                    targetMask.waterDir = waterDirBLP;
+                                    targetMask.liquidFlow = waterDirBLP;
 
-                                    if (targetMask.waterDir == 0)
+                                    if (targetMask.liquidFlow == 0)
                                     {
-                                        var waterDirBLPName = "unkmaps/world/maps/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString() + "_" + x.ToString() + "_unk0.blp"; // todo: proper name
+                                        var waterDirBLPName = "world/liquidflow/" + directory.ToLower() + "/" + directory.ToLower() + "_" + y.ToString() + "_" + x.ToString() + ".blp"; // todo: proper name
                                         if (allWaterDirs.TryGetValue(waterDirBLPName, out var fdid))
-                                            targetMask.waterDir = fdid;
+                                            targetMask.liquidFlow = fdid;
                                     }
 
                                     var index = mask.FindIndex(t => t.x == x && t.y == y);

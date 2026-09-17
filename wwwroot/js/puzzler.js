@@ -474,7 +474,7 @@ function getFDIDForTile(index) {
 		else if (state.layer == 3 || state.layer == 4)
 			return state.mask[index].rootADT; // adt vertex colors
 		else if (state.layer == 5)
-			return state.mask[index].waterDir; // water direction blp
+			return state.mask[index].liquidFlow; // liquid flow blp
 	}
 }
 
