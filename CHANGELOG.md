@@ -1,3 +1,7 @@
+0.9.9 (xx-09-2026)
+- Fixed item tooltips with stats not rendering.
+- Fixed links to removed DB2 files in diffs being broken.
+
 0.9.8 (15-09-2026)
 - Added Discord link to support-only channel.
 - Added state tracking to URL on build diff page (refreshes should now keep you in the same spot).

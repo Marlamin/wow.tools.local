@@ -253,8 +253,8 @@
                                 switch (full.type) {
                                     case "db2":
                                         if (full.filename && full.filename != "Unknown") {
-                                            var db2name = full.filename.replace("dbfilesclient/", "");
-                                            content = "<a href='/dbc/?dbc=" + db2name + "&build=<?= $fromBuildName ?>' target='_BLANK'>Preview</a>";
+                                            var db2name = full.filename.toLowerCase().replace("dbfilesclient/", "").replace(".db2", "");
+                                            content = "<a href='/dbc/?dbc=" + db2name + "&build=" + from + "' target='_BLANK'>Preview</a>";
                                         }
                                         break;
                                     default:
