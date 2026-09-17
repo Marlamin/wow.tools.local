@@ -54,6 +54,11 @@
         var build = await getBuild();
 
         async function getBuild() {
+            let params = (new URL(document.location)).searchParams;
+             if (params.has('build')) {
+                return params.get('build');
+            }
+        
             const response = await fetch("/casc/buildName");
             const data = await response.text();
             return data;
