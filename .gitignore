@@ -425,3 +425,6 @@ EnumCache
 
 # Rider
 .idea/
+
+# External utils
+External

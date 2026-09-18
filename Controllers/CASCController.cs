@@ -2131,7 +2131,7 @@ namespace wow.tools.local.Controllers
                         hex.Append("  ").Append(ascii);
                     }
                 }
-                return HttpUtility.HtmlEncode(hex.ToString());
+                return hex.ToString();
             }
         }
 

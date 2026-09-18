@@ -1,6 +1,7 @@
 0.9.9 (xx-09-2026)
 - Added support to the map namer for naming liquid flow texture maps.
 - Added liquid flow map layer to the minimap viewer.
+- Fixed hex file previews sometimes displaying wrong.
 - Fixed item tooltips with stats not rendering.
 - Fixed links to removed DB2 files in diffs being broken.
 

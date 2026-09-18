@@ -308,6 +308,7 @@ function fillPreviewModal(filedataid, type) {
 
 function loadHex(filedataid) {
     fetch("/casc/hex?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
+        text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         document.getElementById('hexHolder').innerHTML = text;
     });
 }
