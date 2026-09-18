@@ -2020,30 +2020,33 @@ namespace wow.tools.local.Controllers
                 case "bls":
                     var blsReader = new BLSReader();
 
-                    if (!string.IsNullOrEmpty(overrideCKey))
-                        blsReader.LoadBLS(Convert.FromHexString(overrideCKey));
-                    else
-                        blsReader.LoadBLS(fileDataID);
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(overrideCKey))
+                            blsReader.LoadBLS(Convert.FromHexString(overrideCKey));
+                        else
+                            blsReader.LoadBLS(fileDataID);
+                    }
+                    catch (Exception e)
+                    {
+                        if (e.Message == "Unsupported shader file: GFAT")
+                        {
+                            var notBLSReader = new GFATReader();
+                            var notBLS = notBLSReader.LoadGFAT(fileDataID);
 
-                    //var extractDir = Path.Combine("extract", "bls", fileDataID.ToString());
-                    //var baseName = fileDataID.ToString();
+                            if (!string.IsNullOrEmpty(overrideCKey))
+                                notBLS = notBLSReader.LoadGFAT(Convert.FromHexString(overrideCKey));
 
-                    //if (Listfile.NameMap.TryGetValue((int)fileDataID, out var shaderFileName) && !string.IsNullOrEmpty(shaderFileName))
-                    //{
-                    //    baseName = fileDataID.ToString() + " (" + shaderFileName.Replace("shaders/", "").Replace(".bls", "").Replace("/", "-") + ")";
-                    //    extractDir = Path.Combine("extract", "bls", baseName);
-                    //}
-
-                    //if (!Directory.Exists(extractDir))
-                    //    Directory.CreateDirectory(extractDir);
+                            return JsonSerializer.Serialize(notBLS, options);
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
 
                     var json = JsonSerializer.Serialize(blsReader.shaderFile, options);
-                    //System.IO.File.WriteAllText(Path.Combine(Path.Combine("extract", "bls"), baseName + ".json"), json);
-                    //var shaderIndex = 0;
-                    //foreach(var decompressedShader in blsReader.shaderFile.decompressedShaders)
-                    //{
-                    //    System.IO.File.WriteAllBytes(Path.Combine(extractDir, "shader_" + shaderIndex++ + ".bytes"), decompressedShader);
-                    //}
+              
                     return json;
                 case "gfat":
                     var gfatReader = new GFATReader();

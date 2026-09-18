@@ -167,7 +167,7 @@ function fillPreviewModal(filedataid, type) {
     var url = "/casc/fdid?fileDataID=" + filedataid + "&filename=preview";
 
     // Preview tab: visual preview of files, e.g. modelviewer, audio player, textures, code, text, etc
-    var previewTabExts = ["blp", "mp3", "ogg", "m2", "wmo", "m3", "lua", "html", "txt", "srt", "xml", "toc", "hlsl", "png", "wtf"];
+    var previewTabExts = ["blp", "mp3", "ogg", "m2", "wmo", "m3", "lua", "html", "txt", "srt", "xml", "toc", "hlsl", "png", "wtf", "bls"];
     var hasPreviewTab = previewTabExts.includes(type); 
 
     // JSON preview of file, for files where this is relevant (e.g. models, wmos, adts, bls, gfats, etc)
@@ -252,6 +252,47 @@ function fillPreviewModal(filedataid, type) {
             fetch(url).then((response) => response.text()).then((text) => {
                 document.getElementById('codeHolder').innerHTML = text;
             });
+        } else if (type == "bls") { 
+            html += "<div id='shaderInfoHolder'></div>";
+            fetch("/casc/json?fileDataID=" + filedataid).then((response) => response.json()).then((json) => {
+                var shaderInfoHolder = document.getElementById('shaderInfoHolder');
+                if (json.shaderPerGFX) {
+                    shaderInfoHolder.innerHTML += "GFAT<br>";
+                    console.log(json);
+                    var shaderAPIs = Object.keys(json.shaderPerGFX);
+                    console.log(shaderAPIs);
+                    for (var i = 0; i < shaderAPIs.length; i++) {
+                        var shader = json.shaderPerGFX[shaderAPIs[i]];
+                        if (shader.API) {
+                            shaderInfoHolder.innerHTML += "<p>API: " + shader.API + "</p>";
+                            for (var j = 0; j < shader.decompressedShaders.length; j++) {
+                                shaderInfoHolder.innerHTML += "Compressed Chunk " + j + ":";
+                                shaderInfoHolder.innerHTML += "<button class='btn btn-sm btn-primary' onclick='loadShaderPermHex(" + filedataid + ", \"" + shader.API + "\", " + j + ")'>Hex</button>";
+
+                                if (shader.API == "DX60") {
+                                    shaderInfoHolder.innerHTML += "<button class='btn btn-sm btn-primary' onclick='loadShaderPermDecomp(" + filedataid + ", \"" + shader.API + "\", " + i + ")'>Decompile</button>";
+                                }
+
+                                shaderInfoHolder.innerHTML += "<br>";
+                            }
+                        }
+                    }
+                } else {
+                    if (json.API) {
+                        shaderInfoHolder.innerHTML = "<p>API: " + json.API + "</p>";
+                        for (var i = 0; i < json.decompressedShaders.length; i++) {
+                            shaderInfoHolder.innerHTML += "Compressed Chunk " + i + ":";
+                            shaderInfoHolder.innerHTML += "<button class='btn btn-sm btn-primary' onclick='loadShaderPermHex(" + filedataid + ", \"" + json.API + "\", " + i + ")'>Hex</button>";
+
+                            if (json.API == "DX60") {
+                                shaderInfoHolder.innerHTML += "<button class='btn btn-sm btn-primary' onclick='loadShaderPermDecomp(" + filedataid + ", \"" + json.API + "\", " + i + ")'>Decompile</button>";
+                            }
+
+                            shaderInfoHolder.innerHTML += "<br>";
+                        }
+                    }
+                }
+            });
         }
 
         html += "</div>";
@@ -304,6 +345,32 @@ function fillPreviewModal(filedataid, type) {
             loadHex(filedataid);
         });
     }
+}
+
+function loadShaderPermHex(filedataid, api, permutation) {
+    var miModalEl = document.getElementById("moreInfoModal");
+    const miModal = new bootstrap.Modal(miModalEl);
+    miModal.show(); 
+
+    document.getElementById("moreInfoModalContent").innerHTML = "<pre style='max-height: 80vh'><code id='miHexHolder'></code></pre>";
+
+    fetch("/shader/dumpPermutationHex?fileDataID=" + filedataid + "&api=" + api + "&permutation=" + permutation).then((response) => response.text()).then((text) => {
+        text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        document.getElementById('miHexHolder').innerHTML = text;
+    });
+}
+
+function loadShaderPermDecomp(filedataid, api, permutation) {
+    var miModalEl = document.getElementById("moreInfoModal");
+    const miModal = new bootstrap.Modal(miModalEl);
+    miModal.show(); 
+
+    document.getElementById("moreInfoModalContent").innerHTML = "<pre style='max-height: 80vh'><code id='miHexHolder'></code></pre>";
+
+    fetch("/shader/decompilePermutation?fileDataID=" + filedataid + "&api=" + api + "&permutation=" + permutation).then((response) => response.text()).then((text) => {
+        text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        document.getElementById('miHexHolder').innerHTML = text;
+    });
 }
 
 function loadHex(filedataid) {
