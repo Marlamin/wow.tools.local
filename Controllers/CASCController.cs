@@ -517,6 +517,9 @@ namespace wow.tools.local.Controllers
                                     case "GOFV": // WDT FOGS
                                         type = "wdt";
                                         break;
+                                    case "RDHA":
+                                        type = "dat";
+                                        break;
                                     default:
                                         Console.WriteLine("Unknown sub chunk " + subChunk + " for file " + (uint)unknownFile);
                                         type = "chUNK";
@@ -1374,7 +1377,7 @@ namespace wow.tools.local.Controllers
         public string DiffFile(int fileDataID, string from, string to)
         {
             var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt", "hlsl" };
-            var jsonTypes = new List<string>() { "m2", "wmo", /*"wdt",*/ "adt", "m3", "tex" };
+            var jsonTypes = new List<string>() { "m2", "wmo", /*"wdt",*/ "adt", "m3", "tex", "dat" };
             var imageTypes = new List<string>() { "blp", "png", };
 
             var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
@@ -1875,7 +1878,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wmo", "m2", "adt", "bls", "m3", "gfat", /*"wdt",*/ "wdl", "tex" };
+            var supportedTypes = new List<string> { "wmo", "m2", "adt", "bls", "m3", "gfat", /*"wdt",*/ "wdl", "tex", "dat" };
 
             if (!(Listfile.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
@@ -1928,6 +1931,10 @@ namespace wow.tools.local.Controllers
                 //    var wdtReader = new WDTReader();
                 //    wdtReader.LoadWDT(fileDataID);
                 //    return JsonSerializer.Serialize(wdtReader.wdtfile, options);
+                case "dat":
+                    var datReader = new DATReader();
+                    var dat = datReader.LoadDAT(fileDataID);
+                    return JsonSerializer.Serialize(dat, options);
                 case "wdl":
                     var wdlReader = new WDLReader();
                     wdlReader.LoadWDL(fileDataID);
