@@ -387,6 +387,9 @@ namespace wow.tools.local.Controllers
                         Namer.NameM3s(m3s, true);
                         break;
                     case "Map":
+                        var unnamedDATs = Listfile.TypeMap.TryGetValue("dat", out HashSet<int>? datsSet) ? datsSet.Where(x => !Namer.IDToNameLookup.ContainsKey(x)).ToList() : new List<int>();
+                        Namer.NameDAT(unnamedDATs);
+
                         var unnamedADTs = Listfile.TypeMap.TryGetValue("adt", out HashSet<int>? adtsSet) ? adtsSet.Where(x => !Namer.IDToNameLookup.ContainsKey(x)).ToList() : new List<int>();
                         Namer.NameMap(unnamedADTs);
                         break;
