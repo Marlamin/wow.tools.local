@@ -4,6 +4,7 @@
 - Added WIP support for detecting and reading DAT files (WoWEdit ADTs).
 - Added a hex preview & optional decompilation of decompressed shaders to the preview modal.
 - Updated modelviewer page to disable "Export to glTF" button as it broke at some point.
+- Updated DBCD to 2.3.1 to pick up on fix for PlayerCondition.db2 not having correct data in some columns.
 - Fixed crash that'd sometimes happen on opening file naming page.
 - Fixed hex file previews sometimes displaying wrong.
 - Fixed item tooltips with stats not rendering.
