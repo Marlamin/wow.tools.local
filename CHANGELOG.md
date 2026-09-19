@@ -3,6 +3,7 @@
 - Added liquid flow map layer to the minimap viewer.
 - Added WIP support for detecting and reading DAT files (WoWEdit ADTs).
 - Added a hex preview & optional decompilation of decompressed shaders to the preview modal.
+- Fixed crash that'd sometimes happen on opening file naming page.
 - Fixed hex file previews sometimes displaying wrong.
 - Fixed item tooltips with stats not rendering.
 - Fixed links to removed DB2 files in diffs being broken.
