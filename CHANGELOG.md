@@ -3,6 +3,7 @@
 - Added liquid flow map layer to the minimap viewer.
 - Added WIP support for detecting and reading DAT files (WoWEdit ADTs).
 - Added a hex preview & optional decompilation of decompressed shaders to the preview modal.
+- Added ADT grid checkbox/layer back to the minimap viewer.
 - Updated modelviewer page to disable "Export to glTF" button as it broke at some point.
 - Updated DBCD to 2.3.1 to pick up on fix for PlayerCondition.db2 not having correct data in some columns.
 - Fixed crash that'd sometimes happen on opening file naming page.

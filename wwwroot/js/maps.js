@@ -41,6 +41,7 @@ const state = {
 	mask: [],
 	layer: 0,
 	zoom: 25,
+	drawADTGrid: false,
 	map: 0 // Azeroth?
 };
 
@@ -71,6 +72,12 @@ document.getElementById('js-sidebar-button').addEventListener('click', function 
 document.getElementById('js-layers-button').addEventListener('click', function () {
 	Elements.Layers.classList.toggle('closed');
 	document.getElementById('js-layers-button').classList.toggle('closed');
+});
+
+// ADT grid
+document.getElementById('js-adtgrid').addEventListener('change', function() {
+	state.drawADTGrid = this.checked;
+	render();
 });
 
 (async () => {
@@ -409,6 +416,37 @@ async function render() {
 				queueTile(x, y, index, tileSize);
 			} else if (cached instanceof ImageData) {
 				ctx.putImageData(cached, drawX, drawY);
+			}
+		}
+	}
+
+	if (state.drawADTGrid) {
+		for (let x = minTileY; x < maxTileY; x++) {
+			for (let y = minTileX; y < maxTileX; y++) {
+				// todo: do i want it for all tiles or just avaialble ones?
+				// const index = (x * CONSTANTS.MAP_SIZE) + y;
+
+				// if (state.mask && state.mask[index] === 0)
+				// 	continue;
+
+				const drawX = (y * tileSize) + state.offsetX;
+				const drawY = (x * tileSize) + state.offsetY;
+
+				// border
+				ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+				ctx.strokeRect(drawX, drawY, tileSize, tileSize);
+
+				// dynamic size for text based on zoom
+				let fontSize = 200 / (state.zoomFactor * 2);
+
+				// rect
+				ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+				ctx.fillRect(drawX, drawY, fontSize * 3, fontSize + 10);
+
+				// text
+				ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+				ctx.font = fontSize + "px Arial";
+				ctx.fillText(x + ' ' + y, drawX + 5, drawY + fontSize);
 			}
 		}
 	}
