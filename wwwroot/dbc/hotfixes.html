@@ -266,8 +266,13 @@
                             table.column(index).search(colFilterValue, false, false).page(page).draw(false);
                         }
                     } else if (element.classList.contains("searchable")) {
-                        element.innerHTML = '<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 5px); display: inline-block;" />';
 
+                        if (index == 3) {
+                            element.innerHTML = '<input id="hotfixBuildFilter" class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 85px); display: inline-block;" />';
+                            element.innerHTML += "<a class='btn btn-sm btn-primary' onClick='setCurrentBuild()' style='width: 80px'>Current</a>"
+                        } else {
+                            element.innerHTML = '<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 5px); display: inline-block;" />';
+                        }
                         var input = element.querySelector("input");
 
                         input.addEventListener('keyup', debounce(function (event) {
@@ -304,6 +309,16 @@
 
             window.location.hash = url;
         });
+
+        function setCurrentBuild() {
+            const element = document.getElementById("hotfixBuildFilter");
+            fetch("/casc/buildname")
+                .then(data => data.text())
+                .then(buildName => {
+                    element.value = buildName;
+                    table.column(3).search(buildName).draw();
+                });
+        }
 
         function getAddendum(dbc, col, value) {
             let addendum = "";
