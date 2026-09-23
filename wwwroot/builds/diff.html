@@ -44,22 +44,6 @@
     <nav class="navbar navbar-expand-lg" id="navbar"></nav>
     <script src="/js/files.js"></script>
     <script type="text/javascript" charset="utf-8">
-        function debounce(func, wait, immediate) {
-            var timeout;
-            return function () {
-                var context = this,
-                    args = arguments;
-                var later = function () {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                };
-                var callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) func.apply(context, args);
-            };
-        };
-
         function actionToBadge(action) {
             switch (action.toLowerCase()) {
                 case "added":
@@ -476,7 +460,7 @@
         <h3>Showing differences between <span id="fromBuildName"></span> and <span id="toBuildName"></span><span id='summary'></span></h3>
         <table id='buildtable' class='table table-striped table-sm table-hover maintable'>
             <thead>
-                <tr class="filters"  data-dt-order="disable">
+                <tr class="filters" data-dt-order="disable">
                     <th class="filterable"></th>
                     <th class="searchable"></th>
                     <th class="searchable"></th>

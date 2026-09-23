@@ -51,7 +51,24 @@
         </div>
         <table class='table' id='hotfixTable'>
             <thead>
-                <tr><th style="width: 70px;">PushID</th><th>Table name</th><th style='width: 90px;'>Rec ID</th><th>Build</th><th style='width: 135px;'>Valid?</th><th style='width: 220px;'>First seen <small>(updates on load)</small></th><th>&nbsp;</th></tr>
+                <tr class="filters" data-dt-order="disable">
+                    <th class="searchable"></th>
+                    <th class="searchable"></th>
+                    <th class="searchable"></th>
+                    <th class="searchable"></th>
+                    <th class="filterable"></th>
+                    <th class="searchable"></th>
+                    <th>&nbsp;</th>
+                </tr>
+                <tr>
+                    <th style="width: 70px;">PushID</th>
+                    <th>Table name</th>
+                    <th style='width: 90px;'>Rec ID</th>
+                    <th>Build</th>
+                    <th style='width: 135px;'>Valid?</th>
+                    <th style='width: 220px;'>First seen <small>(updates on load)</small></th>
+                    <th>&nbsp;</th>
+                </tr>
             </thead>
             <tbody>
             </tbody>
@@ -191,7 +208,92 @@
                             return "<i class='fa fa-ban'></i> Not available in client";
                         }
                     }
-                }]
+                }
+            ],
+            "initComplete": function () {
+                var table = this.api();
+
+                var filterHeaders = document.querySelectorAll('#hotfixTable thead tr.filters th');
+
+                filterHeaders.forEach(function (element, index) {
+                    var column = table.column(index);
+
+                    if (element.classList.contains("filterable")) {
+                        var select = document.createElement('select');
+                        select.style.height = '20px';
+                        select.style.width = 'calc(100% - 5px)';
+                        select.style.display = 'inline-block';
+                        select.className = 'form-control form-control-sm';
+
+                        select.addEventListener('change', function () {
+                            //var val = "^" + this.value + "$"
+                            var val = this.value;
+                            if (this.value == "")
+                                val = "";
+
+                            table.column(index).search(val, false, false).draw();
+                        });
+
+                        element.appendChild(select);
+
+                        if (index == 4) {
+                            const options = [
+                                { "value": -1, "text": "All" },
+                                { "value": 1, "text": "Valid (1)" },
+                                { "value": 2, "text": "Delete (2)" },
+                                { "value": 3, "text": "Invalid (3)" },
+                                { "value": 4, "text": "Not Public (4)" }
+                            ];
+
+                            options.forEach(function (optionData) {
+                                if (optionData.value === "")
+                                    return;
+
+                                var option = document.createElement('option');
+                                option.value = optionData.value;
+                                option.textContent = optionData.text;
+                                select.appendChild(option);
+                            });
+                        }
+
+                        var colFilterHash = searchHash.substr(searchHash.indexOf('colFilter[' + index + ']=')).split('&')[0].split('=')[1];
+                        if (colFilterHash != undefined) {
+                            var colFilterValue = decodeURIComponent(colFilterHash);
+                            select.value = colFilterValue;
+
+                            // might be missing something here state-wise but works for most things?
+                            table.column(index).search(colFilterValue, false, false).page(page).draw(false);
+                        }
+                    } else if (element.classList.contains("searchable")) {
+                        element.innerHTML = '<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 5px); display: inline-block;" />';
+
+                        var input = element.querySelector("input");
+
+                        input.addEventListener('keyup', debounce(function (event) {
+                            // only fire when the key is an actual letter so it doesnt fire on modifier keys etc
+                            if (event.key.length > 1)
+                                return;
+
+                            window.inputCausedHashChange = true;
+                            table.column(index).search(this.value).draw();
+                        }, 50));
+
+                        input.addEventListener('change', debounce(function () {
+                            window.inputCausedHashChange = true;
+                            table.column(index).search(this.value).draw();
+                        }, 50));
+
+                        var colFilterHash = searchHash.substr(searchHash.indexOf('colFilter[' + index + ']=')).split('&')[0].split('=')[1];
+                        if (colFilterHash != undefined) {
+                            var colFilterValue = decodeURIComponent(colFilterHash);
+                            input.value = colFilterValue;
+
+                            // might be missing something here state-wise but works for most things?
+                            table.column(index).search(colFilterValue).page(page).draw(false);
+                        }
+                    }
+                });
+            }
         });
 
         table.on('draw.dt', function () {
