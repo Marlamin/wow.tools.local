@@ -25,7 +25,7 @@ namespace wow.tools.local.Controllers
 
             var result = new DataTablesResult
             {
-                draw = Request.QueryString.Value.Contains("draw") ? int.Parse(Request.Query["draw"]!) : 0,
+                draw = Request.Query.ContainsKey("draw") ? int.Parse(Request.Query["draw"]!) : 0,
                 data = []
             };
 
@@ -95,12 +95,32 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            // TODO: Ordering support
+            // Ordering support
             var orderBy = " ORDER BY firstdetected DESC, pushID DESC, tableName DESC, recordID DESC";
+            if(Request.Query.ContainsKey("order[0][column]") && Request.Query.ContainsKey("order[0][dir]"))
+            {
+                var colIndex = int.Parse(Request.Query["order[0][column]"]!);
+
+                var orderDir = Request.Query["order[0][dir]"]!.ToString().Equals("asc", StringComparison.OrdinalIgnoreCase) ? "asc" : "desc";
+
+                var orderCol = colIndex switch
+                {
+                    0 => "pushID",
+                    1 => "tableName",
+                    2 => "recordID",
+                    3 => "build",
+                    4 => "isValid",
+                    5 => "firstdetected",
+                    _ => null
+                };
+
+                if (!string.IsNullOrEmpty(orderCol))
+                    orderBy = $" ORDER BY {orderCol} {orderDir}";
+            }
 
             // Limits
-            var numRecords = Request.QueryString.Value.Contains("length") ? int.Parse(Request.Query["length"]!) : 10;
-            var startRecords = Request.QueryString.Value.Contains("start") ? int.Parse(Request.Query["start"]!) : 0;
+            var numRecords = Request.Query.ContainsKey("length") ? int.Parse(Request.Query["length"]!) : 10;
+            var startRecords = Request.Query.ContainsKey("start") ? int.Parse(Request.Query["start"]!) : 0;
             var limit = " LIMIT @start, @length";
 
             // Get full hotfix count

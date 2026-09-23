@@ -1,5 +1,5 @@
 0.9.9 (xx-09-2026)
-- Added filters to the hotfixes page.
+- Added filters/ordering to the hotfixes page.
 - Added support to the map namer for naming liquid flow texture maps.
 - Added liquid flow map layer to the minimap viewer.
 - Added WIP support for detecting and reading DAT files (WoWEdit ADTs).
