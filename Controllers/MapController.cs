@@ -712,9 +712,10 @@ namespace wow.tools.local.Controllers
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("Failed to create new image from BLP: " + e.Message);
                             Console.ResetColor();
+                            image = emptyTile.Copy();
+                            imageList.Add(image);
                             continue;
                         }
-
 
                         if (image.Width != blpRes)
                         {
