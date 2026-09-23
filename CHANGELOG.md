@@ -7,6 +7,7 @@
 - Added ADT grid checkbox/layer back to the minimap viewer.
 - Updated modelviewer page to disable "Export to glTF" button as it broke at some point.
 - Updated DBCD to 2.3.1 to pick up on fix for PlayerCondition.db2 not having correct data in some columns.
+- Fixed compiled minimap PNGs sometimes getting out of whack due to missing/unavailable minimap tiles.
 - Fixed crash that'd sometimes happen on opening file naming page.
 - Fixed hex file previews sometimes displaying wrong.
 - Fixed item tooltips with stats not rendering.

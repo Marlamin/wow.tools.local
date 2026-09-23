@@ -694,6 +694,8 @@ namespace wow.tools.local.Controllers
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine("Unable to extract minimap tile " + fdid);
                             Console.ResetColor();
+                            image = emptyTile.Copy();
+                            imageList.Add(image);
                             continue;
                         }
 
