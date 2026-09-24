@@ -81,7 +81,7 @@ namespace wow.tools.local.Managers
 
         public static void DownloadLatest(string branch)
         {
-            if (branch != "retail" && branch != "ptr" && branch != "beta")
+            if (branch != "retail" && branch != "ptr" && branch != "beta" && branch != "classic_beta")
             {
                 Console.WriteLine("Invalid branch specified for hotfix download: " + branch);
                 return;
