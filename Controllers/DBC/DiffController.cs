@@ -35,6 +35,7 @@ namespace wow.tools.Local.Controllers
             var draw = 0;
             var start = 0;
             var length = 25;
+            var opFilter = DiffOperation.Unknown;
 
             if (Request.Method == "POST")
             {
@@ -50,6 +51,12 @@ namespace wow.tools.Local.Controllers
 
                 if (parameters.TryGetValue("length", out string? lengthString))
                     length = int.Parse(lengthString);
+
+                if (parameters.TryGetValue("opFilter", out string? opFilterString))
+                {
+                    if (!Enum.TryParse(opFilterString, out opFilter))
+                        Console.WriteLine("Invalid opFilter value: " + opFilterString);
+                }
             }
             else
             {
@@ -66,7 +73,7 @@ namespace wow.tools.Local.Controllers
                 if (diffCache.TryGetValue(cacheKey, out var cachedDiff))
                 {
                     Console.WriteLine("Returning cached diff for " + name + " between " + build1 + " and " + build2 + " (start: " + start + ", length: " + length + ")");
-                    return cachedDiff.ToJSONString(draw, start, length);
+                    return cachedDiff.ToJSONString(draw, start, length, opFilter);
                 }
             }
 

@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -31,7 +28,7 @@
     <script type="text/javascript" src="/js/datatables.min.js"></script>
     <script src="/js/input.js" crossorigin="anonymous"></script>
 
-    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     <script type="text/javascript" src="/js/main.js?v=1645063884"></script>
     <script type="text/javascript" src="/js/anims.js?v=1658923290"></script>
     <script type="text/javascript" src="/js/bufo.js"></script>
@@ -47,22 +44,6 @@
     <nav class="navbar navbar-expand-lg" id="navbar"></nav>
     <script src="/js/files.js"></script>
     <script type="text/javascript" charset="utf-8">
-        function debounce(func, wait, immediate) {
-            var timeout;
-            return function () {
-                var context = this,
-                    args = arguments;
-                var later = function () {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                };
-                var callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) func.apply(context, args);
-            };
-        };
-
         function actionToBadge(action) {
             switch (action.toLowerCase()) {
                 case "added":
@@ -78,19 +59,38 @@
             return this.charAt(0).toUpperCase() + this.slice(1)
         }
 
-        var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2", "xml", "lua", "txt", "srt"];
+        var previewTypes = ["ogg", "mp3", "blp", "wmo", "m2", "xml", "lua", "txt", "srt", "png", "wtf"];
 
         document.addEventListener("DOMContentLoaded", function () {
             const urlParams = new URLSearchParams(window.location.search);
             const from = urlParams.get('from');
             const to = urlParams.get('to');
 
+            var searchHash = window.location.hash.substr(1);
+            console.log(searchHash);
+            var searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
+
+            if (searchString != undefined && searchString.length > 0) {
+                searchString = decodeURIComponent(searchString);
+            }
+
+            var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
+            var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
+            if (!sortCol) {
+                sortCol = 0;
+            }
+
+            var sortDesc = searchHash.substr(searchHash.indexOf('desc=')).split('&')[0].split('=')[1];
+            if (!sortDesc) {
+                sortDesc = "asc";
+            }
+
             const fromBuildNameSpan = document.getElementById("fromBuildName");
             fromBuildNameSpan.innerHTML = from;
             const toBuildNameSpan = document.getElementById("toBuildName");
             toBuildNameSpan.innerHTML = to;
 
-            const lsDiffPageLength = localStorage.getItem("diffPageLength");
+            const lsDiffPageLength = localStorage.getItem("settings[diffPageLength]");
             if (lsDiffPageLength) {
                 var pageLength = parseInt(lsDiffPageLength);
             } else {
@@ -105,7 +105,7 @@
                 }
             }
 
-            var table = $('#buildtable').DataTable({
+            var table = new DataTable('#buildtable', {
                 ajax: apiURL,
                 columns: [{
                     data: 'action'
@@ -126,6 +126,9 @@
                     bottomEnd: 'inputPaging'
                 },
                 deferRender: true,
+                order: [[sortCol, sortDesc]],
+                displayStart: page * pageLength,
+                search: { "search": searchString },
                 lengthMenu: [[25, 100, 500, -1], [25, 100, 500, "All"]],
                 columnDefs: [{
                     "targets": 0,
@@ -141,7 +144,7 @@
                     "orderable": true,
                     "createdCell": function (td, cellData, rowData, row, col) {
                         if (!cellData) {
-                            $(td).css('background-color', '#ff5858');
+                            td.style.backgroundColor = '#ff5858';
                         }
                     }
                 },
@@ -172,7 +175,7 @@
                                 //}
 
                                 if (previewTypes.includes(full.type)) {
-                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a>";
+                                    content = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(" + full.id + "\,\"" + full.type + "\")'><i class='fa fa-eye'></i></a>";
                                 } else {
                                     content = "<i class='fa fa-ban' style='opacity: 0.3'></i>";
                                 }
@@ -196,6 +199,7 @@
                                     case "lua":
                                     case "json":
                                     case "sbt":
+                                    case "png":
                                     case "toc":
                                     case "txt":
                                     case "xml":
@@ -233,8 +237,8 @@
                                 switch (full.type) {
                                     case "db2":
                                         if (full.filename && full.filename != "Unknown") {
-                                            var db2name = full.filename.replace("dbfilesclient/", "");
-                                            content = "<a href='/dbc/?dbc=" + db2name + "&build=<?= $fromBuildName ?>' target='_BLANK'>Preview</a>";
+                                            var db2name = full.filename.toLowerCase().replace("dbfilesclient/", "").replace(".db2", "");
+                                            content = "<a href='/dbc/?dbc=" + db2name + "&build=" + from + "' target='_BLANK'>Preview</a>";
                                         }
                                         break;
                                     default:
@@ -254,58 +258,209 @@
                 ],
                 initComplete: function () {
                     var table = this.api();
-                    $('#buildtable thead tr.filters th').each(function (index, element) {
-                        element = $(element);
-                        var column = table.column(index);
-                        if (element.hasClass("filterable")) {
-                            var select = $('<select style="height: 20px; width: calc(100% - 5px); display: inline-block;" class="form-control form-control-sm"><option value=""></option></select>')
-                                .appendTo(element)
-                                .on('change', function () {
-                                    var val = "^" + $(this).val() + "$"
-                                    if ($(this).val() == "")
-                                        val = "";
 
-                                    table.column(index)
-                                        .search(val, true, false)
-                                        .draw();
-                                });
+                    var filterHeaders = document.querySelectorAll('#buildtable thead tr.filters th');
+
+                    filterHeaders.forEach(function (element, index) {
+                        var column = table.column(index);
+
+                        if (element.classList.contains("filterable")) {
+                            var select = document.createElement('select');
+                            select.style.height = '20px';
+                            select.style.width = 'calc(100% - 5px)';
+                            select.style.display = 'inline-block';
+                            select.className = 'form-control form-control-sm';
+                            select.innerHTML = '<option value=""></option>';
+
+                            select.addEventListener('change', function () {
+                                var val = "^" + this.value + "$"
+                                if (this.value == "")
+                                    val = "";
+
+                                table.column(index).search(val, true, false).draw();
+                            });
+
+                            element.appendChild(select);
 
                             column.data().unique().sort().each(function (d, j) {
-                                if (d === "") {
+                                if (d === "")
                                     return;
-                                }
-                                select.append('<option value="' + d + '">' + d + '</option>')
+
+                                var option = document.createElement('option');
+                                option.value = d;
+                                option.textContent = d;
+                                select.appendChild(option);
                             });
-                        } else if (element.hasClass("searchable")) {
-                            $(this).html('<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 5px); display: inline-block;" placeholder="Search" />');
-                            $("input", this).on('keyup change', debounce(function () {
+                            
+                            var colFilterHash = searchHash.substr(searchHash.indexOf('colFilter[' + index + ']=')).split('&')[0].split('=')[1];
+                            if (colFilterHash != undefined) {
+                                var colFilterValue = decodeURIComponent(colFilterHash);
+                                select.value = colFilterValue;
+
+                                // might be missing something here state-wise but works for most things?
+                                table.column(index).search(colFilterValue, true, false).page(page).draw(false);
+                            }
+                        } else if (element.classList.contains("searchable")) {
+                            element.innerHTML = '<input class="form-control form-control-sm" type="text" style="height: 20px; width: calc(100% - 5px); display: inline-block;" placeholder="Search" />';
+
+                            var input = element.querySelector("input");
+
+                            input.addEventListener('keyup', debounce(function () {
+                                window.inputCausedHashChange = true;
                                 table.column(index).search(this.value).draw();
                             }, 50));
+
+                            input.addEventListener('change', debounce(function () {
+                                window.inputCausedHashChange = true;
+                                table.column(index).search(this.value).draw();
+                            }, 50));
+
+                            var colFilterHash = searchHash.substr(searchHash.indexOf('colFilter[' + index + ']=')).split('&')[0].split('=')[1];
+                            if (colFilterHash != undefined) {
+                                var colFilterValue = decodeURIComponent(colFilterHash);
+                                input.value = colFilterValue;
+
+                                // might be missing something here state-wise but works for most things?
+                                table.column(index).search(colFilterValue).page(page).draw(false);
+                            }
                         }
                     });
-                },
-                "drawCallback": function () {
-                    $('[data-bs-toggle="popover"]').popover();
                 }
             });
 
             window.table = table;
+            window.inputCausedHashChange = false;
 
             table.on('length.dt', function (e, settings, len) {
-                localStorage.setItem("diffPageLength", len);
+                localStorage.setItem("settings[diffPageLength]", len);
             });
 
             table.on('xhr', function () {
                 var json = table.ajax.json();
                 document.getElementById("summary").innerHTML = " <span class='badge bg-" + actionToBadge("added") + "'>" + json['added'] + " added</span> <span class='badge bg-" + actionToBadge("modified") + "'>" + json['modified'] + " modified</span> <span class='badge bg-" + actionToBadge("removed") + "'>" + json['removed'] + " removed</span>";
             });
+
+            table.on('draw.dt', function() {
+                const hashParams = [];
+                
+                const searchInput = document.getElementById("dt-search-0");
+                const currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
+                if (currentSearch != "" && currentSearch != undefined && currentSearch != "undefined")
+                    hashParams.push("search=" + currentSearch);
+
+                const currentPage = table.page() + 1;
+                hashParams.push("page=" + currentPage);
+
+                const sort = table.order();
+                if (sort.length > 0) {
+                    if (sort[0][0] != 0)
+                        hashParams.push("sort=" + sort[0][0]);
+
+                    let sortDir = sort[0][1];
+                    if (sortDir == "" || sortDir == null)
+                        sortDir = "asc";
+
+                    if (sortDir != "asc")
+                        hashParams.push("desc=" + sortDir);
+                }
+ 
+                const filterHeaders = document.querySelectorAll('#buildtable thead tr.filters th');
+                filterHeaders.forEach(function (element, index) {
+                    if (element.classList.contains("filterable")) {
+                        const select = element.querySelector("select");
+                        if (select && select.value) {
+                            hashParams.push("colFilter[" + index + "]=" + encodeURIComponent(select.value));
+                        }
+                    } else if (element.classList.contains("searchable")) {
+                        const input = element.querySelector("input");
+                        if (input && input.value) {
+                            hashParams.push("colFilter[" + index + "]=" + encodeURIComponent(input.value));
+                        }
+                    }
+                });
+
+                window.location.hash = "#" + hashParams.join("&");
+            });
         });
+
+        function locationHashChanged(event) {
+            if (!table) {
+                return;
+            }
+
+            var searchHash = location.hash.substr(1),
+                searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
+
+            if (searchString != undefined && searchString.length > 0) {
+                searchString = decodeURIComponent(searchString);
+            }
+
+            var searchInput = document.getElementById("dt-search-0");
+            if (searchString != undefined && searchInput && searchInput.value != searchString) {
+                table.search(searchString).draw(false);
+            }
+            var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
+            if (table.page() != page) {
+                table.page(page).draw(false);
+            }
+
+            var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
+            if (!sortCol) {
+                sortCol = 0;
+            }
+
+            var sortDesc = searchHash.substr(searchHash.indexOf('desc=')).split('&')[0].split('=')[1];
+            if (!sortDesc) {
+                sortDesc = "asc";
+            }
+
+            var curSort = table.order();
+            if (curSort.length > 0) {
+                if (sortCol != curSort[0][0] || sortDesc != curSort[0][1]) {
+                    table.order([sortCol, sortDesc]).draw(false);
+                }
+            }
+
+            if (window.inputCausedHashChange) {
+                window.inputCausedHashChange = false;
+                return;
+            }
+
+            var filterHeaders = document.querySelectorAll('#buildtable thead tr.filters th');
+            filterHeaders.forEach(function (element, index) {
+                if (element.classList.contains("filterable")) {
+                    var select = element.querySelector("select");
+
+                    var colFilterHash = searchHash.substr(searchHash.indexOf('colFilter[' + index + ']=')).split('&')[0].split('=')[1];
+                    if (colFilterHash != undefined) {
+                        var colFilterValue = decodeURIComponent(colFilterHash);
+                        if (select && select.value != colFilterValue) {
+                            select.value = colFilterValue;
+                            table.column(index).search(colFilterValue, true, false).draw(false);
+                        }
+                    }
+                } else if (element.classList.contains("searchable")) {
+                    var input = element.querySelector("input");
+
+                    var colFilterHash = searchHash.substr(searchHash.indexOf('colFilter[' + index + ']=')).split('&')[0].split('=')[1];
+                    if (colFilterHash != undefined) {
+                        var colFilterValue = decodeURIComponent(colFilterHash);
+                        if (input && input.value != colFilterValue) {
+                            input.value = colFilterValue;
+                            table.column(index).search(colFilterValue).draw(false);
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onhashchange = locationHashChanged;
     </script>
     <div class='container-fluid' id='diffContainer'>
         <h3>Showing differences between <span id="fromBuildName"></span> and <span id="toBuildName"></span><span id='summary'></span></h3>
         <table id='buildtable' class='table table-striped table-sm table-hover maintable'>
             <thead>
-                <tr class="filters"  data-dt-order="disable">
+                <tr class="filters" data-dt-order="disable">
                     <th class="filterable"></th>
                     <th class="searchable"></th>
                     <th class="searchable"></th>

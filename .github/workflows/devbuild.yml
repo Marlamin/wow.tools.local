@@ -1,0 +1,47 @@
+name: .NET (Dev build)
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build Release
+    strategy:
+      matrix:
+        kind: ['linux', 'windows', 'macOS']
+        include:
+          - kind: linux
+            os: ubuntu-latest
+            target: linux-x64
+          - kind: windows
+            os: windows-latest
+            target: win-x64
+          - kind: macOS
+            os: macos-latest
+            target: osx-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: recursive
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Set version
+      shell: bash
+      run: |
+        short_sha="${GITHUB_SHA::7}"
+        sed -E -i.bak "s|<Version>[^<]+</Version>|<Version>99.99.99-${short_sha}</Version>|" wow.tools.local.csproj
+        rm -f wow.tools.local.csproj.bak
+    - name: Build
+      run: dotnet publish -c Release -r ${{ matrix.target }} --self-contained -f net10.0
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - uses: actions/upload-artifact@v7
+      with:
+        name: Dev-${{ matrix.target }}
+        path: ${{ github.workspace }}/bin/Release/net10.0/${{ matrix.target }}/publish

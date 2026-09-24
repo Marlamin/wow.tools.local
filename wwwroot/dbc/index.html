@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -31,7 +28,7 @@
     <script type="text/javascript" src="/js/datatables.min.js"></script>
     <script src="/js/input.js" crossorigin="anonymous"></script>
 
-    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     <script type="text/javascript" src="/js/main.js"></script>
     <script type="text/javascript" src="/js/tooltips.js"></script>
     <script type="text/javascript" src="/js/anims.js"></script>
@@ -59,14 +56,19 @@
             <label class="btn btn-sm btn-info active">
                 <input type="checkbox" autocomplete="off" id="hotfixToggle"> Use hotfixes?
             </label>
-            <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href=''
-               data-bs-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
-            <a id='dbdButton' style='vertical-align: top; display: none;' class='btn btn-secondary btn-sm disabled' href=''
-               target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
-            <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-secondary btn-sm'
-               data-bs-toggle='modal' href='' data-bs-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
-            <a style='vertical-align: top;' id='globalSearchButton' class='btn btn-secondary btn-sm'
-               data-bs-toggle='modal' href='' data-bs-target='#globalSearchModal'><i class='fa fa-search'></i> Global Search</a>
+            <a style='vertical-align: top;' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href='' data-bs-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a>
+            <a id='dbdButton' style='vertical-align: top; display: none;' class='btn btn-secondary btn-sm disabled' href='' target='_BLANK'><i class='fa fa-external-link'></i> DBD</a>
+            <a style='vertical-align: top; display: none' id='fkSearchButton' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href='' data-bs-target='#foreignKeySearchModal'><i class='fa fa-search'></i> FK Search</a>
+            <div class='btn-group'>
+                <a style='vertical-align: top;' id='globalSearchButton' class='btn btn-secondary btn-sm' data-bs-toggle='modal' href='' data-bs-target='#globalSearchModal'><i class='fa fa-search'></i> Global Search</a>
+                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" data-bs-toggle='modal' data-bs-target='#foreignKeySearchModal'><i class="fa fa-arrows-h"></i> FK Search</a>
+                    <a class="dropdown-item" href="#" data-bs-toggle='modal' data-bs-target='#labelSearchModal'><i class="fa fa-tags"></i> Label Search</a>
+                </div>
+            </div>
             <a style='vertical-align: top;' id='compareButton' class='btn btn-secondary btn-sm' href='/dbc/diff.html'><i class='fa fa-columns'></i> Compare</a>
             <div class="btn-group" style="vertical-align: top">
                 <a style='vertical-align: top;' id='updateDefsButton' class='btn btn-danger btn-sm' onclick="updateDefs();" href="#"><i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache</a>
@@ -214,13 +216,42 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="resetFKSearch()">Reset</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal" id="globalSearchModal" tabindex="-1" role="dialog" aria-labelledby=globalSearchLabel"
+    <div class="modal" id="labelSearchModal" tabindex="-1" role="dialog" aria-labelledby="labelSearchLabel"
          aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="labelSearchLabel">Label search</h5>
+                </div>
+                <div class="modal-body" id="labelSearchContent">
+                    <form class='form-inline' id='labelSearchForm' onsubmit="labelSearchSubmit()">
+                        <div class="row">
+                            <div class="col">
+                                <input class='form-control' style='height: 26px;' type='text' placeholder='Value' id='labelSearchValue'>
+                            </div>
+                            <div class="col">
+                                <input class='form-control btn btn-success' type='submit' value='Search'>
+                            </div>
+                        </div><br>
+                    </form>
+                    <div id='labelSearchResultHolder'>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="resetLabelSearch()">Reset</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="globalSearchModal" tabindex="-1" role="dialog" aria-labelledby="globalSearchLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -243,6 +274,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="resetGlobalSearch()">Reset</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -297,7 +329,9 @@
             const response2 = await fetch("/dbc/clearCache");
             console.log(await response2.text());
 
-            window.location.reload();
+            loadTable();
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Clear DB2/DBC/DBD cache";
         }
 
         function setPageDB2Title(tableName) {
@@ -310,11 +344,13 @@
 
             const response = await fetch("/dbc/updateDefs");
             console.log(await response.text());
-            window.location.reload();
+
+            loadTable();
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache";
         }
 
         function updateDBDButton() {
-            console.log("updating button");
             const dbdButton = document.getElementById("dbdButton");
             if (dbdButton) {
                 if (Settings.showDBDButton) {
@@ -473,48 +509,87 @@
 
         function toggleFilters() {
             if (!Settings.filtersCurrentlyEnabled) {
-                $("#filterToggle").text("Disable filters");
-                $("#filterToggle").addClass("btn-outline-danger");
-                $("#filterToggle").removeClass("btn-outline-success");
-                $("#filterToggle").removeClass("btn-outline-primary");
-                $("#tableContainer thead tr").clone(true).appendTo("#tableContainer thead");
-                $("#tableContainer thead tr:eq(1) th").each(function (i) {
-                    var title = $(this).text();
+                var filterToggle = document.getElementById("filterToggle");
+                filterToggle.textContent = "Disable filters";
+                filterToggle.classList.add("btn-outline-danger");
+                filterToggle.classList.remove("btn-outline-success");
+                filterToggle.classList.remove("btn-outline-primary");
 
-                    $(this).html('<input type="text"/>');
+                var headerRow = document.querySelector("#tableContainer thead tr");
+                var clonedRow = headerRow.cloneNode(true);
+                clonedRow.classList.add("filters");
+                document.querySelector("#tableContainer thead").appendChild(clonedRow);
 
-                    if ($('#dbtable').DataTable().column(i).search() != "") {
-                        $('input', this).val($('#dbtable').DataTable().column(i).search());
-                    }
+                var filterHeaders = document.querySelectorAll("#tableContainer thead tr:nth-child(2) th");
+                filterHeaders.forEach(function (th, i) {
+                    var title = th.textContent;
 
-                    $('input', this).on('keyup change', function () {
-                        if ($('#dbtable').DataTable().column(i).search() !== this.value) {
-                            $('#dbtable').DataTable().column(i).search(this.value).draw();
+                    th.innerHTML = '<input type="text"/>';
+
+                    var dbTable = document.getElementById('dbtable');
+                    if (dbTable && DataTable.isDataTable(dbTable)) {
+                        var table = DataTable('#dbtable');
+                        if (table.column(i).search() != "") {
+                            th.querySelector('input').value = table.column(i).search();
                         }
-                    });
 
-                    $('input', this).on('click', function (e) {
-                        e.stopPropagation();
-                    });
+                        var input = th.querySelector('input');
+                        input.addEventListener('keyup', function () {
+                            if (table.column(i).search() !== this.value) {
+                                table.column(i).search(this.value).draw();
+                            }
+                        });
+
+                        input.addEventListener('change', function () {
+                            if (table.column(i).search() !== this.value) {
+                                table.column(i).search(this.value).draw();
+                            }
+                        });
+
+                        input.addEventListener('click', function (e) {
+                            e.stopPropagation();
+                        });
+
+                        input.addEventListener('keydown', function (e) {
+                            // manual hack -- something somewhere is breaking ctrl-a 
+                            if (e.ctrlKey && e.key.toLowerCase() === 'a') {
+                                this.select();
+                                e.preventDefault();
+                            }
+                        });
+                    }
                 });
 
                 Settings.filtersCurrentlyEnabled = true;
             } else {
-                $("#filterToggle").text("Enable filters");
-                $("#filterToggle").addClass("btn-outline-success");
-                $("#filterToggle").removeClass("btn-outline-danger");
-                $("#filterToggle").removeClass("btn-outline-primary");
+                var filterToggle = document.getElementById("filterToggle");
+                filterToggle.textContent = "Enable filters";
+                filterToggle.classList.add("btn-outline-success");
+                filterToggle.classList.remove("btn-outline-danger");
+                filterToggle.classList.remove("btn-outline-primary");
 
-                $("#tableContainer thead tr:eq(1) th").each(function (i) {
-                    $('#dbtable').DataTable().column(i).search("");
-                });
+                var dbTable = document.getElementById('dbtable');
+                if (dbTable && DataTable.isDataTable(dbTable)) {
+                    var table = DataTable('#dbtable');
+                    var filterHeaders = document.querySelectorAll("#tableContainer thead tr:nth-child(2) th");
+                    filterHeaders.forEach(function (th, i) {
+                        table.column(i).search("");
+                    });
+                }
 
-                $("#tableContainer thead tr:eq(1)").remove();
+                var secondRow = document.querySelector("#tableContainer thead tr:nth-child(2)");
+                if (secondRow) {
+                    secondRow.remove();
+                }
+
+                // redraw the table in case anything was filtered
+                var dbTable = document.getElementById('dbtable');
+                if (dbTable && DataTable.isDataTable(dbTable)) {
+                    DataTable('#dbtable').draw('page');
+                }
 
                 Settings.filtersCurrentlyEnabled = false;
             }
-
-            $('#dbtable').DataTable().draw('page');
         }
 
         function buildURL(currentParams) {
@@ -538,6 +613,8 @@
 
             return url;
         }
+
+        let fileChoices;
 
         function refreshFiles() {
             console.log("Refreshing files");
@@ -566,7 +643,7 @@
                         fileFilter.appendChild(option);
                     });
 
-                    const choices = new Choices(document.getElementById("fileFilter"), {
+                    fileChoices = new Choices(document.getElementById("fileFilter"), {
                         searchEnabled: true,
                         searchChoices: true,
                         searchFields: ['label', 'value'],
@@ -575,7 +652,7 @@
                         itemSelectText: '',
                     });
 
-                    choices.enable();
+                    fileChoices.enable();
 
                     updateDBDButton();
                 }).catch(function (error) {
@@ -626,9 +703,9 @@
 
                     data.forEach((version) => {
                         var option = document.createElement("option");
-                        option.value = version.item1;
-                        option.text = version.item1 + " (" + version.item2 + ")";
-                        validBuilds.push(version.item1);
+                        option.value = version.Item1;
+                        option.text = version.Item1 + " (" + version.Item2 + ")";
+                        validBuilds.push(version.Item1);
 
                         if (!preselected && (option.value == currentParams["build"])) {
                             option.selected = true;
@@ -647,7 +724,7 @@
                             if (Settings.lockedBuild !== null) {
                                 currentParams["build"] = Settings.lockedBuild;
                             } else {
-                                currentParams["build"] = data[0].item1;
+                                currentParams["build"] = data[0].Item1;
                             }
                         }
 
@@ -659,9 +736,9 @@
                     //    buildFilter.classList.add("disabled");
                     //    buildFilter.title = "Build locked in settings";
                     //} else {
-                        buildFilter.disabled = false;
-                        buildFilter.classList.remove("disabled");
-                        buildFilter.title = "";
+                    buildFilter.disabled = false;
+                    buildFilter.classList.remove("disabled");
+                    buildFilter.title = "";
                     //}
 
                 }).catch(function (error) {
@@ -707,6 +784,15 @@
 
             globalDBSearch(searchValue, false);
         }
+
+        function labelSearchSubmit() {
+            event.preventDefault();
+
+            const searchValue = document.getElementById("labelSearchValue").value;
+
+            labelDBSearch(searchValue);
+        }
+
         function fkDBSearchSubmit() {
             event.preventDefault();
 
@@ -729,28 +815,71 @@
 
             const dbsToSearch = [];
 
-            var select = document.getElementById("fileFilter");
-            for (var i = 0; i < select.length; i++) {
-                const option = select.options[i];
-                if (option.value == "Select a table") {
-                    continue;
-                }
+            fetch("/listfile/db2s?build=" + Settings.localBuildName)
+                .then(function (fileResponse) {
+                    return fileResponse.json();
+                }).then(function (data) {
+                    data.forEach((file) => {
+                        dbsToSearch.push(async () => {
+                            try {
+                                const result = await fetch("/dbc/find/?name=" + file + "&build=" +
+                                    currentParams["build"] + "&value=" + val);
+                                const json = await result.json();
+                                globalDBResults(file, json, val);
+                            } catch (e) {
+                                console.log(e);
+                            }
+                        });
+                    });
 
+                    dbsToSearch.forEach(anonPromise => anonPromise());
+                }).catch(function (error) {
+                    console.log("An error occurred retrieving files: " + error);
+                });
+
+            await Promise.all(dbsToSearch);
+        }
+
+        async function labelDBSearch(label) {
+            document.getElementById("labelSearchForm").style.display = "none";
+            document.getElementById("labelSearchResultHolder").innerHTML =
+                "<ul class='nav nav-tabs' id='fkresultTabList' role='tablist'></ul><div class='tab-content' id='fkresultTabs'></div><div id='noResultHolder'></div>";
+
+            const dbsToSearch = [];
+            const labelResult = await fetch("/dbc/labelColumns");
+            const labelJSON = await labelResult.json();
+
+            labelJSON.forEach((labelColumn) => {
+                const splitFK = labelColumn.split("::");
                 dbsToSearch.push(async () => {
                     try {
-                        const result = await fetch("/dbc/find/?name=" + option.value + "&build=" +
-                            currentParams["build"] + "&value=" + val);
+                        const result = await fetch("/dbc/find/" + splitFK[0] + "?build=" + currentParams["build"] + "&col=" + splitFK[1] + "&val=" + label);
                         const json = await result.json();
-                        globalDBResults(option.value, json, val);
+                        await fkDBResults(splitFK, json, label);
                     } catch (e) {
                         console.log(e);
                     }
                 });
-            }
+            });
 
             dbsToSearch.forEach(anonPromise => anonPromise());
 
             await Promise.all(dbsToSearch);
+        }
+
+        function resetLabelSearch() {
+            document.getElementById("labelSearchForm").style.display = "block";
+            document.getElementById("labelSearchResultHolder").innerHTML = "";
+        }
+
+        function resetFKSearch() {
+            document.getElementById("foreignKeySearchForm").style.display = "block";
+            document.getElementById("fkSearchResultHolder").innerHTML = "";
+        }
+
+        function resetGlobalSearch() {
+            document.getElementById("globalSearchForm").style.display = "block";
+            document.getElementById("globalSearchResultHolder").innerHTML = "";
         }
 
         async function fkDBSearch(db, col, val, isInline = false) {
@@ -767,14 +896,14 @@
             const headerResult = await fetch("/dbc/header/" + db + "/?build=" + currentParams["build"]);
             const headerJSON = await headerResult.json();
 
+            window.hasFKResults = false;
             headerJSON.relationsToColumns[col].forEach((foreignKey) => {
                 const splitFK = foreignKey.split("::");
                 dbsToSearch.push(async () => {
                     try {
-                        const result = await fetch("/dbc/find/" + splitFK[0] + "?build=" +
-                            currentParams["build"] + "&col=" + splitFK[1] + "&val=" + val);
+                        const result = await fetch("/dbc/find/" + splitFK[0] + "?build=" + currentParams["build"] + "&col=" + splitFK[1] + "&val=" + val);
                         const json = await result.json();
-                        fkDBResults(splitFK, json, val);
+                        await fkDBResults(splitFK, json, val);
                     } catch (e) {
                         console.log(e);
                     }
@@ -784,11 +913,11 @@
             dbsToSearch.forEach(anonPromise => anonPromise());
 
             await Promise.all(dbsToSearch);
+
+            window.hasFKResults = false;
         }
 
-        function fkDBResults(splitFK, results, searchVal) {
-            console.log("Search results for " + splitFK, results);
-
+        async function fkDBResults(splitFK, results, searchVal) {
             const tabHolder = document.getElementById("fkresultTabList");
             const resultHolder = document.getElementById("fkresultTabs");
             const fkNoResultHolder = document.getElementById("fkresultTabs");
@@ -796,14 +925,15 @@
             if (results.length) {
                 if (tabHolder.children.length == 0) {
                     tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link active' data-bs-toggle='tab' href='#tab" +
-                        splitFK[0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + "</a></li>";
+                        splitFK[0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + " <i>(" + results.length + " results)</i></a></li>";
                 } else {
                     tabHolder.innerHTML += "<li class='nav-item'><a class='nav-link' data-bs-toggle='tab' href='#tab" + splitFK[
-                        0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + "</a></li>";
+                        0] + splitFK[1] + "'>" + splitFK[0] + "::" + splitFK[1] + " <i>(" + results.length + " results)</i></a></li>";
                 }
 
                 let resultsHTML = "";
-                if (resultHolder.children.length == 0) {
+                if (window.hasFKResults == false) {
+                    window.hasFKResults = true;
                     resultsHTML += "<div class='tab-pane show active' id='tab" + splitFK[0] + splitFK[1] + "'>";
                 } else {
                     resultsHTML += "<div class='tab-pane' id='tab" + splitFK[0] + splitFK[1] + "'>";
@@ -825,19 +955,43 @@
                     resultsHTML += "</tr></thead><tbody></tbody>";
                     var externalResultURL = "/dbc/?dbc=" + splitFK[0].toLowerCase() + "&build=" + currentParams["build"] + "#page=1&colFilter[" + targetCol + "]=exact:" + encodeURIComponent(searchVal);
                     resultsHTML += "</table><br><a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>View " + splitFK[0] + "::" + splitFK[1] + " results in new tab</a></div>";
-                    resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
-                    const dt = $("#FKResults" + splitFK[0] + splitFK[1]).DataTable({
-                        "searching": false,
-                        "pageLength": 10,
-                        "displayStart": 0,
-                        "autoWidth": true
-                    });
+                    fetch("/dbc/header/" + splitFK[0] + "/?build=" + currentParams["build"])
+                        .then(function (response) {
+                            return response.json();
+                        }).then(function (json) {
+                            if (json['error'] != "") {
+                                console.log("Error loading headers for " + splitFK[0] + ": " + json['error']);
+                                return;
+                            }
 
-                    results.forEach((result) => {
-                        dt.rows.add([Object.values(result)]);
-                    });
+                            const allCols = [];
+                            for (let i = 0; i < json['headers'].length; i++) {
+                                allCols.push(i);
+                            }
 
-                    dt.draw();
+                            const fkCols = getFKCols(json['headers'], json['fks']);
+
+                            resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
+
+                            const dt = new DataTable("#FKResults" + splitFK[0] + splitFK[1], {
+                                "searching": false,
+                                "pageLength": 10,
+                                "displayStart": 0,
+                                "autoWidth": true,
+                                "columnDefs": [{
+                                    "targets": allCols,
+                                    "render": function (data, type, full, meta) {
+                                        return columnRender(full, json.headers[meta.col], data, splitFK[0], currentParams["build"], json, fkCols, null, conditionalFKs);
+                                    }
+                                }],
+                            });
+
+                            results.forEach((result) => {
+                                dt.rows.add([Object.values(result)]);
+                            });
+
+                            dt.draw();
+                        });
                 } else {
                     let targetCol = 0;
                     Object.keys(results[0]).forEach((key) => {
@@ -889,7 +1043,7 @@
                     var externalResultURL = "/dbc/?dbc=" + name + "&build=" + currentParams["build"] + "#page=1&search=" + encodeURIComponent(searchVal);
                     resultsHTML += "</table><br><a class='btn btn-sm btn-primary' href='" + externalResultURL + "' target='_BLANK'>View " + name + " results in new tab</a></div>";
                     resultHolder.insertAdjacentHTML('beforeend', resultsHTML);
-                    const dt = $("#globalResults" + name).DataTable({
+                    const dt = new DataTable("#globalResults" + name, {
                         "searching": false,
                         "pageLength": 10,
                         "displayStart": 0,
@@ -927,15 +1081,14 @@
             build = currentParams["build"];
             locale = currentParams["locale"];
 
-            $("#dbtable").html(
-                "<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>"
-            );
+            var dbTable = document.getElementById("dbtable");
+            dbTable.innerHTML = "<tbody><tr><td style='text-align: center' id='loadingMessage'>Select a table in the dropdown above</td></tr></tbody>";
             document.getElementById('downloadCSVButton').href = buildURL(currentParams).replace("/dbc/?dbc=", "/dbc/export/?name=");
             document.getElementById('downloadallCSVLink').href = "/dbc/export/all/?build=" + build + "&locale=" + locale;
             document.getElementById('downloadDB2Link').href = "/dbc/export/db2/?tableName=" + currentParams["dbc"] + "&fullBuild=" + build + "&locale=" + locale;
 
             document.getElementById('downloadCSVButton').classList.remove("disabled");
-            $("#loadingMessage").html("Loading..");
+            document.getElementById("loadingMessage").innerHTML = "Loading..";
 
             let apiArgs = currentParams["dbc"] + "/?build=" + currentParams["build"];
 
@@ -998,7 +1151,7 @@
                         if (colName in json['relationsToColumns']) {
                             tableHeaders +=
                                 " <i class='fa fa-reply' style='font-size: 10px' title='The following tables point to this column: " +
-                            json['relationsToColumns'][colName].join(", ") + "'></i> ";
+                                json['relationsToColumns'][colName].join(", ") + "'></i> ";
                         }
 
                         tableHeaders += colName;
@@ -1014,7 +1167,7 @@
                         if (colName in json['fks']) {
                             tableHeaders +=
                                 " <i class='fa fa-share' style='font-size: 10px' title='This column points to " +
-                            json['fks'][colName] + "'></i> ";
+                                json['fks'][colName] + "'></i> ";
                         }
 
                         tableHeaders += "</th>";
@@ -1035,13 +1188,9 @@
                         searchString = decodeURIComponent(searchString);
                     }
 
-                    let page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1],10) || 1) - 1;
+                    let page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
                     let highlightRow = parseInt(searchHash.substr(searchHash.indexOf('row=')).split('&')[0].split('=')[1], 10) - 1;
-                    $.fn.dataTable.ext.errMode = 'none';
-
-                    $('#dbtable').on('error.dt', function (e, settings, techNote, message) {
-                        console.log('An error occurred: ', message);
-                    });
+                    DataTable.ext.errMode = 'none';
 
                     var colSearchSet = false;
                     var colSearches = [];
@@ -1065,28 +1214,24 @@
                         clearState = false;
                     }
 
-                    var lsDBCLength = localStorage.getItem("dbcPageLength");
+                    var lsDBCLength = localStorage.getItem("settings[dbcPageLength]");
                     if (lsDBCLength) {
                         var pageLength = parseInt(lsDBCLength);
                     } else {
                         var pageLength = 25;
                     }
 
-                    var table = $('#dbtable').DataTable({
+                    loadMappings(currentParams["dbc"], currentParams["build"]);
+
+                    var table = new DataTable("#dbtable", {
                         "processing": true,
                         "serverSide": true,
                         "ajax": {
                             url: "/dbc/data/" + apiArgs,
                             type: "POST",
-                            beforeSend: function () {
-                                if (table && table.hasOwnProperty('settings')) {
-                                    // table.settings()[0].jqXHR.abort();
-                                }
-                            },
                             "data": function (result) {
                                 for (const col in result.columns) {
-                                    result.columns[col].search.value = result.columns[col].search.value
-                                        .trim();
+                                    result.columns[col].search.value = result.columns[col].search.value.trim();
                                 }
                                 return result;
                             }
@@ -1119,54 +1264,173 @@
                         }],
                         "createdRow": function (row, data, dataIndex) {
                             if (dataIndex == highlightRow) {
-                                $(row).addClass('highlight');
+                                row.classList.add('highlight');
                                 highlightRow = -1;
                             }
                         },
                     });
 
-                    $('#dbtable').on('init.dt', function () {
+                    table.on('error.dt', function (e, settings, techNote, message) {
+                        console.log('An error occurred: ', message);
+                    });
+
+                    table.one('preDraw.dt', function () {
                         if (Settings.filtersAlwaysEnabled) {
                             toggleFilters();
-                        }
-                        if (colSearchSet && !Settings.filtersAlwaysEnabled && !Settings.filtersCurrentlyEnabled) {
+                        } else if (colSearchSet && !Settings.filtersAlwaysEnabled && !Settings.filtersCurrentlyEnabled) {
                             toggleFilters();
                         }
                     });
 
-                    $('#dbtable').on('draw.dt', function () {
-                        let currentPage = $('#dbtable').DataTable().page() + 1;
-                        let hashPart = "page=" + currentPage;
+                    table.on('draw.dt', function () {
+                        const hashParams = [];
 
-                        const currentSearch = encodeURIComponent($("#dt-search-0").val());
-                        if (currentSearch != "" && currentSearch != undefined && currentSearch != "undefined") {
-                            hashPart += "&search=" + currentSearch;
+                        const searchInput = document.getElementById("dt-search-0");
+                        const currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
+                        if (currentSearch != "" && currentSearch != undefined && currentSearch != "undefined")
+                            hashParams.push("search=" + currentSearch);
+
+                        const currentPage = table.page() + 1;
+                        hashParams.push("page=" + currentPage);
+
+                        const sort = table.order();
+                        if (sort.length > 0) {
+                            if (sort[0][0] != 0)
+                                hashParams.push("sort=" + sort[0][0]);
+
+                            let sortDir = sort[0][1];
+                            if (sortDir == "" || sortDir == null)
+                                sortDir = "asc";
+
+                            if (sortDir != "asc")
+                                hashParams.push("desc=" + sortDir);
                         }
 
-                        const columnSearches = $('#dbtable').DataTable().columns().search();
-                        for (let i = 0; i < columnSearches.length; i++) {
-                            var colSearch = columnSearches[i];
+                        const filterHeaders = document.querySelectorAll('#dbtable thead tr.filters th');
+                        filterHeaders.forEach(function (element, index) {
+                            const input = element.querySelector("input");
+                            if (input && input.value) {
+                                hashParams.push("colFilter[" + index + "]=" + encodeURIComponent(input.value));
+                            }
 
-                            if (colSearch == "")
-                                continue;
+                        });
 
-                            hashPart += "&colFilter[" + i + "]=" + encodeURIComponent(colSearch);
+                        // the below is so the back button keeps working because browser back/forward shouldn't re-push states
+                        if (!window.isPopState) {
+                            window.history.pushState('dbc', document.title, buildURL(currentParams) + "#" + hashParams.join("&"));
+                        } else {
+                            window.isPopState = false;
                         }
 
-                        window.history.pushState('dbc', document.title, buildURL(currentParams) + "#" + hashPart);
-                        window.location.hash = hashPart;
+                        window.location.hash = hashParams.join("&");
                     });
 
-                    $('#dbtable').on('length.dt', function (e, settings, len) {
-                        localStorage.setItem("dbcPageLength", len);
+                    table.on('length.dt', function (e, settings, len) {
+                        localStorage.setItem("settings[dbcPageLength]", len);
                     });
                 });
         }
 
+        function locationHashChanged(event) {
+            table = new DataTable.Api('#dbtable');
+            
+            if (!table) {
+                return;
+            }
+
+            var searchHash = location.hash.substr(1),
+                searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
+
+            if (searchString != undefined && searchString.length > 0) {
+                searchString = decodeURIComponent(searchString);
+            }
+
+            var searchInput = document.getElementById("dt-search-0");
+            if (searchString != undefined && searchInput && searchInput.value != searchString) {
+                table.search(searchString).draw(false);
+            }
+            var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
+            if (table.page() != page) {
+                table.page(page).draw(false);
+            }
+
+            var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
+            if (!sortCol) {
+                sortCol = 0;
+            }
+
+            var sortDesc = searchHash.substr(searchHash.indexOf('desc=')).split('&')[0].split('=')[1];
+            if (!sortDesc) {
+                sortDesc = "asc";
+            }
+
+            var curSort = table.order();
+            if (curSort.length > 0) {
+                if (sortCol != curSort[0][0] || sortDesc != curSort[0][1]) {
+                    table.order([sortCol, sortDesc]).draw(false);
+                }
+            }
+
+            var filterHeaders = document.querySelectorAll('#dbtable thead tr.filters th');
+            filterHeaders.forEach(function (element, index) {
+                var input = element.querySelector("input");
+
+                var colFilterHash = searchHash.substr(searchHash.indexOf('colFilter[' + index + ']=')).split('&')[0].split('=')[1];
+                if (colFilterHash != undefined) {
+                    var colFilterValue = decodeURIComponent(colFilterHash);
+                    if (input && input.value != colFilterValue) {
+                        input.value = colFilterValue;
+                        table.column(index).search(colFilterValue).draw(false);
+                    }
+                } else {
+                    if (input && input.value != "") {
+                        input.value = "";
+                        table.column(index).search("").draw(false);
+                    }
+                }
+            });
+        }
+
+        window.isPopState = false;
+        function popStateChanged(event) {
+            window.isPopState = true;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('dbc') && currentParams["dbc"] != urlParams.get('dbc')) {
+
+                // this is a bit ass because the casing differs
+                const fileFilter = document.getElementById("fileFilter");
+                for (let i = 0; i < fileFilter.options.length; i++) {
+                    if (fileFilter.options[i].value.toLowerCase() == urlParams.get('dbc').toLowerCase()) {
+                        fileChoices.setChoiceByValue(fileFilter.options[i].value);
+                        break;
+                    }
+                }
+
+                loadURLParams();
+                loadTable();
+            }
+
+            if (urlParams.has('build') && currentParams["build"] != urlParams.get('build')) {
+                const buildFilter = document.getElementById("buildFilter");
+                buildFilter.value = urlParams.get('build');
+                buildFilter.dispatchEvent(new Event('change'));
+            }
+
+            if (urlParams.has('locale') && currentParams["locale"] != urlParams.get('locale')) {
+                const localeSelection = document.getElementById("localeSelection");
+                localeSelection.value = urlParams.get('locale');
+                localeSelection.dispatchEvent(new Event('change'));
+            }
+        }
+
+        window.onpopstate = popStateChanged;
+        window.onhashchange = locationHashChanged;
+
         let build;
         let currentParams = [];
 
-        (async function () {
+        async function loadURLParams() {
             let vars = {};
             let parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
                 if (value.includes('#')) {
@@ -1193,25 +1457,25 @@
                 }
             }
 
-             if (vars["locale"] == null) {
-                 currentParams["locale"] = "enUS";
-             } else {
-                 currentParams["locale"] = vars["locale"];
-             }
+            if (vars["locale"] == null) {
+                currentParams["locale"] = "enUS";
+            } else {
+                currentParams["locale"] = vars["locale"];
+            }
 
-             const localeSelection = document.getElementById("localeSelection");
+            const localeSelection = document.getElementById("localeSelection");
 
-             for (let value of Object.entries(Locales)) {
-                 var option = document.createElement("option");
-                 option.val = value[1];
-                 option.text = value[0];
+            for (let value of Object.entries(Locales)) {
+                var option = document.createElement("option");
+                option.val = value[1];
+                option.text = value[0];
 
-                 if(currentParams["locale"] == value[0]){
-                     option.selected = true;
-                 }
+                if (currentParams["locale"] == value[0]) {
+                    option.selected = true;
+                }
 
-                 localeSelection.appendChild(option);
-             }
+                localeSelection.appendChild(option);
+            }
 
             currentParams["hotfixes"] = false;
             if (vars["hotfixes"] == "true") {
@@ -1222,46 +1486,13 @@
                 Settings.useHotfixes = false;
                 document.getElementById('hotfixToggle').checked = false;
             }
+        }
 
+        (async function () {
+            await loadURLParams();
             refreshFiles();
             refreshVersions();
             loadTable();
-
-            $('#fileFilter').on('change', function () {
-                if ($(this).val() != "" && $(this).val() != "Select a table") {
-                    currentParams["dbc"] = $(this).val().toLowerCase();
-                    if (document.getElementById("buildFilter")) {
-                        clearState = true;
-                        setPageDB2Title($(this).val());
-                        refreshVersions();
-                        loadTable();
-                        updateDBDButton();
-                    } else {
-                        document.location = buildURL(currentParams);
-                    }
-                }
-            });
-
-            $('#buildFilter').on('change', function () {
-                currentParams["build"] = $('#buildFilter').val();
-                loadTable();
-            });
-
-             $('#localeSelection').on('change', function() {
-                 currentParams["locale"] = $('#localeSelection').val();
-                 loadTable();
-             });
-
-            $('#hotfixToggle').on('change', function () {
-                if (document.getElementById('hotfixToggle').checked) {
-                    currentParams["hotfixes"] = true;
-                } else {
-                    currentParams["hotfixes"] = false;
-                }
-                loadTable();
-            });
-
-            console.log("Refreshing files");
 
             /* FK search */
             var fkSearchDB = document.getElementById('fkSearchDB');
@@ -1293,11 +1524,49 @@
                 }).catch(function (error) {
                     console.log("An error occurred retrieving files: " + error);
                 });
-            $('#foreignKeySearchModal').on('hidden.bs.modal', function () {
+
+            var foreignKeyModal = document.getElementById('foreignKeySearchModal');
+            foreignKeyModal.addEventListener('hidden.bs.modal', function () {
                 document.getElementById("foreignKeySearchForm").style.display = 'flex';
                 document.getElementById("fkSearchResultHolder").innerHTML = "";
             })
         }());
+
+        document.getElementById('fileFilter').addEventListener('change', function () {
+            if (this.value != "" && this.value != "Select a table") {
+                currentParams["dbc"] = this.value.toLowerCase();
+                if (document.getElementById("buildFilter")) {
+                    clearState = true;
+                    setPageDB2Title(this.value);
+                    refreshVersions();
+                    loadTable();
+                    updateDBDButton();
+                } else {
+                    document.location = buildURL(currentParams);
+                }
+            }
+        });
+
+        document.getElementById('buildFilter').addEventListener('change', function () {
+            currentParams["build"] = document.getElementById('buildFilter').value;
+            loadTable();
+        });
+
+        document.getElementById('localeSelection').addEventListener('change', function () {
+            currentParams["locale"] = document.getElementById('localeSelection').value;
+            loadTable();
+        });
+
+        document.getElementById('hotfixToggle').addEventListener('change', function () {
+            if (document.getElementById('hotfixToggle').checked) {
+                currentParams["hotfixes"] = true;
+            } else {
+                currentParams["hotfixes"] = false;
+            }
+            loadTable();
+        });
+
+        loadURLParams();
     </script>
 </body>
 </html>

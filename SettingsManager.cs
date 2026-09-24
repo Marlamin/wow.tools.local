@@ -30,9 +30,7 @@ namespace wow.tools.local
             {"region", new WTLSetting { Key = "region", Value = "eu", Description = "The region to use (e.g. 'eu', 'us', etc.).", Type = "string", DefaultValue = "eu" }},
             {"showAllFiles", new WTLSetting { Key = "showAllFiles", Value = "false", Description = "Whether to show all files in WTL, including those not present in the loaded build.", Type = "bool", DefaultValue = "false" }},
             {"locale", new WTLSetting { Key = "locale", Value = "enUS", Description = "The locale to use (e.g. enUS, deDE, zhCN, etc.).", Type = "string", DefaultValue = "enUS" }},
-            {"preferHighResTextures", new WTLSetting { Key = "preferHighResTextures", Value = "false", Description = "Whether to prefer high-res textures when available (Classic only).", Type = "bool", DefaultValue = "false" }},
-            {"useTACTSharp", new WTLSetting { Key = "useTACTSharp", Value = "false", Description = "Whether to use TACTSharp for TACT operations. Uses CASCLib if disabled.", Type = "bool", DefaultValue = "true" }},
-            {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDN hosts to use for downloading files, separated by commas.", Type = "string", DefaultValue = string.Empty }},
+            {"additionalCDNs", new WTLSetting { Key = "additionalCDNs", Value = string.Empty, Description = "Additional CDN hosts to use for downloading files, separated by commas.", Type = "string", DefaultValue = "casc.wago.tools,cdn.arctium.tools,archive.wow.tools" }},
             {"buildConfigFile", new WTLSetting { Key = "buildConfigFile", Value = string.Empty, Description = "Path to a build config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"cdnConfigFile", new WTLSetting { Key = "cdnConfigFile", Value = string.Empty, Description = "Path to a CDN config file.", Type = "string", DefaultValue = string.Empty, Ephemeral = true }},
             {"defaultFilesSearch", new WTLSetting { Key = "defaultFilesSearch", Value = string.Empty, Description = "Default search query for files page.", Type = "string", DefaultValue = string.Empty } },
@@ -40,9 +38,10 @@ namespace wow.tools.local
             {"readOnly", new WTLSetting { Key = "readOnly", Value = "false", Description = "Whether to operate in read-only mode. Disables various functionality.", Type = "bool", DefaultValue = "false" }},
             {"bnetClientID", new WTLSetting { Key = "bnetClientID", Value = string.Empty, Description = "Battle.net Web API client ID (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
             {"bnetClientSecret", new WTLSetting { Key = "bnetClientSecret", Value = string.Empty, Description = "Battle.net Web API client secret (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
+            {"useWago", new WTLSetting { Key = "useWago", Value = "true", Description = "Whether to use wago.tools to load older versions of specific files, loads the build in TACTSharp if disabled.", Type = "bool", DefaultValue = "true" } },
+            {"useTACTChannels", new WTLSetting { Key = "useTACTChannels", Value = "false", Description = "Whether to use TACTChannels for version retrieval.", Type = "bool", DefaultValue = "false" }},
         };
 
-        private static CASCLib.LocaleFlags cascLocale;
         private static RootInstance.LocaleFlags tactLocale;
 
         // Strings
@@ -65,13 +64,12 @@ namespace wow.tools.local
 
         // Bools
         public static bool ShowAllFiles { get => bool.Parse(Settings["showAllFiles"].Value); set => Settings["showAllFiles"].Value = value.ToString().ToLower(); }
-        public static bool PreferHighResTextures { get => bool.Parse(Settings["preferHighResTextures"].Value); set => Settings["preferHighResTextures"].Value = value.ToString().ToLower(); }
-        public static bool UseTACTSharp { get => bool.Parse(Settings["useTACTSharp"].Value); set => Settings["useTACTSharp"].Value = value.ToString().ToLower(); }
         public static bool ReadOnly { get => bool.Parse(Settings["readOnly"].Value); set => Settings["readOnly"].Value = value.ToString().ToLower(); }
+        public static bool UseWago { get => bool.Parse(Settings["useWago"].Value); set => Settings["useWago"].Value = value.ToString().ToLower(); }
+        public static bool UseTACTChannels { get => bool.Parse(Settings["useTACTChannels"].Value); set => Settings["useTACTChannels"].Value = value.ToString().ToLower(); }
 
         // Enums
         public static RootInstance.LocaleFlags TACTLocale { get => tactLocale; set => tactLocale = value; }
-        public static CASCLib.LocaleFlags CASCLocale { get => cascLocale; set => cascLocale = value; }
 
         // Arrays
         public static string[] AdditionalCDNs
@@ -160,29 +158,9 @@ namespace wow.tools.local
         {
             if (locValue == null)
             {
-                cascLocale = CASCLib.LocaleFlags.enUS;
                 tactLocale = RootInstance.LocaleFlags.enUS;
                 return;
             }
-
-            cascLocale = locValue switch
-            {
-                "deDE" => CASCLib.LocaleFlags.deDE,
-                "enUS" => CASCLib.LocaleFlags.enUS,
-                "enGB" => CASCLib.LocaleFlags.enGB,
-                "ruRU" => CASCLib.LocaleFlags.ruRU,
-                "zhCN" => CASCLib.LocaleFlags.zhCN,
-                "zhTW" => CASCLib.LocaleFlags.zhTW,
-                "enTW" => CASCLib.LocaleFlags.enTW,
-                "esES" => CASCLib.LocaleFlags.esES,
-                "esMX" => CASCLib.LocaleFlags.esMX,
-                "frFR" => CASCLib.LocaleFlags.frFR,
-                "itIT" => CASCLib.LocaleFlags.itIT,
-                "koKR" => CASCLib.LocaleFlags.koKR,
-                "ptBR" => CASCLib.LocaleFlags.ptBR,
-                "ptPT" => CASCLib.LocaleFlags.ptPT,
-                _ => throw new Exception("Invalid locale. Available locales: deDE, enUS, enGB, ruRU, zhCN, zhTW, enTW, esES, esMX, frFR, itIT, koKR, ptBR, ptPT"),
-            };
 
             tactLocale = locValue switch
             {
@@ -283,7 +261,6 @@ namespace wow.tools.local
         {
             switch (key)
             {
-
                 case "wowProduct":
                     if (string.IsNullOrEmpty(value) || !value.StartsWith("wow", StringComparison.OrdinalIgnoreCase))
                         return (false, "Product is empty or does not start with 'wow'");
@@ -339,8 +316,8 @@ namespace wow.tools.local
                         var cdns = value.Split(',');
                         foreach (var cdn in cdns)
                         {
-                            if (string.IsNullOrWhiteSpace(cdn) || cdn.StartsWith("http"))
-                                return (false, "Invalid CDN host: " + cdn + "(must not contain http/https or slashes, only a host name)");
+                            if (string.IsNullOrWhiteSpace(cdn) || cdn.StartsWith("http") || cdn.Contains(' '))
+                                return (false, "Invalid CDN host: '" + cdn + "' (must not contain http/https, slashes or spaces, only a host name)");
                         }
                         return (true, string.Empty);
                     }
@@ -352,9 +329,14 @@ namespace wow.tools.local
                     else
                         return (true, string.Empty);
                 case "showAllFiles":
-                case "useTACTSharp":
-                case "preferHighResTextures":
                 case "readOnly":
+                case "useWago":
+                case "useTACTChannels":
+                    if (value == "1" || value == "on")
+                        value = "true";
+                    else if (value == "0" || value == "off")
+                        value = "false";
+
                     if (bool.TryParse(value, out _))
                         return (true, string.Empty);
                     else

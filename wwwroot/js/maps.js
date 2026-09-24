@@ -34,13 +34,14 @@ const state = {
 	offsetY: 0,
 	zoomFactor: 2,
 	tileQueue: [],
+	tilesLoading: 0,
 	cache: new Array(CONSTANTS.MAP_SIZE_SQ),
-	awaitingTile: false,
 	isPanning: false,
 	tileSize: 512,
 	mask: [],
 	layer: 0,
 	zoom: 25,
+	drawADTGrid: false,
 	map: 0 // Azeroth?
 };
 
@@ -71,6 +72,12 @@ document.getElementById('js-sidebar-button').addEventListener('click', function 
 document.getElementById('js-layers-button').addEventListener('click', function () {
 	Elements.Layers.classList.toggle('closed');
 	document.getElementById('js-layers-button').classList.toggle('closed');
+});
+
+// ADT grid
+document.getElementById('js-adtgrid').addEventListener('change', function() {
+	state.drawADTGrid = this.checked;
+	render();
 });
 
 (async () => {
@@ -104,13 +111,13 @@ async function InitializeMapOptions(maps) {
 	maps.forEach(function (map, i) {
 		option = document.createElement('option');
 		option.dataset.internal = map.internalName;
-		option.dataset.imapid = map.id;
+		option.dataset.imapid = map.ID;
 		option.dataset.wdtfiledataid = map.wdtFileDataID;
 		option.setAttribute('data-custom-properties', JSON.stringify({
 			internal: map.internalName,
-			imapid: map.id
+			imapid: map.ID
 		}));
-		option.value = map.id;
+		option.value = map.ID;
 		option.textContent = map.displayName;
 
 		fragment.appendChild(option);
@@ -118,11 +125,14 @@ async function InitializeMapOptions(maps) {
 		// Either first map, or specified map
 		if (i === 0 || map.internal === decodeURIComponent(url[2])) {
 
-			Current.Map = map.id;
+			Current.Map = map.ID;
 			Current.InternalMap = map.internalName;
-			Current.InternalMapID = map.id;
+			Current.InternalMapID = map.ID;
 			Current.wdtFileDataID = map.wdtFileDataID;
 			Current.Version = '' + parseInt(url[3], 10);
+
+			document.getElementById("downloadLink").href = "/map/download?mapID=" + Current.Map + "&directory=" + Current.InternalMap + "&wdtFileDataID=" + Current.wdtFileDataID + "&layer=" + state.layer;
+
 			if (map.internal === decodeURIComponent(url[2])) {
 				option.selected = true;
 			}
@@ -151,6 +161,9 @@ async function InitializeEvents() {
 		Current.wdtFileDataID = this.options[this.selectedIndex].dataset.wdtfiledataid;
 
 		await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+
+		document.getElementById("downloadLink").href = "/map/download?mapID=" + Current.Map + "&directory=" + Current.InternalMap + "&wdtFileDataID=" + Current.wdtFileDataID + "&layer=" + state.layer;
+
 		state.zoomFactor = 2;
 		await render();
 		setDefaultPosition();
@@ -158,7 +171,11 @@ async function InitializeEvents() {
 
 	Elements.LayerSelect.addEventListener('change', async function (event) {
 		state.layer = this.value;
+
 		await loadMapMask(Current.Map, Current.InternalMap, Current.wdtFileDataID);
+
+		document.getElementById("downloadLink").href = "/map/download?mapID=" + Current.Map + "&directory=" + Current.InternalMap + "&wdtFileDataID=" + Current.wdtFileDataID + "&layer=" + state.layer;
+
 		await render();
 	});
 
@@ -310,31 +327,27 @@ function notify(msg, level = "danger") {
 }
 
 function checkTileQueue() {
-	const tile = state.tileQueue.shift();
-	if (tile)
+	// load a max of 5 tiles at a time so backend doesnt implode
+	while (state.tilesLoading < 5 && state.tileQueue.length > 0) {
+		const tile = state.tileQueue.shift();
+		state.tilesLoading++;
 		loadTile(tile);
-	else
-		state.awaitingTile = false;
+	}
 }
 
 function queueTile(x, y, index, tileSize) {
 	const node = { x, y, index, tileSize };
-	if (state.awaitingTile)
-		state.tileQueue.push(node);
-	else
-		loadTile(node);
+	state.tileQueue.push(node);
+	checkTileQueue();
 }
 
 async function loadTile(tile) {
-	state.awaitingTile = true;
-
-	const cache = state.cache;
-
 	const data = await loadMapTile(tile.x, tile.y, tile.tileSize, tile.index);
-	cache[tile.index] = data;
+	state.cache[tile.index] = data;
 	if (data !== false)
 		render();
 
+	state.tilesLoading--;
 	checkTileQueue();
 }
 
@@ -403,6 +416,37 @@ async function render() {
 				queueTile(x, y, index, tileSize);
 			} else if (cached instanceof ImageData) {
 				ctx.putImageData(cached, drawX, drawY);
+			}
+		}
+	}
+
+	if (state.drawADTGrid) {
+		for (let x = minTileY; x < maxTileY; x++) {
+			for (let y = minTileX; y < maxTileX; y++) {
+				// todo: do i want it for all tiles or just avaialble ones?
+				// const index = (x * CONSTANTS.MAP_SIZE) + y;
+
+				// if (state.mask && state.mask[index] === 0)
+				// 	continue;
+
+				const drawX = (y * tileSize) + state.offsetX;
+				const drawY = (x * tileSize) + state.offsetY;
+
+				// border
+				ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+				ctx.strokeRect(drawX, drawY, tileSize, tileSize);
+
+				// dynamic size for text based on zoom
+				let fontSize = 200 / (state.zoomFactor * 2);
+
+				// rect
+				ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+				ctx.fillRect(drawX, drawY, fontSize * 3, fontSize + 10);
+
+				// text
+				ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+				ctx.font = fontSize + "px Arial";
+				ctx.fillText(x + ' ' + y, drawX + 5, drawY + fontSize);
 			}
 		}
 	}

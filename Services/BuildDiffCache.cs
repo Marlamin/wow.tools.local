@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace wow.tools.local.Services
 {
@@ -14,7 +13,7 @@ namespace wow.tools.local.Services
     public struct DiffEntry
     {
         public int id;
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public DiffAction action;
         public CASC.EncryptionStatus encryptedStatus;
         public string type;

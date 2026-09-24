@@ -20,9 +20,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -32,7 +29,7 @@
     <script type="text/javascript" src="/js/datatables.min.js"></script>
     <script src="/js/input.js" crossorigin="anonymous"></script>
 
-    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     <script type="text/javascript" src="/js/main.js"></script>
     <script type="text/javascript" src="/js/anims.js"></script>
     <script type="text/javascript" src="/js/bufo.js"></script>
@@ -43,17 +40,17 @@
     <div class="container-fluid" id='files_container'>
         <div id='files_buttons' class='notree'>
             <!--<a href='#' class='btn btn-primary btn-sm' data-bs-toggle='modal' data-bs-target='#settingsModal'><i class='fa fa-gear'></i> Settings</a> -->
-            <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles();" href="#"><i class='fa fa-refresh'></i> Analyze unknown files</a>
+            <a id='analyzeFileButton' class='btn btn-danger btn-sm' onclick="analyzeFiles(event);"><i class='fa fa-refresh'></i> Analyze unknown files</a>
             <div class="btn-group" role="group">
-                <a id='updateListfileButton' class='btn btn-primary btn-sm' onclick="updateListfile();" href="#"><i class='fa fa-refresh'></i> Update listfile</a>
+                <a id='updateListfileButton' class='btn btn-primary btn-sm' onclick="updateListfile(event);"><i class='fa fa-refresh'></i> Update listfile</a>
                 <a id='exportListfileButton' class='btn btn-primary btn-sm' onclick="exportListfile();" href="#" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Export listfile to exported-listfile.csv'><i class='fa fa-save'></i></a>
             </div>
             <div class="btn-group" role="group">
-                <a id='updateLookupsButton' class='btn btn-primary btn-sm' onclick="updateLookups();" href="#"><i class='fa fa-refresh'></i> Update lookups</a>
+                <a id='updateLookupsButton' class='btn btn-primary btn-sm' onclick="updateLookups(event);"><i class='fa fa-refresh'></i> Update lookups</a>
                 <a id='exportLookupsButton' class='btn btn-primary btn-sm' onclick="exportLookups();" href="#" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Export lookups to exported-lookups.csv'><i class='fa fa-save'></i></a>
             </div>
             <div class="btn-group" role="group">
-                <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys();" href="#"><i class='fa fa-refresh'></i> Update TACTKeys</a>
+                <a id='updateTACTKeysButton' class='btn btn-secondary btn-sm' onclick="updateTACTKeys(event);"><i class='fa fa-refresh'></i> Update TACTKeys</a>
             </div>
             <div class="btn-group" role="group">
                 <a id='extractSearchButton' class='btn btn-warning btn-sm' onclick="extractSearch();" data-bs-trigger='hover' data-bs-container='body' data-bs-toggle='popover' data-bs-content='Extract all files from this search result to the configured extraction directory'><i class='fa fa-download'></i> Extract all</a>
@@ -114,24 +111,27 @@
                     <h5 class="modal-title" id="helpModalLabel">Help</h5>
                 </div>
                 <div class="modal-body" id="helpModalContent">
-                    <!--<kbd>%</kbd> for wildcard<br>
-                    <kbd>^</kbd> string must start with<br>-->
-                    <kbd>type:type</kbd> for filtering by type (requires files to be analyzed to include unknown files)<br>
-                    <kbd>chash:md5</kbd> for filter by contenthash (currently loaded build only)<br>
-                    <kbd>unnamed</kbd> for files without filenames<br>
-                    <kbd>haslookup</kbd> for files with filename hashes/lookups<br />
-                    <kbd>encrypted</kbd> for encrypted files<br>
-                    <kbd>encrypted:KEY</kbd> for encrypted by key<br>
-                    <kbd>knownkey</kbd> for files encrypted with known keys<br>
-                    <kbd>unknownkey</kbd> for files encrypted with unknown keys<br>
+                    <kbd>type:type</kbd> filtering by type (requires files to be analyzed to include unknown files)<br>
+                    <kbd>chash:md5</kbd> filter by contenthash (currently loaded build only)<br>
+                    <kbd>unnamed</kbd> files without filenames<br>
+                    <kbd>haslookup</kbd> files with filename hashes/lookups<br />
+                    <kbd>lookupmatch</kbd> files where filename hash/lookup matches the filename<br />
+                    <kbd>lookupwrong</kbd> files where filename hash/lookup does not match the filename<br />
+                    <kbd>encrypted</kbd> encrypted files<br>
+                    <kbd>encrypted:KEY</kbd> encrypted by key<br>
+                    <kbd>encryptedbutnot</kbd> files that are tagged as encrypted but aren't due to shared content with unencrypted files<br>
+                    <kbd>knownkey</kbd> files encrypted with known keys<br>
+                    <kbd>unknownkey</kbd> files encrypted with unknown keys<br>
                     <!--<kbd>skit:soundkitid</kbd> for searching by SoundKitID<br>-->
                     <kbd>range:start-end</kbd> search within a specific set of FileDataIDs<br>
                     <!--<kbd>vo:searchterm</kbd> show sound files in which this dialogue appears<br>-->
-                    <kbd>isplaceholder</kbd> for files with placeholder filenames<br />
+                    <kbd>isplaceholder</kbd> files with placeholder filenames<br />
                     <kbd>added:x.x.x.xxxxx|x.x.x.xxxxx</kbd> filter by files added between the given builds (requires both builds to have been loaded once so manifest exists)<br />
                     <kbd>in:x.x.x.xxxxx</kbd> filter by files present in a given build (requires build to have been loaded once so manifest exists)<br />
-                    <kbd>parentof:fdid</kbd> show files that have the given FileDataID as a parent in file links (requires linking to have run/be uptodate)<br />
-                    <kbd>childof:fdid</kbd> show files that are children of the given FileDataID in file links (requires linking to have run/be uptodate)<br />
+                    <kbd>parentof:fdid</kbd> files that have the given FileDataID as a parent in file links (requires linking to have run/be uptodate)<br />
+                    <kbd>childof:fdid</kbd> files that are children of the given FileDataID in file links (requires linking to have run/be uptodate)<br />
+                    <kbd>available</kbd> files available in the currently loaded build (useless if showAllFiles setting = false)<br />
+                    <kbd>unavailable</kbd> files not available in the currently loaded build (requires showAllFiles setting = true, same as <kbd>!available</kbd>)<br />
                     <kbd>!xxxx</kbd> invert filter <kbd>xxxx</kbd><br />
                     <br />
                     <p>It is also possible to combine some of these options (but not others, it will complain) by separating them by a <kbd>,</kbd>. <br>Examples: <kbd>unnamed,type:wmo</kbd> <kbd>creature,type:m2</kbd></p>
@@ -196,11 +196,15 @@
             showFileType: true,
             showFileBranch: true,
             showFileTree: false,
-            previewTypes: ["ogg", "mp3", "blp", "wmo", "m2", "bls", "gfat", "lua", "txt", "srt", "toc", "hlsl", "m3", "adt"]
+            previewTypes: ["ogg", "mp3", "blp", "wmo", "m2", "bls", "gfat", "lua", "txt", "srt", "toc", "hlsl", "m3", "adt", "png", "wtf"]
+        }
+
+        var Elements = {
+            fileTable: null,
         }
 
         window.onkeydown = function (e) {
-            if (e.shiftKey && e.keyCode == 65) {
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 65) {
                 showButtons();
                 queueAllFiles();
                 event.preventDefault();
@@ -241,25 +245,52 @@
             });
         }
 
-        async function updateListfile() {
+        async function updateListfile(e) {
+            e.preventDefault();
+
             var button = document.getElementById("updateListfileButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateListfile");
-            window.location.reload();
+            Elements.filesTable.ajax.reload(null, false); 
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update listfile";
         }
 
-        async function updateLookups() {
+        async function updateLookups(e) {
+            e.preventDefault();
+
             var button = document.getElementById("updateLookupsButton");
             button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
 
             await fetch("/casc/updateLookups");
-            window.location.reload();
+            Elements.filesTable.ajax.reload(null, false);
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update lookups";
         }
 
-        async function analyzeFiles() {
+        async function updateTACTKeys(e) {
+            e.preventDefault();
+
+            var button = document.getElementById("updateTACTKeysButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
+
+            await fetch("/casc/updateTACTKeys");
+            Elements.filesTable.ajax.reload(null, false);
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Update TACTKeys";
+        }
+
+        async function analyzeFiles(e) {
+            e.preventDefault();
+
+            var button = document.getElementById("analyzeFileButton");
+            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Analyzing, please wait!";
+
             const response = await fetch("/casc/analyzeUnknown");
-            window.location.reload();
+            Elements.filesTable.ajax.reload(null, false);
+
+            button.innerHTML = "<i class='fa fa-refresh'></i> Analyze unknown files";
         }
 
         function loadSettings() {
@@ -375,25 +406,20 @@
 
             var build = searchHash.substr(searchHash.indexOf('build=')).split('&')[0].split('=')[1];
 
-            var lsFileLength = localStorage.getItem("filesPageLength");
+            var lsFileLength = localStorage.getItem("settings[filesPageLength]");
             if (lsFileLength) {
                 var pageLength = parseInt(lsFileLength);
             } else {
                 var pageLength = 25;
             }
 
-            var table = $('#files').DataTable({
+            Elements.filesTable = new DataTable('#files', {
                 "processing": true,
                 "serverSide": true,
                 "search": { "search": searchString },
                 "ajax": {
                     url: '/listfile/files',
-                    type: 'GET',
-                    beforeSend: function () {
-                        if (table && table.hasOwnProperty('settings')) {
-                            //table.settings()[0].jqXHR.abort();
-                        }
-                    }
+                    type: 'GET'
                 },
                 "pageLength": pageLength,
                 "language": {
@@ -417,9 +443,9 @@
                         "createdCell": function (td, cellData, rowData, row, col) {
                             if (!cellData) {
                                 if (!rowData[7]) {
-                                    $(td).css('background-color', '#ff585850');
+                                    td.style.backgroundColor = '#ff585850';
                                 } else {
-                                    $(td).css('background-color', '#673ab750');
+                                    td.style.backgroundColor = '#673ab750';
                                 }
                             }
                         },
@@ -590,10 +616,11 @@
                                     // not in current version
                                     var test = "<i class='fa fa-ban text-danger'></i>";
                                 } else {
-                                    if ($("#files_preview").is(":visible")) {
-                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                    var filesPreview = document.getElementById("files_preview");
+                                    if (filesPreview && filesPreview.style.display !== "none") {
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onClick='fillPreviewModal(" + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
                                     } else {
-                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(\"\"," + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
+                                        var test = "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' data-bs-toggle='modal' data-bs-target='#previewModal' onClick='fillPreviewModal(" + full[0] + "\,\"" + full[4] + "\")'><i class='fa fa-eye'></i></a></td>";
                                     }
                                 }
 
@@ -604,18 +631,22 @@
                 ]
             });
 
-            $("#files").on('draw.dt', function () {
-                var currentSearch = encodeURIComponent($("#dt-search-0").val());
-                var currentPage = $('#files').DataTable().page() + 1;
+            var needToSelectFirstRow = false;
+            var needToSelectLastRow = false;
 
-                var sort = $('#files').DataTable().order();
+            Elements.filesTable.on('draw.dt', function () {
+                var searchInput = document.getElementById("dt-search-0");
+                var currentSearch = searchInput ? encodeURIComponent(searchInput.value) : "";
+                var currentPage = Elements.filesTable.page() + 1;
+
+                var sort = Elements.filesTable.order();
                 var sortCol = sort[0][0];
                 var sortDir = sort[0][1];
 
                 if (sortDir == "" || sortDir == null)
                     sortDir = "asc";
 
-                var build = $('#files').DataTable().ajax.url().split("buildConfig=")[1];
+                var build = Elements.filesTable.ajax.url().split("buildConfig=")[1];
 
                 var url = "search=" + currentSearch + "&page=" + currentPage + "&sort=" + sortCol + "&desc=" + sortDir;
                 if (build) {
@@ -624,37 +655,137 @@
 
                 window.location.hash = url;
 
-                $('.popover').remove();
+                var popovers = document.querySelectorAll('.popover');
+                popovers.forEach(function(popover) {
+                    popover.remove();
+                });
 
-                $("[data-bs-toggle=popover]").popover();
-            });
+                var popoverElements = document.querySelectorAll('[data-bs-toggle="popover"]');
+                popoverElements.forEach(function(popoverEl) {
+                    new bootstrap.Popover(popoverEl);
+                });
 
-            $("#files").on('click', 'tbody tr td', function () {
-                if ($("#files_preview").is(":visible")) {
-                    var data = $('#files').DataTable().row($(this).parent()).data();
-                    if (Settings.previewTypes.includes(data[4])) {
-                        fillPreviewModal("", data[0], data[4]);
+                if (needToSelectFirstRow) {
+                    var firstRow = document.querySelector("#files tbody tr:first-child");
+                    if (firstRow) {
+                        var selectedElements = document.querySelectorAll(".selected");
+                        selectedElements.forEach(function (el) {
+                            el.classList.remove("selected");
+                        });
+
+                        var data = Elements.filesTable.row(firstRow).data();
+                        if (Settings.previewTypes.includes(data[4])) {
+                            fillPreviewModal(data[0], data[4]);
+                        }
+                        firstRow.classList.add("selected");
+
+                        needToSelectFirstRow = false;
                     }
-                    $(".selected").removeClass("selected");
-                    $(this).parent().addClass('selected');
+                }
+
+                if (needToSelectLastRow) {
+                    var lastRow = document.querySelector("#files tbody tr:last-child");
+                    if (lastRow) {
+                        var selectedElements = document.querySelectorAll(".selected");
+                        selectedElements.forEach(function (el) {
+                            el.classList.remove("selected");
+                        });
+
+                        var data = Elements.filesTable.row(lastRow).data();
+                        if (Settings.previewTypes.includes(data[4])) {
+                            fillPreviewModal(data[0], data[4]);
+                        }
+                        lastRow.classList.add("selected");
+
+                        needToSelectLastRow = false;
+                    }
                 }
             });
 
-            $('#files').on('length.dt', function (e, settings, len) {
-                localStorage.setItem("filesPageLength", len);
+            document.getElementById('files').addEventListener('click', function (e) {
+                if (e.target.tagName === 'TD' && e.target.closest('tbody')) {
+                    var filesPreview = document.getElementById("files_preview");
+                    if (filesPreview && filesPreview.style.display !== "none") {
+                        var row = e.target.closest('tr');
+                        var data = Elements.filesTable.row(row).data();
+                        if (Settings.previewTypes.includes(data[4])) {
+                            fillPreviewModal(data[0], data[4]);
+                        }
+                        var selectedElements = document.querySelectorAll(".selected");
+                        selectedElements.forEach(function(el) {
+                            el.classList.remove("selected");
+                        });
+                        row.classList.add('selected');
+                    }
+                }
+            });
+
+            Elements.filesTable.on('length.dt', function (e, settings, len) {
+                if (len != -1) {
+                    localStorage.setItem("settings[filesPageLength]", len);
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (document.activeElement.tagName === 'INPUT')
+                    return;
+
+                var filesPreview = document.getElementById("files_preview");
+                if (filesPreview && filesPreview.style.display !== "none") {
+                    // Left/Right are already handled by the modified input plugin
+                    if (e.key == 'ArrowUp') {
+                        e.preventDefault();
+                        var selectedRow = document.querySelector(".selected");
+                        var previousRow = selectedRow ? selectedRow.previousElementSibling : null;
+                        if (previousRow) {
+                            var data = Elements.filesTable.row(previousRow).data();
+                            if (Settings.previewTypes.includes(data[4])) {
+                                fillPreviewModal(data[0], data[4]);
+                            }
+                            selectedRow.classList.remove("selected");
+                            previousRow.classList.add("selected");
+                        } else {
+                            Elements.filesTable.page('previous').draw('page');
+                            needToSelectLastRow = true;
+                        }
+                    } else if (e.key == 'ArrowDown') {
+                        e.preventDefault();
+                        var selectedRow = document.querySelector(".selected");
+                        var nextRow = selectedRow ? selectedRow.nextElementSibling : null;
+                        if (nextRow) {
+                            var data = Elements.filesTable.row(nextRow).data();
+                            if (Settings.previewTypes.includes(data[4])) {
+                                fillPreviewModal(data[0], data[4]);
+                            }
+                            selectedRow.classList.remove("selected");
+                            nextRow.classList.add("selected");
+                        } else {
+                            Elements.filesTable.page('next').draw('page');
+                            needToSelectFirstRow = true;
+                        }
+                    }
+                }
             });
         }());
 
         function copyResultsToClipboard() {
-            console.log($('#files').DataTable().rows().data().toArray());
+            if (!Elements.filesTable) {
+                console.log("Table not initialized");
+                return;
+            }
+            console.log(Elements.filesTable.rows().data().toArray());
             var result = "";
-            for (const row of $('#files').DataTable().rows().data().toArray()) {
+            for (const row of Elements.filesTable.rows().data().toArray()) {
                 result += row[0] + ";" + row[1] + "\n";
             }
             navigator.clipboard.writeText(result);
         }
 
         function locationHashChanged(event) {
+            if (!Elements.filesTable) {
+                return;
+            }
+
             var searchHash = location.hash.substr(1),
                 searchString = searchHash.substr(searchHash.indexOf('search=')).split('&')[0].split('=')[1];
 
@@ -662,15 +793,15 @@
                 searchString = decodeURIComponent(searchString);
             }
 
-            if (searchString != undefined && $("#dt-search-0").val() != searchString) {
+            var searchInput = document.getElementById("dt-search-0");
+            if (searchString != undefined && searchInput && searchInput.value != searchString) {
                 console.log("Setting search to " + searchString);
-                //$("#files_filter label input").val(searchString); // This causes issues where search field is overwritten while typing
-                $('#files').DataTable().search(searchString).draw(false);
+                Elements.filesTable.search(searchString).draw(false);
             }
             var page = (parseInt(searchHash.substr(searchHash.indexOf('page=')).split('&')[0].split('=')[1], 10) || 1) - 1;
-            if ($('#files').DataTable().page() != page) {
+            if (Elements.filesTable.page() != page) {
                 console.log("Setting page to " + page);
-                $('#files').DataTable().page(page).draw(false);
+                Elements.filesTable.page(page).draw(false);
             }
 
             var sortCol = searchHash.substr(searchHash.indexOf('sort=')).split('&')[0].split('=')[1];
@@ -683,10 +814,10 @@
                 sortDesc = "asc";
             }
 
-            var curSort = $('#files').DataTable().order();
+            var curSort = Elements.filesTable.order();
             if (sortCol != curSort[0][0] || sortDesc != curSort[0][1]) {
                 console.log("Setting sort to " + sortCol + ", " + sortDesc);
-                $('#files').DataTable().order([sortCol, sortDesc]).draw(false);
+                Elements.filesTable.order([sortCol, sortDesc]).draw(false);
             }
         }
 

@@ -30,10 +30,13 @@ function togglePreviewPane(){
     var visibility = document.getElementById("files_preview").style.display;
     if (document.getElementById("files_preview").style.display !== "none"){
         // Refresh table to rewrite the preview links
-        $('#files').DataTable().draw(false);
+        DataTable('#files').draw(false);
 
         // Hide preview pane
         document.getElementById("files_preview").style.display = "none";
+
+        // Also clear preview pane because sometimes oggs/mp3s are playing
+        document.getElementById("files_preview").innerHTML = "";
 
         // Resize table
         document.getElementById("files_wrapper").style.width = "100%";
@@ -44,7 +47,7 @@ function togglePreviewPane(){
         document.getElementById("files_preview").innerHTML = "";
 
         // Refresh table to rewrite the preview links
-        $('#files').DataTable().draw(false);
+        DataTable('#files').draw(false);
 
         // Show preview pane
         document.getElementById("files_preview").style.display = "block";
@@ -154,16 +157,21 @@ function finishEditing(){
     console.log(this.innerText);
 }
 
-function fillPreviewModal(buildconfig, filedataid, type) {
+function toggleBLPAlpha(filedataid) {
+    var discardBLPAlpha = localStorage.getItem('settings[discardBLPAlpha]') === '1';
+    localStorage.setItem('settings[discardBLPAlpha]', discardBLPAlpha ? '0' : '1');
+    fillPreviewModal(filedataid, "blp");
+}
+function fillPreviewModal(filedataid, type) {
     var html = "";
     var url = "/casc/fdid?fileDataID=" + filedataid + "&filename=preview";
 
     // Preview tab: visual preview of files, e.g. modelviewer, audio player, textures, code, text, etc
-    var previewTabExts = ["blp", "mp3", "ogg", "m2", "wmo", "m3", "lua", "html", "txt", "srt", "xml", "toc", "hlsl"];
+    var previewTabExts = ["blp", "mp3", "ogg", "m2", "wmo", "m3", "lua", "html", "txt", "srt", "xml", "toc", "hlsl", "png", "wtf", "bls"];
     var hasPreviewTab = previewTabExts.includes(type); 
 
     // JSON preview of file, for files where this is relevant (e.g. models, wmos, adts, bls, gfats, etc)
-    var jsonTabExts = ["m2", "wmo", "m3", "bls", "gfat", "adt", "wdt", "wdl", "tex"];
+    var jsonTabExts = ["m2", "wmo", "m3", "bls", "gfat", "adt", /* "wdt", */ "wdl", "tex", "dat"];
     var hasJSONTab = jsonTabExts.includes(type);
 
     // Additional info about file further expanded on parsed information, e.g. model info, texture info, etc
@@ -206,7 +214,13 @@ function fillPreviewModal(buildconfig, filedataid, type) {
 
         if (type == "blp") {
             html += "<canvas id='mapCanvas' width='1' height='1'></canvas>";
-            renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true);
+            var discardBLPAlpha = localStorage.getItem('settings[discardBLPAlpha]') === '1';
+            renderBLPToCanvasElement(url, "mapCanvas", 0, 0, true, discardBLPAlpha);
+
+            var buttonText = discardBLPAlpha ? "Enable transparency" : "Disable transparency";
+            html += "<br><button class='btn btn-sm btn-outline-secondary' onclick='toggleBLPAlpha(" + filedataid + ")' id='discardBLPAlphaButton''>" + buttonText + "</button>";
+        } else if (type == "png") {
+            html += "<img src=\"" + url + "\" style=\"max-width: 100%; max-height: 80vh;\" />";
         } else if (type == "mp3" || type == "ogg") {
             var mimeType = "";
             if (type == "mp3") {
@@ -224,11 +238,11 @@ function fillPreviewModal(buildconfig, filedataid, type) {
                     html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/?filedataid=" + filedataid + "&type=wmo' target='_blank'>Open in modelviewer</a></div>";
                 }
             } else if (type == "m3") {
-                html += "<p>Note: The M3 modelviewer is a work in progress, any textures you see have been manually mapped.</p>";
+                html += "<p>Note: The M3 modelviewer is a work in progress.</p>";
                 html += "<iframe style=\"border:0px;width:100%;min-height: 75vh\" src=\"/mv/m3.html?embed=true&filedataid=" + filedataid + "&type=" + type + "\"></iframe>";
                 html += "<div class='modal-mvlink' style='text-align:right;'><a href='/mv/m3.html?filedataid=" + filedataid + "' target='_blank'>Open in modelviewer</a></div>";
             }
-        } else if (type == "lua" || type == "txt" || type == "srt" || type == "toc" || type == "hlsl") {
+        } else if (type == "lua" || type == "txt" || type == "srt" || type == "toc" || type == "hlsl" || type == "wtf") {
             html += "<pre style='max-height: 80vh'><code id='codeHolder'></code></pre>";
             fetch(url).then((response) => response.text()).then((text) => {
                 document.getElementById('codeHolder').innerHTML = text;
@@ -237,6 +251,47 @@ function fillPreviewModal(buildconfig, filedataid, type) {
             html += "<pre style='max-height: 80vh'><script type='text/plain' style='display: block' id='codeHolder'></script></pre>";
             fetch(url).then((response) => response.text()).then((text) => {
                 document.getElementById('codeHolder').innerHTML = text;
+            });
+        } else if (type == "bls") { 
+            html += "<div id='shaderInfoHolder'></div>";
+            fetch("/casc/json?fileDataID=" + filedataid).then((response) => response.json()).then((json) => {
+                var shaderInfoHolder = document.getElementById('shaderInfoHolder');
+                if (json.shaderPerGFX) {
+                    shaderInfoHolder.innerHTML += "GFAT<br>";
+                    console.log(json);
+                    var shaderAPIs = Object.keys(json.shaderPerGFX);
+                    console.log(shaderAPIs);
+                    for (var i = 0; i < shaderAPIs.length; i++) {
+                        var shader = json.shaderPerGFX[shaderAPIs[i]];
+                        if (shader.API) {
+                            shaderInfoHolder.innerHTML += "<p>API: " + shader.API + "</p>";
+                            for (var j = 0; j < shader.decompressedShaders.length; j++) {
+                                shaderInfoHolder.innerHTML += "Compressed Chunk " + j + ":";
+                                shaderInfoHolder.innerHTML += "<button class='btn btn-sm btn-primary' onclick='loadShaderPermHex(" + filedataid + ", \"" + shader.API + "\", " + j + ")'>Hex</button>";
+
+                                if (shader.API == "DX60") {
+                                    shaderInfoHolder.innerHTML += "<button class='btn btn-sm btn-primary' onclick='loadShaderPermDecomp(" + filedataid + ", \"" + shader.API + "\", " + i + ")'>Decompile</button>";
+                                }
+
+                                shaderInfoHolder.innerHTML += "<br>";
+                            }
+                        }
+                    }
+                } else {
+                    if (json.API) {
+                        shaderInfoHolder.innerHTML = "<p>API: " + json.API + "</p>";
+                        for (var i = 0; i < json.decompressedShaders.length; i++) {
+                            shaderInfoHolder.innerHTML += "Compressed Chunk " + i + ":";
+                            shaderInfoHolder.innerHTML += "<button class='btn btn-sm btn-primary' onclick='loadShaderPermHex(" + filedataid + ", \"" + json.API + "\", " + i + ")'>Hex</button>";
+
+                            if (json.API == "DX60") {
+                                shaderInfoHolder.innerHTML += "<button class='btn btn-sm btn-primary' onclick='loadShaderPermDecomp(" + filedataid + ", \"" + json.API + "\", " + i + ")'>Decompile</button>";
+                            }
+
+                            shaderInfoHolder.innerHTML += "<br>";
+                        }
+                    }
+                }
             });
         }
 
@@ -292,8 +347,35 @@ function fillPreviewModal(buildconfig, filedataid, type) {
     }
 }
 
+function loadShaderPermHex(filedataid, api, permutation) {
+    var miModalEl = document.getElementById("moreInfoModal");
+    const miModal = new bootstrap.Modal(miModalEl);
+    miModal.show(); 
+
+    document.getElementById("moreInfoModalContent").innerHTML = "<pre style='max-height: 80vh'><code id='miHexHolder'></code></pre>";
+
+    fetch("/shader/dumpPermutationHex?fileDataID=" + filedataid + "&api=" + api + "&permutation=" + permutation).then((response) => response.text()).then((text) => {
+        text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        document.getElementById('miHexHolder').innerHTML = text;
+    });
+}
+
+function loadShaderPermDecomp(filedataid, api, permutation) {
+    var miModalEl = document.getElementById("moreInfoModal");
+    const miModal = new bootstrap.Modal(miModalEl);
+    miModal.show(); 
+
+    document.getElementById("moreInfoModalContent").innerHTML = "<pre style='max-height: 80vh'><code id='miHexHolder'></code></pre>";
+
+    fetch("/shader/decompilePermutation?fileDataID=" + filedataid + "&api=" + api + "&permutation=" + permutation).then((response) => response.text()).then((text) => {
+        text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        document.getElementById('miHexHolder').innerHTML = text;
+    });
+}
+
 function loadHex(filedataid) {
     fetch("/casc/hex?fileDataID=" + filedataid).then((response) => response.text()).then((text) => {
+        text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         document.getElementById('hexHolder').innerHTML = text;
     });
 }
@@ -404,9 +486,9 @@ function treeClick(event, returnAfterClear = true){
 
     if (start !== undefined){
         if (filter != ''){
-            $('#files').DataTable().search("^" + start + "%," + filter).draw();
+            DataTable('#files').search("^" + start + "%," + filter).draw();
         } else {
-            $('#files').DataTable().search("^" + start + "%").draw();
+            DataTable('#files').search("^" + start + "%").draw();
         }
     }
 
@@ -479,14 +561,6 @@ async function exportTACTKeys() {
     await new Promise(resolve => setTimeout(resolve, 100));
 
     button.innerHTML = beforeText;
-}
-
-async function updateTACTKeys() {
-    var button = document.getElementById("updateTACTKeysButton");
-    button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Updating, please wait!";
-
-    await fetch("/casc/updateTACTKeys");
-    window.location.reload();
 }
 
 function checkFiles() {

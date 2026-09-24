@@ -15,13 +15,7 @@ namespace wow.tools.local.Controllers
         {
             if (!FileProvider.HasProvider(CASC.BuildName))
             {
-                if (CASC.IsCASCLibInit)
-                {
-                    var casc = new CASCFileProvider();
-                    casc.InitCasc(CASC.cascHandler);
-                    FileProvider.SetProvider(casc, CASC.BuildName);
-                }
-                else if (CASC.IsTACTSharpInit)
+                if (CASC.IsTACTSharpInit)
                 {
                     var tact = new TACTSharpFileProvider();
                     tact.InitTACT(CASC.buildInstance);
@@ -38,8 +32,21 @@ namespace wow.tools.local.Controllers
 
             if (type == "wmo")
             {
+                var wmoFile = CASC.GetFileByID((uint)fileDataID);
+                if (wmoFile != null)
+                {
+                    var bin = new BinaryReader(wmoFile);
+                    var magic = bin.ReadUInt32();
+                    if (magic == 0)
+                        return "";
+                }
+                else
+                {
+                    return "";
+                }
+
                 var wmoReader = new WMOReader();
-                var wmo = wmoReader.LoadWMO((uint)fileDataID);
+                var wmo = wmoReader.LoadWMO(wmoFile);
 
                 returnString += "<h3>Groups</h3>";
                 returnString += "<table class='table table-striped'>";

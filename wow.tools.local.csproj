@@ -7,14 +7,42 @@
     <RepositoryUrl>https://github.com/Marlamin/wow.tools.local</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Version>0.9.3</Version>
+    <Version>0.9.8</Version>
     <ApplicationIcon>wwwroot\img\cog.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <!-- Trimming -->
+  <PropertyGroup>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <PublishSingleFile>true</PublishSingleFile>
+    <!-- Trim workarounds from https://github.com/dotnet/aspnetcore/issues/58926#issuecomment-4024085605-->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    <MvcEnhancedModelMetadataSupport>true</MvcEnhancedModelMetadataSupport>
+    <!-- End workaround-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootAssembly Include="wow.tools.local" />
+    <TrimmerRootAssembly Include="System.ComponentModel.TypeConverter" />
+    <TrimmerRootAssembly Include="Microsoft.AspNetCore.Mvc.Core" />
+  </ItemGroup>
+  
+  <!-- Delete unneeded files from publish -->
+  <Target Name="DeleteFiles" AfterTargets="Publish">
+    <ItemGroup>
+      <FilesToDelete Include="$(PublishDir)*.pdb;" />
+      <FilesToDelete Include="$(PublishDir)*.xml;" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)">
+      <Output TaskParameter="DeletedFiles" ItemName="FilesDeleted" />
+    </Delete>
+  </Target>
+  
+  <!-- Trimming end -->
   <ItemGroup>
     <Compile Remove="caches\**" />
     <Compile Remove="cache\**" />
-    <Compile Remove="CascLib\**" />
     <Compile Remove="DBCD\**" />
     <Compile Remove="dbcs\**" />
     <Compile Remove="DBDiffer\**" />
@@ -24,12 +52,12 @@
     <Compile Remove="TACTSharp\**" />
     <Compile Remove="temp\**" />
     <Compile Remove="wow-filetags\**" />
+    <Compile Remove="wow-listfile\**" />
     <Compile Remove="WoWFormatLib\**" />
     <Compile Remove="WoWNamingLib\**" />
     <Compile Remove="WoWTools.SpellDescParser\**" />
     <Content Remove="caches\**" />
     <Content Remove="cache\**" />
-    <Content Remove="CascLib\**" />
     <Content Remove="DBCD\**" />
     <Content Remove="dbcs\**" />
     <Content Remove="DBDiffer\**" />
@@ -39,12 +67,12 @@
     <Content Remove="TACTSharp\**" />
     <Content Remove="temp\**" />
     <Content Remove="wow-filetags\**" />
+    <Content Remove="wow-listfile\**" />
     <Content Remove="WoWFormatLib\**" />
     <Content Remove="WoWNamingLib\**" />
     <Content Remove="WoWTools.SpellDescParser\**" />
     <EmbeddedResource Remove="caches\**" />
     <EmbeddedResource Remove="cache\**" />
-    <EmbeddedResource Remove="CascLib\**" />
     <EmbeddedResource Remove="DBCD\**" />
     <EmbeddedResource Remove="dbcs\**" />
     <EmbeddedResource Remove="DBDiffer\**" />
@@ -54,12 +82,12 @@
     <EmbeddedResource Remove="TACTSharp\**" />
     <EmbeddedResource Remove="temp\**" />
     <EmbeddedResource Remove="wow-filetags\**" />
+    <EmbeddedResource Remove="wow-listfile\**" />
     <EmbeddedResource Remove="WoWFormatLib\**" />
     <EmbeddedResource Remove="WoWNamingLib\**" />
     <EmbeddedResource Remove="WoWTools.SpellDescParser\**" />
     <None Remove="caches\**" />
     <None Remove="cache\**" />
-    <None Remove="CascLib\**" />
     <None Remove="DBCD\**" />
     <None Remove="dbcs\**" />
     <None Remove="DBDiffer\**" />
@@ -69,6 +97,7 @@
     <None Remove="TACTSharp\**" />
     <None Remove="temp\**" />
     <None Remove="wow-filetags\**" />
+    <None Remove="wow-listfile\**" />
     <None Remove="WoWFormatLib\**" />
     <None Remove="WoWNamingLib\**" />
     <None Remove="WoWTools.SpellDescParser\**" />
@@ -84,14 +113,19 @@
     <Content Remove="config.json" />
     <Content Remove="knownPushIDs.json" />
     <Content Remove="versionHistory.json" />
+    <Content Remove="wwwroot\dbc\tooltips.html" />
     <Content Remove="wwwroot\db\broadcasttext.html" />
     <Content Remove="wwwroot\db\creatures.html" />
     <Content Remove="wwwroot\db\quests.html" />
+    <Content Remove="wwwroot\experiments\size.html" />
     <Content Remove="wwwroot\files\install.html" />
     <Content Remove="wwwroot\files\naming.html" />
     <Content Remove="wwwroot\files\tagging.html" />
     <Content Remove="wwwroot\header.html" />
     <Content Remove="wwwroot\js\m3modelviewer.js" />
+    <Content Remove="wwwroot\js\puzzler.js" />
+    <Content Remove="wwwroot\maps\puzzler.html" />
+    <Content Remove="wwwroot\maps\worldmap.html" />
     <Content Remove="wwwroot\mv\m3.html" />
   </ItemGroup>
   
@@ -106,13 +140,13 @@
 
   <ItemGroup>
     <PackageReference Include="BLPSharp" Version="0.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.5" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
+    <PackageReference Include="NetVips" Version="3.2.0" />
+    <PackageReference Include="NetVips.Native" Version="8.18.6" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="2.1.12" />
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="CascLib\CascLib\CascLib.csproj" />
     <ProjectReference Include="DBCD\DBCD\DBCD.csproj" />
     <ProjectReference Include="DBDiffer\DBDiffer\DBDiffer.csproj" />
     <ProjectReference Include="TACTSharp\TACTSharp\TACTSharp.csproj" />

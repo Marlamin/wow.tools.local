@@ -1,5 +1,4 @@
-﻿using CASCLib;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
 using System.Text.Json;
 using wow.tools.local.Managers;
@@ -21,6 +20,7 @@ namespace wow.tools.local.Controllers
             public string Key { get; set; } = "";
             public string FirstSeen { get; set; } = "";
             public string Description { get; set; } = "";
+            public bool HasMetaData { get; set; } = false;
         }
 
         [Route("info")]
@@ -30,20 +30,23 @@ namespace wow.tools.local.Controllers
             KeyMetadata.ReloadKeys();
 
             var tklStorage = dbcManager.GetOrLoad("TactKeyLookup", CASC.BuildName, true).Result;
+            var keysWithoutMetaData = new List<ulong>();
 
             var newKeysFound = false;
-            foreach (dynamic tklRow in tklStorage.Values)
+            foreach (var tklRow in tklStorage.Values)
             {
-                ulong key = BitConverter.ToUInt64(tklRow.TACTID);
+                ulong key = BitConverter.ToUInt64((byte[])tklRow["TACTID"]);
 
                 if (!KeyMetadata.KeyInfo.TryGetValue(key, out (int ID, string FirstSeen, string Description) metaData))
                 {
                     KeyMetadata.KeyInfo.Add(
                         key,
-                        ((int)tklRow.ID,
+                        ((int)tklRow["ID"],
                         CASC.FullBuildName,
                         CASC.EncryptedFDIDs.Where(x => x.Value.Contains(key)).Select(x => x.Key).ToList().Count.ToString() + " file(s) as of " + CASC.BuildName)
                     );
+
+                    keysWithoutMetaData.Add(key);
                 }
                 else if (metaData.Description == "" || metaData.Description.Contains("file(s) as of"))
                 {
@@ -54,18 +57,18 @@ namespace wow.tools.local.Controllers
             }
 
             var tkStorage = dbcManager.GetOrLoad("TactKey", CASC.BuildName, true).Result;
-            foreach (dynamic tkRow in tkStorage.Values)
+            foreach (var tkRow in tkStorage.Values)
             {
                 foreach (var keyInfo in KeyMetadata.KeyInfo)
                 {
-                    if (keyInfo.Value.ID != (int)tkRow.ID)
+                    if (keyInfo.Value.ID != (int)tkRow["ID"])
                         continue;
 
                     if (WTLKeyService.HasKey(keyInfo.Key))
                         continue;
 
-                    Console.WriteLine("Setting key " + (int)tkRow.ID + " from TactKey.db2");
-                    WTLKeyService.SetKey(keyInfo.Key, tkRow.Key);
+                    Console.WriteLine("Setting key " + (int)tkRow["ID"] + " from TactKey.db2");
+                    WTLKeyService.SetKey(keyInfo.Key, (byte[])tkRow["Key"]);
                     newKeysFound = true;
                 }
             }
@@ -173,14 +176,21 @@ namespace wow.tools.local.Controllers
                        Lookup = string.Format("{0:X}", keyInfo.Key).PadLeft(16, '0'),
                        Key = WTLKeyService.HasKey(keyInfo.Key) ? Convert.ToHexString(WTLKeyService.GetKey(keyInfo.Key)) : "",
                        FirstSeen = keyInfo.Value.FirstSeen,
-                       Description = keyInfo.Value.Description
+                       Description = keyInfo.Value.Description,
+                       HasMetaData = !keysWithoutMetaData.Contains(keyInfo.Key)
                    });
             }
 
             if (newKeysFound)
                 CASC.RefreshEncryptionStatus();
 
-            return JsonSerializer.Serialize(keyInfos.OrderBy(x => x.ID));
+            var jsonProperties = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IncludeFields = true,
+            };
+
+            return JsonSerializer.Serialize(keyInfos.OrderBy(x => x.ID), jsonProperties);
         }
 
         [Route("moreinfo")]
@@ -217,32 +227,19 @@ namespace wow.tools.local.Controllers
                 var filedataid = file.Key;
 
                 uint size = 0;
-                List<byte[]> cKeys = [];
-                if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
+                List<(string cKey, uint size)> cKeys = [];
+                var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+                foreach (var cKey in allCKeys)
                 {
-                    if (CASC.FDIDToExtraCHashes.TryGetValue(filedataid, out List<byte[]>? extraCHashes))
-                    {
-                        var cKey = Convert.ToHexStringLower(cKeyBytes);
-                        cKeys.Add(cKeyBytes);
+                    var cKeyString = Convert.ToHexStringLower(cKey.cKey);
+                    CASC.CHashToSize.TryGetValue(cKeyString, out size);
 
-                        foreach (var extraCKey in extraCHashes)
-                            cKeys.Add(extraCKey);
-
-                        foreach (var cKeyB in cKeys)
-                            if (CASC.CHashToSize.TryGetValue(Convert.ToHexStringLower(cKeyB), out size) && size != 0)
-                                break;
-                    }
-                    else
-                    {
-                        var cKey = Convert.ToHexStringLower(cKeyBytes);
-                        cKeys.Add(cKeyBytes);
-                        CASC.CHashToSize.TryGetValue(cKey, out size);
-                    }
+                    cKeys.Add((cKeyString, size));
                 }
 
                 if (Listfile.Types.TryGetValue(file.Key, out string? fileType) && fileType == "db2")
                 {
-                    output += "<tr><td>" + file.Key + "</td><td>db2</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => Convert.ToHexString(x)).ToList()) + "</td><td>" + size + " bytes</td></tr>";
+                    output += "<tr><td>" + file.Key + "</td><td>db2</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => x.cKey).ToList()) + "</td><td>" + size + " bytes</td></tr>";
 
                     var db2EncryptionMetaData = new Dictionary<ulong, int[]>();
 
@@ -275,26 +272,17 @@ namespace wow.tools.local.Controllers
                     continue;
 
                 var filedataid = file.Key;
+                List<(string cKey, uint size)> cKeys = [];
                 uint size = 0;
-                List<byte[]> cKeys = [];
-                if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
+
+                var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+                var cKeyBytes = CASC.GetPreferredCKey(allCKeys);
+                foreach (var cKey in allCKeys)
                 {
-                    if (CASC.FDIDToExtraCHashes.TryGetValue(filedataid, out List<byte[]>? extraCHashes))
-                    {
-                        var cKey = Convert.ToHexStringLower(cKeyBytes);
-                        cKeys.Add(cKeyBytes);
+                    var cKeyString = Convert.ToHexStringLower(cKey.cKey);
+                    CASC.CHashToSize.TryGetValue(cKeyString, out size);
 
-                        foreach (var extraCKey in extraCHashes)
-                            cKeys.Add(extraCKey);
-
-                        CASC.CHashToSize.TryGetValue(cKey, out size);
-                    }
-                    else
-                    {
-                        var cKey = Convert.ToHexStringLower(cKeyBytes);
-                        cKeys.Add(cKeyBytes);
-                        CASC.CHashToSize.TryGetValue(cKey, out size);
-                    }
+                    cKeys.Add((cKeyString, size));
                 }
 
                 if (string.IsNullOrEmpty(fileType) && (size == 6660 || size == 88612 || size == 175972))
@@ -308,7 +296,7 @@ namespace wow.tools.local.Controllers
                         filename = "Content hash name: " + chashname;
                     }
                 }
-                output += "<tr><td>" + file.Key + "</td><td>" + fileType + "</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => Convert.ToHexString(x)).ToList()) + "</td><td>" + size + " bytes</td></tr>";
+                output += "<tr><td>" + file.Key + "</td><td>" + fileType + "</td><td>" + file.Value + "</td><td>" + string.Join(", ", cKeys.Select(x => x.cKey).ToList()) + "</td><td>" + size + " bytes</td></tr>";
             }
             output += "</table></td></tr>";
 

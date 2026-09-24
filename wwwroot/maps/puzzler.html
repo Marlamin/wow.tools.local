@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>WoW.tools - Maps</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/tooltips.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+    <link rel="stylesheet" href="/css/choices.min.css" />
+    <script type="text/javascript" src="/js/choices.min.js"></script>
+
+    <style type="text/css">
+        .techdetails {
+            height: 200px !important;
+        }
+    </style>
+</head>
+<body>
+    <link href="/css/maps.css" rel="stylesheet">
+    <div>
+        <button id="js-home-button" onclick="window.location = '/'" title="Go back to WTL homepage"><i class="fa fa-home"></i></button>
+        <button id="js-sidebar-button" class="hamburger">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+
+        <div id="js-techbox" class="overlay techdetails">
+            Canvas center: <span id="canvasPosX">0</span> x <span id="canvasPosY">0</span><br />
+            Mouse pos: <span id="mousePosX">0</span> x <span id="mousePosY">0</span><br />
+            WoW pos: <span id="wowPosX">0</span> <span id="wowPosY">0</span> | <span id="adtPosX">0</span>_<span id="adtPosY">0</span><br />
+            Zoom: <span id="zoomLevel">0</span><br />
+            Current tile data: <br />
+            <pre id="js-tile-details"></pre>
+        </div>
+
+        <div id="js-sidebar" class="overlay sidebar">
+            <div>
+                <select id="js-map-select" disabled></select>
+            </div>
+            <div style='font-size: 12px; margin-top: 5px'>
+                Coord: <span id="clickedCoord">No click. :(</span><br>
+                Tile: <span id="clickedADT">No click. :(</span><br />
+                <a href="#" target="_BLANK" id="modelviewerLink">Open viewer @ click (non-Midnight/small maps)</a><br />
+                <a href="#" target="_BLANK" id="downloadLink">Download full-resolution PNG</a>
+            </div>
+        </div>
+
+        <button id="js-layers-button" class="layerbutton closed">
+            <i class="fa fa-map-marker fa-2x"></i>
+        </button>
+
+        <div id="js-layers" class="overlay layers closed">
+            <select id="js-layer-select">
+                <option value="0">Minimaps</option>
+                <option value="1">Maptextures</option>
+                <option value="2">Normals</option>
+                <option value="3">Vertex colors</option>
+                <option value="4" DISABLED>Height maps</option>
+                <option value="5">Liquid flow (1.60)</option>
+            </select>
+            <!--<div style='font-size: 12px;'><input type='checkbox' name='adtgrid' id='js-adtgrid'> <label for="js-adtgrid">ADT grid</label></div>-->
+        </div>
+
+        <div id="js-notifs">
+        </div>
+        <canvas id="map-canvas" width="1920" height="1080"></canvas>
+        <div id="js-manual-file-input" style="display: none">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-input-tab" data-bs-toggle="tab" data-bs-target="#nav-input" type="button" role="tab" aria-controls="nav-input" aria-selected="true">Input</button>
+                    <button class="nav-link" id="nav-output-tab" data-bs-toggle="tab" data-bs-target="#nav-output" type="button" role="tab" aria-controls="nav-output" aria-selected="false">Output</button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-input" role="tabpanel" aria-labelledby="nav-input-tab">
+                    <textarea id="manual-files" rows="20" cols="150"></textarea><br />
+                    <input id="manual-start-x" placeholder="X start" /><input id="manual-start-y" placeholder="Y start" /><input id="manual-per-row" placeholder="Tiles per row" /><a class="btn btn-primary" onclick="addManualFiles()">Add files to layer</a>
+                </div>
+                <div class="tab-pane fade" id="nav-output" role="tabpanel" aria-labelledby="nav-output-tab">
+                    <textarea id="state-output" rows="20" cols="150"></textarea><br />
+                    <a class="btn btn-primary" onclick="generateStateDiffFiles()">Generate state diff</a>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="/js/puzzler.js"></script>
+</body>
+</html>

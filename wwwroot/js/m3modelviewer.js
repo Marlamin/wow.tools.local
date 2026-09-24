@@ -34,6 +34,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer();
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.setSize(window.innerWidth, window.innerHeight);
 Elements.MVContainer.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -46,7 +47,44 @@ function loadModel(filedataid) {
         return response.json();
     }).then(data => {
         console.log(data);
+
+        const instances = data.Instances;
+
+        const textureArray = [];
+        for (let instanceIndex = 0; instanceIndex < instances.Instances.length; instanceIndex++) {
+            const instance = instances.Instances[instanceIndex];
+            const textureLoader = new THREE.TextureLoader();
+
+            if (instance.shaderData.SamplerTextureFileIDs == undefined)
+                continue;
+
+            var textureFDID = instance.shaderData.SamplerTextureFileIDs[instance.shaderData.SamplerTextureFileIDs.length - 1];
+            const texture = textureLoader.load('/casc/blp2png?filedataid=' + textureFDID);
+            texture.flipY = false;
+            texture.magFilter = THREE.LinearFilter;
+            texture.minFilter = THREE.LinearFilter;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.colorSpace = THREE.SRGBColorSpace;
+            texture.channel = 0;
+            const material = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: false, // Enable transparency if needed
+                color: 0xffffff // Ensure no color multiplication
+            });
+
+            textureArray[instanceIndex] = material;
+        }
+
         const mesh = data.Mesh;
+        const renderBatches = mesh.RenderBatches;
+
+        const geosetToMaterialMap = new Map();
+        for (let batchIndex = 0; batchIndex < renderBatches.RenderBatches.length; batchIndex++) {
+            var geoset = renderBatches.RenderBatches[batchIndex].GeosetIndex;
+            var material = renderBatches.RenderBatches[batchIndex].MaterialIndex;
+            geosetToMaterialMap.set(geoset, material);
+        }
 
         const targetLOD = 0;
         for (let lodIndex = 0; lodIndex < mesh.LodLevels.LODCount + 1; lodIndex++) {
@@ -98,43 +136,11 @@ function loadModel(filedataid) {
                     bufferGeo.setIndex(new THREE.Uint16BufferAttribute(lodFiltered, 1));
                 }
 
-                const textureLoader = new THREE.TextureLoader();
-
-                var textureFDID = 3025978;
-                var textureUV = 0;
-                if (filedataid == 6648661) {
-                    if (geosetIndex == 0) {
-                        textureFDID = 6055692;
-                    } else if (geosetIndex == 1) {
-                        textureFDID = 6055689;
-                    } else if (geosetIndex == 2) {
-                        textureFDID = 6076960;
-                    }
-                }
-                else if (filedataid == 6655655) {
-                    if (geosetIndex == 0) {
-                        textureFDID = 7018222;
-                    } else if (geosetIndex == 1) {
-                        textureFDID = 7018220;
-                    } else if (geosetIndex == 2) {
-                        textureFDID = 7018222;
-                    }
-                }
-                const texture = textureLoader.load('/casc/blp2png?filedataid=' + textureFDID);
-                texture.flipY = false;
-                texture.magFilter = THREE.LinearFilter;
-                texture.minFilter = THREE.LinearFilter;
-                texture.wrapT = THREE.RepeatWrapping;
-                texture.wrapS = THREE.RepeatWrapping;
-                texture.channel = textureUV;
-                const material = new THREE.MeshBasicMaterial({
-                    map: texture,
-                    transparent: false, // Enable transparency if needed
-                    color: 0xffffff // Ensure no color multiplication
-                });
-
-                const model = new THREE.Mesh(bufferGeo, material);
-                console.log(model);
+                const materialIndex = geosetToMaterialMap.get(geosetIndex);
+                console.log("\t\tUsing material index " + materialIndex + " for geoset " + geosetIndex);
+                const model = new THREE.Mesh(bufferGeo, textureArray[materialIndex]);
+                model.rotation.y = Math.PI / 2;
+                model.rotation.z = Math.PI;
                 scene.add(model);
             }
         }
@@ -154,7 +160,7 @@ function clearScene() {
 
 camera.position.x = 0;
 camera.position.y = 0;
-camera.position.z = 10;
+camera.position.z = 5;
 controls.update();
 renderer.setAnimationLoop(animate);
 
@@ -186,9 +192,10 @@ if (urlFileDataID){
 var urlEmbed = new URL(window.location).searchParams.get("embed");
 if (urlEmbed) {
     Current.embedded = true;
-    $("#navbar").hide();
-    $("#js-sidebar-button").hide();
-    $("#fpsLabel").hide();
+    document.getElementById("navbar").style.display = "none";
+    document.getElementById("js-sidebar-button").style.display = "none";
+    if (document.getElementById("fpsLabel"))
+        document.getElementById("fpsLabel").style.display = "none";
     console.log("Running modelviewer in embedded mode!");
 }
 
@@ -200,17 +207,30 @@ window.addEventListener('resize', () => {
     }
 });
 
-$('#mvfiles').on('click', 'tbody tr td:first-child', function() {
-    var data = Elements.table.row($(this).parent()).data();
+document.getElementById('mvfiles').addEventListener('click', function(e) {
+    const target = e.target;
+    if (target.tagName === 'TD' && target.parentElement.tagName === 'TR' && target === target.parentElement.firstElementChild) {
+        const tbody = target.closest('tbody');
+        if (!tbody) return;
 
-    $(".selected").removeClass("selected");
-    $(this).parent().addClass('selected');
-    loadModel(data[0]);
+        const data = Elements.table.row(target.parentElement).data();
+
+        const selected = document.querySelectorAll(".selected");
+        selected.forEach(el => el.classList.remove("selected"));
+        target.parentElement.classList.add('selected');
+        loadModel(data[0]);
+    }
 });
 
-$('#js-sidebar').on('input', '.paginate_input', function(){
-    if ($(".paginate_input")[0].value != ''){
-        $("#mvfiles").DataTable().page($(".paginate_input")[0].value - 1).ajax.reload(null, false)
+document.getElementById('js-sidebar').addEventListener('input', function(e) {
+    if (e.target.classList.contains('paginate_input')) {
+        const paginateInput = document.querySelector(".paginate_input");
+        if (paginateInput && paginateInput.value !== '') {
+            const mvfilesTable = document.getElementById("mvfiles");
+            if (mvfilesTable && Elements.table) {
+                Elements.table.page(paginateInput.value - 1).ajax.reload(null, false);
+            }
+        }
     }
 });
 
@@ -219,16 +239,25 @@ window.addEventListener('keydown', function(event){
         return;
     }
 
-    if ($(".selected").length == 1){
+    const selected = document.querySelectorAll(".selected");
+    if (selected.length == 1){
         if (event.key == "ArrowDown"){
-            if ($(".selected")[0].rowIndex == 20) return;
-            if (document.getElementById('mvfiles').rows.length > 1){
-                $(document.getElementById('mvfiles').rows[$(".selected")[0].rowIndex + 1].firstChild).trigger("click");
+            if (selected[0].rowIndex == 20) return;
+            const mvfilesTable = document.getElementById('mvfiles');
+            if (mvfilesTable && mvfilesTable.rows.length > 1){
+                const nextRow = mvfilesTable.rows[selected[0].rowIndex + 1];
+                if (nextRow && nextRow.firstChild) {
+                    nextRow.firstChild.click();
+                }
             }
         } else if (event.key == "ArrowUp"){
-            if ($(".selected")[0].rowIndex == 1) return;
-            if (document.getElementById('mvfiles').rows.length > 1){
-                $(document.getElementById('mvfiles').rows[$(".selected")[0].rowIndex - 1].firstChild).trigger("click");
+            if (selected[0].rowIndex == 1) return;
+            const mvfilesTable = document.getElementById('mvfiles');
+            if (mvfilesTable && mvfilesTable.rows.length > 1){
+                const prevRow = mvfilesTable.rows[selected[0].rowIndex - 1];
+                if (prevRow && prevRow.firstChild) {
+                    prevRow.firstChild.click();
+                }
             }
         }
     }
@@ -254,30 +283,36 @@ window.addEventListener('keypress', function(event){
     }
 }, true);
 
-function toggleUI(){
-    $(".navbar").toggle();
-    $("#js-sidebar-button").toggle();
-    $("#js-controls").toggle();
+function toggleUI() {
+    document.querySelector(".navbar").style.display = document.querySelector(".navbar").style.display === "none" ? "" : "none";
+    document.getElementById("js-sidebar-button").style.display = document.getElementById("js-sidebar-button").style.display === "none" ? "" : "none";
+    document.getElementById("js-controls").style.display = document.getElementById("js-controls").style.display === "none" ? "" : "none";
 }
 
 loadModel(Current.fileDataID);
 (function() {
-    $('#wowcanvas').bind('contextmenu', function(e){
-        return false;
-    });
+    const wowcanvas = document.getElementById('wowcanvas');
+    if (wowcanvas) {
+        wowcanvas.addEventListener('contextmenu', function(e){
+            e.preventDefault();
+            return false;
+        });
+    }
 
     // Skip further initialization in embedded mode
-    if (embeddedMode){
+    if (typeof embeddedMode !== 'undefined' && embeddedMode){
         return;
     }
 
-    Elements.table = $('#mvfiles').DataTable({
+    const mvfilesElement = document.getElementById('mvfiles');
+    if (mvfilesElement && typeof jQuery !== 'undefined' && jQuery.fn.DataTable) {
+        Elements.table = jQuery(mvfilesElement).DataTable({
         "processing": true,
         "serverSide": true,
         "ajax": {
             "url": "/listfile/datatables",
             "data": function ( d ) {
-                return $.extend( {}, d, {
+                return Object.assign( {}, d, {
                     "src": "mv",
                     "showWMO": false,
                     "showM2": false,
@@ -309,8 +344,8 @@ loadModel(Current.fileDataID);
                 "orderable": false,
                 "createdCell": function (td, cellData, rowData, row, col) {
                     if (!cellData && !rowData[7]) {
-                        $(td).css('background-color', '#ff5858');
-                        $(td).css('color', 'white');
+                        td.style.backgroundColor = '#ff5858';
+                        td.style.color = 'white';
                     }
                 },
                 "render": function ( data, type, full, meta ) {
@@ -335,13 +370,20 @@ loadModel(Current.fileDataID);
             search: "",
             searchPlaceholder: "Search"
         }
-    });
+        });
+    }
 
-    $(".filterBox").on('change', function(){
-        Elements.table.ajax.reload();
+    document.querySelectorAll(".filterBox").forEach(filterBox => {
+        filterBox.addEventListener('change', function(){
+            if (Elements.table) {
+                Elements.table.ajax.reload();
+            }
+        });
     });
-
-    $('#mvfiles_search').on('input', function(){
-        Elements.table.search($(this).val()).draw();
+ 
+    document.getElementById('mvfiles_search').addEventListener('input', function(){
+        if (Elements.table) {
+            Elements.table.search(this.value).draw();
+        }
     });
 }());

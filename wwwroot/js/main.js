@@ -51,16 +51,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    fetch("/header.html")
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById("navbar").innerHTML = html;
-            updateTitle();
-            checkForUpdates();
-            setTheme(getPreferredTheme());
-        });
+    var navbar = document.getElementById("navbar");
 
-    $(document).on('init.dt', function (e, settings) {
+    if (navbar) {
+        fetch("/header.html")
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById("navbar").innerHTML = html;
+                updateTitle();
+                checkForUpdates();
+                setTheme(getPreferredTheme());
+            });
+    }
+ 
+
+    document.addEventListener('init.dt', function (e) {
         const pageInput = document.querySelector(".dt-paging-input input");
         if (pageInput) {
             pageInput.addEventListener("keydown", (event) => {
@@ -78,8 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function themeClick(theme) {
-    setStoredTheme(theme)
-    setTheme(theme)
+    setStoredTheme(theme);
+    setTheme(theme);
 }
 
 function shouldShowButts() {
@@ -111,12 +116,16 @@ async function checkForUpdates(force = false) {
     const currentVersionResponse = await fetch("/casc/getVersion");
     const currentVersion = await currentVersionResponse.text();
 
+    if (currentVersion == "99.99.99.0") {
+        return;
+    }
+
     const lastUpdateCheck = localStorage.getItem("lastUpdate");
     if (lastUpdateCheck != null && !force) {
         const json = JSON.parse(lastUpdateCheck);
         if (json.lastCheck > Date.now() - 24 * 60 * 60 * 1000) {
             let updateAvailable = json.latestVersion != currentVersion;
-            newUpdateAvailable(updateAvailable);
+            newUpdateAvailable(updateAvailable, currentVersion, json.latestVersion);
             return;
         }
     }
@@ -132,23 +141,23 @@ async function checkForUpdates(force = false) {
     localStorage.setItem("lastUpdate", JSON.stringify(updateData));
 
     if (latestReleaseTag !== currentVersion) {
-        newUpdateAvailable(true);
+        newUpdateAvailable(true, currentVersion, latestRelease.tag_name);
     } else {
-        newUpdateAvailable(false);
+        newUpdateAvailable(false, currentVersion, latestRelease.tag_name);
     }
 }
 
-function newUpdateAvailable(isUpdateAvailable) {
+function newUpdateAvailable(isUpdateAvailable, currentVersion, latestVersion) {
     var navBar = document.getElementsByTagName("nav");
     var updateDiv = document.createElement("div");
-    const lastUpdateCheck = localStorage.getItem("lastUpdate");
-
     updateDiv.id = 'updateDiv';
+
     if (isUpdateAvailable) {
-        updateDiv.innerHTML = "<i class='fa fa-exclamation-circle' style='color: red'></i> <a href='https://github.com/marlamin/wow.tools.local/releases' target='_BLANK'>An update to version " + JSON.parse(lastUpdateCheck).latestVersion + " is available!</a> <a href='#' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
+        updateDiv.innerHTML = "<button style='margin-left: 5px;' onclick='window.location.href=\"https://github.com/marlamin/wow.tools.local/releases\"' title='Update available' class='btn btn-danger active align-items-center'><i class='fa fa-download'></i> " + latestVersion + "</button>";
     } else {
-        updateDiv.innerHTML = "<i class='fa fa-check-circle' style='color: green;'></i> Up to date. <a style='cursor: pointer' onClick='forceUpdateCheck()'><i class='fa fa-refresh'></i></a>";
+        updateDiv.innerHTML = "<button style='margin-left: 5px' onClick='forceUpdateCheck()' title='Check for updates' class='btn active align-items-center'><i class='fa fa-refresh'></i> Check</button>";
     }
+
     navBar[0].appendChild(updateDiv);
 }
 
@@ -158,30 +167,7 @@ function forceUpdateCheck() {
     checkForUpdates(true);
 }
 
-function renderBLPToIMGElement(url, elementID){
-    fetch(url).then(function(response) {
-        return response.arrayBuffer();
-    }).then(function(arrayBuffer) {
-        let data = new Bufo(arrayBuffer);
-        let blp = new BLPFile(data);
-
-        let canvas = document.createElement('canvas');
-        canvas.width = blp.width;
-        canvas.height = blp.height;
-
-        let image = blp.getPixels(0, canvas);
-
-        let img = document.getElementById(elementID);
-        if (!img){
-            console.log("Target image element does not exist: " + elementID);
-            return;
-        }
-        img.src = canvas.toDataURL();
-        img.setAttribute('data-loaded', true);
-    });
-}
-
-function renderBLPToCanvasElement(url, elementID, canvasX, canvasY, resize = false) {
+function renderBLPToCanvasElement(url, elementID, canvasX, canvasY, resize = false, discardAlpha = false) {
     return fetch(url)
         .then(function (response) {
             return response.arrayBuffer();
@@ -195,18 +181,22 @@ function renderBLPToCanvasElement(url, elementID, canvasX, canvasY, resize = fal
                 canvas.width = blp.width;
                 canvas.height = blp.height;
             }
-            let image = blp.getPixels(0, canvas, canvasX, canvasY);
+            let image = blp.getPixels(0, canvas, discardAlpha);
         });
 }
 
-function renderBLPToCanvas(url, canvas, canvasX, canvasY) {
-    return fetch(url)
-        .then(function(response) {
-            return response.arrayBuffer();
-        })
-        .then(function(arrayBuffer) {
-            let data = new Bufo(arrayBuffer);
-            let blp = new BLPFile(data);
-            let image = blp.getPixels(0, canvas, canvasX, canvasY);
-        });
-}
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function () {
+        var context = this,
+            args = arguments;
+        var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};

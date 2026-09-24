@@ -24,6 +24,14 @@ namespace wow.tools.local.Controllers
             {
                 if (newSettings.TryGetValue(setting.Key, out var newSetting) && newSetting != "null" && !string.IsNullOrEmpty(newSetting))
                 {
+                    if (setting.Type == "bool")
+                    {
+                        if (newSetting == "1" || newSetting == "on")
+                            newSetting = "true";
+                        else if (newSetting == "0" || newSetting == "off")
+                            newSetting = "false";
+                    }
+
                     if (SettingsManager.ValidateSetting(setting.Key, newSetting).Item1)
                         setting.Value = newSetting;
                 }

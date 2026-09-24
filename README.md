@@ -12,7 +12,7 @@ If you want to use the File History and File Links features, be sure to download
 ## Running
 Make sure WoW is updated/closed and Battle.net is idle/closed before starting it and make sure to close it before starting WoW again to make sure you won't run into issues with files being locked and such.
 
-Start the application by opening `wow.tools.local.exe` (or whatever executable is relevant for your OS). Startup can take some time depending on which product you are loading. Classic will be relatively fast, but Mainline builds will take a bit longer due to the amount of files it has. 
+Start the application by opening `wow.tools.local.exe` (or whatever executable is relevant for your OS) inside of directory you extracted it to. Startup can take some time depending on which product you are loading. Classic will be relatively fast, but Mainline builds will take a bit longer due to the amount of files it has. 
 
 After startup is complete, it should show something along the lines of `Now listening on: http://localhost:5000`, go to whatever URL is mentioned there (including the port) in your favorite web browser to go to the site. The rest should work similarly to how wow.tools does/did.
 
@@ -83,7 +83,7 @@ Outside of some glue and all the parts pretty much taken directly from WoW.tools
 **(compared to maintaining the main wow.tools site)*
 
 - [BLPSharp](https://github.com/wowdev/BLPSharp) used to read convert WoW's BLP textures to PNGs.
-- [CascLib](https://github.com/WoW-Tools/CascLib) or [TACTSharp](https://github.com/wowdev/TACTSharp) are used to retrieve files from WoW's file storage.
+- [TACTSharp](https://github.com/wowdev/TACTSharp) is used to retrieve files from WoW's file storage.
 - [DBCD](https://github.com/wowdev/DBCD) used to read WoW's DB2 tables.
 - [Deamon's WebWowViewerCpp](https://github.com/Deamon87/WebWowViewerCpp) (Emscripten version) which also powers the WoW.tools modelviewer. Does the actual model rendering.
 - [WoWDBDefs](https://github.com/wowdev/WoWDBDefs) definitions required to read WoW's DB2 tables.

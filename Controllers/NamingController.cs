@@ -1,6 +1,6 @@
 ﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
@@ -37,14 +37,13 @@ namespace wow.tools.local.Controllers
                     Namer.SetProviders(dbcProvider, dbdProvider);
 
                 if (HotfixManager.hotfixReaders.Count == 0)
-                    HotfixManager.LoadCaches();
+                    HotfixManager.LoadCaches().Wait();
 
                 Namer.SetHotfixes(HotfixManager.hotfixReaders);
 
-                if (CASC.IsCASCLibInit)
-                    Namer.SetCASC(ref CASC.cascHandler!, ref CASC.AvailableFDIDs);
-                else if (CASC.IsTACTSharpInit)
-                    Namer.SetTACT(ref CASC.buildInstance!, ref CASC.AvailableFDIDs);
+                var availabileFDIDs = CASC.AvailableFDIDs.ToList();
+                if (CASC.IsTACTSharpInit)
+                    Namer.SetTACT(ref CASC.buildInstance!, ref availabileFDIDs);
 
                 Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);
                 Namer.SetSetCreatureNameForFDIDFunction(SQLiteDB.SetCreatureNameForFDID);
@@ -107,7 +106,7 @@ namespace wow.tools.local.Controllers
                 return "";
 
             var compiledPackage = Namer.GetSceneScriptCompiledDebug(pid);
-            return JsonConvert.SerializeObject(compiledPackage, Formatting.Indented);
+            return JsonSerializer.Serialize(compiledPackage);
         }
 
         [HttpGet]
@@ -152,8 +151,6 @@ namespace wow.tools.local.Controllers
             if (SettingsManager.ReadOnly)
                 return "";
 
-            string resultNames = "";
-
             var results = Listfile.DoSearch(Listfile.NameMap, search).Where(x => Listfile.PlaceholderFiles.Contains(x.Key)).ToList();
             foreach (var result in results)
             {
@@ -173,8 +170,7 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            CASC.EnsureCHashesLoaded();
-            Namer.NameByContentHashes(CASC.FDIDToCHash, Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key).ToList());
+            Namer.NameByContentHashes(CASC.GetCKeyDict(), [], Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key).ToList());
 
             return string.Join('\n', Namer.GetNewFiles().OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value));
         }
@@ -224,8 +220,9 @@ namespace wow.tools.local.Controllers
             var checkboxes = form["namers"];
             var overrideVO = form.ContainsKey("overrideVO") && form["overrideVO"] == "on";
             Namer.AllowCaseRenames = form.ContainsKey("allowCaseRenames") && form["allowCaseRenames"] == "on";
+            Namer.SkipAPIRequests = form.ContainsKey("skipAPIRequests") && form["skipAPIRequests"] == "on";
 
-            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "ContentHashes" };
+            var namerOrder = new List<string> { "DB2", "Map", "PlayerHousing", "WMO", "M2", "M3", "Anima", "BakedNPC", "CharCust", "Collectables", "ColorGrading", "CDI", "Emotes", "FSE", "GDI", "Interface", "Movies", "ItemTex", "Music", "SpellTex", "TerrainCubeMaps", "Decals", "VO", "SoundKits", "WWF", "Install", "ContentHashes" };
             checkboxes = checkboxes.OrderBy(x => namerOrder.IndexOf(x!)).ToArray();
 
             var buildMap = new Dictionary<uint, string>();
@@ -272,6 +269,9 @@ namespace wow.tools.local.Controllers
                         break;
                     case "GDI": // Not NOD
                         Namer.NameGODisplayInfo();
+                        break;
+                    case "Install":
+                        Namer.NameInstall(CASC.GetCKeyDict(), CASC.InstallEntries.Select(x => (x.md5, x.name)).ToList());
                         break;
                     case "Interface":
                         Namer.NameInterface();
@@ -382,8 +382,19 @@ namespace wow.tools.local.Controllers
 
                         Namer.NameM2s([], true, fdidToObjectName);
                         break;
+                    case "M3":
+                        var m3s = Listfile.TypeMap.TryGetValue("m3", out HashSet<int>? m3sSet) ? m3sSet.ToList() : new List<int>();
+                        Namer.NameM3s(m3s, true);
+                        break;
                     case "Map":
-                        Namer.NameMap();
+                        var unnamedDATs = Listfile.TypeMap.TryGetValue("dat", out HashSet<int>? datsSet) ? datsSet.Where(x => !Namer.IDToNameLookup.ContainsKey(x)).ToList() : new List<int>();
+                        Namer.NameDAT(unnamedDATs);
+
+                        var unnamedADTs = Listfile.TypeMap.TryGetValue("adt", out HashSet<int>? adtsSet) ? adtsSet.Where(x => !Namer.IDToNameLookup.ContainsKey(x)).ToList() : new List<int>();
+                        Namer.NameMap(unnamedADTs);
+                        break;
+                    case "Movies":
+                        Namer.NameMovies();
                         break;
                     case "Music":
                         Namer.NameMusic();
@@ -579,8 +590,41 @@ namespace wow.tools.local.Controllers
                         Namer.NameWWF();
                         break;
                     case "ContentHashes":
-                        CASC.EnsureCHashesLoaded();
-                        Namer.NameByContentHashes(CASC.FDIDToCHash);
+                        Listfile.LoadContentHashes();
+                        var knownHashes = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Keys.ToHashSet();
+                        var knownNames = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Values.ToHashSet();
+
+                        var search = "type:blp,!maptextures,available,!baked,multiuse,lookupmatch,!character,!interface,!minimaps,!maps,!_lod";
+                        var listfileResults = Listfile.DoSearch(Listfile.NameMap, search);
+
+                        var filesToCheck = new Dictionary<string, int>();
+                        foreach (var result in listfileResults)
+                        {
+                            var basename = Path.GetFileNameWithoutExtension(result.Value);
+                            if (!filesToCheck.ContainsKey(basename))
+                                filesToCheck.Add(basename, result.Key);
+                        }
+
+                        var additionalHashes = new Dictionary<string, string>();
+
+                        foreach (var fileToCheck in filesToCheck)
+                        {
+                            var basename = fileToCheck.Key;
+                            var fdid = fileToCheck.Value;
+                            var cKeys = CASC.GetCKeysAndFlagsByFDID(fdid);
+                            if (cKeys.Count > 0)
+                            {
+                                var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(cKeys));
+                                if (!knownHashes.Contains(primaryCKey) && !knownNames.Contains(basename, StringComparer.OrdinalIgnoreCase))
+                                {
+                                    knownHashes.Add(primaryCKey);
+                                    knownNames.Add(basename);
+                                    additionalHashes.Add(primaryCKey, basename);
+                                }
+                            }
+                        }
+
+                        Namer.NameByContentHashes(CASC.GetCKeyDict(), additionalHashes);
                         break;
                     case "Decals":
                         Namer.NameDecals();

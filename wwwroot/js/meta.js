@@ -8,7 +8,20 @@ window.conditionalFlags = new Map();
 
 // Load the mappings if it hasn't been loaded yet
 window.onload = _ => {
-    fetch('/dbc/meta/getMappings')
+    loadMappings();
+};
+
+function loadMappings(tableName = "", build = "") {
+    var url = "/dbc/meta/getMappings";
+
+    if (tableName != "") {
+        url += "?tableName=" + tableName;
+        if (build != "") {
+            url += "&build=" + build;
+        }
+    }
+
+    fetch(url)
         .then(res => res.json())
         .then(data => {
             data.forEach(entry => {
@@ -46,7 +59,7 @@ window.onload = _ => {
                 }
             });
         });
-};
+}
 
 function getEnum(db, field, value) {
     // eslint-disable-next-line no-undef
@@ -135,7 +148,7 @@ for (let i = 0; i < 8; i++) {
 }
 
 for (let i = 0; i < 3; i++) {
-    window.set("spellitemenchantment.EffectArg[" + i + "]",
+    window.conditionalFKs.set("spellitemenchantment.EffectArg[" + i + "]",
         [
             ['spellitemenchantment.Effect[' + i + ']=1', 'spell::id'],
             ['spellitemenchantment.Effect[' + i + ']=3', 'spell::id'],
@@ -184,6 +197,7 @@ window.conditionalFKs.set("spelleffect.EffectMiscValue[0]",
         ['spelleffect.EffectAura=78', 'creature::ID'],
         ['spelleffect.EffectAura=260', 'screeneffect::ID'],
         ['spelleffect.EffectAura=307', 'spelllabel::LabelID'],
+        ['spelleffect.Effect=11', 'areatable::ID'],
         ['spelleffect.Effect=16', 'questv2::ID'],
         ['spelleffect.Effect=28', 'creature::ID'],
         ['spelleffect.Effect=90', 'creature::ID'],
@@ -760,3 +774,76 @@ window.conditionalFKs.set("spellkeyboundoverride.Data",
 for (let i = 0; i < 26; i++) {
     window.dateFields.push("holidays.Date[" + i + "]");
 }
+
+const itemPrettyStatType = {
+    0: 'Mana',
+    1: 'Health',
+    3: 'Agility',
+    4: 'Strength',
+    5: 'Intellect',
+    6: 'Spirit',
+    7: 'Stamina',
+    12: 'Defense',
+    13: 'Dodge',
+    14: 'Parry',
+    15: 'Block',
+    16: 'Hit (Melee)',
+    17: 'Hit (Ranged)',
+    18: 'Hit (Spell)',
+    19: 'Crit (Melee)',
+    20: 'Crit (Ranged)',
+    21: 'Crit (Spell)',
+    22: 'Corruption',
+    23: 'Corruption Resistance',
+    24: 'Random Stat 1',
+    25: 'Random Stat 2',
+    26: 'Critical Strike Avoidance (Ranged)',
+    27: 'Critical Strike Avoidance (Spell)',
+    28: 'Haste (Melee)',
+    29: 'Haste (Ranged)',
+    30: 'Haste (Spell)',
+    31: 'Hit',
+    32: 'Critical Strike',
+    33: 'Hit Avoidance',
+    34: 'Critical Strike Avoidance',
+    35: 'Resilience',
+    36: 'Haste',
+    37: 'Expertise',
+    38: 'Attack Power',
+    39: 'Attack Power (Ranged)',
+    40: 'Versatility',
+    41: 'Bonus Healing',
+    42: 'Bonus Damage',
+    43: 'Mana Regeneration',
+    44: 'Armor Penetration',
+    45: 'Spell Power',
+    46: 'Health Regen',
+    47: 'Spell Penetration',
+    48: 'Block',
+    49: 'Mastery',
+    50: 'Bonus Armor',
+    51: 'Fire Resistance',
+    52: 'Frost Resistance',
+    53: 'Holy Resistance',
+    54: 'Shadow Resistance',
+    55: 'Nature Resistance',
+    56: 'Arcane Resistance',
+    57: 'PvP Power',
+    58: 'Amplify',
+    59: 'Multistrike',
+    60: 'Readiness',
+    61: 'Speed',
+    62: 'Lifesteal',
+    63: 'Avoidance',
+    64: 'Sturdiness',
+    65: 'Unused (7)',
+    66: 'Cleave',
+    67: 'Versatility',
+    68: 'Unused (10)',
+    69: 'Unused (11)',
+    70: 'Unused (12)',
+    71: 'Agility | Strength | Intellect',
+    72: 'Agility | Strength',
+    73: 'Agility | Intellect',
+    74: 'Strength | Intellect'
+};

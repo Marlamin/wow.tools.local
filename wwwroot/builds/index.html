@@ -19,9 +19,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/css/font-awesome.min.css" />
 
-    <!-- JQuery -->
-    <script src="/js/jquery.min.js"></script>
-
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <script src="/js/bootstrap.bundle.min.js"></script>
@@ -31,9 +28,8 @@
     <script type="text/javascript" src="/js/datatables.min.js"></script>
     <script src="/js/input.js" crossorigin="anonymous"></script>
 
-    <link href="/css/style.css?v=1661289414" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     <script type="text/javascript" src="/js/main.js?v=1645063884"></script>
-    <script type="text/javascript" src="/js/anims.js?v=1658923290"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg" id="navbar"></nav>
@@ -56,39 +52,34 @@
             </div>
         </form>
         <br />
-        <h3>Available local builds <a id="reloadBuildsButton" class="btn btn-primary btn-sm" href="#" onClick="reloadBuilds()">Reload</a></h3>
-        <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-            <div class="col-sm-12">
-                <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
-                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th>Folder</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+        <div class="row">
+            <div id="buildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+                <div class="col-sm-12">
+                    <table id="buildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="buildtable_info">
+                        <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        <h3>Available remote builds</h3>
-        <div class="alert alert-warning">Note: Remote builds could be encrypted or missing data. Loading some of these might break.</div>
-        <div id="remotebuildtable_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
-            <div class="col-sm-12">
-                <table id="remotebuildtable" class="table table-sm table-hover maintable dataTable no-footer" style="clear: both" aria-describedby="remotebuildtable_info">
-                    <thead><tr><th>Patch</th><th>Build</th><th>Branch</th><th style="width: 300px">Build config</th><th style="width: 300px">CDN config</th><th style="width: 400px">&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-        <h3>Load specific configs</h3>
-        <div class="alert alert-warning">Note: Only supported when loading with TACTSharp. Only use if you know what you're doing. Inputting invalid config hashes will crash WTL.</div>
+        <br />
+        <h3>Manual build</h3>
+        <div class="alert alert-warning">Note: Only use if you know what you're doing. Inputting invalid config hashes will crash WTL.</div>
         <div class="row" style="width: 40vw">
             <div class="col">
-                <input class="form-control" placeholder="Build config hash" type="text" id="buildConfig"/>
+                <input class="form-control" placeholder="Product" type="text" id="manualProduct" value="wow" />
+            </div>
+            <div class="col">
+                <input class="form-control" placeholder="Build config hash" type="text" id="buildConfig" />
             </div>
             <div class="col">
                 <input class="form-control" placeholder="CDN config hash" type="text" id="cdnConfig" />
             </div>
             <div class="col">
-                <input id="customBuildButton" class="form-control btn btn-primary" value="Load" onClick="loadConfigs()"/>
+                <a id="customBuildButton" class="form-control btn btn-primary" href="#" onClick="loadManualConfigs(this)">Load</a>
             </div>
         </div>
-        <br />
+
         <h3>Admin</h3>
         <p>Only <a href='#' onClick='document.getElementById("adminStuff").style.display = document.getElementById("adminStuff").style.display === "none" ? "block" : "none"'>show</a> and use this section if you know what you are doing.</p>
         <p style="display: none" id="adminStuff">
@@ -101,114 +92,109 @@
         </p>
         <p class="text-muted" style='font-size: 11px'>World of Warcraft and related trademarks are registered trademarks of Blizzard Entertainment which this tool is not affiliated with. <a href='https://github.com/marlamin/wow.tools.local'>Open Source</a></p>
     </div>
-    <script type='text/javascript'>
-        let knownManifests = new Array();
-        let currentBuild = "";
-        let diffInit = false;
 
-        var table = $('#buildtable').DataTable({
+    <script type='text/javascript'>
+        let currentBuild = "";
+        let firstInit = false;
+
+        var buildTable = new DataTable("#buildtable", {
             "pageLength": 25,
-            "searching": false,
+            "searching": true,
+            "processing": true,
             "serverSide": true,
+            "layout": {
+                topStart: {
+                    div: {
+                        html: `<form class="form-inline">
+                               <label class="btn btn-sm btn-success active">
+                                   <input type="checkbox" autocomplete="off" id="localBuilds"> Local
+                               </label>
+                               <label class="btn btn-sm btn-primary active">
+                                   <input type="checkbox" autocomplete="off" id="onlineBuilds"> Online
+                               </label>
+                               <label class="btn btn-sm btn-warning active">
+                                   <input type="checkbox" autocomplete="off" id="archivedBuilds"> Archived
+                               </label>
+                               <label class="btn btn-sm btn-secondary active">
+                                   <input type="checkbox" autocomplete="off" id="encryptedBuilds"> Encrypted
+                               </label>
+                               <div style='margin-left: 10px;' class='btn btn-primary btn-sm' onClick='clearVersionServiceCache(this)' id='refreshBuildsButton'><i class='fa fa-refresh'></i> Clear version service cache</div>
+                           </form>
+                           `
+                    }
+                },
+                bottomEnd: 'inputPaging'
+            },
             "ajax": {
-                url: "/casc/builds",
-                type: "POST"
+                url: "/build/table",
+                type: "POST",
+                data: function (ajaxData) {
+                    if (!firstInit) {
+                        updateCheckboxStatus();
+                        firstInit = true;
+                    }
+                    ajaxData.showLocal = document.getElementById("localBuilds").checked;
+                    ajaxData.showOnline = document.getElementById("onlineBuilds").checked;
+                    ajaxData.showArchived = document.getElementById("archivedBuilds").checked;
+                    ajaxData.showEncrypted = document.getElementById("encryptedBuilds").checked;
+                }
             },
             "order": [[1, 'desc']],
             "lengthChange": false,
             "columnDefs": [
                 {
-                    "targets": [2, 3, 4, 5, 6, 7, 8],
-                    "orderable": false,
-                },
-                {
-                    "targets": 6,
-                    "render": function (data, type, full, meta) {
-                        let isActive = data == "True";
-                        var result = "";
-                        if (isActive) {
-                            result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Force load</a>';
-                        } else {
-                            result += '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\')">Switch to build</a>';
-                        }
-                        return result;
-                    }
-                },
-                {
-                    "targets": 7,
-                    "render": function (data, type, full, meta) {
-                        return "";
-                    }
-                },
-                {
-                    "targets": 8,
-                    "render": function (data, type, full, meta) {
-                        let isActive = full[6] == "True";
-                        if (isActive)
-                            currentBuild = full[0] + "." + full[1];
-
-                        let hasManifest = full[7] == "True";
-                         let hasDBCs = full[8] == "True";
-                        var result = "";
-                        if (hasManifest) {
-                            result += '<a class="btn btn-success btn-sm disabled" href="#">Has manifest</a>';
-                        } else {
-                            result += '<a class="btn btn-danger btn-sm disabled" href="#">Manifest missing</a>';
-                        }
-                        if (hasDBCs) {
-                            if (isActive) {
-                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">Force update</a>';
-                            } else {
-                                result += ' <a class="btn btn-success btn-sm disabled" href="#">Has DBCs</a>';
-                            }
-                        } else {
-                            if (isActive) {
-                                result += ' <a class="btn btn-primary btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">DBCs missing, extract?</a>';
-                            } else {
-                                result += ' <a class="btn btn-danger btn-sm disabled" href="#">DBCs missing</a>';
-                            }
-                        }
-
-                        return result;
-                    }
-                }
-            ],
-        });
-
-        var table = $('#remotebuildtable').DataTable({
-            "pageLength": 25,
-            "searching": false,
-            "serverSide": true,
-            "ajax": {
-                url: "/casc/builds?remote=true",
-                type: "POST"
-            },
-            "order": false,
-            "lengthChange": false,
-            "columnDefs": [
-                {
-                    "targets": [0, 1, 2, 3, 4, 5, 6, 7],
+                    "targets": [3, 4, 5, 6, 7],
                     "orderable": false,
                 },
                 {
                     "targets": 2,
                     "render": function (data, type, full, meta) {
-                        if (full[2].includes('wowdev') || full[2].includes('wowv') || full[2] == 'wowlivetest2')
+                        if (full[2].includes('wowdev') || full[2].includes('wownev') || full[2].includes('wowv') || full[2] == 'wowlivetest2')
                             return "<i class='fa fa-lock' style='color: aqua'></i> " + full[2];
 
                         return full[2];
                     }
                 },
                 {
+                    "targets": [3, 4],
+                    "render": function (data, type, full, meta) {
+                        return "<span style='font-family: monospace;'>" + data + "</span>";
+                    }
+                },
+                {
                     "targets": 5,
                     "render": function (data, type, full, meta) {
-                        let isActive = data == "True";
+                        const isActive = data == "True";
+                        const isLocal = full[8] == "False";
+                        const isArmadillo = full[2].includes('wowdev') || full[2].includes('wownev') || full[2].includes('wowv') || full[2] == 'wowlivetest2';
+
+                        const product = full[2];
+                        const buildConfig = full[3];
+                        const cdnConfig = full[4];
+
                         var result = "";
-                        if (isActive) {
-                            result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Force load</a>';
+                        if (isLocal) {
+                            if (isActive) {
+                                result += '<a class="btn btn-secondary btn-sm disabled" href="#">Current build</a> <a class="btn btn-danger btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Force local reload</a>';
+                            } else {
+                                result += '<a class="btn btn-success btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Switch to local build</a>';
+                            }
                         } else {
-                            result += '<a class="btn btn-success btn-sm" data-product="' + full[2] + '" href="#" onClick="switchToProduct(\'' + full[2] + '\', true)">Switch to build</a>';
+                            if (isArmadillo) {
+                                if (isActive) {
+                                    result += '<a class="btn btn-secondary btn-sm" href="#">Current build</a> <a class="btn btn-danger btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Force remote reload</a>';
+                                } else {
+                                    result += '<a class="btn btn-secondary btn-sm text-muted" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Encrypted build</a>';
+                                }
+                            } else {
+                                if (isActive) {
+                                    result += '<a class="btn btn-secondary btn-sm" href="#">Current build</a> <a class="btn btn-danger btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Force remote reload</a>';
+                                } else {
+                                    result += '<a class="btn btn-primary btn-sm" href="#" onClick="loadConfigs(\'' + product + '\', \'' + buildConfig + '\', \'' + cdnConfig + '\', this)">Switch to online build</a>';
+                                }
+                            }
                         }
+
                         return result;
                     }
                 },
@@ -235,13 +221,13 @@
                         }
                         if (hasDBCs) {
                             if (isActive) {
-                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">Force update</a>';
+                                result += ' <a class="btn btn-success btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(this)">Re-extract</a>';
                             } else {
                                 result += ' <a class="btn btn-success btn-sm disabled" href="#">Has DBCs</a>';
                             }
                         } else {
                             if (isActive) {
-                                result += ' <a class="btn btn-primary btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(\'' + full[2] + '\')">DBCs missing, extract?</a>';
+                                result += ' <a class="btn btn-primary btn-sm" href="#" data-dbcproduct="' + full[2] + '" onClick="extractDBCs(this)">DBCs missing, extract?</a>';
                             } else {
                                 result += ' <a class="btn btn-danger btn-sm disabled" href="#">DBCs missing</a>';
                             }
@@ -253,49 +239,84 @@
             ],
         });
 
-        $("#buildtable").on('draw.dt', function () {
-            fetch('/casc/listManifests')
-            .then((response) => response.json())
-            .then((manifests) => {
-                for (j = 0; j < manifests.length; j++) {
-                    if (!knownManifests.includes(manifests[j]))
-                        knownManifests.push(manifests[j]);
-                }
+        function updateCheckboxStatus() {
+            var localBuilds = localStorage.getItem("settings[localBuilds]");
+            if (localBuilds == null) {
+                localStorage.setItem("settings[localBuilds]", true);
+                localBuilds = "true";
+            }
 
-                if (!diffInit) {
-                    for (i = 0; i < knownManifests.length; i++) {
-                        var option = document.createElement("option");
-                        option.text = knownManifests[i];
-                        option.value = knownManifests[i];
-                        document.getElementById("diffFormFrom").add(option);
+            if (localBuilds && localBuilds == "true") {
+                document.getElementById("localBuilds").checked = true;
+            }
 
-                        var option = document.createElement("option");
-                        option.text = knownManifests[i];
-                        option.value = knownManifests[i];
-                        document.getElementById("diffFormTo").add(option);
-                    }
+            var onlineBuilds = localStorage.getItem("settings[onlineBuilds]");
+            if (onlineBuilds && onlineBuilds == "true") {
+                document.getElementById("onlineBuilds").checked = true;
+            }
 
-                    document.getElementById("diffFormButton").disabled = false;
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-        });
+            var archivedBuilds = localStorage.getItem("settings[archivedBuilds]");
+            if (archivedBuilds && archivedBuilds == "true") {
+                document.getElementById("archivedBuilds").checked = true;
+            }
 
-        async function switchToProduct(product, remote = false) {
-            var button = document.querySelector('[data-product="' + product + '"]');
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Switching, please wait!";
-            button.classList.remove("btn-success");
-            button.classList.add("btn-danger");
-            const response = await fetch("/casc/switchProduct?product=" + product + "&remote=" + remote);
-            var result = await response.text();
-            if (result == "true") {
-                location.reload();
+            var encryptedBuilds = localStorage.getItem("settings[encryptedBuilds]");
+            if (encryptedBuilds && encryptedBuilds == "true") {
+                document.getElementById("encryptedBuilds").checked = true;
             }
         }
 
-        async function loadConfigs() {
+        function reloadBuildTable() {
+            buildTable.ajax.reload();
+        }
+
+        function buildTypeChange(element) {
+            reloadBuildTable();
+
+            var type = element.srcElement.id;
+            localStorage.setItem("settings[" + type + "]", document.getElementById(type).checked == true);
+        }
+
+        reloadDiffSection();
+
+        document.getElementById("localBuilds").addEventListener("change", buildTypeChange);
+        document.getElementById("onlineBuilds").addEventListener("change", buildTypeChange);
+        document.getElementById("archivedBuilds").addEventListener("change", buildTypeChange);
+        document.getElementById("encryptedBuilds").addEventListener("change", buildTypeChange);
+
+        async function reloadDiffSection() {
+            document.getElementById("diffFormButton").disabled = true;
+
+            fetch('/casc/listManifests')
+                .then((response) => response.json())
+                .then((manifests) => {
+                    var diffFormFrom = document.getElementById("diffFormFrom");
+                    var diffFromTo = document.getElementById("diffFormTo");
+
+                    diffFormFrom.options.length = 0;
+                    diffFromTo.options.length = 0;
+
+                    for (i = 0; i < manifests.length; i++) {
+                        var option = document.createElement("option");
+                        option.text = manifests[i];
+                        option.value = manifests[i];
+                        diffFormFrom.add(option);
+
+                        var option = document.createElement("option");
+                        option.text = manifests[i];
+                        option.value = manifests[i];
+                        diffFromTo.add(option);
+                    }
+
+                    document.getElementById("diffFormButton").disabled = false;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+        }
+
+        async function loadManualConfigs(source) {
+            var manualProduct = document.getElementById("manualProduct").value;
             var buildconfig = document.getElementById("buildConfig").value;
             var cdnconfig = document.getElementById("cdnConfig").value;
 
@@ -304,41 +325,58 @@
                 return;
             }
 
-            var button = document.getElementById("customBuildButton");
+            loadConfigs(manualProduct, buildconfig, cdnconfig, source);
+        }
 
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Switching, please wait!";
-            button.classList.remove("btn-success");
-            button.classList.add("btn-danger");
+        async function loadConfigs(product, buildconfig, cdnconfig, source) {
+            let oldInnerHTML = "";
 
-            const response = await fetch("/casc/switchConfigs?buildconfig=" + buildconfig + "&cdnconfig=" + cdnconfig);
+            if (source != undefined) {
+                oldInnerHTML = source.innerHTML;
+                source.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Loading, please wait!";
+                source.classList.remove("btn-success");
+                source.classList.add("btn-danger");
+            }
+        
+            const response = await fetch("/casc/switchConfigs?product=" + product + "&buildconfig=" + buildconfig + "&cdnconfig=" + cdnconfig);
             var result = await response.text();
             if (result == "true") {
-                location.reload();
+                reloadBuildTable();
+                reloadDiffSection();
+
+                if (source != undefined) {
+                    source.innerHTML = oldInnerHTML;
+                    source.classList.remove("btn-danger");
+                    source.classList.add("btn-success");
+                }
             }
         }
 
-        async function extractDBCs(product) {
-            var button = document.querySelector('[data-dbcproduct="' + product + '"]');
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
-            button.classList.remove("btn-success");
-            button.classList.add("btn-danger");
+        async function extractDBCs(source) {
+            source.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Extracting, please wait!";
+            source.classList.remove("btn-success");
+            source.classList.add("btn-danger");
             const response = await fetch("/dbc/export/alltodisk");
             var result = await response.text();
             if (result == "true") {
-                location.reload();
+                reloadBuildTable();
             }
         }
 
-        async function reloadBuilds() {
-            var button = document.getElementById('reloadBuildsButton');
-            button.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Reloading, please wait!";
-            button.classList.remove("btn-success");
-            button.classList.add("btn-danger");
-            const response = await fetch("/casc/reloadBuilds");
+        async function clearVersionServiceCache(source) {
+            source.innerHTML = "<i class='fa fa-spin fa-refresh'></i> Clearing cache, please wait!";
+            source.classList.remove("btn-primary");
+            source.classList.add("btn-danger");
+
+            const response = await fetch("/build/clearVersionServiceCache");
             var result = await response.text();
             if (result == "true") {
-                location.reload();
+                reloadBuildTable();
             }
+
+            source.innerHTML = "<i class='fa fa-refresh'></i> Clear version service cache";
+            source.classList.remove("btn-danger");
+            source.classList.add("btn-primary");
         }
     </script>
 </body>

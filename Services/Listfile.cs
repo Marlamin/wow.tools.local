@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using TACTSharp;
-using WoWFormatLib;
 
 namespace wow.tools.local.Services
 {
@@ -13,7 +13,6 @@ namespace wow.tools.local.Services
         public static readonly Dictionary<int, string> Types = [];
         public static readonly Dictionary<string, HashSet<int>> TypeMap = [];
         public static readonly Dictionary<int, ulong> LookupMap = [];
-        public static readonly List<string> FullListfile = [];
 
         public static int LoadID = 0;
         public static readonly Lock LoadLock = new Lock();
@@ -28,9 +27,6 @@ namespace wow.tools.local.Services
 
         public static string[] GetLines(bool forceRedownload = false)
         {
-            if(FullListfile.Count > 0 && !forceRedownload)
-                return FullListfile.ToArray();
-
             var listfileMode = "downloaded";
 
             if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
@@ -61,8 +57,11 @@ namespace wow.tools.local.Services
                     shouldBackup = true;
                 }
 
+                var sw = Stopwatch.StartNew();
+
                 if (download)
                 {
+                    sw.Restart();
                     Console.WriteLine("Downloading listfile");
 
                     if (shouldBackup)
@@ -77,6 +76,8 @@ namespace wow.tools.local.Services
                     using var s = WebClient.GetStreamAsync(SettingsManager.ListfileURL).Result;
                     using var fs = new FileStream(listfileName, FileMode.Create);
                     s.CopyTo(fs);
+                    sw.Stop();
+                    Console.WriteLine("Listfile download completed in " + sw.Elapsed.TotalSeconds + " seconds");
                 }
 
                 if (!File.Exists(listfileName))
@@ -100,9 +101,6 @@ namespace wow.tools.local.Services
                 });
             }
 
-            FullListfile.Clear();
-            FullListfile.AddRange(listfileLines);
-
             return [.. listfileLines];
         }
 
@@ -110,20 +108,37 @@ namespace wow.tools.local.Services
         {
             var allNames = new Dictionary<int, string>();
 
+            if (File.Exists("custom-listfile.csv"))
+            {
+                var customLines = File.ReadAllLines("custom-listfile.csv");
+                foreach (var line in customLines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    allNames[int.Parse(splitLine[0])] = splitLine[1];
+                }
+            }
+
             foreach (var line in GetLines())
             {
                 if (string.IsNullOrEmpty(line))
                     continue;
 
                 var splitLine = line.Split(";");
-                allNames[int.Parse(splitLine[0])] = splitLine[1];
+                var id = int.Parse(splitLine[0]);
+                if (allNames.ContainsKey(id))
+                    continue;
+
+                allNames[id] = splitLine[1];
             }
 
             Console.WriteLine("Finished loading full listfile: " + allNames.Count + " named files");
 
             return allNames;
         }
-        public static bool Load(bool forceRedownload = false)
+        public static async Task<bool> Load(bool forceRedownload = false)
         {
             lock (LoadLock)
             {
@@ -131,32 +146,44 @@ namespace wow.tools.local.Services
                 DB2Map.Clear();
                 Types.Clear();
                 PlaceholderFiles.Clear();
-                CASC.AvailableFDIDs.ForEach(x => Listfile.NameMap.TryAdd(x, ""));
+                foreach (var fdid in CASC.AvailableFDIDs)
+                    NameMap.TryAdd(fdid, "");
 
                 var listfileLines = GetLines(forceRedownload);
 
+                var customFileIDs = new List<uint>();
                 if (File.Exists("custom-listfile.csv"))
-                    listfileLines = listfileLines.Concat(File.ReadAllLines("custom-listfile.csv")).ToArray();
-
-                foreach (var line in listfileLines)
                 {
-                    if (string.IsNullOrEmpty(line))
+                    var customLines = File.ReadAllLines("custom-listfile.csv");
+                    listfileLines = customLines.Concat(listfileLines).ToArray();
+                }
+
+                foreach (var rawLine in listfileLines)
+                {
+                    var line = rawLine.AsSpan();
+                    if (line.Length == 0)
                         continue;
 
-                    var splitLine = line.Split(";");
-                    var fdid = int.Parse(splitLine[0]);
+                    var colonPos = line.IndexOf(';');
+                    if (colonPos < 0) continue;
+
+                    var fdid = int.Parse(line[..colonPos]);
+                    if (NameMap.TryGetValue(fdid, out var existingName) && !string.IsNullOrEmpty(existingName))
+                        continue;
+
+                    var filename = line[(colonPos + 1)..].ToString();
+
+                    NameMap[fdid] = filename;
 
                     if (SettingsManager.ShowAllFiles == false && !NameMap.ContainsKey(fdid))
                         continue;
 
-                    var filename = splitLine[1];
+                    var ext = Path.GetExtension(filename).Replace(".", "").ToLowerInvariant();
 
-                    var ext = Path.GetExtension(filename).Replace(".", "").ToLower();
+                    var filenameLower = filename.ToLowerInvariant().AsSpan();
 
                     if (!TypeMap.ContainsKey(ext))
                         TypeMap.Add(ext, []);
-
-                    NameMap[fdid] = filename;
 
                     // Don't add WMOs to the type map, rely on scans for setting WMO/group WMOs correctly
                     if (ext != "wmo")
@@ -165,10 +192,8 @@ namespace wow.tools.local.Services
                         TypeMap[ext].Add(fdid);
                     }
 
-                    var filenameLower = filename.ToLower();
-
                     if (ext == "db2")
-                        DB2Map.Add(filenameLower, fdid);
+                        DB2Map.Add(filenameLower.ToString(), fdid);
 
                     if (
                         filenameLower.StartsWith("models", StringComparison.Ordinal) ||
@@ -205,6 +230,7 @@ namespace wow.tools.local.Services
 
             return true;
         }
+
         public static bool Export()
         {
             File.WriteAllLines("exported-listfile.csv", NameMap.OrderBy(x => x.Key).Select(x => x.Key + ";" + x.Value).ToArray());
@@ -228,7 +254,7 @@ namespace wow.tools.local.Services
             TypeMap[type].Add(filedataid);
         }
 
-        public static void LoadCachedUnknowns()
+        public static async Task<bool> LoadCachedUnknowns()
         {
             // Loaded cached types from disk
             if (File.Exists("cachedUnknowns.txt"))
@@ -253,13 +279,17 @@ namespace wow.tools.local.Services
                     }
                 }
             }
+
+            return true;
         }
 
-        public static void EnsureFDIDsPresent(List<int> fdids)
+        public static void EnsureFDIDsPresent(HashSet<int> fdids)
         {
             lock (LoadLock)
             {
-                fdids.ForEach(x => NameMap.TryAdd(x, ""));
+                foreach (var fdid in fdids)
+                    NameMap.TryAdd(fdid, "");
+
                 LoadID++;
             }
         }
@@ -280,7 +310,7 @@ namespace wow.tools.local.Services
             }
         }
 
-        public static void LoadLookups(bool forceRedownload = false)
+        public static async Task<bool> LoadLookups(bool forceRedownload = false)
         {
             var listfileMode = "downloaded";
 
@@ -359,7 +389,7 @@ namespace wow.tools.local.Services
                 if (!File.Exists(lookupFile))
                     throw new FileNotFoundException("Could not find " + lookupFile);
 
-                Console.WriteLine("Loading lookups from " + Path.GetFileNameWithoutExtension(lookupFile));
+                Console.WriteLine("Loading lookups from " + Path.GetFileName(lookupFile));
                 var lookupLines = File.ReadAllLines(lookupFile);
                 foreach (var line in lookupLines)
                 {
@@ -370,6 +400,96 @@ namespace wow.tools.local.Services
                     LookupMap[int.Parse(splitLine[0])] = ulong.Parse(splitLine[1], System.Globalization.NumberStyles.HexNumber);
                 }
             }
+
+            Console.WriteLine("Loaded " + LookupMap.Count + " lookups");
+            return true;
+        }
+
+        public static async Task<bool> LoadContentHashes(bool forceRedownload = false)
+        {
+            var listfileMode = "downloaded";
+
+            if (!SettingsManager.ListfileURL.StartsWith("http") && Directory.Exists(SettingsManager.ListfileURL))
+                listfileMode = "parts";
+
+            WoWNamingLib.Namers.ContentHashNamer.knownHashes.Clear();
+
+            if (listfileMode == "downloaded")
+            {
+                var download = forceRedownload;
+                bool shouldBackup = false;
+
+                var fileName = "contenthash.csv";
+
+                if (!File.Exists(fileName))
+                {
+                    download = true;
+                }
+                else
+                {
+                    var info = new FileInfo(fileName);
+                    if (info.Length == 0 || DateTime.Now.Subtract(TimeSpan.FromDays(1)) > info.LastWriteTime)
+                    {
+                        Console.WriteLine("Contenthashes outdated, redownloading...");
+                        download = true;
+                    }
+                    shouldBackup = true;
+                }
+
+                if (download)
+                {
+                    Console.WriteLine("Downloading contenthashes");
+
+                    if (shouldBackup)
+                    {
+                        if (File.Exists(fileName + ".bak"))
+                            File.Delete(fileName + ".bak");
+
+                        File.Move(fileName, fileName + ".bak");
+                        Console.WriteLine("Existing " + fileName + " renamed to " + fileName + ".bak");
+                    }
+
+                    using var s = WebClient.GetStreamAsync("https://github.com/wowdev/wow-listfile/raw/refs/heads/master/meta/contenthash.csv").Result;
+                    using var fs = new FileStream(fileName, FileMode.Create);
+                    s.CopyTo(fs);
+                }
+
+                if (!File.Exists(fileName))
+                {
+                    throw new FileNotFoundException("Could not find " + fileName);
+                }
+
+                //formatted like hex;bane
+                var contentHashLines = File.ReadAllLines(fileName);
+                foreach (var line in contentHashLines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    WoWNamingLib.Namers.ContentHashNamer.knownHashes[splitLine[0]] = splitLine[1];
+                }
+            }
+            else if (listfileMode == "parts")
+            {
+                var fileName = Path.Combine(SettingsManager.ListfileURL, "..", "meta", "contenthash.csv");
+                if (!File.Exists(fileName))
+                    throw new FileNotFoundException("Could not find " + fileName);
+
+                Console.WriteLine("Loading contenthashes from " + Path.GetFileName(fileName));
+                var contentHashLines = File.ReadAllLines(fileName);
+                foreach (var line in contentHashLines)
+                {
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    var splitLine = line.Split(";");
+                    WoWNamingLib.Namers.ContentHashNamer.knownHashes[splitLine[0]] = splitLine[1];
+                }
+            }
+
+            Console.WriteLine("Loaded " + WoWNamingLib.Namers.ContentHashNamer.knownHashes.Count + " contenthashes");
+            return true;
         }
 
         public static void ExportLookups()
@@ -435,7 +555,7 @@ namespace wow.tools.local.Services
                     }
                 }
 
-                var result = DoSearch(Listfile.NameMap, search);
+                var result = DoSearch(SettingsManager.ShowAllFiles ? Listfile.NameMap : Listfile.NameMap.Where(x => CASC.AvailableFDIDs.Contains(x.Key)).ToDictionary(), search);
 
                 lock (ListfileSearchCacheLock)
                 {
@@ -493,6 +613,16 @@ namespace wow.tools.local.Services
                 var presentFiles = SQLiteDB.getFilesInVersion(build);
                 return p => presentFiles.Contains(p.Key);
             }
+            else if (search == "available")
+            {
+                var availableFDIDs = new HashSet<int>(CASC.AvailableFDIDs);
+                return p => availableFDIDs.Contains(p.Key);
+            }
+            else if (search == "unavailable")
+            {
+                var availableFDIDs = new HashSet<int>(CASC.AvailableFDIDs);
+                return p => !availableFDIDs.Contains(p.Key);
+            }
             else if (search == "unnamed")
             {
                 return p => p.Value.Length == 0;
@@ -527,6 +657,10 @@ namespace wow.tools.local.Services
                               (CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedUnknownKey ||
                                CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedMixed);
             }
+            else if (search == "encryptedbutnot")
+            {
+                return p => CASC.EncryptionStatuses.ContainsKey(p.Key) && CASC.EncryptionStatuses[p.Key] == CASC.EncryptionStatus.EncryptedButNot;
+            }
             else if (search.StartsWith("range:"))
             {
                 string[] fdidRange = search.Substring("range:".Length).Split("-");
@@ -545,15 +679,54 @@ namespace wow.tools.local.Services
             }
             else if (search.StartsWith("chash:"))
             {
-                if (CASC.CHashToFDID.TryGetValue(search.Substring("chash:".Length).ToUpperInvariant(), out var resultFDIDs))
+                lock (LoadLock)
                 {
-                    return x => resultFDIDs.Contains(x.Key);
+                    CASC.EnsureCHashesLoaded();
+                    if (CASC.CHashToFDID.TryGetValue(search.Substring("chash:".Length).ToUpperInvariant(), out var resultFDIDs))
+                    {
+                        return x => resultFDIDs.Contains(x.Key);
+                    }
+                }
+            }
+            else if (search == "multiuse")
+            {
+                lock (LoadLock)
+                {
+                    CASC.EnsureCHashesLoaded();
+                    var multiUseFDIDs = CASC.CHashToFDID.Where(x => x.Value.Count > 1).SelectMany(x => x.Value).ToHashSet();
+                    return p => multiUseFDIDs.Contains(p.Key);
                 }
             }
             else if (search == "haslookup")
             {
                 var fdids = new HashSet<int>(Listfile.LookupMap.Keys);
                 return p => fdids.Contains(p.Key);
+            }
+            else if (search == "lookupmatch")
+            {
+                var lookupFDIDs = new HashSet<int>(Listfile.LookupMap.Keys);
+                var hasher = new Jenkins96();
+
+                return p =>
+                {
+                    if (!lookupFDIDs.Contains(p.Key) || string.IsNullOrEmpty(p.Value))
+                        return false;
+
+                    return hasher.ComputeHash(p.Value) == Listfile.LookupMap[p.Key];
+                };
+            }
+            else if (search == "lookupwrong")
+            {
+                var lookupFDIDs = new HashSet<int>(Listfile.LookupMap.Keys);
+                var hasher = new Jenkins96();
+
+                return p =>
+                {
+                    if (!lookupFDIDs.Contains(p.Key))
+                        return false;
+
+                    return hasher.ComputeHash(p.Value) != Listfile.LookupMap[p.Key];
+                };
             }
             else if (search == "otherlocaleonly")
             {

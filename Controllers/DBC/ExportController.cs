@@ -1,5 +1,4 @@
-﻿using CASCLib;
-using DBCD;
+﻿using DBCD;
 using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using wow.tools.local;
@@ -10,6 +9,7 @@ using wow.tools.local.Utils;
 
 namespace wow.tools.Local.Controllers
 {
+    using static TACTSharp.RootInstance;
     using Parameters = IReadOnlyDictionary<string, string>;
 
     [Route("dbc/export")]
@@ -140,7 +140,6 @@ namespace wow.tools.Local.Controllers
             {
                 using (var archive = new ZipArchive(zip, ZipArchiveMode.Create))
                 {
-                    // TODO: Get list of DBCs for a specific build
                     foreach (var dbname in dbcManager.GetDBCNames(build))
                     {
                         try
@@ -172,7 +171,7 @@ namespace wow.tools.Local.Controllers
 
                 return new FileContentResult(zip.ToArray(), "application/octet-stream")
                 {
-                    FileDownloadName = "alldbc-" + build + ".zip"
+                    FileDownloadName = "alldbc-" + build + "-" + locale + ".zip"
                 };
             }
         }

@@ -1,8 +1,8 @@
-﻿using CASCLib;
-using DBCD.Providers;
+﻿using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
@@ -18,7 +18,9 @@ namespace wow.tools.local.Controllers
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
         private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
 
-        private readonly Jenkins96 hasher = new();
+        private readonly TACTSharp.Jenkins96 hasher = new();
+
+        private bool DB2Init = false;
 
         private static Dictionary<int, List<uint>>? MFDMap;
         private static Dictionary<int, List<uint>>? TFDMap;
@@ -26,21 +28,22 @@ namespace wow.tools.local.Controllers
 
         private static Dictionary<int, List<uint>>? SoundKitMap;
         private static Dictionary<uint, List<int>>? SoundKitMapReverse;
-        private static readonly Lock dbcLock = new Lock();
+
+        private static Lock dbcLock = new Lock();
 
         public void ensureSoundKitMapInitialized()
         {
-            lock (dbcLock)
+            if (SoundKitMap == null)
             {
-                if (SoundKitMap == null)
+                try
                 {
-                    try
-                    {
-                        var soundKitEntryDB = dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName).Result;
-                        if (!soundKitEntryDB.AvailableColumns.Contains("SoundKitID") || !soundKitEntryDB.AvailableColumns.Contains("FileDataID"))
-                            throw new Exception("Missing required columns in SoundKitEntry");
+                    var soundKitEntryDB = dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName).Result;
+                    if (!soundKitEntryDB.AvailableColumns.Contains("SoundKitID") || !soundKitEntryDB.AvailableColumns.Contains("FileDataID"))
+                        throw new Exception("Missing required columns in SoundKitEntry");
 
-                        if (soundKitEntryDB != null)
+                    if (soundKitEntryDB != null)
+                    {
+                        lock (dbcLock)
                         {
                             SoundKitMap = new Dictionary<int, List<uint>>();
                             SoundKitMapReverse = new Dictionary<uint, List<int>>();
@@ -60,32 +63,27 @@ namespace wow.tools.local.Controllers
                             }
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
-                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load SoundKitEntry: " + e.Message);
                 }
             }
         }
 
-        // Files page uses this, not modelviewer
-        [Route("files")]
-        [HttpGet]
-        public DataTablesResult FileDataTables(int draw, int start, int length)
+        public void ensureModelFileDataMapInitialized()
         {
-            ensureSoundKitMapInitialized();
-
             if (MFDMap == null)
             {
-                lock (dbcLock)
+                try
                 {
-                    try
-                    {
-                        var modelFileDataDB = dbcManager.GetOrLoad("ModelFileData", CASC.BuildName).Result;
-                        if (!modelFileDataDB.AvailableColumns.Contains("ModelResourcesID") || !modelFileDataDB.AvailableColumns.Contains("FileDataID"))
-                            throw new Exception("Missing required columns in ModelFileData");
+                    var modelFileDataDB = dbcManager.GetOrLoad("ModelFileData", CASC.BuildName).Result;
+                    if (!modelFileDataDB.AvailableColumns.Contains("ModelResourcesID") || !modelFileDataDB.AvailableColumns.Contains("FileDataID"))
+                        throw new Exception("Missing required columns in ModelFileData");
 
-                        if (modelFileDataDB != null)
+                    if (modelFileDataDB != null)
+                    {
+                        lock (dbcLock)
                         {
                             MFDMap = new Dictionary<int, List<uint>>();
                             foreach (var row in modelFileDataDB.Values)
@@ -99,24 +97,27 @@ namespace wow.tools.local.Controllers
                             }
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to load ModelFileData: " + e.Message);
-                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load ModelFileData: " + e.Message);
                 }
             }
+        }
 
+        public void ensureTextureFileDataMapInitialized()
+        {
             if (TFDMap == null)
             {
-                lock (dbcLock)
+                try
                 {
-                    try
-                    {
-                        var textureFileDataDB = dbcManager.GetOrLoad("TextureFileData", CASC.BuildName).Result;
-                        if (!textureFileDataDB.AvailableColumns.Contains("MaterialResourcesID") || !textureFileDataDB.AvailableColumns.Contains("FileDataID"))
-                            throw new Exception("Missing required columns in TextureFileData");
+                    var textureFileDataDB = dbcManager.GetOrLoad("TextureFileData", CASC.BuildName).Result;
+                    if (!textureFileDataDB.AvailableColumns.Contains("MaterialResourcesID") || !textureFileDataDB.AvailableColumns.Contains("FileDataID"))
+                        throw new Exception("Missing required columns in TextureFileData");
 
-                        if (textureFileDataDB != null)
+                    if (textureFileDataDB != null)
+                    {
+                        lock (dbcLock)
                         {
                             TFDMap = new Dictionary<int, List<uint>>();
                             foreach (var row in textureFileDataDB.Values)
@@ -130,52 +131,71 @@ namespace wow.tools.local.Controllers
                             }
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to load TextureFileData: " + e.Message);
-                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load TextureFileData: " + e.Message);
                 }
             }
+        }
 
+        public void ensureCreatureModelDataMapInitialized()
+        {
             if (CMDMap == null)
             {
-                lock (dbcLock)
+                try
                 {
-                    try
+                    var creatureModelDataDB = dbcManager.GetOrLoad("CreatureModelData", CASC.BuildName).Result;
+                    if (!creatureModelDataDB.AvailableColumns.Contains("FileDataID") || !creatureModelDataDB.AvailableColumns.Contains("ID"))
+                        throw new Exception("Missing required columns in CreatureModelData");
+
+                    if (creatureModelDataDB != null)
                     {
-                        var creatureModelDataDB = dbcManager.GetOrLoad("CreatureModelData", CASC.BuildName).Result;
-                        if (!creatureModelDataDB.AvailableColumns.Contains("FileDataID") || !creatureModelDataDB.AvailableColumns.Contains("ID"))
+                        lock (dbcLock)
                         {
-                            Console.WriteLine("Missing required columns in CreatureModelData");
-                        }
-                        else
-                        {
-                            if (creatureModelDataDB != null)
+                            CMDMap = new Dictionary<int, List<uint>>();
+                            foreach (var row in creatureModelDataDB.Values)
                             {
-                                CMDMap = new Dictionary<int, List<uint>>();
-                                foreach (var row in creatureModelDataDB.Values)
-                                {
-                                    var cmdID = row.Field<int>("ID");
-                                    var fileDataID = row.Field<int>("FileDataID");
-                                    if (CMDMap.TryGetValue(fileDataID, out List<uint>? creatureModelDataIDs))
-                                        creatureModelDataIDs.Add((uint)cmdID);
-                                    else
-                                        CMDMap[fileDataID] = new List<uint> { (uint)cmdID };
-                                }
+                                var cmdID = row.Field<int>("ID");
+                                var fileDataID = row.Field<int>("FileDataID");
+                                if (CMDMap.TryGetValue(fileDataID, out List<uint>? creatureModelDataIDs))
+                                    creatureModelDataIDs.Add((uint)cmdID);
+                                else
+                                    CMDMap[fileDataID] = new List<uint> { (uint)cmdID };
                             }
                         }
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to load CreatureModelData: " + e.Message);
-                    }
                 }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load CreatureModelData: " + e.Message);
+                }
+            }
+        }
+
+        // Files page uses this, not modelviewer
+        [Route("files")]
+        [HttpGet]
+        public DataTablesResult FileDataTables(int draw, int start, int length)
+        {
+            if (!DB2Init)
+            {
+                DB2Init = true;
+
+                var dbTasks = new List<Task>();
+
+                dbTasks.Add(Task.Run(() => ensureSoundKitMapInitialized()));
+                dbTasks.Add(Task.Run(() => ensureModelFileDataMapInitialized()));
+                dbTasks.Add(Task.Run(() => ensureTextureFileDataMapInitialized()));
+                dbTasks.Add(Task.Run(() => ensureCreatureModelDataMapInitialized()));
+
+                Task.WaitAll(dbTasks.ToArray());
             }
 
             var result = new DataTablesResult()
             {
                 draw = draw,
-                recordsTotal = Listfile.NameMap.Count,
+                recordsTotal = SettingsManager.ShowAllFiles ? Listfile.NameMap.Count : CASC.AvailableFDIDs.Count,
                 data = []
             };
 
@@ -186,7 +206,10 @@ namespace wow.tools.local.Controllers
             }
             else
             {
-                listfileResults = new Dictionary<int, string>(Listfile.NameMap);
+                if (SettingsManager.ShowAllFiles)
+                    listfileResults = new(Listfile.NameMap);
+                else
+                    listfileResults = new Dictionary<int, string>(Listfile.NameMap.Where(x => CASC.AvailableFDIDs.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value));
             }
 
             result.recordsFiltered = listfileResults.Count;
@@ -217,7 +240,7 @@ namespace wow.tools.local.Controllers
             }
 
             Dictionary<int, int> FDIDParentCounts = new();
-            if(Request.Query.TryGetValue("mode", out var mode) && mode == "parent" && !string.IsNullOrEmpty(search) && search.ToString().Contains("chash:", StringComparison.OrdinalIgnoreCase))
+            if (Request.Query.TryGetValue("mode", out var mode) && mode == "parent" && !string.IsNullOrEmpty(search) && search.ToString().Contains("chash:", StringComparison.OrdinalIgnoreCase))
             {
                 var fdids = listfileResults.Select(x => x.Key).ToList();
                 FDIDParentCounts = SQLiteDB.GetNumParentFiles(fdids);
@@ -241,26 +264,23 @@ namespace wow.tools.local.Controllers
                         lookupMatch = true;
                 }
 
-                lock (dbcLock)
-                {
-                    result.data.Add(
-                    [
-                        listfileResult.Key.ToString(), // ID
-                        listfileResult.Value, // Filename
-                        lookup != 0 ? lookup.ToString("X16") : "", // Lookup
-                        CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
-                        Listfile.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
-                        CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encryptionStatus) ? encryptionStatus.ToString() : "",
-                        CASC.OtherLocaleOnlyFiles.Contains(listfileResult.Key) ? "true" : "false", // Non-native locale
-                        "", // Placeholder filename
-                        lookupMatch ? "true" : "false", // Lookup match
-                        SoundKitMap != null ? SoundKitMap.TryGetValue(listfileResult.Key, out var soundKits) ? string.Join(", ", soundKits) : "" : "", // SoundKits
-                        MFDMap != null ? MFDMap.TryGetValue(listfileResult.Key, out var modelResourceIDs) ? string.Join(", ", modelResourceIDs) : "" : "", // ModelFileData
-                        TFDMap != null ? TFDMap.TryGetValue(listfileResult.Key, out var materialResourceIDs) ? string.Join(", ", materialResourceIDs) : "" : "", // TextureFileData
-                        CMDMap != null ? CMDMap.TryGetValue(listfileResult.Key, out var creatureModelDataIDs) ? string.Join(", ", creatureModelDataIDs) : "" : "", // CreatureModelData
-                        FDIDParentCounts.Count > 0 && FDIDParentCounts.TryGetValue(listfileResult.Key, out var parentCount) ? parentCount.ToString() : ""
-                    ]);
-                }
+                result.data.Add(
+                [
+                    listfileResult.Key.ToString(), // ID
+                    listfileResult.Value, // Filename
+                    lookup != 0 ? lookup.ToString("X16") : "", // Lookup
+                    CASC.AvailableFDIDs.Contains(listfileResult.Key) ? "true" : "false", // Versions
+                    Listfile.Types.TryGetValue(listfileResult.Key, out string? value) ? value : "unk", // Type
+                    CASC.EncryptionStatuses.TryGetValue(listfileResult.Key, out CASC.EncryptionStatus encryptionStatus) ? encryptionStatus.ToString() : "",
+                    CASC.OtherLocaleOnlyFiles.Contains(listfileResult.Key) ? "true" : "false", // Non-native locale
+                    "", // Placeholder filename
+                    lookupMatch ? "true" : "false", // Lookup match
+                    SoundKitMap != null ? SoundKitMap.TryGetValue(listfileResult.Key, out var soundKits) ? string.Join(", ", soundKits) : "" : "", // SoundKits
+                    MFDMap != null ? MFDMap.TryGetValue(listfileResult.Key, out var modelResourceIDs) ? string.Join(", ", modelResourceIDs) : "" : "", // ModelFileData
+                    TFDMap != null ? TFDMap.TryGetValue(listfileResult.Key, out var materialResourceIDs) ? string.Join(", ", materialResourceIDs) : "" : "", // TextureFileData
+                    CMDMap != null ? CMDMap.TryGetValue(listfileResult.Key, out var creatureModelDataIDs) ? string.Join(", ", creatureModelDataIDs) : "" : "", // CreatureModelData
+                    FDIDParentCounts.Count > 0 && FDIDParentCounts.TryGetValue(listfileResult.Key, out var parentCount) ? parentCount.ToString() : ""
+                ]);
             }
 
             return result;
@@ -344,17 +364,17 @@ namespace wow.tools.local.Controllers
 
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
-                installResults = installResults.Where(x => x.Name.Contains(search!)).ToList();
+                installResults = installResults.Where(x => x.name.Contains(search!)).ToList();
             }
 
             foreach (var installResult in installResults.Skip(start).Take(length))
             {
                 result.data.Add(
                     [
-                        installResult.Name,
-                        installResult.Size.ToString(),
-                        string.Join(", ", installResult.Tags),
-                        installResult.MD5.ToHexString()
+                        installResult.name,
+                        installResult.size.ToString(),
+                        string.Join(", ", installResult.tags),
+                        Convert.ToHexStringLower(installResult.md5)
                     ]);
             }
 
@@ -370,7 +390,7 @@ namespace wow.tools.local.Controllers
             {
                 foreach (var id in split)
                 {
-                    if (Listfile.NameMap.TryGetValue(int.Parse(id), out var name))
+                    if (int.TryParse(id, out var idInt) && Listfile.NameMap.TryGetValue(idInt, out var name))
                         return name;
                 }
 
@@ -378,7 +398,7 @@ namespace wow.tools.local.Controllers
             }
             else
             {
-                if (Listfile.NameMap.TryGetValue(int.Parse(filedataid), out var name))
+                if (int.TryParse(filedataid, out var fileDataIDInt) && Listfile.NameMap.TryGetValue(fileDataIDInt, out var name))
                     return name;
                 else
                     return "";
@@ -387,13 +407,13 @@ namespace wow.tools.local.Controllers
 
         [Route("db2s")]
         [HttpGet]
-        public string[] DB2s()
+        public string[] DB2s(string build = "")
         {
-            return dbcManager.GetDBCNames();
+            return dbcManager.GetDBCNames(build);
         }
 
         [HttpGet("db2/{databaseName}/versions")]
-        public List<(Version, string)> BuildsForDatabase(string databaseName, bool uniqueOnly = false)
+        public ActionResult BuildsForDatabase(string databaseName, bool uniqueOnly = false)
         {
             var versionList = new SortedDictionary<Version, string>();
 
@@ -451,7 +471,8 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            return versionList.Select(kvp => (kvp.Key, kvp.Value)).OrderByDescending(x => x.Key).ToList();
+            var jsonOptions = new JsonSerializerOptions() { IncludeFields = true };
+            return Json(versionList.Select(kvp => (kvp.Key, kvp.Value)).OrderByDescending(x => x.Key).ToList(), jsonOptions);
         }
 
         [HttpGet("db2/builds")]
@@ -536,7 +557,7 @@ namespace wow.tools.local.Controllers
 
         [Route("extractFileList")]
         [HttpGet]
-        public async Task<bool> ExtractFileList(string listfile, bool related = false, string exceptInBuild = "")
+        public async Task<bool> ExtractFileList(string listfile, bool related = false, string exceptInBuild = "", bool byID = false)
         {
             if (string.IsNullOrEmpty(listfile) || SettingsManager.ReadOnly)
                 return false;
@@ -576,13 +597,7 @@ namespace wow.tools.local.Controllers
             {
                 if (!FileProvider.HasProvider(CASC.BuildName))
                 {
-                    if (CASC.IsCASCLibInit)
-                    {
-                        var casc = new CASCFileProvider();
-                        casc.InitCasc(CASC.cascHandler);
-                        FileProvider.SetProvider(casc, CASC.BuildName);
-                    }
-                    else if (CASC.IsTACTSharpInit)
+                    if (CASC.IsTACTSharpInit)
                     {
                         var tact = new TACTSharpFileProvider();
                         tact.InitTACT(CASC.buildInstance);
@@ -766,6 +781,9 @@ namespace wow.tools.local.Controllers
                                 filePath = "unknown/" + result.Key.ToString() + ".unk";
                         }
 
+                        if (byID)
+                            filePath = "file/" + result.Key;
+
                         var path = Path.Combine(SettingsManager.ExtractionDir, filePath);
 
                         if (!Directory.Exists(Path.GetDirectoryName(path)))
@@ -847,7 +865,7 @@ namespace wow.tools.local.Controllers
             var lookupPath = Path.Combine(SettingsManager.ExtractionDir, "unk_listfile.txt");
 
             System.IO.File.Delete(lookupPath);
-            var hasher = new Jenkins96();
+            var hasher = new TACTSharp.Jenkins96();
             using (var sw = new StreamWriter(lookupPath))
             {
                 var sortedMap = Listfile.LookupMap.ToDictionary();

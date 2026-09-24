@@ -1,10 +1,10 @@
-﻿using CASCLib;
-using DBCD;
+﻿using DBCD;
 using DBCD.IO;
 using DBCD.Providers;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Concurrent;
 using wow.tools.local.Providers;
+using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Managers
 {
@@ -13,6 +13,9 @@ namespace wow.tools.local.Managers
         private readonly DBDProvider dbdProvider = (DBDProvider)dbdProvider;
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
         private readonly EnumProvider enumProvider = (EnumProvider)enumProvider;
+
+        private DBCD.DBCD? dbcd;
+        private static readonly Lock dbcdLock = new();
 
         private MemoryCache Cache = new(new MemoryCacheOptions() { SizeLimit = 250 });
         private readonly ConcurrentDictionary<(string, string, bool, LocaleFlags), SemaphoreSlim> Locks = [];
@@ -26,12 +29,12 @@ namespace wow.tools.local.Managers
         {
             if (locale != LocaleFlags.All_WoW)
             {
-                return LoadDBC(name, build, useHotfixes, locale);
+                return await LoadDBC(name, build, useHotfixes, locale);
             }
 
             if (pushIDFilter != null)
             {
-                return LoadDBC(name, build, useHotfixes, locale, pushIDFilter);
+                return await LoadDBC(name, build, useHotfixes, locale, pushIDFilter);
             }
 
             if (Cache.TryGetValue((name, build, useHotfixes, locale), out var cachedDBC))
@@ -47,7 +50,7 @@ namespace wow.tools.local.Managers
                 {
                     // Key not in cache, load DBC
                     Console.WriteLine("DBC " + name + " for build " + build + " (hotfixes: " + useHotfixes + ") is not cached, loading!");
-                    cachedDBC = LoadDBC(name, build, useHotfixes, locale);
+                    cachedDBC = await LoadDBC(name, build, useHotfixes, locale);
                     Cache.Set((name, build, useHotfixes, locale), cachedDBC, new MemoryCacheEntryOptions().SetSize(1));
                 }
             }
@@ -56,23 +59,31 @@ namespace wow.tools.local.Managers
                 mylock.Release();
             }
 
-            return (DBCD.IDBCDStorage)cachedDBC!;
+            return (IDBCDStorage)cachedDBC!;
         }
 
-        private IDBCDStorage LoadDBC(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int>? pushIDFilter = null)
+        private async Task<IDBCDStorage> LoadDBC(string name, string build, bool useHotfixes = false, LocaleFlags locale = LocaleFlags.All_WoW, List<int>? pushIDFilter = null)
         {
             if (locale != LocaleFlags.All_WoW)
             {
                 dbcProvider.localeFlags = locale;
             }
 
-            DBCD.DBCD dbcd;
-
-            // we don't feed enumProvider to DBCD for now
-            if (dbdProvider.isUsingBDBD)
-                dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
-            else
-                dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
+            if (dbcd == null)
+            {
+                lock (dbcdLock)
+                {
+                    // check again when acquiring the lock
+                    if (dbcd == null)
+                    {
+                        // we don't feed enumProvider to DBCD for now
+                        if (dbdProvider.isUsingBDBD)
+                            dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
+                        else
+                            dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
+                    }
+                }
+            }
 
             var storage = dbcd.Load(name, build);
 
@@ -91,7 +102,7 @@ namespace wow.tools.local.Managers
                 return storage;
 
             if (HotfixManager.hotfixReaders.Count == 0)
-                HotfixManager.LoadCaches();
+                await HotfixManager.LoadCaches();
 
             if (HotfixManager.hotfixReaders.TryGetValue(buildNumber, out HotfixReader? hotfixReaders))
             {
@@ -118,6 +129,16 @@ namespace wow.tools.local.Managers
         public void ClearCache()
         {
             Cache.Dispose();
+
+            lock (dbcdLock)
+            {
+                // we don't feed enumProvider to DBCD for now
+                if (dbdProvider.isUsingBDBD)
+                    dbcd = new DBCD.DBCD(dbcProvider, DBDProvider.GetBDBDStream());
+                else
+                    dbcd = new DBCD.DBCD(dbcProvider, dbdProvider);
+            }
+
             Cache = new MemoryCache(new MemoryCacheOptions() { SizeLimit = 250 });
         }
 
@@ -132,7 +153,7 @@ namespace wow.tools.local.Managers
         {
             var dbcNames = dbdProvider.GetNames();
 
-            if (build != null)
+            if (!string.IsNullOrEmpty(build))
             {
                 var filteredNames = new List<string>();
                 foreach (var name in dbcNames)

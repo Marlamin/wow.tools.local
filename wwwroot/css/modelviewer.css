@@ -346,8 +346,40 @@ tr.selected{
 
 .sscInput
 {
-  width: 90%;
+  width: 80%;
   padding: 2px 0 2px 5px;
+}
+
+.sscSectionHeading
+{
+  font-weight: bold;
+}
+
+.sscSectionLabel
+{
+  width: 88%;
+  display: inline-block;
+}
+
+.sscLinkedCheckboxInput,
+.sscLinkedCheckboxLabel
+{
+  width: 5%;
+  display: inline-block;
+  margin-left: 7px;
+}
+
+.sscLinkedCheckboxInput:checked
+{
+  appearance: none;
+  text-align: center;
+}
+
+.sscLinkedCheckboxInput:checked::after
+{
+  font-family: FontAwesome;
+  content: '\f0c1';
+  color: #20bfd9;
 }
 
 #sscFormButton

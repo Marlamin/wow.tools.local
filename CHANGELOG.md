@@ -1,8 +1,151 @@
-0.9.4 (xx-04-2026)
+0.9.9 (xx-09-2026)
+- Added filters/ordering to the hotfixes page.
+- Added support to the map namer for naming liquid flow texture maps.
+- Added liquid flow map layer to the minimap viewer.
+- Added WIP support for detecting and reading DAT files (WoWEdit ADTs).
+- Added a hex preview & optional decompilation of decompressed shaders to the preview modal.
+- Added ADT grid checkbox/layer back to the minimap viewer.
+- Updated modelviewer page to disable "Export to glTF" button as it broke at some point.
+- Updated DBCD to 2.3.1 to pick up on fix for PlayerCondition.db2 not having correct data in some columns.
+- Fixed compiled minimap PNGs sometimes getting out of whack due to missing/unavailable minimap tiles.
+- Fixed crash that'd sometimes happen on opening file naming page.
+- Fixed hex file previews sometimes displaying wrong.
+- Fixed item tooltips with stats not rendering.
+- Fixed links to removed DB2 files in diffs being broken.
+
+0.9.8 (15-09-2026)
+- Added Discord link to support-only channel.
+- Added state tracking to URL on build diff page (refreshes should now keep you in the same spot).
+- Added filter to DBC diffs to filter rows by diff type (Added/Modified/Removed).
+- Added (placeholder) naming of unknown/unreferenced ADT files to the automatic Map namer.
+- Added vertex color layer to minimap viewer.
+- Updated filter states to URL on DBC page.
+- Updated DBC browsing to work (closer) as expected when using backward/forwards browser navigation.
+- Updated TACT key metadata.
+- Updated text preview types to include WTF files.
+- Updated deep map file naming to only run on maps newer than Khaz Algar.
+- Updated WoWNamingLib to name certain files in a more normalized manner (e.g. World/Minimaps instead of world/minimaps).
+- Fixed online builds being broken due to Blizzard pushing up an invalid dummy build.
+- Fixed crash during initialization upon loading 12.1.5.69848+.
+- Fixed enums in hotfix diffs sometimes having incorrect descriptions.
+- Fixed issue with some files not being named with placeholders.
+- Fixed double draws on DBC page (should speed up DB2 browsing a good bit!).
+- Fixed CTRL-A not selecting anything inside DBC filter inputs. 
+- Fixed minimaps not always including unreferenced but named tiles.
+- Fixed errors when requesting tooltips for certain quest/creatures.
+
+0.9.7 (29-08-2026)
+- Added keyboard navigation in table paging inputs back (not sure when it disappeared).
+- Added locale to ZIP file downloaded when exporting all DB2s to CSV.
+- Added ability to update contenthashes from GitHub on the naming page.
+- Added contenthash lookup results from historical builds to the contenthash search modal.
+- Added file availability per product (last loaded build per product) to more info modal.
+- Added files page length to client settings.
+- Added automatic namer for cinematics (videos, audio, subtitles).
+- Added setting to hide encrypted builds on the builds page (hidden by default).
+- Added startup check to ensure WTL is always launched from the correct directory.
+- Added support for Blizzard's new version service (TACT Channels), setting is off by default for now.
+- Added button to builds page to clear version service cache (and also reload local build information).
+- Added link to minimaps page to generate and download full-resolution compiled minimap PNGs.
+- Updated version retrieval across WTL to go through TACTSharp's new VersionServices instead.
+- Updated styling of buttons/update check in header.
+- Updated automatic world map naming to more likely pick up on real filenames.
+- Updated TACT key metadata.
+- Updated files page length saving to not save table length if set to "All".
+- Fixed error in serverside setting form validation.
+- Fixed batch install file exporting breaking if one file fails to extract.
+- Fixed some flag tooltips assigning flags to the wrong value.
+- Fixed update/analyze buttons on files page resetting the table to the first page.
+- Fixed global DB2 search searching in tables not in the currently loaded build.
+- Fixed empty filenames not showing up when searching for 'lookupwrong'.
+- Fixed mapviewer crash on Midnight terrain (terrain still looks corrupted).
+- Fixed row selection on files page with the preview page open (and added keyboard navigation for it).
+- Fixed exporting all DB2s to CSV being very slow for BDBD users.
+- Fixed automatic contenthash names sometimes naming empty BLPs incorrectly.
+
+0.9.6 (30-07-2026)
+- Added the old world map page from wow.tools back.
+- Added tab for frontend settings on settings page, some settings (builds page and table row lengths) may have been reset.
+- Added foreign key search back to DBC pages.
+- Added label search to DBC pages (clicking LabelID column values also searches).
+- Added reset button to all search modals on DBC pages.
+- Added tooltips/clickable columns to DB2 search results where applicable.
+- Added the amount of results in DB2 search result tab headers.
+- Added Creature/Quest names to tooltips (retrieved from local information or from archavon.kruithne.net).
+- Added basic naming support for M3 and M3-referenced files.
+- Added naming of icon names from the web API (API stuff can be skipped with new checkbox).
+- Added support for new M3 instance chunk version (fixes M3 parsing/viewing).
+- Added button/setting for turning off BLP transparency in previews.
+- Added ability to take transparent screenshots in the M2/WMO modelviewer (using the Print Screen button).
+  Note: This does not work well on modern WMOs, you may want to turn it off in settings for screenshotting those.
+- Updated Emscripten version used for the M2/WMO modelviewer from 3.1.19 to 3.1.30. Lots of upgrades to catch up on still.
+- Updated M3 modelviewer with basic texture loading.
+- Updated pagination on builds page to use input pagination.
+- Updated TACT key metadata.
+- Updated boolean settings to be checkboxes instead of text inputs.
+- Updated behavior of several automatic namers to be more consistent in when to override existing names.
+- Updated DataTables from 3.0.0-beta.2 to 3.0.0.
+- Fixed build selection crashing on unavailable regions (e.g. loading China-only products).
+- Fixed missing type in modelviewer URLs leading to crashes when F5ing loaded WMOs.
+- Fixed diff cache not being reset after scanning unknown files.
+- Fixed some spell tooltips crashing due to incorrect EffectAmplitude handling.
+
+0.9.5 (29-06-2025)
+- Reworked builds page:
+  Combined the previously separate local/online tables into 1 table.
+  Table now supports ordering/searching.
+  Table now also optionally lists previously seen/historical builds.
+  Build switching/DB2 extraction tasks no longer refresh the full page when done.
+- Enabled partial trimming & single-file publish for WTL and stopped shipping debug files.
+  This significantly reduces the amount of files WTL ships with in its main folder.
+- Added support for PNG previews (for some reason there's 4 of them in the game?).
+- Added namer for files from install (only does something when WoW is loaded with TVFS).
+- Added naming of dye textures during model naming.
+- Added mass-naming of contenthashes based on some new logic (experimental).
+- Added ?itemDisplayID= URL parameter to ther modelviewer to load a model by its itemDisplayID.
+- Added product field to manual config loading form so historical records can be more accurate.
+- Fixed custom-listfile.csv entries being overwritten, should be easier to test submissions now.
+- Fixed Shift-A not working on files page, Ctrl-Shift-A is now the key combo to add all files to DL queue.
+- Fixes files page table not initializing fully (e.g. hovering on file metadata icons was broken).
+- Fixed map browser and some other things being very slow on Classic builds.
+- Improved speed of build diffs.
+- Improved initial load speed of files page.
+- Improved memory footprint/reduced contenthash initialization time, again.
+- Improved tile loading speed on maps page.
+- Updated config.json creation to have community CDNs set as additional CDNs by default.
+- Updated various task-starting buttons on DBC/files pages to no longer refresh the full page.
+- Updated screenshot combo feature in modelviewer to support linked fields (by @WainPetopia).
+- Updated TACTSharp (now has rudimentary fallback support to TVFS if root were to ever go away).
+- Updated Interface file naming to add placeholder files given Blizzard's removal of interface texture names.
+- Updated modelviewer file table to show 25 rows instead of 30 to better fit on some resolutions.
+- Updated modelviewer URL parameters to be case-insensitive.
+- Updated WoWFormatLib/WoWNamingLib.
+- Updated TACT key metadata (and made it faster for myself to update in the future).
+- Replaced Newtonsoft.Json dependency with System.Text.Json.
+- Replaced ImageSharp dependency with NetVips.
+- Disabled Wowhead Looter support for VO naming.
+- Removed CASCLib.
+
+0.9.4 (25-05-2026)
 - Added support for naming new and still unknown map files.
 - Added support for dumping TEX files as JSON.
+- Added localeflags/contentflags to more info modal for files.
+- Added a bunch of new names to the contenthash namer.
+- Added available/unavailable filter keywords to files page (only useful with showAllFiles setting on).
+- Added encryptedbutnot,lookupmatch and lookupwrong filter keywords to files page.
+- Prefer spawning a new TACTSharp instance over using wago.tools during diffs.
 - Fixed missing encryption icons in diffs.
+- Fixed chashes not being loaded for ckey: searches when not already loaded.
+- Fixed contenthashes not resetting between build loads.
 - Improved the automatic naming of item textures.
+- Improved memory footprint/reduced contenthash initialization time.
+- Improved different enum/flag selection based on build (e.g. SpellEffect/Weather).
+- Updated choices.js (should fix some issues with the dropdowns on the DBC pages).
+- Updated WoWFormatLib to pick up on various reading/performance improvements.
+- Updated WoWNamingLib to pick up on a fix for some M2s not getting placeholder names.
+- Updated TACT Key metadata.
+- Updated DataTables from 2.3.5 to 3.0.0-beta.2, the last reason of why WTL needed jQuery has now been vanquished.
+- Removed jQuery dependency, there's a chance I missed some usages, please report any issues you encounter.
 
 0.9.3 (31-03-2026)
 - Added support for flag/enum definitions from WoWDBDefs, removed built-in flags/enums (thanks @MaxtorCoder).

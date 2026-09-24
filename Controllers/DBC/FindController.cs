@@ -61,7 +61,7 @@ namespace wow.tools.local.Controllers.DBC
                                     {
                                         for (var k = 0; k < a.Length; k++)
                                         {
-                                            if(a.GetType().IsEnum)
+                                            if (a.GetType().IsEnum)
                                                 newDict.Add(subfieldName + "[" + k + "]", Convert.ToInt64(a.GetValue(k)!).ToString()!);
                                             else
                                                 newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
@@ -69,7 +69,7 @@ namespace wow.tools.local.Controllers.DBC
                                     }
                                     else
                                     {
-                                        if(subfield.GetType().IsEnum)
+                                        if (subfield.GetType().IsEnum)
                                             newDict.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
                                         else
                                             newDict.Add(subfieldName, subfield.ToString()!);
@@ -98,7 +98,7 @@ namespace wow.tools.local.Controllers.DBC
                                 {
                                     for (var k = 0; k < a.Length; k++)
                                     {
-                                        if(a.GetType().IsEnum)
+                                        if (a.GetType().IsEnum)
                                             newDict.Add(subfieldName + "[" + k + "]", Convert.ToInt64(a.GetValue(k)!).ToString()!);
                                         else
                                             newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
@@ -106,7 +106,7 @@ namespace wow.tools.local.Controllers.DBC
                                 }
                                 else
                                 {
-                                    if(subfield.GetType().IsEnum)
+                                    if (subfield.GetType().IsEnum)
                                         newDict.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
                                     else
                                         newDict.Add(subfieldName, subfield.ToString()!);
@@ -171,7 +171,7 @@ namespace wow.tools.local.Controllers.DBC
                                 {
                                     for (var k = 0; k < a.Length; k++)
                                     {
-                                        if(a.GetType().IsEnum)
+                                        if (a.GetType().IsEnum)
                                             newDict.Add(subfieldName + "[" + k + "]", Convert.ToInt64(a.GetValue(k)!).ToString()!);
                                         else
                                             newDict.Add(subfieldName + "[" + k + "]", a.GetValue(k)!.ToString()!);
@@ -179,7 +179,7 @@ namespace wow.tools.local.Controllers.DBC
                                 }
                                 else
                                 {
-                                    if(subfield.GetType().IsEnum)
+                                    if (subfield.GetType().IsEnum)
                                         newDict.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
                                     else
                                         newDict.Add(subfieldName, subfield.ToString()!);
@@ -240,7 +240,7 @@ namespace wow.tools.local.Controllers.DBC
                                 }
                                 else
                                 {
-                                    if(subfield.GetType().IsEnum)
+                                    if (subfield.GetType().IsEnum)
                                         newDict.Add(subfieldName, Convert.ToInt64(subfield).ToString()!);
                                     else
                                         newDict.Add(subfieldName, subfield.ToString()!);

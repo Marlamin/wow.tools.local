@@ -7,12 +7,7 @@
 
         public static bool TryGetKey(ulong keyName, out byte[] key)
         {
-            if (CASC.IsCASCLibInit)
-            {
-                key = CASCLib.KeyService.GetKey(keyName);
-                return key != null;
-            }
-            else if (CASC.IsTACTSharpInit)
+            if (CASC.IsTACTSharpInit)
             {
                 return TACTSharp.KeyService.TryGetKey(keyName, out key);
             }
@@ -24,9 +19,7 @@
 
         public static byte[] GetKey(ulong keyName)
         {
-            if (CASC.IsCASCLibInit)
-                return CASCLib.KeyService.GetKey(keyName);
-            else if (CASC.IsTACTSharpInit)
+            if (CASC.IsTACTSharpInit)
             {
                 if (TACTSharp.KeyService.TryGetKey(keyName, out var key))
                     return key;
@@ -39,9 +32,7 @@
 
         public static bool HasKey(ulong keyName)
         {
-            if (CASC.IsCASCLibInit)
-                return CASCLib.KeyService.HasKey(keyName);
-            else if (CASC.IsTACTSharpInit)
+            if (CASC.IsTACTSharpInit)
                 return TACTSharp.KeyService.TryGetKey(keyName, out _);
             else
                 throw new Exception("No TACT/CASC library initialized");
@@ -52,17 +43,15 @@
             if (!KnownKeys.Contains(keyName))
                 KnownKeys.Add(keyName);
 
-            if (CASC.IsCASCLibInit)
-                CASCLib.KeyService.SetKey(keyName, key);
-            else if (CASC.IsTACTSharpInit)
+            if (CASC.IsTACTSharpInit)
                 TACTSharp.KeyService.SetKey(keyName, key);
             else
                 throw new Exception("No TACT/CASC library initialized");
         }
 
-        public static void LoadKeys()
+        public static async Task<bool> LoadKeys()
         {
-            if (!File.Exists("WoW.txt")) return;
+            if (!File.Exists("WoW.txt")) return false;
 
             foreach (var line in File.ReadAllLines("WoW.txt"))
             {
@@ -75,6 +64,8 @@
 
                 SetKey(lookup, key);
             }
+
+            return true;
         }
 
         public static bool LoadKeys(bool forceRedownload = false)
@@ -108,7 +99,7 @@
                 }
             }
 
-            if (CASC.IsCASCLibInit || CASC.IsTACTSharpInit)
+            if (CASC.IsTACTSharpInit)
                 LoadKeys();
 
             // If there are known statuses, make sure to reload.

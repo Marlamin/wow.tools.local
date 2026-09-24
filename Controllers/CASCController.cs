@@ -1,23 +1,23 @@
-﻿using CASCLib;
+﻿using DBCD;
 using DBCD.Providers;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+using NetVips;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Web;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
-using WoWFormatLib;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 using WoWFormatLib.Structs.WDT;
 using WoWNamingLib;
 using WoWNamingLib.Namers;
+using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Controllers
 {
@@ -27,7 +27,6 @@ namespace wow.tools.local.Controllers
     {
         private readonly DBCManager dbcManager = (DBCManager)dbcManager;
         private readonly DBCProvider dbcProvider = (DBCProvider)dbcProvider;
-        private static readonly Dictionary<string, string> RibbitCache = new();
         private static readonly Lock moreInfoInitLock = new Lock();
 
         [Route("fdid")]
@@ -69,7 +68,7 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                if (CASC.TryGetEKeysByCKey(contenthash.FromHexString().ToMD5(), out var eKey))
+                if (CASC.TryGetEKeysByCKey(new MD5(Convert.FromHexString(contenthash)), out var eKey))
                 {
                     using (var ms = new MemoryStream())
                     {
@@ -103,7 +102,14 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            return Ok(hashesWithUsages);
+            var jsonSerializerSettings = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                IncludeFields = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            return Json(hashesWithUsages, jsonSerializerSettings);
         }
 
         [Route("dumpInstall")]
@@ -112,26 +118,33 @@ namespace wow.tools.local.Controllers
         {
             foreach (var entry in CASC.InstallEntries)
             {
-                if (CASC.TryGetEKeysByCKey(entry.MD5, out var eKey))
+                if (CASC.TryGetEKeysByCKey(new MD5(entry.md5), out var eKey))
                 {
                     using (var ms = new MemoryStream())
                     {
-                        var fileName = Path.DirectorySeparatorChar != '\\' ? entry.Name.Replace("\\", Path.DirectorySeparatorChar.ToString()) : entry.Name;
+                        var fileName = Path.DirectorySeparatorChar != '\\' ? entry.name.Replace("\\", Path.DirectorySeparatorChar.ToString()) : entry.name;
                         var directoryName = System.IO.Path.GetDirectoryName(fileName) ?? string.Empty;
                         var outputDir = Path.Combine(SettingsManager.ExtractionDir, CASC.BuildName, directoryName);
                         Directory.CreateDirectory(outputDir);
 
-                        var fileStream = CASC.GetFileByEKey(eKey.Keys[0], eKey.Size);
-                        if (fileStream == null)
+                        try
                         {
-                            Console.WriteLine($"Failed to extract {fileName} from install entries, file not found in CASC.");
-                            continue;
+                            var fileStream = CASC.GetFileByEKey(eKey.Keys[0], eKey.Size);
+                            if (fileStream == null)
+                            {
+                                Console.WriteLine($"Failed to extract {fileName} from install entries, file not found in CASC.");
+                                continue;
+                            }
+
+                            fileStream.CopyTo(ms);
+                            ms.Position = 0;
+
+                            System.IO.File.WriteAllBytes(Path.Combine(outputDir, Path.GetFileName(fileName)), ms.ToArray());
                         }
-
-                        fileStream.CopyTo(ms);
-                        ms.Position = 0;
-
-                        System.IO.File.WriteAllBytes(Path.Combine(outputDir, Path.GetFileName(fileName)), ms.ToArray());
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Failed to extract " + fileName + " from install entries: " + e.Message);
+                        }
                     }
                 }
             }
@@ -146,147 +159,31 @@ namespace wow.tools.local.Controllers
             return CASC.BuildName;
         }
 
-        [Route("builds")]
-        [HttpPost]
-        public DataTablesResult Builds(bool remote = false)
-        {
-            var result = new DataTablesResult();
-
-            if (Request.Method == "POST" && Request.Form.TryGetValue("draw", out var drawValue) && int.TryParse(drawValue, out var draw))
-            {
-                result.draw = draw;
-                result.data = [];
-            }
-
-            if (!remote && SettingsManager.WoWFolder != null && System.IO.File.Exists(Path.Combine(SettingsManager.WoWFolder, ".build.info")))
-            {
-                foreach (var availableBuild in CASC.AvailableBuilds)
-                {
-                    var splitVersion = availableBuild.Version.Split(".");
-                    var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
-                    var build = splitVersion[3];
-
-                    var isActive = CASC.CurrentProduct == availableBuild.Product;
-
-                    // It's possible that we're not actually on the same build as the product is on when loading custom configs with TACTSharp. Double check.
-                    if (isActive && CASC.IsTACTSharpInit)
-                        isActive = availableBuild.BuildConfig == CASC.buildInstance!.Settings.BuildConfig && availableBuild.CDNConfig == CASC.buildInstance!.Settings.CDNConfig;
-
-                    var hasManifest = ManifestManager.ExistsForBuild(patch, build);
-                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
-                    result.data.Add([patch, build, availableBuild.Product, availableBuild.Folder, availableBuild.BuildConfig, availableBuild.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
-                }
-
-                result.data = [.. result.data.OrderBy(x => x[0])];
-                result.recordsTotal = result.data.Count;
-                result.recordsFiltered = result.data.Count;
-            }
-
-            if (remote)
-            {
-                var httpClient = new HttpClient();
-                RibbitCache["v2/summary"] = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/v2/summary").Result;
-
-                List<(string buildConfig, string cdnConfig)> availableRemoteBuilds = new();
-
-                foreach (var summaryLine in RibbitCache["v2/summary"].Split("\n"))
-                {
-                    if (summaryLine.StartsWith('#') || summaryLine.StartsWith("Product") || string.IsNullOrWhiteSpace(summaryLine))
-                        continue;
-
-                    var product = summaryLine.Split('|');
-
-                    // Skip products with no versions
-                    if (product[2] != "" || !product[0].StartsWith("wow"))
-                        continue;
-
-                    var endPoint = "v2/products/" + product[0] + "/versions";
-                    if (!RibbitCache.TryGetValue(endPoint, out var cachedResult))
-                    {
-                        cachedResult = httpClient.GetStringAsync($"https://{SettingsManager.Region}.version.battle.net/" + endPoint).Result;
-                        RibbitCache[endPoint] = cachedResult;
-                    }
-
-                    foreach (var line in cachedResult.Split("\n"))
-                    {
-                        var splitLine = line.Split('|');
-
-                        if (splitLine[0] != "us")
-                            continue;
-
-                        var splitVersion = splitLine[5].Split(".");
-                        var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
-                        var build = splitVersion[3];
-
-                        var isActive = CASC.CurrentProduct == product[0] && CASC.IsOnline;
-                        // It's possible that we're not actually on the same build as the product is on when loading custom configs with TACTSharp. Double check.
-                        if (isActive && CASC.IsTACTSharpInit)
-                            isActive = splitLine[1] == CASC.buildInstance!.Settings.BuildConfig && splitLine[2] == CASC.buildInstance!.Settings.CDNConfig;
-
-                        var hasManifest = ManifestManager.ExistsForBuild(patch, build);
-                        var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
-
-                        availableRemoteBuilds.Add((splitLine[1], splitLine[2]));
-
-                        result.data.Add([patch, build, product[0], splitLine[1], splitLine[2], isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
-                    }
-
-                    // sort by build
-                    result.data = result.data.OrderByDescending(x => x[1]).ToList();
-                }
-
-                if (CASC.IsOnline && CASC.IsTACTSharpInit && !availableRemoteBuilds.Any(x => x.buildConfig == CASC.buildInstance!.Settings.BuildConfig && x.cdnConfig == CASC.buildInstance!.Settings.CDNConfig))
-                {
-                    var isActive = true;
-
-                    var splitVersion = CASC.BuildName.Split(".");
-                    var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];
-                    var build = splitVersion[3];
-
-                    var hasManifest = ManifestManager.ExistsForBuild(patch, build);
-                    var hasDBCs = Directory.Exists(Path.Combine(SettingsManager.DBCFolder, patch + "." + build, "dbfilesclient"));
-
-                    result.data.Add([patch, build, "unknown", CASC.buildInstance!.Settings.BuildConfig, CASC.buildInstance!.Settings.CDNConfig, isActive.ToString(), hasManifest.ToString(), hasDBCs.ToString()]);
-
-                    // sort by build
-                    result.data = result.data.OrderByDescending(x => x[5]).ThenByDescending(x => x[1]).ToList();
-                }
-            }
-
-            return result;
-        }
-
         [Route("switchProduct")]
         [HttpGet]
-        public bool SwitchProduct(string product, bool isOnline = false)
+        public bool SwitchProduct(string product)
         {
             if (SettingsManager.ReadOnly)
                 return false;
 
-            if (SettingsManager.UseTACTSharp)
-                CASC.InitTACT(isOnline ? "" : SettingsManager.WoWFolder, product);
-            else
-                CASC.InitCasc(isOnline ? "" : SettingsManager.WoWFolder, product);
+            CASC.InitTACT(SettingsManager.WoWFolder, product);
 
             // Don't respond until things are done loading
             while (true)
             {
-                if (SettingsManager.UseTACTSharp && CASC.IsTACTSharpInit)
-                    return true;
-
-                if (!SettingsManager.UseTACTSharp && CASC.IsCASCLibInit)
+                if (CASC.IsTACTSharpInit)
                     return true;
             }
         }
 
         [Route("switchConfigs")]
         [HttpGet]
-        public bool SwitchConfigs(string buildconfig, string cdnconfig)
+        public bool SwitchConfigs(string product, string buildconfig, string cdnconfig)
         {
-            if (!SettingsManager.UseTACTSharp || SettingsManager.ReadOnly)
+            if (SettingsManager.ReadOnly)
                 return false;
 
-            CASC.InitTACT(string.Empty, "wow", buildconfig, cdnconfig);
+            CASC.InitTACT(SettingsManager.WoWFolder, product, buildconfig, cdnconfig);
 
             // Don't respond until things are done loading
             while (true)
@@ -298,13 +195,13 @@ namespace wow.tools.local.Controllers
 
         [Route("updateListfile")]
         [HttpGet]
-        public bool UpdateListfile()
+        public async Task<bool> UpdateListfile()
         {
             if (SettingsManager.ReadOnly)
                 return false;
 
             BuildDiffCache.Invalidate();
-            Listfile.Load(true);
+            await Listfile.Load(true);
             return true;
         }
 
@@ -321,12 +218,23 @@ namespace wow.tools.local.Controllers
 
         [Route("updateLookups")]
         [HttpGet]
-        public bool UpdateLookups()
+        public async Task<bool> UpdateLookups()
         {
             if (SettingsManager.ReadOnly)
                 return false;
 
-            Listfile.LoadLookups(true);
+            await Listfile.LoadLookups(true);
+            return true;
+        }
+
+        [Route("updateContentHashes")]
+        [HttpGet]
+        public async Task<bool> UpdateContentHashes()
+        {
+            if (SettingsManager.ReadOnly)
+                return false;
+
+            await Listfile.LoadContentHashes(true);
             return true;
         }
 
@@ -401,40 +309,10 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                var mfdStorage = await dbcManager.GetOrLoad("ModelFileData", CASC.BuildName);
-                foreach (dynamic mfdEntry in mfdStorage.Values)
-                {
-                    var fdid = (int)mfdEntry.FileDataID;
-
-                    // Skip these for now -- contains M3s
-                    if (mfdEntry.ModelResourcesID == 0)
-                    {
-                        Console.WriteLine("Skipping MFD => M2 mapping for " + fdid + " for having ModelResourcesID 0, likely an M3 file.");
-                        continue;
-                    }
-
-                    if (fdid == 5569152 || fdid == 5916032 || fdid == 6022679) // M3, hopefully these get separate out at some point in ModelFileData through a flag or something
-                        continue;
-
-                    if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
-                    {
-                        knownUnknowns.TryAdd(fdid, "m2");
-                        unknownFiles.Remove(fdid);
-                        Listfile.SetFileType(fdid, "m2");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception during type guessing with ModelFileData:" + e.Message);
-            }
-
-            try
-            {
                 var tfdStorage = await dbcManager.GetOrLoad("TextureFileData", CASC.BuildName);
-                foreach (dynamic tfdEntry in tfdStorage.Values)
+                foreach (var tfdEntry in tfdStorage.Values)
                 {
-                    var fdid = (int)tfdEntry.FileDataID;
+                    var fdid = (int)tfdEntry["FileDataID"];
                     if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "blp");
@@ -451,9 +329,9 @@ namespace wow.tools.local.Controllers
             try
             {
                 var mfdStorage = await dbcManager.GetOrLoad("MovieFileData", CASC.BuildName);
-                foreach (dynamic mfdEntry in mfdStorage.Values)
+                foreach (var mfdEntry in mfdStorage.Values)
                 {
-                    var fdid = (int)mfdEntry.ID;
+                    var fdid = (int)mfdEntry["ID"];
                     if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "avi");
@@ -470,9 +348,9 @@ namespace wow.tools.local.Controllers
             try
             {
                 var movieStorage = await dbcManager.GetOrLoad("Movie", CASC.BuildName);
-                foreach (dynamic movieEntry in movieStorage.Values)
+                foreach (var movieEntry in movieStorage.Values)
                 {
-                    var audioFDID = (int)movieEntry.AudioFileDataID;
+                    var audioFDID = int.Parse(movieEntry["AudioFileDataID"].ToString()!);
                     if (audioFDID != 0)
                     {
                         if (!Listfile.Types.TryGetValue(audioFDID, out string? value) || value == "unk")
@@ -483,12 +361,12 @@ namespace wow.tools.local.Controllers
                         }
                     }
 
-                    var subtitleFDID = (int)movieEntry.SubtitleFileDataID;
+                    var subtitleFDID = int.Parse(movieEntry["SubtitleFileDataID"].ToString()!);
                     if (subtitleFDID != 0)
                     {
                         if (!Listfile.Types.TryGetValue(subtitleFDID, out string? value) || value == "unk")
                         {
-                            var format = (int)movieEntry.SubtitleFileFormat;
+                            var format = int.Parse(movieEntry["SubtitleFileFormat"].ToString()!);
                             var subtitleType = "srt";
                             if (format == 118)
                                 subtitleType = "srt";
@@ -517,9 +395,9 @@ namespace wow.tools.local.Controllers
                 if (CASC.FileExists(1375802))
                 {
                     var mp3Storage = await dbcManager.GetOrLoad("ManifestMP3", CASC.BuildName);
-                    foreach (dynamic mp3Entry in mp3Storage.Values)
+                    foreach (DBCDRow mp3Entry in mp3Storage.Values)
                     {
-                        var fdid = (int)mp3Entry.ID;
+                        var fdid = (int)mp3Entry["ID"];
                         if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                         {
                             knownUnknowns.TryAdd(fdid, "mp3");
@@ -639,6 +517,9 @@ namespace wow.tools.local.Controllers
                                     case "GOFV": // WDT FOGS
                                         type = "wdt";
                                         break;
+                                    case "RDHA":
+                                        type = "dat";
+                                        break;
                                     default:
                                         Console.WriteLine("Unknown sub chunk " + subChunk + " for file " + (uint)unknownFile);
                                         type = "chUNK";
@@ -712,9 +593,24 @@ namespace wow.tools.local.Controllers
                             case "#pra":
                                 type = "hlsl";
                                 break;
+                            case "?PNG":
+                                type = "png";
+                                break;
+                            case "NIBA":
+                                type = "nib";
+                                break;
+                            case "APPL":
+                                type = "PkgInfo";
+                                break;
                             default:
                                 break;
                         }
+
+                        if (magic[0] == 0xCA && magic[1] == 0xFE && magic[2] == 0xBA && magic[3] == 0xBE)
+                            type = "macbin";
+
+                        if (magic[0] == 'M' && magic[1] == 'Z')
+                            type = "exe";
 
                         if (magicString.StartsWith("ID3") || (magic[0] == 0xFF && magic[1] == 0xFB))
                             type = "mp3";
@@ -747,10 +643,31 @@ namespace wow.tools.local.Controllers
 
             try
             {
-                var skStorage = await dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName);
-                foreach (dynamic skEntry in skStorage.Values)
+                var mfdStorage = await dbcManager.GetOrLoad("ModelFileData", CASC.BuildName);
+                foreach (var mfdEntry in mfdStorage.Values)
                 {
-                    var fdid = (int)skEntry.FileDataID;
+                    var fdid = (int)mfdEntry["FileDataID"];
+
+                    // Likely an encrypted file if we got this far, these could also be M3s but just assume they are M2s for now.
+                    if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
+                    {
+                        knownUnknowns.TryAdd(fdid, "m2");
+                        unknownFiles.Remove(fdid);
+                        Listfile.SetFileType(fdid, "m2");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception during type guessing with ModelFileData:" + e.Message);
+            }
+
+            try
+            {
+                var skStorage = await dbcManager.GetOrLoad("SoundKitEntry", CASC.BuildName);
+                foreach (var skEntry in skStorage.Values)
+                {
+                    var fdid = (int)skEntry["FileDataID"];
                     if (!Listfile.Types.TryGetValue(fdid, out string? value) || value == "unk")
                     {
                         knownUnknowns.TryAdd(fdid, "ogg");
@@ -766,6 +683,9 @@ namespace wow.tools.local.Controllers
 
             System.IO.File.WriteAllLines("cachedUnknowns.txt", knownUnknowns.Where(x => x.Value != "unk").Select(x => x.Key + ";" + x.Value));
             Console.WriteLine("Finished unknown file analysis");
+
+            BuildDiffCache.Invalidate();
+
             return true;
         }
 
@@ -780,6 +700,11 @@ namespace wow.tools.local.Controllers
                 Modified = Array.Empty<DiffEntry>()
             };
 
+            var jsonOptions = new JsonSerializerOptions()
+            {
+                IncludeFields = true
+            };
+
             if (BuildDiffCache.Get(from, to, out ApiDiff diff))
             {
                 if (type == "normal")
@@ -790,7 +715,7 @@ namespace wow.tools.local.Controllers
                         modified = diff.Modified.Count(),
                         removed = diff.Removed.Count(),
                         data = diff.All.ToArray()
-                    });
+                    }, jsonOptions);
                 }
                 else
                 {
@@ -823,8 +748,11 @@ namespace wow.tools.local.Controllers
 
             if (type == "normal")
             {
-                rawFromEntries = await ManifestManager.GetEntriesForVersionAsync(from);
-                rawToEntries = await ManifestManager.GetEntriesForVersionAsync(to);
+                var fromTask = ManifestManager.GetEntriesForVersionAsync(from);
+                var toTask = ManifestManager.GetEntriesForVersionAsync(to);
+                await Task.WhenAll(fromTask, toTask);
+                rawFromEntries = fromTask.Result;
+                rawToEntries = toTask.Result;
             }
             else
             {
@@ -863,16 +791,17 @@ namespace wow.tools.local.Controllers
 
             var fromEntries = fromDict.Keys.ToHashSet();
             var toEntries = toDict.Keys.ToHashSet();
-         
-            var commonEntries = fromEntries.Intersect(toEntries);
+
+            var commonEntries = fromEntries.Intersect(toEntries).ToHashSet();
             var removedEntries = fromEntries.Except(commonEntries);
             var addedEntries = toEntries.Except(commonEntries);
 
             var addedFiles = addedEntries.Select(entry => new KeyValuePair<int, string>(entry, toDict[entry]));
             var removedFiles = removedEntries.Select(entry => new KeyValuePair<int, string>(entry, fromDict[entry]));
-            var modifiedFiles = new List<KeyValuePair<int, string>>();
+            var modifiedFiles = new ConcurrentBag<KeyValuePair<int, string>>();
 
-            var modifiedLock = new Lock();
+            dbcProvider.LoadFromBuildManager = true;
+
             Parallel.ForEach(commonEntries, entry =>
             {
                 // DB2 files are special, we need to ignore the string in header (if current build, obviously)
@@ -888,16 +817,22 @@ namespace wow.tools.local.Controllers
 
                         try
                         {
-                            dbcProvider.LoadFromBuildManager = true;
                             var fromDB2 = dbcProvider.StreamForTableName(basename, from);
+                            var toDB2 = dbcProvider.StreamForTableName(basename, to);
+
+                            if (fromDB2.Length != toDB2.Length)
+                            {
+                                modifiedFiles.Add(new KeyValuePair<int, string>(entry, toDict[entry]));
+                                return;
+                            }
+
                             var fromDB2Header = new byte[4];
                             fromDB2.ReadExactly(fromDB2Header);
 
-                            var toDB2 = dbcProvider.StreamForTableName(basename, to);
                             var toDB2Header = new byte[4];
                             toDB2.ReadExactly(toDB2Header);
 
-                            if (MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457 && MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457)
+                            if (MemoryMarshal.Read<int>(fromDB2Header) == 0x35434457 && MemoryMarshal.Read<int>(toDB2Header) == 0x35434457)
                             {
                                 fromDB2.Position = 136;
                                 toDB2.Position = 136;
@@ -909,8 +844,7 @@ namespace wow.tools.local.Controllers
                                 toDB2.ReadExactly(remainingToBytes);
 
                                 if (!remainingFromBytes.SequenceEqual(remainingToBytes))
-                                    lock (modifiedLock)
-                                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, toDict[entry]));
+                                    modifiedFiles.Add(new KeyValuePair<int, string>(entry, toDict[entry]));
 
                                 return;
                             }
@@ -926,22 +860,24 @@ namespace wow.tools.local.Controllers
                 var patchedFile = toDict[entry];
 
                 if (originalFile != patchedFile)
-                    lock (modifiedLock)
-                        modifiedFiles.Add(new KeyValuePair<int, string>(entry, patchedFile));
+                    modifiedFiles.Add(new KeyValuePair<int, string>(entry, patchedFile));
             });
+
+            dbcProvider.LoadFromBuildManager = false;
 
             var toAddedDiffEntryDelegate = toDiffEntry(DiffAction.Added);
             var toRemovedDiffEntryDelegate = toDiffEntry(DiffAction.Removed);
             var toModifiedDiffEntryDelegate = toDiffEntry(DiffAction.Modified);
 
+            DiffEntry[] addedDiffEntries;
+            DiffEntry[] removedDiffEntries;
+            DiffEntry[] modifiedDiffEntries;
+
             if (type == "normal")
             {
-                diff = new ApiDiff
-                {
-                    Added = addedFiles.Select(toAddedDiffEntryDelegate),
-                    Removed = removedFiles.Select(toRemovedDiffEntryDelegate),
-                    Modified = modifiedFiles.Select(toModifiedDiffEntryDelegate)
-                };
+                addedDiffEntries = addedFiles.Select(toAddedDiffEntryDelegate).ToArray();
+                removedDiffEntries = removedFiles.Select(toRemovedDiffEntryDelegate).ToArray();
+                modifiedDiffEntries = modifiedFiles.Select(toModifiedDiffEntryDelegate).ToArray();
             }
             else
             {
@@ -949,28 +885,35 @@ namespace wow.tools.local.Controllers
                 var oldRemoved = oldDiff.Removed.Select(x => x.id).ToHashSet();
                 var oldModified = oldDiff.Modified.Select(x => x.id).ToHashSet();
 
-                diff = new ApiDiff
-                {
-                    Added = addedFiles.Where(x => !oldAdded.Contains(x.Key)).Select(toAddedDiffEntryDelegate),
-                    Removed = removedFiles.Where(x => !oldRemoved.Contains(x.Key)).Select(toRemovedDiffEntryDelegate),
-                    Modified = modifiedFiles.Where(x => !oldModified.Contains(x.Key)).Select(toModifiedDiffEntryDelegate)
-                };
+                addedDiffEntries = addedFiles.Where(x => !oldAdded.Contains(x.Key)).Select(toAddedDiffEntryDelegate).ToArray();
+                removedDiffEntries = removedFiles.Where(x => !oldRemoved.Contains(x.Key)).Select(toRemovedDiffEntryDelegate).ToArray();
+                modifiedDiffEntries = modifiedFiles.Where(x => !oldModified.Contains(x.Key)).Select(toModifiedDiffEntryDelegate).ToArray();
             }
 
-            dbcProvider.LoadFromBuildManager = false;
+            diff = new ApiDiff
+            {
+                Added = addedDiffEntries,
+                Removed = removedDiffEntries,
+                Modified = modifiedDiffEntries
+            };
 
-            Console.WriteLine($"Added: {diff.Added.Count()}, removed: {diff.Removed.Count()}, modified: {diff.Modified.Count()}, common: {commonEntries.Count()}");
+            Console.WriteLine($"Added: {addedDiffEntries.Length}, removed: {removedDiffEntries.Length}, modified: {modifiedDiffEntries.Length}, common: {commonEntries.Count}");
 
             if (type == "normal")
                 BuildDiffCache.Add(from, to, diff);
 
+            var allEntries = new DiffEntry[addedDiffEntries.Length + removedDiffEntries.Length + modifiedDiffEntries.Length];
+            addedDiffEntries.CopyTo(allEntries, 0);
+            removedDiffEntries.CopyTo(allEntries, addedDiffEntries.Length);
+            modifiedDiffEntries.CopyTo(allEntries, addedDiffEntries.Length + removedDiffEntries.Length);
+
             return Json(new
             {
-                added = diff.Added.Count(),
-                modified = diff.Modified.Count(),
-                removed = diff.Removed.Count(),
-                data = diff.All.ToArray()
-            });
+                added = addedDiffEntries.Length,
+                modified = modifiedDiffEntries.Length,
+                removed = removedDiffEntries.Length,
+                data = allEntries
+            }, jsonOptions);
         }
 
         [Route("samehashes")]
@@ -979,16 +922,113 @@ namespace wow.tools.local.Controllers
         {
             CASC.EnsureCHashesLoaded();
 
-            var html = "The table below lists files that are identical in content to the requested file.<br><table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th></tr></thead>";
+            var html = "";
 
             var filedataids = CASC.GetSameFiles(chash).Order();
+            var historicFiles = SQLiteDB.GetFilesByContentHash(chash).Where(x => !filedataids.Contains((int)x.fileDataID)).OrderBy(x => x.fileDataID).ToList();
+
+            html += "<ul class='nav nav-tabs' id='samehashesTab' role='tablist'>";
+            html += "<li class='nav-item'><button class='nav-link active' id='current-build-tab' data-bs-toggle='tab' data-bs-target='#current-build' type='button' role='tab' aria-controls='current-build' aria-selected='true'>Current Build (" + filedataids.Count() + ")</button></li>";
+            html += "<li class='nav-item'><button class='nav-link' id='historic-builds-tab' data-bs-toggle='tab' data-bs-target='#historic-builds' type='button' role='tab' aria-controls='historic-builds' aria-selected='false'>History (" + historicFiles.Count + ")</button></li>";
+            html += "</ul>";
+
+            html += "<div class='tab-content' id='samehashesTabContent'>";
+
+            html += "<div class='tab-pane show active' id='current-build' role='tabpanel' aria-labelledby='current-build-tab'>";
+            html += "<p>The table below lists files in the current build that are identical in content to the requested file.</p>";
+            html += "<table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th></tr></thead>";
             foreach (var filedataid in filedataids)
             {
                 html += "<tr><td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + filedataid + "' onclick='fillModal(" + filedataid + ")'>" + filedataid + "</a></td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
             }
             html += "</table>";
+            html += "</div>";
+
+            html += "<div class='tab-pane' id='historic-builds' role='tabpanel' aria-labelledby='historic-builds-tab'>";
+            html += "<p>The table below lists files in other builds that are identical in content to the requested file, files from the current build tab are excluded.</p>";
+
+            if (historicFiles.Count > 0)
+            {
+                html += "<table class='table table-striped'><thead><tr><th>ID</th><th>Build</th><th>Name (if available)</th></tr></thead>";
+
+                foreach (var (fdid, build) in historicFiles)
+                {
+                    html += "<tr><td>" + fdid + "</td><td>" + build + "</td><td>" + (Listfile.NameMap.TryGetValue((int)fdid, out var filename) ? filename : "N/A") + "</td></tr>";
+                }
+                html += "</table>";
+            }
+            else
+            {
+                html += "<div class='alert alert-info'>No files found in history for this content hash that aren't in the current build.</div>";
+            }
+            html += "</div>";
+
+            html += "</div>";
 
             return html;
+        }
+
+        [Route("hashbyid")]
+        [HttpGet]
+        public (string, int) HashByID(int filedataid)
+        {
+            CASC.EnsureCHashesLoaded();
+
+            var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+            if (allCKeys.Count > 0)
+            {
+                var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(allCKeys));
+                var filedataids = CASC.GetSameFiles(primaryCKey).Order();
+
+                return (primaryCKey, filedataids.Count());
+            }
+            return ("N/A", 0);
+        }
+
+        [Route("suggestCHashes")]
+        public static string SuggestCHashes()
+        {
+            var suggestions = "";
+
+            var knownHashes = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Keys.ToHashSet();
+            var knownNames = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Values.ToHashSet();
+
+            var search = "type:blp,!maptextures,available,!baked,multiuse,lookupmatch,!character,!interface,!minimaps,!maps,!_lod";
+            var listfileResults = Listfile.DoSearch(Listfile.NameMap, search);
+
+            var filesToCheck = new Dictionary<string, int>();
+            foreach (var result in listfileResults)
+            {
+                var basename = Path.GetFileNameWithoutExtension(result.Value);
+                if (!filesToCheck.ContainsKey(basename))
+                    filesToCheck.Add(basename, result.Key);
+            }
+
+            foreach (var fileToCheck in filesToCheck)
+            {
+                var basename = fileToCheck.Key;
+                var fdid = fileToCheck.Value;
+                var cKeys = CASC.GetCKeysAndFlagsByFDID(fdid);
+                if (cKeys.Count > 0)
+                {
+                    var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(cKeys));
+                    if (!knownHashes.Contains(primaryCKey) && !knownNames.Contains(basename, StringComparer.OrdinalIgnoreCase))
+                    {
+                        knownHashes.Add(primaryCKey);
+                        knownNames.Add(basename);
+                        suggestions += "{\"" + primaryCKey + "\", \"" + basename + "\"},\n";
+                    }
+                }
+            }
+
+            return suggestions;
+        }
+
+        [Route("knownChashes")]
+        [HttpGet]
+        public Dictionary<string, string> KnownCHashes()
+        {
+            return WoWNamingLib.Namers.ContentHashNamer.knownHashes;
         }
 
         [Route("moreinfo")]
@@ -1000,14 +1040,14 @@ namespace wow.tools.local.Controllers
             CASC.EnsureCHashesLoaded();
 
             // Yes, generating HTML here is ugly but that's how the old system worked and I can't be arsed to redo it.
-            var html = "<div style='float: right'><a class='btn btn-sm btn-primary' id='fileRelinkButton' onClick='relinkFile(" + filedataid + ")'>Recrawl file links</a></div><table style='clear: both' class='table table-striped'><thead><tr><th style='width:400px'></th><th></th></tr></thead>";
+            var html = "<div style='float: right'><a class='btn btn-sm btn-primary' id='fileRelinkButton' onClick='relinkFile(" + filedataid + ")'>Recrawl file links</a></div><table style='clear: both' class='table table-striped'><thead><tr><th></th><th></th></tr></thead>";
             html += "<tr><td>FileDataID</td><td>" + filedataid + "</td></tr>";
             html += "<tr><td>Filename</td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "unknown/" + filedataid + ".unk") + "</td></tr>";
             html += "<tr><td>Lookup</td>";
 
             if (Listfile.LookupMap.TryGetValue(filedataid, out var lookup))
             {
-                var hasher = new Jenkins96();
+                var hasher = new TACTSharp.Jenkins96();
                 html += "<td>" + lookup.ToString("X16");
 
                 if (Listfile.NameMap.TryGetValue(filedataid, out var lookupFilename) && lookupFilename != "")
@@ -1035,32 +1075,40 @@ namespace wow.tools.local.Controllers
 
             html += "<tr><td>Type</td><td>" + (Listfile.Types.TryGetValue(filedataid, out string? value) ? value : "unk") + "</td></tr>";
 
-            if (CASC.FDIDToCHash.TryGetValue(filedataid, out var cKeyBytes))
+            var allCKeys = CASC.GetCKeysAndFlagsByFDID(filedataid);
+            if (allCKeys.Count > 0)
             {
-                if (CASC.FDIDToExtraCHashes.TryGetValue(filedataid, out List<byte[]>? extraCHashes))
+                var primaryCKey = Convert.ToHexStringLower(CASC.GetPreferredCKey(allCKeys));
+
+                html += "<tr><td>Content Hashes</td><td>";
+                html += "<table class='table table-sm table-inverse'>";
+                html += "<thead><tr><th>MD5/CKey</th><th>LocaleFlags</th><th>ContentFlags</th><th>&nbsp;</th></tr></thead>";
+
+                foreach (var extraCKeyEntry in allCKeys)
                 {
-                    var cKey = Convert.ToHexStringLower(cKeyBytes);
-                    html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'>";
+                    var extraCKeyHex = Convert.ToHexStringLower(extraCKeyEntry.cKey);
 
-                    html += "<a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a> (preferred)<br>";
-
-                    foreach (var extraCKey in extraCHashes)
-                    {
-                        var extraCKeyHex = Convert.ToHexStringLower(extraCKey);
-                        html += "<a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + extraCKeyHex.ToLower() + "\")'>" + extraCKeyHex.ToLower() + "</a> (<a href='/casc/chash?contenthash=" + extraCKeyHex + "&filename=" + filedataid + ".bytes'>download</a>)<br>";
-                    }
-
-                    html += "</td></tr>";
-
-                    html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out var size) ? size + " bytes" : "N/A") + " (for preferred version)</td></tr>";
-                }
-                else
-                {
-                    var cKey = Convert.ToHexStringLower(cKeyBytes);
-                    html += "<tr><td>Content hash (MD5)</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + cKey.ToLower() + "\")'>" + cKey.ToLower() + "</a></td></tr>";
-                    html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(cKey, out var size) ? size + " bytes" : "N/A") + "</td></tr>";
+                    html += "<tr>";
+                    html += "<td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + extraCKeyHex + "\")'>" + extraCKeyHex + "</a>";
+                    if (primaryCKey == extraCKeyHex && allCKeys.Count > 1)
+                        html += " (preferred)";
+                    html += "</td>";
+                    html += "<td>" + extraCKeyEntry.localeFlags + "</td>";
+                    html += "<td>" + extraCKeyEntry.contentFlags + "</td>";
+                    html += "<td><a href='/casc/chash?contenthash=" + extraCKeyHex + "&filename=" + filedataid + ".bytes'>download</a></td>";
+                    html += "</tr>";
                 }
 
+                html += "</table>";
+
+                html += "</td></tr>";
+
+                html += "<tr><td>Size</td><td>" + (CASC.CHashToSize.TryGetValue(primaryCKey, out var size) ? size + " bytes" : "N/A");
+
+                if (allCKeys.Count > 1)
+                    html += " (for preferred version)";
+
+                html += "</td></tr>";
             }
 
             if (CASC.EncryptionStatuses.TryGetValue(filedataid, out var encryptionStatus))
@@ -1148,6 +1196,14 @@ namespace wow.tools.local.Controllers
                 html += "<tr><td>Encryption status</td><td>Not encrypted</td></tr>";
             }
 
+            var fileResidency = FileResidency.GetResidencyByFDID((uint)filedataid);
+            html += "<tr><td>Availability</td><td>";
+            foreach (var file in fileResidency)
+            {
+                html += "<span class='badge " + (file.Value ? "bg-success" : "bg-danger") + "'>" + file.Key + "</span> ";
+            }
+            html += "</td></tr>";
+
             // File version
             var fileVersions = SQLiteDB.GetFileVersions(filedataid);
             if (fileVersions.Count > 0)
@@ -1194,7 +1250,7 @@ namespace wow.tools.local.Controllers
                     html += "<tr><td>" + linkedFile.linkType + "</td>";
                     html += "<td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + linkedFile.fileDataID + "' onclick='fillModal(" + linkedFile.fileDataID + ")'>" + linkedFile.fileDataID + "</a> <a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer' onclick='fillModal(" + linkedFile.fileDataID + ")'><i class='fa fa-info-circle'></i></a></td><td>" + (Listfile.NameMap.TryGetValue((int)linkedFile.fileDataID, out var linkedFilename) ? linkedFilename : "unknown/" + linkedFile.fileDataID + ".unk") + "</td><td>" + (Listfile.Types.ContainsKey((int)linkedFile.fileDataID) ? Listfile.Types[(int)linkedFile.fileDataID] : "unk") + "</td></tr>";
                 }
-                html += "</table></td></tr></table>";
+                html += "</table></td></tr>";
             }
 
             if (Listfile.Types.TryGetValue(filedataid, out string? type) && (type == "m2" || type == "wmo"))
@@ -1226,7 +1282,7 @@ namespace wow.tools.local.Controllers
 
                     if (Model.spellNamesClean.TryGetValue((uint)filedataid, out var spellNameClean))
                     {
-                        html += "<tr><td><b>Generated name (spell)</b></td><td>" + spellNameClean + "</td></tr>";
+                        html += "<tr><td><b>Generated name (spell)</b></td><td onclick='copyToClipboard(\"" + spellNameClean + "\")'>" + spellNameClean + "</td></tr>";
                     }
 
                     if (Model.spellNames.TryGetValue((uint)filedataid, out var spellEntries))
@@ -1238,6 +1294,30 @@ namespace wow.tools.local.Controllers
                             html += "<tr><td style='width: 80px;'>" + spellEntry.SpellID + "</td><td style='width: 100px; font-size: 12px;'><a target='_BLANK' href='https://wowdb.com/spells/" + spellEntry.SpellID + "'>WoWDB</a> - <a target='_BLANK' href='https://wowhead.com/spell=" + spellEntry.SpellID + "'>WH</a></td><td>" + spellEntry.SpellName + "</td></tr>";
                         }
                         html += "</table></td></tr>";
+                    }
+                }
+
+                if (type == "wmo" && Namer.isInitialized)
+                {
+                    var wmoFile = CASC.GetFileByID((uint)filedataid);
+                    if (wmoFile != null)
+                    {
+                        var bin = new BinaryReader(wmoFile);
+                        var magic = bin.ReadUInt32();
+                        if (magic != 0)
+                        {
+                            bin.BaseStream.Position = 0;
+                            var reader = new WMOReader();
+                            var parsedWMO = reader.LoadWMO(wmoFile);
+
+                            html += "<tr><td colspan='2'><b>Group names for this WMO</b></td></tr>";
+                            html += "<tr><td colspan='2'><table class='table table-sm table-striped'>";
+                            foreach (var mogn in parsedWMO.groupNames)
+                            {
+                                html += "<tr><td>" + mogn.name + "</td></tr>";
+                            }
+                            html += "</table></td></tr>";
+                        }
                     }
                 }
             }
@@ -1297,7 +1377,8 @@ namespace wow.tools.local.Controllers
         public string DiffFile(int fileDataID, string from, string to)
         {
             var textTypes = new List<string>() { "html", "htm", "lua", "json", "txt", "wtf", "toc", "xml", "xsd", "sbt", "hlsl" };
-            var jsonTypes = new List<string>() { "m2", "wmo", "wdt", "adt", "m3", "tex" };
+            var jsonTypes = new List<string>() { "m2", "wmo", /*"wdt",*/ "adt", "m3", "tex", "dat" };
+            var imageTypes = new List<string>() { "blp", "png", };
 
             var html = "<ul class='nav nav-tabs' id='diffTabs' role='tablist'>";
             var js = @"      
@@ -1320,7 +1401,7 @@ namespace wow.tools.local.Controllers
 
             var hasActiveTab = false;
 
-            if (fileType == "blp")
+            if (imageTypes.Contains(fileType))
             {
                 hasActiveTab = true;
                 html += "<li class='nav-item'>";
@@ -1354,18 +1435,31 @@ namespace wow.tools.local.Controllers
             html += "</ul>";
 
             html += "<div class='tab-content' style='min-height: 256px;'>";
-            if (fileType == "blp")
+            if (imageTypes.Contains(fileType))
             {
                 // side by side tab
                 html += "<div class='tab-pane active' id='sbs' role='tabpanel' aria-labelledby='sbs-tab'>";
                 html += "<div class='row'>";
                 html += "<div class='col-md-6' id='from-diff'>";
                 html += "<h3>Build " + from + " (Before)</h3>";
-                html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
-                html += "</div>";
-                html += "<div class='col-md-6' id='to-diff'>";
-                html += "<h3>Build " + to + " (After)</h3>";
-                html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
+
+                if (fileType == "blp")
+                {
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                    html += "</div>";
+                    html += "<div class='col-md-6' id='to-diff'>";
+                    html += "<h3>Build " + to + " (After)</h3>";
+                    html += "<img id='toImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + to + "'>";
+                }
+                else
+                {
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/file?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                    html += "</div>";
+                    html += "<div class='col-md-6' id='to-diff'>";
+                    html += "<h3>Build " + to + " (After)</h3>";
+                    html += "<img id='toImage' style='max-width: 100%;' src='/casc/file?fileDataID=" + fileDataID + "&build=" + to + "'>";
+                }
+
                 html += "</div>";
                 html += "</div>";
                 html += "</div>";
@@ -1375,7 +1469,16 @@ namespace wow.tools.local.Controllers
                 html += "<div id='toggle-content' data-current='from'>";
                 html += "<div class='col-md-6' id='from-diff'>";
                 html += "<h3>Build " + from + " (Before)</h3>";
-                html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+
+                if (fileType == "blp")
+                {
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/blp2png?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                }
+                else
+                {
+                    html += "<img id='fromImage' style='max-width: 100%;' src='/casc/file?fileDataID=" + fileDataID + "&build=" + from + "'>";
+                }
+
                 html += "</div>";
                 html += "</div>";
                 html += "<button class='btn btn-primary' id='toggle-button' onclick='switchImages()'>Switch</button>";
@@ -1413,8 +1516,9 @@ namespace wow.tools.local.Controllers
                 html += "</div>";
 
                 js += @"
-                $(document).ready(function() {
-                    $.get('/casc/diffJSON?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                    fetch('/casc/diffJSON?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"')
+                        .then(response => response.text())
+                        .then(data => {
                         try{
                             if(data.length > 10000000)
                                 throw new Error('Too much data');
@@ -1426,7 +1530,6 @@ namespace wow.tools.local.Controllers
                             document.getElementById('json-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                         }
                     });
-                });
             ";
 
                 html += "</div>";
@@ -1442,8 +1545,9 @@ namespace wow.tools.local.Controllers
                 html += "</div>";
 
                 js += @"
-                    $(document).ready(function() {
-                        $.get('/casc/diffText?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                        fetch('/casc/diffText?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"')
+                        .then(response => response.text())
+                        .then(data => {
                             try{
                                 if(data.length > 10000000)
                                     throw new Error('Too much data');
@@ -1455,7 +1559,6 @@ namespace wow.tools.local.Controllers
                                 document.getElementById('text-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                             }
                         });
-                    });
                 ";
             }
 
@@ -1467,12 +1570,14 @@ namespace wow.tools.local.Controllers
             html += "</div>";
 
             if (!hasActiveTab)
-                js += "$(document).ready(function() {";
+                js += "document.addEventListener('DOMContentLoaded', () => {";
             else
-                js += "$('#hex-tab').on('click', function() {";
+                js += "document.getElementById('hex-tab').addEventListener('click', () => {";
 
             js += @"
-                $.get('/casc/diffHex?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"', function(data) {
+                fetch('/casc/diffHex?fileDataID=" + fileDataID + "&from=" + from + "&to=" + to + @"')
+                    .then(response => response.text())
+                    .then(data => {
                         try{
                             if(data.length > 10000000)
                                 throw new Error('Too much data');
@@ -1484,8 +1589,9 @@ namespace wow.tools.local.Controllers
                             document.getElementById('hex-content').innerHTML = '<div class=\'alert alert-danger\'>A client-side error occurred while generating this diff (it may be too much data): ' + error.message + '</div>';
                         }
                 });
-            });
            ";
+
+            js += "});";
 
             html += "</div>";
 
@@ -1515,10 +1621,12 @@ namespace wow.tools.local.Controllers
 
             var blp = new BLPSharp.BLPFile(file);
             var pixels = blp.GetPixels(0, out var w, out var h);
-            var image = SixLabors.ImageSharp.Image.LoadPixelData<Bgra32>(pixels, w, h);
+
+            using var raw = NetVips.Image.NewFromMemory(pixels, w, h, 4, Enums.BandFormat.Uchar);
+            using var image = raw[2].Bandjoin(new[] { raw[1], raw[0], raw[3] }).Copy(interpretation: Enums.Interpretation.Srgb);
 
             var ms = new MemoryStream();
-            image.SaveAsPng(ms);
+            image.WriteToStream(ms, ".png");
             ms.Position = 0;
             return new FileStreamResult(ms, "image/png");
         }
@@ -1594,6 +1702,8 @@ namespace wow.tools.local.Controllers
                     Linker.LinkM2(fileDataID, true);
                 else if (fileType == "wmo")
                     Linker.LinkWMO(fileDataID, true);
+                else if (fileType == "wdt")
+                    Linker.LinkWDT((int)fileDataID, true);
             }
 
             return "";
@@ -1601,12 +1711,12 @@ namespace wow.tools.local.Controllers
 
         [Route("startLinking")]
         [HttpGet]
-        public string StartLinking()
+        public string StartLinking(bool fullRun = false)
         {
             if (SettingsManager.ReadOnly)
                 return "";
 
-            Linker.Link();
+            Linker.Link(fullRun);
             return "";
         }
 
@@ -1709,7 +1819,7 @@ namespace wow.tools.local.Controllers
             var filenames = rawContent.Split("\n").ToList();
             var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
             var reverseLookup = Listfile.LookupMap.ToDictionary(x => x.Value, x => x.Key);
-            var hasher = new Jenkins96();
+            var hasher = new TACTSharp.Jenkins96();
             var results = new List<string>();
             foreach (var filename in filenames)
             {
@@ -1732,7 +1842,7 @@ namespace wow.tools.local.Controllers
             var filenames = System.IO.File.ReadAllLines(file);
             var unknownFDIDs = Listfile.NameMap.Where(x => x.Value == "").Select(x => x.Key).ToList();
             var reverseLookup = Listfile.LookupMap.ToDictionary(x => x.Value, x => x.Key);
-            var hasher = new Jenkins96();
+            var hasher = new TACTSharp.Jenkins96();
             var results = new List<string>();
             foreach (var filename in filenames)
             {
@@ -1768,7 +1878,7 @@ namespace wow.tools.local.Controllers
         {
             build ??= CASC.BuildName;
 
-            var supportedTypes = new List<string> { "wdt", "wmo", "m2", "adt", "bls", "m3", "gfat", "wdt", "wdl", "tex" };
+            var supportedTypes = new List<string> { "wmo", "m2", "adt", "bls", "m3", "gfat", /*"wdt",*/ "wdl", "tex", "dat" };
 
             if (!(Listfile.Types.TryGetValue((int)fileDataID, out var fileType) && supportedTypes.Contains(fileType)))
             {
@@ -1779,13 +1889,7 @@ namespace wow.tools.local.Controllers
             {
                 if (build == CASC.BuildName)
                 {
-                    if (CASC.IsCASCLibInit)
-                    {
-                        var casc = new CASCFileProvider();
-                        casc.InitCasc(CASC.cascHandler);
-                        FileProvider.SetProvider(casc, CASC.BuildName);
-                    }
-                    else if (CASC.IsTACTSharpInit)
+                    if (CASC.IsTACTSharpInit)
                     {
                         var tact = new TACTSharpFileProvider();
                         tact.InitTACT(CASC.buildInstance);
@@ -1794,39 +1898,71 @@ namespace wow.tools.local.Controllers
                 }
                 else
                 {
-                    var wago = new WagoFileProvider();
-                    wago.SetBuild(build);
-                    FileProvider.SetProvider(wago, build);
+                    try
+                    {
+                        var dbBuild = BuildManager.GetBuildByVersion(build);
+                        var tact = new TACTSharpFileProvider();
+                        tact.InitTACT(dbBuild);
+                        FileProvider.SetProvider(tact, build);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error initializing TACTSharp for build " + build + ": " + e.Message);
+                        var wago = new WagoFileProvider();
+                        wago.SetBuild(build);
+                        FileProvider.SetProvider(wago, build);
+                    }
                 }
             }
 
             FileProvider.SetDefaultBuild(build);
 
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new JsonStringEnumConverter() },
+                WriteIndented = true,
+                IncludeFields = true
+            };
+
             switch (!string.IsNullOrEmpty(overrideType) ? overrideType : fileType)
             {
-                case "wdt":
-                    var wdtReader = new WDTReader();
-                    wdtReader.LoadWDT(fileDataID);
-                    return JsonConvert.SerializeObject(wdtReader.wdtfile, Formatting.Indented);
+                // TODO: Tuple conversion for System.Text.JSON
+                //case "wdt":
+                //    var wdtReader = new WDTReader();
+                //    wdtReader.LoadWDT(fileDataID);
+                //    return JsonSerializer.Serialize(wdtReader.wdtfile, options);
+                case "dat":
+                    var datReader = new DATReader();
+                    var dat = datReader.LoadDAT(fileDataID);
+                    return JsonSerializer.Serialize(dat, options);
                 case "wdl":
                     var wdlReader = new WDLReader();
                     wdlReader.LoadWDL(fileDataID);
-                    return JsonConvert.SerializeObject(wdlReader.wdlfile, Formatting.Indented);
+                    return JsonSerializer.Serialize(wdlReader.wdlfile, options);
                 case "tex":
                     var texReader = new TEXReader();
                     var tex = texReader.LoadTEX(fileDataID);
-                    return JsonConvert.SerializeObject(tex, Formatting.Indented);
+                    return JsonSerializer.Serialize(tex, options);
                 case "wmo":
                     var wmoReader = new WMOReader();
                     var wmo = wmoReader.LoadWMO(fileDataID);
-                    for (var i = 0; i < wmo.group.Length; i++)
+                    if (wmo.group != null)
                     {
-                        wmo.group[i].mogp.indices = [];
-                        wmo.group[i].mogp.vertices = [];
-                        wmo.group[i].mogp.normals = [];
-                        wmo.group[i].mogp.textureCoords = [];
+                        for (var i = 0; i < wmo.group.Length; i++)
+                        {
+                            wmo.group[i].mogp.indices = [];
+                            wmo.group[i].mogp.vertices = [];
+                            wmo.group[i].mogp.normals = [];
+                            wmo.group[i].mogp.textureCoords = [];
+                            wmo.group[i].mogp.colors = [];
+                            wmo.group[i].mogp.colors2 = [];
+                            wmo.group[i].mogp.colors3 = [];
+                            wmo.group[i].mogp.bspIndices = [];
+                            wmo.group[i].mogp.bspNodes = [];
+                            wmo.group[i].mogp.materialInfo = [];
+                        }
                     }
-                    return JsonConvert.SerializeObject(wmo, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(wmo, options);
                 case "adt":
                     var adtReader = new ADTReader();
 
@@ -1861,7 +1997,7 @@ namespace wow.tools.local.Controllers
                         }
                     }
 
-                    return JsonConvert.SerializeObject(adtReader.adtfile, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(adtReader.adtfile, options);
                 case "m2":
                     var m2Reader = new M2Reader();
                     m2Reader.LoadM2(fileDataID);
@@ -1876,47 +2012,50 @@ namespace wow.tools.local.Controllers
                             m2Reader.model.skins[i].properties = [];
                         }
                     }
-                    return JsonConvert.SerializeObject(m2Reader.model, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(m2Reader.model, options);
                 case "m3":
                     var m3Reader = new M3Reader();
                     m3Reader.LoadM3(fileDataID);
-                    return JsonConvert.SerializeObject(m3Reader.model, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(m3Reader.model, options);
                 case "bls":
                     var blsReader = new BLSReader();
 
-                    if (!string.IsNullOrEmpty(overrideCKey))
-                        blsReader.LoadBLS(overrideCKey.ToByteArray());
-                    else
-                        blsReader.LoadBLS(fileDataID);
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(overrideCKey))
+                            blsReader.LoadBLS(Convert.FromHexString(overrideCKey));
+                        else
+                            blsReader.LoadBLS(fileDataID);
+                    }
+                    catch (Exception e)
+                    {
+                        if (e.Message == "Unsupported shader file: GFAT")
+                        {
+                            var notBLSReader = new GFATReader();
+                            var notBLS = notBLSReader.LoadGFAT(fileDataID);
 
-                    //var extractDir = Path.Combine("extract", "bls", fileDataID.ToString());
-                    //var baseName = fileDataID.ToString();
+                            if (!string.IsNullOrEmpty(overrideCKey))
+                                notBLS = notBLSReader.LoadGFAT(Convert.FromHexString(overrideCKey));
 
-                    //if (Listfile.NameMap.TryGetValue((int)fileDataID, out var shaderFileName) && !string.IsNullOrEmpty(shaderFileName))
-                    //{
-                    //    baseName = fileDataID.ToString() + " (" + shaderFileName.Replace("shaders/", "").Replace(".bls", "").Replace("/", "-") + ")";
-                    //    extractDir = Path.Combine("extract", "bls", baseName);
-                    //}
+                            return JsonSerializer.Serialize(notBLS, options);
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
 
-                    //if (!Directory.Exists(extractDir))
-                    //    Directory.CreateDirectory(extractDir);
-
-                    var json = JsonConvert.SerializeObject(blsReader.shaderFile, Formatting.Indented, new StringEnumConverter());
-                    //System.IO.File.WriteAllText(Path.Combine(Path.Combine("extract", "bls"), baseName + ".json"), json);
-                    //var shaderIndex = 0;
-                    //foreach(var decompressedShader in blsReader.shaderFile.decompressedShaders)
-                    //{
-                    //    System.IO.File.WriteAllBytes(Path.Combine(extractDir, "shader_" + shaderIndex++ + ".bytes"), decompressedShader);
-                    //}
+                    var json = JsonSerializer.Serialize(blsReader.shaderFile, options);
+              
                     return json;
                 case "gfat":
                     var gfatReader = new GFATReader();
                     var gfat = gfatReader.LoadGFAT(fileDataID);
 
                     if (!string.IsNullOrEmpty(overrideCKey))
-                        gfat = gfatReader.LoadGFAT(overrideCKey.ToByteArray());
+                        gfat = gfatReader.LoadGFAT(Convert.FromHexString(overrideCKey));
 
-                    return JsonConvert.SerializeObject(gfat, Formatting.Indented, new StringEnumConverter());
+                    return JsonSerializer.Serialize(gfat, options);
                 default:
                     throw new Exception("Unsupported file type");
             }
@@ -1932,13 +2071,7 @@ namespace wow.tools.local.Controllers
             {
                 if (build == CASC.BuildName)
                 {
-                    if (CASC.IsCASCLibInit)
-                    {
-                        var casc = new CASCFileProvider();
-                        casc.InitCasc(CASC.cascHandler);
-                        FileProvider.SetProvider(casc, CASC.BuildName);
-                    }
-                    else if (CASC.IsTACTSharpInit)
+                    if (CASC.IsTACTSharpInit)
                     {
                         var tact = new TACTSharpFileProvider();
                         tact.InitTACT(CASC.buildInstance);
@@ -1947,9 +2080,20 @@ namespace wow.tools.local.Controllers
                 }
                 else
                 {
-                    var wago = new WagoFileProvider();
-                    wago.SetBuild(build);
-                    FileProvider.SetProvider(wago, build);
+                    try
+                    {
+                        var dbBuild = BuildManager.GetBuildByVersion(build);
+                        var tact = new TACTSharpFileProvider();
+                        tact.InitTACT(dbBuild);
+                        FileProvider.SetProvider(tact, build);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error initializing TACTSharp for build " + build + ": " + e.Message);
+                        var wago = new WagoFileProvider();
+                        wago.SetBuild(build);
+                        FileProvider.SetProvider(wago, build);
+                    }
                 }
             }
 
@@ -1997,7 +2141,7 @@ namespace wow.tools.local.Controllers
                         hex.Append("  ").Append(ascii);
                     }
                 }
-                return HttpUtility.HtmlEncode(hex.ToString());
+                return hex.ToString();
             }
         }
 
@@ -2071,6 +2215,29 @@ namespace wow.tools.local.Controllers
                 Console.WriteLine("Error generating diff: " + e.Message);
                 return "Error generating diff: " + e.Message;
             }
+        }
+
+        [Route("commonBLPs")]
+        [HttpGet]
+        public Dictionary<string, List<int>> CommonBLPs()
+        {
+            CASC.EnsureCHashesLoaded();
+            var blpIDs = Listfile.TypeMap["blp"];
+            var commonCHashes = CASC.CHashToFDID.Where(x => x.Value.Count > 2).OrderByDescending(x => x.Value.Count).ToDictionary();
+
+            var chashesToSkip = new HashSet<string> { "93eb33c44532ea7e4f62666417beaa6a", "77beda3cb2c5709fc953c9d21e1d2414", "ef3ae8b80605064fadc0515b10c82ef2" }; // empty maptextures, minimaps
+            var result = new Dictionary<string, List<int>>();
+            foreach (var entry in commonCHashes)
+            {
+                if (chashesToSkip.Contains(entry.Key.ToLowerInvariant()))
+                    continue;
+
+                if (blpIDs.Contains(entry.Value[0]))
+                    result[entry.Key] = entry.Value;
+            }
+
+
+            return result;
         }
     }
 }

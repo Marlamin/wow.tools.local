@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <title>WoW.tools - Sizes</title>
+    <meta property='og:type' content='website'>
+    <meta property='og:site_name' content='WoW.tools'>
+    <meta property='og:title' content='WoW.tools'>
+    <meta property='og:image' content='/img/cogw.png'>
+    <meta property='twitter:image' content='/img/cogw.png'>
+    <meta property='twitter:card' content='summary'>
+    <meta property='twitter:site' content='@Marlamin'>
+    <meta name='application-name' content='WoW.tools'>
+    <meta name='apple-mobile-web-app-title' content='WoW.tools'>
+    <meta name='theme-color' content='#343a40'>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/png" href="/img/cogw.png" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <link rel="stylesheet" type="text/css" href="/css/datatables.min.css" />
+    <script type="text/javascript" src="/js/datatables.min.js"></script>
+    <script src="/js/input.js" crossorigin="anonymous"></script>
+
+    <link href="/css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/js/tooltips.js"></script>
+    <script type="text/javascript" src="/js/anims.js"></script>
+
+    <link rel="stylesheet" href="/css/choices.min.css" />
+    <script type="text/javascript" src="/js/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg" id="navbar"></nav>
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-12">
+                <label for="groupType">Value to group by</label>
+                <select id="groupType" onchange="loadChart()">
+                    <option value="filetype">File type</option>
+                    <option value="folder">Folder</option>
+                    <option value="expansion">Expansion (as far as WTL has history for)</option>
+                    <option value="majorpatch">Major patch (x.x)</option>
+                    <option value="patch">Patch (as far as WTL has history for)</option>
+                </select>
+                <input type="checkbox" id="uniqueOnly" oninput="loadChart()" checked />
+                <label for="uniqueOnly">Only show unique file contents (how files are stored)</label>
+                <br />
+                <input type="checkbox" id="localOnly" oninput="loadChart()" checked />
+                <label for="localOnly">Only show locally installed files</label>
+                <br />
+                <input type="checkbox" id="encodedSizes" oninput="loadChart()" checked />
+                <label for="encodedSizes">Use encoded/compressed filesizes (as they are on disk)</label>
+                <br />
+                <input type="text" id="listfileSearch" value="available" oninput="loadChart()" checked />
+                <label for="listfileSearch">File filter (see files page)</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <h2 id="totalheader">Filesize by ?</h2>
+                <p id="loadingMessage">Loading..</p>
+                <canvas id="sizeChart" style="max-height: 80vh"></canvas>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.chart = null;
+        window.groupType = "";
+        window.filter = "";
+
+        function makeChart(labels, values, colors) {
+            const ctx = document.getElementById('sizeChart').getContext('2d');
+
+            window.chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Size (bytes)',
+                        data: values,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#212529'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#fff',
+                                font: {
+                                    size: 12
+                                },
+                                generateLabels: (chart) => {
+                                    const datasets = chart.data.datasets;
+                                    return datasets[0].data.map((data, i) => ({
+                                        text: chart.data.labels[i] + ': ' + formatBytes(data),
+                                        fillStyle: datasets[0].backgroundColor[i],
+                                        index: i,
+                                        fontColor: '#fff',
+                                        hidden: chart.getDataVisibility(i) === false
+                                    }))
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(2);
+                                    return label + ': ' + formatBytes(value) + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        async function loadChart() {
+            try {
+                var localOnly = document.getElementById('localOnly');
+                localOnly.disabled = true;
+
+                var encodedSizes = document.getElementById('encodedSizes');
+                encodedSizes.disabled = true;
+
+                var uniqueOnly = document.getElementById('uniqueOnly');
+                uniqueOnly.disabled = true;
+
+                var listfileSearch = document.getElementById('listfileSearch');
+                listfileSearch.disabled = true;
+
+                var groupType = document.getElementById('groupType');
+                groupType.disabled = true;
+
+                const response = await fetch('/size/data?groupType=' + groupType.value + '&localOnly=' + localOnly.checked + '&encodedSizes=' + encodedSizes.checked + '&uniqueOnly=' + uniqueOnly.checked + '&listfileSearch=' + encodeURIComponent(listfileSearch.value));
+                const data = await response.json();
+
+                const totalSize = Object.values(data).reduce((a, b) => a + b, 0);
+
+                document.getElementById('totalheader').innerText = 'Filesize by ' + groupType.value + ' (Total: ' + formatBytes(totalSize) + ')';
+                const sortedEntries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+
+                const labels = sortedEntries.map(([ext]) => ext.toUpperCase());
+                const values = sortedEntries.map(([, size]) => size);
+
+                if (window.groupType != groupType.value || window.filter != listfileSearch.value) {
+                    window.groupType = groupType.value;
+                    window.filter = listfileSearch.value;
+
+                    const colors = generateColors(labels.length);
+
+                    if (window.chart != null) {
+                        window.chart.destroy();
+                        window.chart = null;
+                    }
+
+                    makeChart(labels, values, colors);
+                }else if (window.chart != null) {
+                    window.chart.data.datasets[0].data = values;
+                    window.chart.update();
+                }
+
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                uniqueOnly.disabled = false;
+                encodedSizes.disabled = false;
+                localOnly.disabled = false;
+                listfileSearch.disabled = false;
+                groupType.disabled = false;
+            } catch (error) {
+                console.error('Error loading size data:', error);
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function generateColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(randomColor());
+            }
+            return colors;
+        }
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function randomColor() {
+            var h = randomInt(0, 360);
+            var s = randomInt(42, 98);
+            var l = randomInt(40, 90);
+            return `hsl(${h},${s}%,${l}%)`;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadChart);
+    </script>
+</body>
+</html>

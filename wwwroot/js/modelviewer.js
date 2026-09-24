@@ -40,6 +40,7 @@ var Settings =
     speed: 1000.0,
     portalCulling: true,
     newDisplayInfo: true,
+    transparentScreenshot: true,
     buildName: ""
 }
 
@@ -50,6 +51,7 @@ var Current =
     type: "m2",
     embedded: false,
     displayID: 0,
+    itemDisplayID: 0,
     availableGeosets: [],
     enabledGeosets: [],
     geosetsDone: false,
@@ -142,6 +144,18 @@ function loadSettings(applyNow = false){
 
     document.getElementById("newDisplayInfo").checked = Settings.newDisplayInfo;
 
+    /* Transparent Screenshot */
+    var transparentScreenshot = localStorage.getItem('settings[transparentScreenshot]');
+    if (transparentScreenshot) {
+        if (transparentScreenshot == "1") {
+            Settings.transparentScreenshot = true;
+        } else {
+            Settings.transparentScreenshot = false;
+        }
+    }
+
+    document.getElementById("transparentScreenshot").checked = Settings.transparentScreenshot;
+
     /* If settings should be applied now (don't do this on page load!) */
     if (applyNow){
         Module._setClearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2]);
@@ -173,6 +187,12 @@ function saveSettings(){
     } else {
         localStorage.setItem('settings[newDisplayInfo]', '0');
     }
+
+    if (document.getElementById("transparentScreenshot").checked) {
+        localStorage.setItem('settings[transparentScreenshot]', '1');
+    } else {
+        localStorage.setItem('settings[transparentScreenshot]', '0');
+    }   
     loadSettings(true);
 }
 
@@ -203,7 +223,12 @@ try {
     showError("WebAssembly support is required but not supported by your browser.");
 }
 
-var searchParams = new URLSearchParams(window.location.search);
+var searchParamsRaw = new URLSearchParams(window.location.search);
+
+const searchParams = new URLSearchParams();
+for (const [name, value] of searchParamsRaw) {
+    searchParams.append(name.toLowerCase(), value);
+}
 
 var urlFileDataID = searchParams.get("filedataid");
 if (urlFileDataID){
@@ -218,13 +243,13 @@ if (urlType){
 var urlEmbed = searchParams.get("embed");
 if (urlEmbed){
     Current.embedded = true;
-    $("#navbar").hide();
-    $("#js-sidebar-button").hide();
-    $("#fpsLabel").hide();
+    document.getElementById("navbar").style.display = "none";
+    document.getElementById("js-sidebar-button").style.display = "none";
+    document.getElementById("fpsLabel").style.display = "none";
     console.log("Running modelviewer in embedded mode!");
 }
 
-var urlClearColor = searchParams.get("clearColor");
+var urlClearColor = searchParams.get("clearcolor");
 if (urlClearColor){
     var r = parseInt('0x' + urlClearColor.substring(0, 2)) / 255;
     var g = parseInt('0x' + urlClearColor.substring(2, 4)) / 255;
@@ -244,9 +269,14 @@ var posZ = searchParams.get("z");
 if (posZ)
     Current.posZ = posZ;
 
-var urlDisplayID = searchParams.get("displayID");
+var urlDisplayID = searchParams.get("displayid");
 if (urlDisplayID){
     Current.displayID = urlDisplayID;
+}
+
+var urlItemDisplayID = searchParams.get("itemdisplayid");
+if (urlItemDisplayID) {
+    Current.itemDisplayID = urlItemDisplayID;
 }
 
 window.createscene = async function () {
@@ -266,9 +296,16 @@ window.createscene = async function () {
 
     Module._setClearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2]);
 
-    if (Current.fileDataID == 397940 && Current.displayID != 0){
-        Current.fileDataID = await getFileDataIDByDisplayID(Current.displayID);
-        Settings.newDisplayInfo = true;
+    if (Current.fileDataID == 397940) {
+        if (Current.displayID != 0) {
+            Current.fileDataID = await getFileDataIDByCreatureDisplayID(Current.displayID);
+            Settings.newDisplayInfo = true;
+        }
+
+        if (Current.itemDisplayID != 0) {
+            Current.fileDataID = await getFileDataIDByItemDisplayID(Current.itemDisplayID);
+            Settings.newDisplayInfo = true;
+        }
     }
 
     loadModel(Current.type, Current.fileDataID);
@@ -284,7 +321,7 @@ window.createscene = async function () {
     const textureForm = document.getElementById("textureForm");
     const textureRow = document.getElementById("textureRow");
     const sscTextureForm = document.getElementById("sscTextureForm");
-    const sscTextureListSelect = document.getElementById("sscTextureListSelect");
+    sscTextureForm.innerHTML = "<div class='sscSectionHeading'><span class='sscSectionLabel'>Texture Slots:</span><span class='sscLinkedCheckboxLabel'>&#x1F517;</span></div>";
 
     for (let i = 0; i < 2; i++) {
         const textureCol = document.createElement('div');
@@ -346,22 +383,30 @@ window.createscene = async function () {
       textureCol.appendChild(textureInputDiv);
       
       const sscTextureInputDiv = document.createElement('div');
+      const sscTextureInputCheckbox = document.createElement('input');
       const sscTextureInput = document.createElement('input');
       const sscTextureInputLabel = document.createElement('label');
       sscTextureInputDiv.classList.add("sscInputDiv");
-      sscTextureInputDiv.classList.add("sscTextureInputDiv");
+      sscTextureInputDiv.classList.add("sscTexInputDiv");
       sscTextureInput.type = "text";
       sscTextureInput.id = "sscTex" + i;
       sscTextureInput.setAttribute('name', "sscTextures[" + i + "]");
       sscTextureInput.classList.add("sscInput");
-      sscTextureInput.classList.add("sscTextureInput");
+      sscTextureInput.classList.add("sscTexInput");
       sscTextureInputLabel.htmlFor = "sscTex" + i;
       sscTextureInputLabel.innerHTML = (i + ":");
       sscTextureInputLabel.classList.add("sscInputLabel");
-      sscTextureInputLabel.classList.add("sscTextureInputLabel");
+      sscTextureInputLabel.classList.add("sscTexInputLabel");
+      sscTextureInputCheckbox.type = "checkbox";
+      sscTextureInputCheckbox.id = "sscTexLinkedCheckbox" + i;
+      sscTextureInputCheckbox.name = "sscTexLinkedCheckbox" + i;
+      sscTextureInputCheckbox.value = i;
+      sscTextureInputCheckbox.classList.add("sscLinkedCheckboxInput");
+      sscTextureInputCheckbox.classList.add("sscTexLinkedCheckboxInput");
       sscTextureInputDiv.id = "sscTexDiv" + i;
       sscTextureInputDiv.appendChild(sscTextureInputLabel);
       sscTextureInputDiv.appendChild(sscTextureInput);
+      sscTextureInputDiv.appendChild(sscTextureInputCheckbox);
       sscTextureForm.appendChild(sscTextureInputDiv);
     }
     
@@ -409,7 +454,7 @@ window.createscene = async function () {
         const geosetControl = document.getElementById("geosets");
         geosetControl.innerHTML = "This functionality is WIP and might cause display issues. Use with caution. Sometimes a geoset value of 0 gives a valid appearance, other times it creates a hole in your model.";
         const sscGeoForm = document.getElementById("sscGeosetForm");
-        sscGeoForm.innerHTML = "<strong>Geoset Groups:</strong>";
+        sscGeoForm.innerHTML = "<div class='sscSectionHeading'><span class='sscSectionLabel'>Geoset Groups:</span><span class='sscLinkedCheckboxLabel'>&#x1F517;</span></div>";
         for (let meshID of Current.availableGeosets){
             meshID = Number(meshID);
 
@@ -446,22 +491,30 @@ window.createscene = async function () {
             let geoInput = document.getElementById("sscGeo" + geosetGroup);
             if (!geoInput){
               const sscGeosetInputDiv = document.createElement('div');
+              const sscGeosetInputCheckbox = document.createElement('input');
               const sscGeosetInput = document.createElement('input');
               const sscGeosetInputLabel = document.createElement('label');
               sscGeosetInputDiv.classList.add("sscInputDiv");
-              sscGeosetInputDiv.classList.add("sscGeosetInputDiv");
+              sscGeosetInputDiv.classList.add("sscGeoInputDiv");
               sscGeosetInput.type = "text";
               sscGeosetInput.id = "sscGeo" + geosetGroup;
               sscGeosetInput.value = geosetIndex;
               sscGeosetInput.dataset.geosetGroup = geosetGroup;
               sscGeosetInput.classList.add("sscInput");
-              sscGeosetInput.classList.add("sscGeosetInput");
+              sscGeosetInput.classList.add("sscGeoInput");
               sscGeosetInputLabel.htmlFor = "sscGeo" + geosetGroup;
               sscGeosetInputLabel.innerHTML = geosetGroup + ":";
               sscGeosetInputLabel.classList.add("sscInputLabel");
-              sscGeosetInputLabel.classList.add("sscGeosetInputLabel");
+              sscGeosetInputLabel.classList.add("sscGeoInputLabel");
+              sscGeosetInputCheckbox.type = "checkbox";
+              sscGeosetInputCheckbox.id = "sscGeoLinkedCheckbox" + geosetGroup;
+              sscGeosetInputCheckbox.name = "sscGeoLinkedCheckbox" + geosetGroup;
+              sscGeosetInputCheckbox.value = geosetGroup;
+              sscGeosetInputCheckbox.classList.add("sscLinkedCheckboxInput");
+              sscGeosetInputCheckbox.classList.add("sscGeoLinkedCheckboxInput");
               sscGeosetInputDiv.appendChild(sscGeosetInputLabel);
               sscGeosetInputDiv.appendChild(sscGeosetInput);
+              sscGeosetInputDiv.appendChild(sscGeosetInputCheckbox);
               sscGeoForm.appendChild(sscGeosetInputDiv);
             }
             else{
@@ -471,6 +524,11 @@ window.createscene = async function () {
 
         Current.geosetsDone = true;
     };
+
+    // define these here so we dont do gets in the render loop
+    var inputPosX = document.getElementById("posX");
+    var inputPosY = document.getElementById("posY");
+    var inputPosZ = document.getElementById("posZ");
 
     var renderfunc = function(now){
         stats.begin();
@@ -488,6 +546,11 @@ window.createscene = async function () {
         // if (numDownloading > 0){
         //     Elements.DownloadLabel.innerText = "Downloading " + numDownloading + " files..";
         // }
+
+        let pos = getScenePos();
+        inputPosX.value = pos.x.toFixed(3);
+        inputPosY.value = pos.y.toFixed(3);
+        inputPosZ.value = pos.z.toFixed(3);
 
         stats.end();
         window.requestAnimationFrame(renderfunc);
@@ -507,17 +570,32 @@ window.addEventListener('resize', () => {
     }
 });
 
-$('#mvfiles').on('click', 'tbody tr td:first-child', function() {
-    var data = Elements.table.row($(this).parent()).data();
+document.getElementById('mvfiles').addEventListener('click', function(e) {
+    var cell = e.target.closest('td:first-child');
+    if (cell && cell.closest('tbody')) {
+        var row = cell.closest('tr');
+        var data = Elements.table.row(row).data();
 
-    $(".selected").removeClass("selected");
-    $(this).parent().addClass('selected');
-    loadModel(data[4], data[0]);
+        var selectedElements = document.querySelectorAll(".selected");
+        selectedElements.forEach(function(el) {
+            el.classList.remove("selected");
+        });
+
+        if (!embeddedMode) {
+            history.pushState({ id: 'modelviewer' }, 'Model Viewer', '/mv/?filedataid=' + data[0] + '&type=' + data[4]);
+        }
+
+        row.classList.add('selected');
+        loadModel(data[4], data[0]);
+    }
 });
 
-$('#js-sidebar').on('input', '.paginate_input', function(){
-    if ($(".paginate_input")[0].value != ''){
-        $("#mvfiles").DataTable().page($(".paginate_input")[0].value - 1).ajax.reload(null, false)
+document.getElementById('js-sidebar').addEventListener('input', function(e) {
+    if (e.target.classList.contains('paginate_input')) {
+        var paginateInput = document.querySelector(".paginate_input");
+        if (paginateInput && paginateInput.value != ''){
+            Elements.table.page(paginateInput.value - 1).ajax.reload(null, false);
+        }
     }
 });
 
@@ -526,16 +604,17 @@ window.addEventListener('keydown', function(event){
         return;
     }
 
-    if ($(".selected").length == 1){
+    const selected = document.querySelectorAll(".selected");
+    if (selected.length == 1){
         if (event.key == "ArrowDown"){
-            if ($(".selected")[0].rowIndex == 20) return;
+            if (selected[0].rowIndex == 20) return;
             if (document.getElementById('mvfiles').rows.length > 1){
-                $(document.getElementById('mvfiles').rows[$(".selected")[0].rowIndex + 1].firstChild).trigger("click");
+                document.getElementById('mvfiles').rows[selected[0].rowIndex + 1].firstChild.click();
             }
         } else if (event.key == "ArrowUp"){
-            if ($(".selected")[0].rowIndex == 1) return;
+            if (selected[0].rowIndex == 1) return;
             if (document.getElementById('mvfiles').rows.length > 1){
-                $(document.getElementById('mvfiles').rows[$(".selected")[0].rowIndex - 1].firstChild).trigger("click");
+                document.getElementById('mvfiles').rows[selected[0].rowIndex - 1].firstChild.click();
             }
         }
     }
@@ -562,7 +641,7 @@ window.addEventListener('keydown', function(event){
 }, true);
 
 window.addEventListener('keyup', function(event){
-    if (event.key == "PrintScreen" && !event.shiftKey && !event.ctrlKey && !event.altKey) Module._createScreenshot();
+    if (event.key == "PrintScreen" && !event.shiftKey && !event.ctrlKey && !event.altKey) Module._createScreenshot(Settings.transparentScreenshot);
     if (document.activeElement.tagName == "INPUT" || document.activeElement.tagName == "SELECT"){
         event.stopImmediatePropagation();
     }
@@ -578,12 +657,12 @@ window.addEventListener('keypress', function(event){
     }
 }, true);
 
-$("#animationSelect").change(function () {
+document.getElementById("animationSelect").addEventListener('change', function () {
     var display = this.options[this.selectedIndex].value;
     Module._setAnimationId(display);
 });
 
-$("#skinSelect").change(function() {
+document.getElementById("skinSelect").addEventListener('change', function() {
     if (this.options[this.selectedIndex].dataset.displayid == undefined){
         // Backwards compat
         var display = this.options[this.selectedIndex].value.split(',');
@@ -603,9 +682,9 @@ $("#skinSelect").change(function() {
 });
 
 function toggleUI(){
-    $(".navbar").toggle();
-    $("#js-sidebar-button").toggle();
-    $("#js-controls").toggle();
+    document.querySelector(".navbar").style.display = document.querySelector(".navbar").style.display === "none" ? "" : "none";
+    document.getElementById("js-sidebar-button").style.display = document.getElementById("js-sidebar-button").style.display === "none" ? "" : "none";
+    document.getElementById("js-controls").style.display = document.getElementById("js-controls").style.display === "none" ? "" : "none";
 }
 
 function loadModel(type, filedataid){
@@ -620,20 +699,16 @@ function loadModel(type, filedataid){
     DownloadQueue = [];
     isDownloading = false;
     numDownloading = 0;
-    $.ajax({
-        url: "/listfile/info?filename=1&filedataid=" + Current.fileDataID
-    })
-        .done(function( filename ) {
+
+    fetch("/listfile/info?filename=1&filedataid=" + Current.fileDataID)
+        .then(response => response.text())
+        .then(filename => {
             Current.filename = filename;
 
             updateURLs();
 
-            if (!embeddedMode){
-                history.pushState({id: 'modelviewer'}, 'Model Viewer', '/mv/?filedataid=' + Current.fileDataID);
-            }
-
-            $("#animationSelect").hide();
-            $("#skinSelect").hide();
+            document.getElementById("animationSelect").style.display = "none";
+            document.getElementById("skinSelect").style.display = "none";
 
             var alwaysLoadByFDID = true;
 
@@ -641,25 +716,30 @@ function loadModel(type, filedataid){
                 alwaysLoadByFDID = false;
             }
 
-            if (Current.type == "m2"){
-                $("#exportButton").prop('disabled', false);
-            } else {
-                $("#exportButton").prop('disabled', true);
+            var exportButton = document.getElementById("exportButton");
+            if (exportButton) {
+                if (Current.type == "m2"){
+                    exportButton.disabled = false;
+                } else {
+                    exportButton.disabled = true;
+                }
             }
-            
+
+            var jsControls = document.getElementById("js-controls");
+
             if (Current.filename != "" && !alwaysLoadByFDID) {
                 console.log("Loading " + Current.filename + " " + Current.fileDataID + " (" + Current.type + ")");
                 var ptrName = allocateUTF8(Current.filename);
                 if (Current.type == "adt") {
                     Module._setScene(2, ptrName, -1);
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "wmo") {
                     Module._setScene(1, ptrName, -1);
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "m2") {
                     Current.geosetsDone = false;
                     Module._setScene(0, ptrName, -1);
-                    $("#js-controls").show();
+                    jsControls.style.display = "block";
                     if (!Settings.newDisplayInfo){
                         loadModelTextures();
                     } else {
@@ -672,16 +752,16 @@ function loadModel(type, filedataid){
                 console.log("Loading " + Current.fileDataID + " (" + Current.type + ")");
                 if (Current.type == "adt") {
                     Module._setSceneFileDataId(2, Current.fileDataID, -1);
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "wmo") {
                     Module._setSceneFileDataId(1, Current.fileDataID, -1);
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "wdt") {
                     Module._setMap(0, Current.fileDataID, Current.posX, Current.posY, Current.posZ)
-                    $("#js-controls").hide();
+                    jsControls.style.display = "none";
                 } else if (Current.type == "m2") {
                     Module._setSceneFileDataId(0, Current.fileDataID, -1);
-                    $("#js-controls").show();
+                    jsControls.style.display = "block";
                     if (!Settings.newDisplayInfo){
                         loadModelTextures();
                     } else {
@@ -791,13 +871,17 @@ async function loadModelDisplays() {
         }
 
         // TODO: If display ID is given (through URL params??), set to selected otherwise select first
-        if (Current.displayID == 0){
+        if (Current.displayID == 0 && Current.itemDisplayID == 0) {
             if (skinSelect.children.length == 0){
                 opt.selected = true;
                 setModelDisplay(result.ID, result.ResultType);   
             }
         }
         else if (Current.displayID != 0 && result.ID == Current.displayID){
+            opt.selected = true;
+            setModelDisplay(result.ID, result.ResultType);
+        }
+        else if (Current.itemDisplayID != 0 && result.ID == Current.itemDisplayID) {
             opt.selected = true;
             setModelDisplay(result.ID, result.ResultType);
         }
@@ -809,7 +893,6 @@ async function loadModelDisplays() {
         opt.selected = true;
         setModelDisplay(result.ID, result.ResultType);   
     }
-
 
     // prefill screenshot combo tab with valid texture options for this model. Hide fields that should be irrelevant.
     for (i = 0; i < Current.availableTextures.length; i++){
@@ -888,7 +971,7 @@ async function loadItemDisplays(){
     return result;
 }
 
-async function getFileDataIDByDisplayID(displayID){
+async function getFileDataIDByCreatureDisplayID(displayID){
     const cdiResponse = await fetch("/dbc/peek/CreatureDisplayInfo/?build=" + Current.buildName + "&col=ID&val=" + displayID);
     const cdiJson = await cdiResponse.json();
     
@@ -900,73 +983,86 @@ async function getFileDataIDByDisplayID(displayID){
     }
 }
 
+async function getFileDataIDByItemDisplayID(displayID) {
+    const idiResponse = await fetch("/dbc/peek/ItemDisplayInfo/?build=" + Current.buildName + "&col=ID&val=" + displayID);
+    const idiJson = await idiResponse.json();
+
+    if (idiJson.values['ModelResourcesID[0]'] === undefined)
+        return Current.fileDataID;
+
+    const modelResourcesID = idiJson.values['ModelResourcesID[0]'];
+    const mdfResponse = await fetch("/dbc/peek/ModelFileData/?build=" + Current.buildName + "&col=ModelResourcesID&val=" + modelResourcesID);
+    const mdfJson = await mdfResponse.json();
+
+    if (mdfJson.values['FileDataID'] !== undefined) {
+        return mdfJson.values['FileDataID'];
+    }
+}
+
 function loadModelTextures() {
     //TODO build, fix wrong skin showing up after initial load
     var loadedTextures = Array();
     var currentFDID = Current.fileDataID;
-    $.ajax({url: "/dbc/texture/" + Current.fileDataID + "?build=" + Current.buildName}).done( function(data) {
-        var forFDID = this.url.replace("/dbc/texture/", "").replace("?build=" + Current.buildName, "");
-        if (Current.fileDataID != forFDID){
-            console.log("This request is not for this filedataid, discarding..");
-            return;
-        }
 
-        $("#skinSelect").empty();
-        for (let displayId in data) {
-            if (!data.hasOwnProperty(displayId)) continue;
-
-            var intArray = data[displayId];
-            if (intArray.every(fdid => fdid === 0)){
-                continue;
+    fetch("/dbc/texture/" + Current.fileDataID + "?build=" + Current.buildName)
+        .then(response => response.json())
+        .then(data => {
+            if (Current.fileDataID != currentFDID){
+                console.log("This request is not for this filedataid, discarding..");
+                return;
             }
 
-            // Open controls overlay
-            $("#skinSelect").show();
+            var skinSelect = document.getElementById("skinSelect");
+            skinSelect.innerHTML = "";
 
-            if (loadedTextures.includes(intArray.join(',')))
-                continue;
+            for (let displayId in data) {
+                if (!data.hasOwnProperty(displayId)) continue;
 
-            loadedTextures.push(intArray.join(','));
-
-            $.ajax({
-                type: 'GET',
-                url: "/listfile/info",
-                data: {
-                    filename: 1,
-                    filedataid : intArray.join(",")
+                var intArray = data[displayId];
+                if (intArray.every(fdid => fdid === 0)){
+                    continue;
                 }
-            })
-                .done(function( filename ) {
-                    var textureFileDataIDs = decodeURIComponent(this.url.replace("/listfile/info?filename=1&filedataid=", '')).split(',');
-          
-                    var textureFileDataID = textureFileDataIDs[0];
 
-                    var optionHTML = '<option value="' + textureFileDataIDs + '"';
+                // Open controls overlay
+                skinSelect.style.display = "block";
 
-                    if ($('#skinSelect option').length == 0){
-                        optionHTML += " SELECTED>";
-                        if (textureFileDataIDs.length == 3 || textureFileDataIDs.length == 4){
-                        // Creature
-                            setModelTexture(textureFileDataIDs, 11);
+                if (loadedTextures.includes(intArray.join(',')))
+                    continue;
+
+                loadedTextures.push(intArray.join(','));
+
+                fetch("/listfile/info?filename=1&filedataid=" + intArray.join(","))
+                    .then(response => response.text())
+                    .then(filename => {
+                        var textureFileDataIDs = intArray;
+                        var textureFileDataID = textureFileDataIDs[0];
+
+                        var optionHTML = '<option value="' + textureFileDataIDs + '"';
+
+                        if (skinSelect.options.length == 0){
+                            optionHTML += " SELECTED>";
+                            if (textureFileDataIDs.length == 3 || textureFileDataIDs.length == 4){
+                            // Creature
+                                setModelTexture(textureFileDataIDs, 11);
+                            } else {
+                            // Item
+                                setModelTexture(textureFileDataIDs, 2);
+                            }
                         } else {
-                        // Item
-                            setModelTexture(textureFileDataIDs, 2);
+                            optionHTML += ">";
                         }
-                    } else {
-                        optionHTML += ">";
-                    }
 
-                    if (filename != ""){
-                        var nopathname = filename.replace(/^.*[\\\/]/, '');
-                        optionHTML += "(" + textureFileDataID + ") " + nopathname + "</option>";
-                    } else {
-                        optionHTML += textureFileDataID + "</option>";
-                    }
+                        if (filename != ""){
+                            var nopathname = filename.replace(/^.*[\\\/]/, '');
+                            optionHTML += "(" + textureFileDataID + ") " + nopathname + "</option>";
+                        } else {
+                            optionHTML += textureFileDataID + "</option>";
+                        }
 
-                    $("#skinSelect").append(optionHTML);
-                });
-        }
-    });
+                        skinSelect.insertAdjacentHTML('beforeend', optionHTML);
+                    });
+            }
+        });
 }
 
 function queueDL(url){
@@ -975,7 +1071,7 @@ function queueDL(url){
 
     if (!isDownloading){
         isDownloading = true;
-        $("#downloadLabel").show();
+        document.getElementById("downloadLabel").style.display = "block";
     }
 }
 
@@ -986,7 +1082,7 @@ function unqueueDL(url){
 
     if (DownloadQueue.length == 0){
         isDownloading = false;
-        $("#downloadLabel").hide();
+        document.getElementById("downloadLabel").style.display = "none";
     }
 
     numDownloading--;
@@ -1028,41 +1124,65 @@ function asyncTimeout() {
 
 function takescreenShotCombo()
 {
-  Module._createScreenshot();
+    Module._createScreenshot(Settings.transparentScreenshot);
 }
 
-async function screenShotComboGeo(geoNumIndex, allGeosets)
+async function screenShotComboGeo(geoNumIndex, allGeosets, texArray, linking)
 {
-  console.log("screenShotComboGeo() called. GeoNumIndex = " + geoNumIndex);
-  if (geoNumIndex >= allGeosets.geoNums.length){
+  if (geoNumIndex >= allGeosets.length){
     await asyncTimeout();
+    setModelTextures(texArray);
     updateEnabledGeosets();
     await asyncTimeout();
     await takescreenShotCombo();
     return;
   }
-  var geoNum = allGeosets.geoNums[geoNumIndex];
-  var geoVals = allGeosets.geoVals[geoNumIndex];
-  for (let i = 0; i < geoVals.length; i++){
+  var geoNum = allGeosets[geoNumIndex].slotNum;
+  var geoVals = allGeosets[geoNumIndex].variants;
+  var primaryLink = false;
+  var geoStart = 0;
+  var geoEnd = geoVals.length;
+  if (allGeosets[geoNumIndex].linked) {
+    if (linking < 0) // haven't encountered a linked field before now
+      primaryLink = true;
+    else {
+      geoStart = linking;
+      geoEnd = linking + 1;
+    }
+  }
+  for (let i = geoStart; i < geoEnd; i++){
     Current.enabledGeosets[geoNum] = Number(geoVals[i]);
-    await screenShotComboGeo(geoNumIndex+1, allGeosets);
+    if (primaryLink)
+      linking = i;
+    await screenShotComboGeo(geoNumIndex+1, allGeosets, texArray, linking);
   }
 }
 
-async function screenShotComboTex(texNum, texArray, allTextures, allGeosets)
+async function screenShotComboTex(texNum, texArray, allTextures, allGeosets, linking)
 {
-  console.log("screenShotComboTex() called. TexNum = " + texNum);
   if (texNum >= NUM_TEXTURE_SLOTS){
     await asyncTimeout();
-    setModelTextures(texArray);
-    await asyncTimeout();
-    await screenShotComboGeo(0, allGeosets);
+    await screenShotComboGeo(0, allGeosets, texArray, linking);
     return;
   }
-  var texes = allTextures[texNum];
-  for (let i = 0; i < texes.length; i++){
-    texArray[texNum] = texes[i];
-    await screenShotComboTex(texNum+1, texArray, allTextures, allGeosets);
+  var texes = allTextures[texNum].variants;
+  var primaryLink = false;
+  var texStart = 0;
+  var texEnd = texes.length;
+  if (allTextures[texNum].linked) {
+    if (linking < 0) {// haven't encountered a linked field before now
+      primaryLink = true;
+    }
+    else {
+      texStart = linking;
+      texEnd = linking + 1;
+    }
+  }
+  for (let i = texStart; i < texEnd; i++){
+    texArray[allTextures[texNum].slotNum] = texes[i];
+    if (primaryLink)
+      linking = i;
+    await screenShotComboTex(texNum+1, texArray, allTextures, allGeosets, linking);
   }
 }
 
@@ -1071,42 +1191,97 @@ function screenShotCombos()
   // Take screenshots for multiple combos of textures and/or geoset variants for a model.
   // It does this slowly or it bugs out.
   var allTextures = new Array(NUM_TEXTURE_SLOTS);
-  for (let i = 0; i < allTextures.length; i++){
-    allTextures[i] = parseComboList('sscTex' + i);
+  var linkedSettings = new Array();
+  var lastLinkedSize = 0;
+  var linkedLengthVaries = false;
+  
+  for (let i = 0; i < allTextures.length; i++) {
+    let variantVals = parseComboList('sscTex' + i);
+    let isLinked = document.getElementById('sscTexLinkedCheckbox' + i).checked;
+    if (isLinked) {
+      linkedSize = variantVals.length;
+      if (lastLinkedSize > 0 && lastLinkedSize != linkedSize)
+        linkedLengthVaries = true;
+      lastLinkedSize = linkedSize;
+      linkedSettings.push({name: "Texture #" + i, size: linkedSize});
+    }
+    allTextures[i] = {variants: variantVals, slotNum: i, varType: "texture", linked: isLinked};
   }
-
-  let rawGeosetList = document.getElementsByClassName("sscGeosetInput");
-  var allGeosets = {};
-  allGeosets.geoNums = Array();
-  allGeosets.geoVals = Array();
+  let rawGeosetList = document.getElementsByClassName("sscGeoInput");
+  var allGeosets = new Array();
   if (rawGeosetList.length > 0){
-    for (i = 0; i < rawGeosetList.length; i++){
+    for (let i = 0; i < rawGeosetList.length; i++) {
       let geoNum = rawGeosetList[i].dataset.geosetGroup;
-      let geoVals = parseComboList("sscGeo"+geoNum);
-      if (geoVals.length > 1 || geoVals[0] != "0"){
-        allGeosets.geoNums.push(geoNum);
-        allGeosets.geoVals.push(geoVals);
+      let variantVals = parseComboList("sscGeo"+geoNum);
+      let isLinked = document.getElementById('sscGeoLinkedCheckbox' + geoNum).checked;
+      if (isLinked) {
+        linkedSize = variantVals.length;
+        if (lastLinkedSize > 0 && lastLinkedSize != linkedSize)
+          linkedLengthVaries = true;
+        lastLinkedSize = linkedSize;
+        linkedSettings.push({name: "Geoset #" + geoNum, size: linkedSize});
       }
+      // if (variantVals.length > 1 || variantVals[0] != "0") {
+        allGeosets.push({variants: variantVals, slotNum: geoNum, varType: "geoset", linked: isLinked});
+      // }
     }
   }
-  screenShotComboTex(0, new Int32Array(NUM_TEXTURE_SLOTS), allTextures, allGeosets);
+  if (linkedLengthVaries) {
+    let alertText = "All linked fields must have exactly the same number of comma-separated values. The order is important for indicating which values are linked. Currently, the number of values for the linked fields are:\n";
+    for (let i = 0; i < linkedSettings.length; i++) {
+      alertText = alertText.concat(linkedSettings[i].name, " :\t", linkedSettings[i].size, "\n");
+    }
+    window.alert(alertText);
+    return;
+  }
+  else
+    screenShotComboTex(0, new Int32Array(NUM_TEXTURE_SLOTS), allTextures, allGeosets, -1);
 }
 
-function getScenePos(){
-    var data = new Float32Array(3);
+function getScenePos() {
+    try {
+        var data = new Float32Array(3);
 
-    var nDataBytes = data.length * data.BYTES_PER_ELEMENT;
-    var dataPtr = Module._malloc(nDataBytes);
+        var nDataBytes = data.length * data.BYTES_PER_ELEMENT;
+        var dataPtr = Module._malloc(nDataBytes);
 
-    var dataHeap = new Uint8Array(Module.HEAPU8.buffer, dataPtr, nDataBytes);
-    dataHeap.set(new Uint8Array(data.buffer));
+        var dataHeap = new Uint8Array(Module.HEAPU8.buffer, dataPtr, nDataBytes);
+        dataHeap.set(new Uint8Array(data.buffer));
 
-    Module._getScenePos(dataHeap.byteOffset);
+        Module._getScenePos(dataHeap.byteOffset);
 
-    var pos = new Float32Array(dataHeap.buffer, dataHeap.byteOffset, data.length);
-    console.log(pos);
+        var pos = new Float32Array(dataHeap.buffer, dataHeap.byteOffset, data.length);
+        return { x: pos[0], y: pos[1], z: pos[2] };
+    } finally {
+        Module._free(dataHeap.byteOffset);
+    }
+}
 
-    Module._free(dataHeap.byteOffset);
+function setPos() {
+    const posXInput = document.getElementById("posXInput");
+    const posYInput = document.getElementById("posYInput");
+    const posZInput = document.getElementById("posZInput");
+
+    Module._setScenePos(parseFloat(posXInput.value), parseFloat(posYInput.value), parseFloat(posZInput.value));
+}
+
+function setGivenPos(x, y, z) {
+    Module._setScenePos(parseFloat(x), parseFloat(y), parseFloat(z));
+    event.preventDefault();
+    return false;
+}
+
+function savePos() {
+    const posX = document.getElementById("posX").value;
+    const posY = document.getElementById("posY").value;
+    const posZ = document.getElementById("posZ").value;
+
+    const savedPositions = document.getElementById("savedPositions");
+    let saveHtml = "<div class='row'><div class='col-md-8'>X: " + posX + ", Y: " + posY + ", Z: " + posZ + "</div>";
+    saveHtml += "<div class='col-md-2'><button class='btn btn-sm btn-primary' onclick='setGivenPos(" + posX + ", " + posY + ", " + posZ + ")'>Set</button></div>";
+    saveHtml += "<div class='col-md-2'><button class='btn btn-sm btn-danger' onclick='this.parentElement.parentElement.remove()'>Delete</button></div>";
+    saveHtml += "</div>";
+    savedPositions.insertAdjacentElement('afterbegin', document.createElement('div')).innerHTML = saveHtml;
 }
 
 async function setModelDisplay(displayID, type){
@@ -1301,10 +1476,13 @@ function exportScene(){
 }
 
 (function() {
-    $('#wowcanvas').bind('contextmenu', function(e){
-        return false;
-    });
-
+    var canvas = document.getElementById('wowcanvas');
+    if (canvas) {
+        canvas.addEventListener('contextmenu', function(e){
+            e.preventDefault();
+            return false;
+        });
+    }
 
     // Skip further initialization in embedded mode
     if (embeddedMode){
@@ -1313,77 +1491,87 @@ function exportScene(){
 
     loadSettings();
 
-    Elements.table = $('#mvfiles').DataTable({
-        "processing": true,
-        "serverSide": true,
-        "ajax": {
-            "url": "/listfile/datatables",
-            "data": function ( d ) {
-                return $.extend( {}, d, {
-                    "src": "mv",
-                    //"showADT": $("#showADT").is(":checked"),
-                    "showWMO": $("#showWMO").is(":checked"),
-                    "showM2": $("#showM2").is(":checked")
-                } );
-            }
-        },
-        "pageLength": 30,
-        "autoWidth": false,
-        "orderMulti": false,
-        "ordering": true,
-        "order": [[0, 'asc']],
-        layout: {
-            topStart: null,
-            topEnd: null,
-            bottomStart: null,
-            bottomEnd: 'inputPaging'
-        },
-        "searching": true,
-        "columnDefs":
-        [
-            {
-                "targets": 0,
-                "orderable": false,
-                "visible": false
-            },
-            {
-                "targets": 1,
-                "orderable": false,
-                "createdCell": function (td, cellData, rowData, row, col) {
-                    if (!cellData && !rowData[7]) {
-                        $(td).css('background-color', '#ff5858');
-                        $(td).css('color', 'white');
-                    }
-                },
-                "render": function ( data, type, full, meta ) {
-                    if (full[1]) {
-                        var test = full[1].replace(/^.*[\\\/]/, '');
-                    } else {
-                        if (!full[4]){
-                            full[4] = "unk";
-                        }
-                        if (full[7]){
-                            var test = full[7].replace(/^.*[\\\/]/, '');
-                        } else {
-                            var test = "Unknown filename (Type: " + full[4] + ", ID " + full[0] + ")";
-                        }
-                    }
-
-                    return test;
+    var mvfilesElement = document.getElementById('mvfiles');
+    if (mvfilesElement) {
+        Elements.table = new DataTable('#mvfiles', {
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "/listfile/datatables",
+                "data": function ( d ) {
+                    var showWMO = document.getElementById("showWMO");
+                    var showM2 = document.getElementById("showM2");
+                    return Object.assign( {}, d, {
+                        "src": "mv",
+                        "showWMO": showWMO ? showWMO.checked : false,
+                        "showM2": showM2 ? showM2.checked : false
+                    } );
                 }
+            },
+            "pageLength": 25,
+            "autoWidth": false,
+            "orderMulti": false,
+            "ordering": true,
+            "order": [[0, 'asc']],
+            layout: {
+                topStart: null,
+                topEnd: null,
+                bottomStart: null,
+                bottomEnd: 'inputPaging'
+            },
+            "searching": true,
+            "columnDefs":
+            [
+                {
+                    "targets": 0,
+                    "orderable": false,
+                    "visible": false
+                },
+                {
+                    "targets": 1,
+                    "orderable": false,
+                    "createdCell": function (td, cellData, rowData, row, col) {
+                        if (!cellData && !rowData[7]) {
+                            td.style.backgroundColor = '#ff5858';
+                            td.style.color = 'white';
+                        }
+                    },
+                    "render": function ( data, type, full, meta ) {
+                        if (full[1]) {
+                            var test = full[1].replace(/^.*[\\\/]/, '');
+                        } else {
+                            if (!full[4]){
+                                full[4] = "unk";
+                            }
+                            if (full[7]){
+                                var test = full[7].replace(/^.*[\\\/]/, '');
+                            } else {
+                                var test = "Unknown filename (Type: " + full[4] + ", ID " + full[0] + ")";
+                            }
+                        }
+
+                        return test;
+                    }
+                }
+            ],
+            "language": {
+                search: "",
+                searchPlaceholder: "Search"
             }
-        ],
-        "language": {
-            search: "",
-            searchPlaceholder: "Search"
+        });
+
+        var filterBoxes = document.querySelectorAll(".filterBox");
+        filterBoxes.forEach(function(filterBox) {
+            filterBox.addEventListener('change', function(){
+                Elements.table.ajax.reload();
+            });
+        });
+
+        var mvfilesSearch = document.getElementById('mvfiles_search');
+        if (mvfilesSearch) {
+            mvfilesSearch.addEventListener('input', function(){
+                Elements.table.search(this.value).draw();
+            });
         }
-    });
-
-    $(".filterBox").on('change', function(){
-        Elements.table.ajax.reload();
-    });
-
-    $('#mvfiles_search').on('input', function(){
-        Elements.table.search($(this).val()).draw();
-    });
+    }
 }());
