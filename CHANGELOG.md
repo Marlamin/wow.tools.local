@@ -1,3 +1,6 @@
+0.10.0 (xx-10-2026)
+- Fixed crash with automated file naming on some Classic builds.
+
 0.9.9 (30-09-2026)
 - Added filters/ordering to the hotfixes page.
 - Added support to the map namer for naming liquid flow texture maps.
