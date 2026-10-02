@@ -716,15 +716,6 @@ function loadModel(type, filedataid){
                 alwaysLoadByFDID = false;
             }
 
-            var exportButton = document.getElementById("exportButton");
-            if (exportButton) {
-                if (Current.type == "m2"){
-                    exportButton.disabled = false;
-                } else {
-                    exportButton.disabled = true;
-                }
-            }
-
             var jsControls = document.getElementById("js-controls");
 
             if (Current.filename != "" && !alwaysLoadByFDID) {
@@ -1467,12 +1458,6 @@ function updateURLs(){
 
     _free(ptrUrl);
     _free(ptrUrlFileDataId);
-}
-
-function exportScene(){
-    if (Current.type == "m2"){
-        Module._startExport();
-    }
 }
 
 (function() {

@@ -1,4 +1,7 @@
 0.10.0 (xx-10-2026)
+- Added builds for ARM64 MacOS, I can't test these so they are experimental at best.
+- Updated modelviewer, removed a lot of unused code in preparation for further upgrades/updates.
+- Removed glTF exporting from the modelviewer entirely (it was already disabled). Use wow.export instead!
 - Fixed crash with automated file naming on some Classic builds.
 
 0.9.9 (30-09-2026)
