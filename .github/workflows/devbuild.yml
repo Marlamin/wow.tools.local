@@ -20,6 +20,9 @@ jobs:
           - kind: macOS
             os: macos-latest
             target: osx-x64
+          - kind: macOS-arm64
+            os: macos-latest
+            target: osx-arm64
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v7
