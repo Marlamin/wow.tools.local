@@ -1,8 +1,10 @@
 0.10.0 (xx-10-2026)
 - Added builds for ARM64 MacOS, I can't test these so they are experimental at best.
+- Added base movement speed setting to modelviewer settings.
 - Updated modelviewer, removed a lot of unused code in preparation for further upgrades/updates.
-- Removed glTF exporting from the modelviewer entirely (it was already disabled). Use wow.export instead!
 - Fixed crash with automated file naming on some Classic builds.
+- Fixed modelviewer (transparent) screenshots not working for WMOs/ADTs.
+- Removed glTF exporting from the modelviewer entirely (it was already disabled), you can use wow.export instead.
 
 0.9.9 (30-09-2026)
 - Added filters/ordering to the hotfixes page.

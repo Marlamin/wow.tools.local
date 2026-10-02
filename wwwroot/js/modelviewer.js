@@ -156,12 +156,22 @@ function loadSettings(applyNow = false){
 
     document.getElementById("transparentScreenshot").checked = Settings.transparentScreenshot;
 
+    /* Base Movement Speed */
+    var baseMovementSpeed = localStorage.getItem('settings[baseMovementSpeed]');
+    if (baseMovementSpeed) {
+        Settings.baseMovementSpeed = parseFloat(baseMovementSpeed);
+        document.getElementById('baseMovementSpeed').value = baseMovementSpeed;
+    } else {
+        document.getElementById('baseMovementSpeed').value = 1.0;
+    }
+
     /* If settings should be applied now (don't do this on page load!) */
     if (applyNow){
         Module._setClearColor(Settings.clearColor[0], Settings.clearColor[1], Settings.clearColor[2]);
         Module._setFarPlane(Settings.farClip);
         Module._setFarPlaneForCulling(Settings.farClipCull);
         Module._enablePortalCulling(Settings.portalCulling);
+        Module._setMovementSpeed(Settings.baseMovementSpeed);
     }
 }
 
@@ -175,6 +185,7 @@ function saveSettings(){
     localStorage.setItem('settings[customClearColor]', document.getElementById("customClearColor").value);
     localStorage.setItem('settings[farClip]', document.getElementById("farClip").value);
     localStorage.setItem('settings[farClipCull]', document.getElementById("farClipCull").value);
+    localStorage.setItem('settings[baseMovementSpeed]', document.getElementById("baseMovementSpeed").value);
 
     if (document.getElementById("portalCulling").checked){
         localStorage.setItem('settings[portalCulling]', '1');
@@ -695,6 +706,7 @@ function loadModel(type, filedataid){
     Module._setFarPlane(Settings.farClip);
     Module._setFarPlaneForCulling(Settings.farClipCull);
     Module._enablePortalCulling(Settings.portalCulling);
+    Module._setMovementSpeed(Settings.baseMovementSpeed);
 
     DownloadQueue = [];
     isDownloading = false;
