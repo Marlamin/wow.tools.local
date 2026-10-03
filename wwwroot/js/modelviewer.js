@@ -300,8 +300,8 @@ window.createscene = async function () {
     var url = "/casc/fname?filename=";
     let urlFileId = "/casc/fdid?filedataid=";
 
-    var ptrUrl = allocateUTF8(url);
-    var ptrUrlFileDataId = allocateUTF8(urlFileId);
+    var ptrUrl = stringToNewUTF8(url);
+    var ptrUrlFileDataId = stringToNewUTF8(urlFileId);
 
     Module._createWebJsScene(document.body.clientWidth, document.body.clientHeight, ptrUrl, ptrUrlFileDataId);
 
@@ -732,7 +732,7 @@ function loadModel(type, filedataid){
 
             if (Current.filename != "" && !alwaysLoadByFDID) {
                 console.log("Loading " + Current.filename + " " + Current.fileDataID + " (" + Current.type + ")");
-                var ptrName = allocateUTF8(Current.filename);
+                var ptrName = stringToNewUTF8(Current.filename);
                 if (Current.type == "adt") {
                     Module._setScene(2, ptrName, -1);
                     jsControls.style.display = "none";
@@ -1463,8 +1463,8 @@ function updateURLs(){
     var url = "/casc/fname?filename=";
     let urlFileId = "/casc/fdid?filedataid=";
 
-    var ptrUrl = allocateUTF8(url);
-    var ptrUrlFileDataId = allocateUTF8(urlFileId);
+    var ptrUrl = stringToNewUTF8(url);
+    var ptrUrlFileDataId = stringToNewUTF8(urlFileId);
 
     Module._setNewUrls(ptrUrl, ptrUrlFileDataId);
 
