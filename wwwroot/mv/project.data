@@ -3499,31 +3499,32 @@ const float _229[14] = float[](0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0,
 
 layout(std140) uniform meshWideBlockPS
 {
-    highp vec4 uHeightScale;
-    highp vec4 uHeightOffset;
-    highp mat4 animationMat[4];
-} _466;
+    highp vec4 uHeightScale[2];
+    highp vec4 uHeightOffset[2];
+    highp mat4 animationMat[8];
+} _490;
 
 layout(std140) uniform modelWideBlockPS
 {
     ivec4 uUseHeightMixFormula;
-} _506;
+} _581;
 
 layout(std140) uniform sceneWideBlockVSPS
 {
     SceneWideParams scene;
     PSFog fogData;
-} _748;
+} _756;
 
 uniform highp sampler2D uAlphaTexture;
-uniform highp sampler2D uLayerHeight0;
-uniform highp sampler2D uLayerHeight1;
-uniform highp sampler2D uLayerHeight2;
-uniform highp sampler2D uLayerHeight3;
+uniform highp sampler2D uAlphaTexture2;
 uniform highp sampler2D uLayer0;
 uniform highp sampler2D uLayer1;
 uniform highp sampler2D uLayer2;
 uniform highp sampler2D uLayer3;
+uniform highp sampler2D uLayer4;
+uniform highp sampler2D uLayer5;
+uniform highp sampler2D uLayer6;
+uniform highp sampler2D uLayer7;
 
 in highp vec2 vChunkCoords;
 in highp vec4 vColor;
@@ -3658,92 +3659,108 @@ void main()
     highp vec2 vTexCoord = vChunkCoords;
     highp vec2 alphaCoord = vec2(vChunkCoords.x / 8.0, vChunkCoords.y / 8.0);
     highp vec3 alphaBlend = texture(uAlphaTexture, alphaCoord).yzw;
-    highp vec2 tcLayer0 = (_466.animationMat[0] * vec4(vTexCoord, 0.0, 1.0)).xy;
-    highp vec2 tcLayer1 = (_466.animationMat[1] * vec4(vTexCoord, 0.0, 1.0)).xy;
-    highp vec2 tcLayer2 = (_466.animationMat[2] * vec4(vTexCoord, 0.0, 1.0)).xy;
-    highp vec2 tcLayer3 = (_466.animationMat[3] * vec4(vTexCoord, 0.0, 1.0)).xy;
-    bool _510 = _506.uUseHeightMixFormula.x > 0;
-    highp vec4 final;
-    if (_510)
+    highp vec4 alphaBlend2 = texture(uAlphaTexture2, alphaCoord);
+    highp vec4 aTexCoord = vec4(vTexCoord, 0.0, 1.0);
+    highp vec2 tcLayer[8];
+    for (int i = 0; i < 8; i++)
     {
-        highp float minusAlphaBlendSum = 1.0 - clamp(dot(alphaBlend, vec3(1.0)), 0.0, 1.0);
-        highp vec4 weightsVector = vec4(minusAlphaBlendSum, alphaBlend);
-        highp float weightedTexture_x = minusAlphaBlendSum * ((texture(uLayerHeight0, tcLayer0).w * _466.uHeightScale.x) + _466.uHeightOffset.x);
-        highp float weightedTexture_y = weightsVector.y * ((texture(uLayerHeight1, tcLayer1).w * _466.uHeightScale.y) + _466.uHeightOffset.y);
-        highp float weightedTexture_z = weightsVector.z * ((texture(uLayerHeight2, tcLayer2).w * _466.uHeightScale.z) + _466.uHeightOffset.z);
-        highp float weightedTexture_w = weightsVector.w * ((texture(uLayerHeight3, tcLayer3).w * _466.uHeightScale.w) + _466.uHeightOffset.w);
-        highp vec4 weights = vec4(weightedTexture_x, weightedTexture_y, weightedTexture_z, weightedTexture_w);
-        highp vec4 weights_temp = weights * (vec4(1.0) - clamp(vec4(max(max(weightedTexture_x, weightedTexture_y), max(weightedTexture_z, weightedTexture_w))) - weights, vec4(0.0), vec4(1.0)));
-        highp vec4 weightsNormalized = weights_temp / vec4(dot(vec4(1.0), weights_temp));
-        highp vec4 weightedLayer_0 = texture(uLayer0, tcLayer0) * weightsNormalized.x;
-        highp vec3 matDiffuse_0 = weightedLayer_0.xyz;
-        highp float specBlend_0 = weightedLayer_0.w;
-        highp vec4 weightedLayer_1 = texture(uLayer1, tcLayer1) * weightsNormalized.y;
-        highp vec3 matDiffuse_1 = matDiffuse_0 + weightedLayer_1.xyz;
-        highp float specBlend_1 = specBlend_0 + weightedLayer_1.w;
-        highp vec4 weightedLayer_2 = texture(uLayer2, tcLayer2) * weightsNormalized.z;
-        highp vec3 matDiffuse_2 = matDiffuse_1 + weightedLayer_2.xyz;
-        highp float specBlend_2 = specBlend_1 + weightedLayer_2.w;
-        highp vec4 weightedLayer_3 = texture(uLayer3, tcLayer3) * weightsNormalized.w;
-        highp vec3 matDiffuse_3 = matDiffuse_2 + weightedLayer_3.xyz;
-        highp float specBlend_3 = specBlend_2 + weightedLayer_3.w;
-        final = vec4(matDiffuse_3, specBlend_3);
+        tcLayer[i] = (_490.animationMat[i] * aTexCoord).xy;
+    }
+    highp float layerAlpha[8];
+    layerAlpha[0] = 0.0;
+    layerAlpha[1] = alphaBlend.x;
+    layerAlpha[2] = alphaBlend.y;
+    layerAlpha[3] = alphaBlend.z;
+    layerAlpha[4] = alphaBlend2.x;
+    layerAlpha[5] = alphaBlend2.y;
+    layerAlpha[6] = alphaBlend2.z;
+    layerAlpha[7] = alphaBlend2.w;
+    highp vec4 layerColor[8];
+    layerColor[0] = texture(uLayer0, tcLayer[0]);
+    layerColor[1] = texture(uLayer1, tcLayer[1]);
+    layerColor[2] = texture(uLayer2, tcLayer[2]);
+    layerColor[3] = texture(uLayer3, tcLayer[3]);
+    layerColor[4] = texture(uLayer4, tcLayer[4]);
+    layerColor[5] = texture(uLayer5, tcLayer[5]);
+    layerColor[6] = texture(uLayer6, tcLayer[6]);
+    layerColor[7] = texture(uLayer7, tcLayer[7]);
+    bool _585 = _581.uUseHeightMixFormula.x > 0;
+    highp vec4 final;
+    if (_585)
+    {
+        highp float alphaSum = (((((alphaBlend.x + alphaBlend.y) + alphaBlend.z) + alphaBlend2.x) + alphaBlend2.y) + alphaBlend2.z) + alphaBlend2.w;
+        layerAlpha[0] = 1.0 - clamp(alphaSum, 0.0, 1.0);
+        highp float maxWeight = 0.0;
+        highp float weights[8];
+        for (int i_1 = 0; i_1 < 8; i_1++)
+        {
+            highp float heightScale = _490.uHeightScale[i_1 / 4][i_1 % 4];
+            highp float heightOffset = _490.uHeightOffset[i_1 / 4][i_1 % 4];
+            weights[i_1] = layerAlpha[i_1] * ((layerColor[i_1].w * heightScale) + heightOffset);
+            maxWeight = max(maxWeight, weights[i_1]);
+        }
+        highp float weightSum = 0.0;
+        for (int i_2 = 0; i_2 < 8; i_2++)
+        {
+            weights[i_2] *= (1.0 - clamp(maxWeight - weights[i_2], 0.0, 1.0));
+            weightSum += weights[i_2];
+        }
+        final = vec4(0.0);
+        for (int i_3 = 0; i_3 < 8; i_3++)
+        {
+            highp vec3 _708 = final.xyz + (layerColor[i_3].xyz * (weights[i_3] / weightSum));
+            final = vec4(_708.x, _708.y, _708.z, final.w);
+        }
     }
     else
     {
-        highp vec4 tex1 = texture(uLayer0, tcLayer0);
-        highp vec4 tex2 = texture(uLayer1, tcLayer1);
-        highp vec4 tex3 = texture(uLayer2, tcLayer2);
-        highp vec4 tex4 = texture(uLayer3, tcLayer3);
-        highp vec4 param = tex1;
-        highp vec4 param_1 = tex2;
-        highp float param_2 = alphaBlend.x;
-        highp vec4 param_3 = mixTextures(param, param_1, param_2);
-        highp vec4 param_4 = tex3;
-        highp float param_5 = alphaBlend.y;
-        highp vec4 param_6 = mixTextures(param_3, param_4, param_5);
-        highp vec4 param_7 = tex4;
-        highp float param_8 = alphaBlend.z;
-        final = mixTextures(param_6, param_7, param_8);
+        final = layerColor[0];
+        for (int i_4 = 1; i_4 < 8; i_4++)
+        {
+            highp vec4 param = final;
+            highp vec4 param_1 = layerColor[i_4];
+            highp float param_2 = layerAlpha[i_4];
+            final = mixTextures(param, param_1, param_2);
+        }
     }
     highp vec3 matDiffuse = (final.xyz * 2.0) * vColor.xyz;
-    highp vec3 param_9 = matDiffuse;
-    highp vec3 param_10 = vNormal;
-    bool param_11 = true;
-    highp float param_12 = 0.0;
-    SceneWideParams param_13;
-    param_13.uLookAtMat = _748.scene.uLookAtMat;
-    param_13.uPMatrix = _748.scene.uPMatrix;
-    param_13.uViewUp = _748.scene.uViewUp;
-    param_13.uInteriorSunDir = _748.scene.uInteriorSunDir;
-    param_13.extLight.uExteriorAmbientColor = _748.scene.extLight.uExteriorAmbientColor;
-    param_13.extLight.uExteriorHorizontAmbientColor = _748.scene.extLight.uExteriorHorizontAmbientColor;
-    param_13.extLight.uExteriorGroundAmbientColor = _748.scene.extLight.uExteriorGroundAmbientColor;
-    param_13.extLight.uExteriorDirectColor = _748.scene.extLight.uExteriorDirectColor;
-    param_13.extLight.uExteriorDirectColorDir = _748.scene.extLight.uExteriorDirectColorDir;
-    param_13.extLight.adtSpecMult = _748.scene.extLight.adtSpecMult;
-    InteriorLightParam param_14 = InteriorLightParam(vec4(0.0), vec4(0.0, 0.0, 0.0, 1.0));
-    highp vec3 param_15 = vVertexLighting;
-    highp vec4 finalColor = vec4(calcLight(param_9, param_10, param_11, param_12, param_13, param_14, param_15, vec3(0.0), vec3(0.0), vec3(0.0)), 1.0);
+    highp vec3 param_3 = matDiffuse;
+    highp vec3 param_4 = vNormal;
+    bool param_5 = true;
+    highp float param_6 = 0.0;
+    SceneWideParams param_7;
+    param_7.uLookAtMat = _756.scene.uLookAtMat;
+    param_7.uPMatrix = _756.scene.uPMatrix;
+    param_7.uViewUp = _756.scene.uViewUp;
+    param_7.uInteriorSunDir = _756.scene.uInteriorSunDir;
+    param_7.extLight.uExteriorAmbientColor = _756.scene.extLight.uExteriorAmbientColor;
+    param_7.extLight.uExteriorHorizontAmbientColor = _756.scene.extLight.uExteriorHorizontAmbientColor;
+    param_7.extLight.uExteriorGroundAmbientColor = _756.scene.extLight.uExteriorGroundAmbientColor;
+    param_7.extLight.uExteriorDirectColor = _756.scene.extLight.uExteriorDirectColor;
+    param_7.extLight.uExteriorDirectColorDir = _756.scene.extLight.uExteriorDirectColorDir;
+    param_7.extLight.adtSpecMult = _756.scene.extLight.adtSpecMult;
+    InteriorLightParam param_8 = InteriorLightParam(vec4(0.0), vec4(0.0, 0.0, 0.0, 1.0));
+    highp vec3 param_9 = vVertexLighting;
+    highp vec4 finalColor = vec4(calcLight(param_3, param_4, param_5, param_6, param_7, param_8, param_9, vec3(0.0), vec3(0.0), vec3(0.0)), 1.0);
     highp float specBlend = final.w;
-    highp vec3 halfVec = -normalize(_748.scene.extLight.uExteriorDirectColorDir.xyz + normalize(vPosition));
-    highp vec3 lSpecular = _748.scene.extLight.uExteriorDirectColor.xyz * pow(max(0.0, dot(halfVec, vNormal)), 20.0);
-    highp vec3 specTerm = (vec3(specBlend) * lSpecular) * _748.scene.extLight.adtSpecMult.x;
-    highp vec3 _831 = finalColor.xyz + specTerm;
-    finalColor = vec4(_831.x, _831.y, _831.z, finalColor.w);
+    highp vec3 halfVec = -normalize(_756.scene.extLight.uExteriorDirectColorDir.xyz + normalize(vPosition));
+    highp vec3 lSpecular = _756.scene.extLight.uExteriorDirectColor.xyz * pow(max(0.0, dot(halfVec, vNormal)), 20.0);
+    highp vec3 specTerm = (vec3(specBlend) * lSpecular) * _756.scene.extLight.adtSpecMult.x;
+    highp vec3 _838 = finalColor.xyz + specTerm;
+    finalColor = vec4(_838.x, _838.y, _838.z, finalColor.w);
     PSFog arg;
-    arg.densityParams = _748.fogData.densityParams;
-    arg.heightPlane = _748.fogData.heightPlane;
-    arg.color_and_heightRate = _748.fogData.color_and_heightRate;
-    arg.heightDensity_and_endColor = _748.fogData.heightDensity_and_endColor;
-    arg.sunAngle_and_sunColor = _748.fogData.sunAngle_and_sunColor;
-    arg.heightColor_and_endFogDistance = _748.fogData.heightColor_and_endFogDistance;
-    arg.sunPercentage = _748.fogData.sunPercentage;
-    highp vec4 param_16 = finalColor;
-    highp vec3 param_17 = vPosition;
-    highp vec3 param_18 = _748.scene.extLight.uExteriorDirectColorDir.xyz;
-    int param_19 = 0;
-    finalColor = makeFog(arg, param_16, param_17, param_18, param_19);
+    arg.densityParams = _756.fogData.densityParams;
+    arg.heightPlane = _756.fogData.heightPlane;
+    arg.color_and_heightRate = _756.fogData.color_and_heightRate;
+    arg.heightDensity_and_endColor = _756.fogData.heightDensity_and_endColor;
+    arg.sunAngle_and_sunColor = _756.fogData.sunAngle_and_sunColor;
+    arg.heightColor_and_endFogDistance = _756.fogData.heightColor_and_endFogDistance;
+    arg.sunPercentage = _756.fogData.sunPercentage;
+    highp vec4 param_10 = finalColor;
+    highp vec3 param_11 = vPosition;
+    highp vec3 param_12 = _756.scene.extLight.uExteriorDirectColorDir.xyz;
+    int param_13 = 0;
+    finalColor = makeFog(arg, param_10, param_11, param_12, param_13);
     finalColor.w = 1.0;
     outColor = finalColor;
 }
@@ -6632,6 +6649,11 @@ void main()
     highp vec3 param_14 = _537.scene.extLight.uExteriorDirectColorDir.xyz;
     int param_15 = _657.UseLitColor_EnableAlpha_PixelShader_BlendMode.w;
     finalColor = makeFog(arg, param_12, param_13, param_14, param_15);
+    bool _1539 = _657.UseLitColor_EnableAlpha_PixelShader_BlendMode.w <= 1;
+    if (_1539)
+    {
+        finalColor.w = 1.0;
+    }
     outputColor = finalColor;
 }
 

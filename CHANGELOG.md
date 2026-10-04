@@ -4,7 +4,9 @@
 - Added debug symbols to the modelviewer to hopefully start catching crashes.
 - Updated emscripten version used to compile modelviewer from 3.1.30 (2023) to 6.0.11 (latest).
 - Fixed crash with automated file naming on some Classic builds.
-- Fixed modelviewer (transparent) screenshots not working for WMOs/ADTs.
+- Fixed (transparent) screenshots in modelviewer not working for WMOs/ADTs.
+- Fixed WMOs in modelviewer showing up with a white hue/transparent in screenshots.
+- Fixed maps in modelviewer having broken terrain textures (mostly, some are still wrong).
 - Removed glTF exporting from the modelviewer entirely (it was already disabled), you can use wow.export instead.
 - Removed a lot of unused desktop/non-web related code from the modelviewer.
 
