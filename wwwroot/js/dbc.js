@@ -328,8 +328,7 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
     if (conditionalFKs.has(columnWithTable)) {
         let conditionalFK = conditionalFKs.get(columnWithTable);
         conditionalFK.forEach(function (conditionalFKEntry) {
-            let condition = conditionalFKEntry[0].split(
-                '=');
+            let condition = conditionalFKEntry[0].split('=');
             let conditionTarget = condition[0].split('.');
             let conditionValue = condition[1];
             let resultTarget = conditionalFKEntry[1];
@@ -418,7 +417,6 @@ function columnRender(row, columnName, columnValue, tableName, build, json, fks,
     if ("relationsToColumns" in json && columnName in json["relationsToColumns"] && columnWithTable != "spell.ID") {
         returnVar = " <a data-bs-toggle='modal' href='' style='cursor: help; border-bottom: 1px solid;' data-bs-target='#foreignKeySearchModal' onClick='fkDBSearch(\"" + tableName + "\", \"" + columnName + "\", \"" + columnValue + "\")'>" + columnValue + "</a>";
     }
-
     if (enumMap.has(columnWithTable)) {
         var enumVal = getEnum(tableName.toLowerCase(), columnName, columnValue);
         if (columnValue == '0' && enumVal == "Unk") {

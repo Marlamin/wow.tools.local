@@ -316,13 +316,7 @@
                                                     "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-build=" + newBuild + " data-tooltip='file' data-id='" +
                                                     row.row[field] + "' onclick='fillModal(" + row.row[field] + ")'>" + row.row[field] + "</a>";
                                             } else {
-                                                data =
-                                                    "<a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-tooltip='fk' data-build=" + newBuild + " data-id='" +
-                                                    row.row[field] + "' data-fk='" + fk +
-                                                    "' data-bs-toggle='modal' data-bs-target='#fkModal' onclick='openFKModal(" +
-                                                    row.row[field] + ", \"" + fk + "\", \"" +
-                                                    newBuild + "\")'>" + row.row[field] +
-                                                    "</a>";
+                                                data = columnRender(row.row, field, row.row[field], currentDBC, newBuild, resp2, fkCols, 0, conditionalFKs);
                                             }
                                         } else if (field.startsWith("Flags") || flagMap.has(columnWithTable)) {
                                             data = "<span style='padding-top: 0px; padding-bottom: 0px; cursor: help; border-bottom: 1px dotted;' data-tooltip='flags' data-table='" + currentDBC + "' data-col='" + field + "' data-id='" + row.row[field] + "'  data-build=" + newBuild + ">0x" + dec2hex(row.row[field]) + "</span>";
