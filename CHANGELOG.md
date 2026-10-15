@@ -2,9 +2,10 @@
 - Added builds for ARM64 MacOS, I can't test these so they are experimental at best.
 - Added base movement speed setting to modelviewer settings.
 - Added debug symbols to the modelviewer to hopefully start catching crashes.
-- Updated emscripten version used to compile modelviewer from 3.1.30 (2023) to 6.0.11 (latest).
+- Updated emscripten version used to compile modelviewer from 3.1.30 (2023) to 6.0.12 (latest).
 - Updated TACTSharp so WTL can now open local files while WoW is running (still not recommended).
 - Updated columns in DBC diffs to fall back to default column rendering instead of just foreign keys.
+- Updated TACT key metadata for 12.1.5.
 - Fixed crash with automated file naming on some Classic builds.
 - Fixed (transparent) screenshots in modelviewer not working for WMOs/ADTs.
 - Fixed WMOs in modelviewer showing up with a white hue/transparent in screenshots.

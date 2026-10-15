@@ -942,6 +942,7 @@
             KeyInfo.Add(0x1D7AC2060E365E04, (8296, "WOW-68943patch3.80.2_ClassicTitan", "Unknown item (CN)"));
             KeyInfo.Add(0x32C3D093BD861B08, (8297, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
             KeyInfo.Add(0x74B0ED248AF263DB, (8298, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
+            KeyInfo.Add(0x98BB3225F2863E49, (8299, "WOW-70424patch12.1.7_PTR", "Unknown spells (300x)"));
             KeyInfo.Add(0x100BE8F1E2E2BE50, (8300, "WOW-69155patch5.5.4_ClassicRetail", "Tuskarr Visual (CN)"));
             KeyInfo.Add(0x01BC7A3177A13951, (8301, "WOW-68943patch3.80.2_ClassicTitan", "Dragon throne toy (CN)"));
             KeyInfo.Add(0xC7D27F5183AEF4E0, (8302, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
@@ -950,6 +951,7 @@
             KeyInfo.Add(0x1E5C7237D1EA17C7, (8305, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             KeyInfo.Add(0xD3C81185FF9288C5, (8306, "WOW-69155patch5.5.4_ClassicRetail", "Visage of the Damned (CN)"));
             KeyInfo.Add(0x2B4AA57F9CD885F6, (8309, "WOW-69155patch5.5.4_ClassicRetail", "Tuskarr Hermit Crab (CN)"));
+            KeyInfo.Add(0xC858831DCC1E875E, (8317, "WOW-70424patch12.1.7_PTR", "Unknown cutscene"));
             KeyInfo.Add(0x46BCA0B39E7864FF, (8322, "WOW-69594patch12.1.5_XPTR", "Tidesage housing exterior/room/decor"));
             KeyInfo.Add(0xEB00B02AC6ADD077, (8323, "WOW-69594patch12.1.5_XPTR", "Unknown decor"));
             KeyInfo.Add(0xB7457365877699FC, (8324, "WOW-69594patch12.1.5_XPTR", "Misha/Huffer creatures/(toy?)"));
@@ -961,6 +963,16 @@
             KeyInfo.Add(0xDAC5AA105D0C1B67, (8330, "WOW-69594patch12.1.5_XPTR", "Grrloc mount (oopsie)"));
             KeyInfo.Add(0xF0155F33099659A3, (8331, "WOW-69594patch12.1.5_XPTR", "Unknown mount"));
             KeyInfo.Add(0xA907FA61EBDEEADE, (8332, "WOW-69594patch12.1.5_XPTR", "Unknown decor"));
+            KeyInfo.Add(0xC8AFF501FE143C56, (8333, "WOW-70424patch12.1.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0x5EE5B3AF68885483, (8351, "WOW-70424patch12.1.7_PTR", "Unknown housing exterior(s)/room(s)"));
+            KeyInfo.Add(0x3A62BE1F745D1C85, (8357, "WOW-70424patch12.1.7_PTR", "Unknown battle pet"));
+            KeyInfo.Add(0xA9CFF4EE72295C8D, (8358, "WOW-70424patch12.1.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0xC2A09E2420A68F7E, (8359, "WOW-70424patch12.1.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0xDE2683FE02FA1C1C, (8360, "WOW-70424patch12.1.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0xCF23F7D99DE0EF6D, (8361, "WOW-70424patch12.1.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0xE0D4C636DE128EF9, (8362, "WOW-70424patch12.1.7_PTR", "Unknown model"));
+            KeyInfo.Add(0x6254B5F8923C7713, (8364, "WOW-70424patch12.1.7_PTR", "Unknown housing exterior/decor"));
+            KeyInfo.Add(0x374D2EDD0B74D04C, (8365, "WOW-70424patch12.1.7_PTR", "Unknown housing exterior/decor"));
             // ID? FDC778C58B2FE080 Golden Ashened Cataclysm mount
         }
 
