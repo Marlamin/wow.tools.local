@@ -76,6 +76,13 @@
                     keyBytes = entry.Key;
                 }
 
+                let key = keyBytes;
+                if (key == "????????????????????????????????") {
+                    key = "<span class='text-warning'>" + key + "</span>";
+                } else {
+                    key = "<span class='text-success'>" + key + "</span>";
+                }
+                
                 let idPadding = " ";
                 if (entry.ID.toString().length == 2)
                     idPadding = "  ";
@@ -87,9 +94,11 @@
                 let description = entry.Description;
                 if (entry.Description.toLowerCase().includes("unknown")) {
                     description = "<span class='text-warning'>" + entry.Description + "</span>";
+                } else if (entry.Description.toLowerCase().includes("as of")) {
+                    description = "<span class='text-danger'>" + entry.Description + "</span>";
                 }
 
-                output += " <a target='_BLANK' href='/files/#search=encrypted%3A" + entry.Lookup + "&page=1&sort=0&desc=asc'>" + entry.Lookup + "</a>  " + keyBytes + "  salsa20   " + entry.ID + idPadding + entry.FirstSeen + descriptionPadding + description + "<a data-bs-toggle='modal' data-bs-target='#moreInfoModal' href='#' onclick='moreInfo(\"" + entry.Lookup + "\");event.preventDefault();' style='user-select: none;'>  More info</a>";
+                output += " <a target='_BLANK' href='/files/#search=encrypted%3A" + entry.Lookup + "&page=1&sort=0&desc=asc'>" + entry.Lookup + "</a>  " + key + "  salsa20   " + entry.ID + idPadding + entry.FirstSeen + descriptionPadding + description + "<a data-bs-toggle='modal' data-bs-target='#moreInfoModal' href='#' onclick='moreInfo(\"" + entry.Lookup + "\");event.preventDefault();' style='user-select: none;'>  More info</a>";
                 if (!entry.HasMetaData) {
                     output += " <a onClick='copyAsCSharp(\"" + entry.Lookup + "\", " + entry.ID + ", \"" + entry.FirstSeen + "\");' style='user-select: none;'>  Copy as C#</a>";
                 }
