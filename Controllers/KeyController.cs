@@ -21,6 +21,7 @@ namespace wow.tools.local.Controllers
             public string FirstSeen { get; set; } = "";
             public string Description { get; set; } = "";
             public bool HasMetaData { get; set; } = false;
+            public int NumFiles { get; set; } = 0;
         }
 
         [Route("info")]
@@ -177,7 +178,8 @@ namespace wow.tools.local.Controllers
                        Key = WTLKeyService.HasKey(keyInfo.Key) ? Convert.ToHexString(WTLKeyService.GetKey(keyInfo.Key)) : "",
                        FirstSeen = keyInfo.Value.FirstSeen,
                        Description = keyInfo.Value.Description,
-                       HasMetaData = !keysWithoutMetaData.Contains(keyInfo.Key)
+                       HasMetaData = !keysWithoutMetaData.Contains(keyInfo.Key),
+                       NumFiles = CASC.EncryptedFDIDs.Where(x => x.Value.Contains(keyInfo.Key)).Select(x => x.Key).ToList().Count
                    });
             }
 
