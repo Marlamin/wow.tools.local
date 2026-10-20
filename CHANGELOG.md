@@ -7,6 +7,7 @@
 - Updated columns in DBC diffs to fall back to default column rendering instead of just foreign keys.
 - Updated TACT key metadata for 12.1.5.
 - Updated TACT key page with file counts for each key and text colors to highlight key descriptions/availability.
+- Updated automatic naming to hopefully keep M2 names better in sync and be less spammy with WMO texture names.
 - Fixed crash with automated file naming on some Classic builds.
 - Fixed (transparent) screenshots in modelviewer not working for WMOs/ADTs.
 - Fixed WMOs in modelviewer showing up with a white hue/transparent in screenshots.
