@@ -9,6 +9,7 @@
 - Updated TACT key page with file counts for each key and text colors to highlight key descriptions/availability.
 - Updated automatic naming to hopefully keep M2 names better in sync and be less spammy with WMO texture names.
 - Fixed crash with automated file naming on some Classic builds.
+- Fixed file list in modelviewer not filtering by files available in the current build.
 - Fixed (transparent) screenshots in modelviewer not working for WMOs/ADTs.
 - Fixed WMOs in modelviewer showing up with a white hue/transparent in screenshots.
 - Fixed maps in modelviewer having broken terrain textures (mostly, some are still wrong).

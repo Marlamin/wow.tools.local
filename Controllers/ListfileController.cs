@@ -316,6 +316,9 @@ namespace wow.tools.local.Controllers
 
             var listfileResults = new Dictionary<int, string>(Listfile.NameMap.Where(x => (showM2 && Listfile.TypeMap["m2"].Contains(x.Key)) || (showWMO && Listfile.TypeMap["wmo"].Contains(x.Key)) || (showM3 && Listfile.TypeMap["m3"].Contains(x.Key))));
 
+            // filter by available files
+            listfileResults = listfileResults.Where(x => CASC.AvailableFDIDs.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+
             if (Request.Query.TryGetValue("search[value]", out var search) && !string.IsNullOrEmpty(search))
             {
                 var searchStr = search.ToString().ToLower();
