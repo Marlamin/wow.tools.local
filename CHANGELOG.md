@@ -11,6 +11,7 @@
 - Fixed crash with automated file naming on some Classic builds.
 - Fixed file list in modelviewer not filtering by files available in the current build.
 - Fixed (transparent) screenshots in modelviewer not working for WMOs/ADTs.
+- Fixed crash in modelviewer when opening models with incompatible particle emitters.
 - Fixed WMOs in modelviewer showing up with a white hue/transparent in screenshots.
 - Fixed maps in modelviewer having broken terrain textures (mostly, some are still wrong).
 - Removed glTF exporting from the modelviewer entirely (it was already disabled), you can use wow.export instead.
