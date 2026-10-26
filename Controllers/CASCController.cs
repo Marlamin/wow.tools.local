@@ -936,10 +936,10 @@ namespace wow.tools.local.Controllers
 
             html += "<div class='tab-pane show active' id='current-build' role='tabpanel' aria-labelledby='current-build-tab'>";
             html += "<p>The table below lists files in the current build that are identical in content to the requested file.</p>";
-            html += "<table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th></tr></thead>";
+            html += "<table class='table table-striped'><thead><tr><th>ID</th><th>Name (if available)</th><th>Lookup (if available)</th></tr></thead>";
             foreach (var filedataid in filedataids)
             {
-                html += "<tr><td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + filedataid + "' onclick='fillModal(" + filedataid + ")'>" + filedataid + "</a></td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td></tr>";
+                html += "<tr><td><a style='padding-top: 0px; padding-bottom: 0px; cursor: pointer; border-bottom: 1px dotted;' data-bs-toggle='modal' data-bs-target='#moreInfoModal' data-tooltip='file' data-id='" + filedataid + "' onclick='fillModal(" + filedataid + ")'>" + filedataid + "</a></td><td>" + (Listfile.NameMap.TryGetValue(filedataid, out var filename) ? filename : "N/A") + "</td><td>" + (Listfile.LookupMap.TryGetValue(filedataid, out var lookup) ? lookup.ToString("X8") : "N/A") + "</td></tr>";
             }
             html += "</table>";
             html += "</div>";
@@ -949,11 +949,11 @@ namespace wow.tools.local.Controllers
 
             if (historicFiles.Count > 0)
             {
-                html += "<table class='table table-striped'><thead><tr><th>ID</th><th>Build</th><th>Name (if available)</th></tr></thead>";
+                html += "<table class='table table-striped'><thead><tr><th>ID</th><th>Build</th><th>Name (if available)</th><th>Lookup (if available)</th></tr></thead>";
 
                 foreach (var (fdid, build) in historicFiles)
                 {
-                    html += "<tr><td>" + fdid + "</td><td>" + build + "</td><td>" + (Listfile.NameMap.TryGetValue((int)fdid, out var filename) ? filename : "N/A") + "</td></tr>";
+                    html += "<tr><td>" + fdid + "</td><td>" + build + "</td><td>" + (Listfile.NameMap.TryGetValue((int)fdid, out var filename) ? filename : "N/A") + "</td><td>" + (Listfile.LookupMap.TryGetValue((int)fdid, out var lookup) ? lookup.ToString("X8") : "N/A") + "</td></tr>";
                 }
                 html += "</table>";
             }
@@ -1216,7 +1216,7 @@ namespace wow.tools.local.Controllers
                     if (CASC.CHashToFDID.TryGetValue(fileVersion.contentHash, out var fdidsWithChash) && fdidsWithChash.Contains(filedataid))
                     {
                         var dlFilename = Listfile.NameMap.TryGetValue(filedataid, out var listfileName) ? Path.GetFileName(listfileName) : filedataid + ".unk";
-                        html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><a href='/casc/fdid?fileDataID=" + filedataid + "&filename=" + HttpUtility.UrlEncode(dlFilename) + "' target='_BLANK' download>Download</a></td></tr>";
+                        html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + fileVersion.contentHash.ToLower() + "\")'>" + fileVersion.contentHash.ToLower() + "</a></td><td><a href='/casc/fdid?fileDataID=" + filedataid + "&filename=" + HttpUtility.UrlEncode(dlFilename) + "' target='_BLANK' download>Download</a></td></tr>";
                     }
                     else
                     {
@@ -1225,11 +1225,11 @@ namespace wow.tools.local.Controllers
 
                         if (build > 18378)
                         {
-                            html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><a href='https://wago.tools/api/casc/" + filedataid + "/?version=" + fileVersion.buildName + "&download' target='_BLANK' download>Download</a></td></tr>";
+                            html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + fileVersion.contentHash.ToLower() + "\")'>" + fileVersion.contentHash.ToLower() + "</a></td><td><a href='https://wago.tools/api/casc/" + filedataid + "/?version=" + fileVersion.buildName + "&download' target='_BLANK' download>Download</a></td></tr>";
                         }
                         else
                         {
-                            html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'>" + fileVersion.contentHash.ToLower() + "</td><td><i>Download not available</i></td></tr>";
+                            html += "<tr><td>" + fileVersion.buildName + "</td><td style='font-family: monospace;'><a href='#' data-bs-toggle='modal' data-bs-target='#chashModal' onClick='fillChashModal(\"" + fileVersion.contentHash.ToLower() + "\")'>" + fileVersion.contentHash.ToLower() + "</a></td><td><i>Download not available</i></td></tr>";
                         }
                     }
 

@@ -2,6 +2,7 @@
 - Added builds for ARM64 MacOS, I can't test these so they are experimental at best.
 - Added base movement speed setting to modelviewer settings.
 - Added debug symbols to the modelviewer to hopefully start catching crashes.
+- Added lookups to contenthash lookup modal for easier identification of unknown contenthashes.
 - Updated emscripten version used to compile modelviewer from 3.1.30 (2023) to 6.0.13 (latest).
 - Updated TACTSharp so WTL can now open local files while WoW is running (still not recommended).
 - Updated columns in DBC diffs to fall back to default column rendering instead of just foreign keys.
