@@ -9,6 +9,7 @@
 - Updated TACT key metadata for 12.1.5.
 - Updated TACT key page with file counts for each key and text colors to highlight key descriptions/availability.
 - Updated automatic naming to hopefully keep M2 names better in sync and be less spammy with WMO texture names.
+- Updated DBCD to pick up on an improvement with how some hotfixes are handled for encrypted content.
 - Fixed crash with automated file naming on some Classic builds.
 - Fixed file list in modelviewer not filtering by files available in the current build.
 - Fixed (transparent) screenshots in modelviewer not working for WMOs/ADTs.
