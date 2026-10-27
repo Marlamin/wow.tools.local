@@ -621,6 +621,7 @@
             KeyInfo.Add(0x4DD53A14524598DF, (7889, "WOW-57361patch11.0.7_PTR", "Unknown model"));
             KeyInfo.Add(0x2E325D1412F4EDC0, (7890, "WOW-67xxxpatch5.5.4_Classic", "Sha-Touched Tea Set"));
             KeyInfo.Add(0x465DF0A04E659F2A, (7891, "WOW-67xxxpatch5.5.4_Classic", ""));
+            KeyInfo.Add(0x9E76BEE433FEB781, (7893, "WOW-70630patch1.60.1_Retail", ""));
             KeyInfo.Add(0x8069D26EBC0A44B2, (7897, "WOW-57361patch11.0.7_PTR", "Unknown cutscene"));
             KeyInfo.Add(0x35F943B1A3026944, (7898, "WOW-59xxxpatch11.1.0_XPTR", "Unknown cinematic"));
             KeyInfo.Add(0xAF7B06FE61947CB8, (7899, "WOW-59xxxpatch11.1.0_XPTR", "Unknown cinematic"));
@@ -647,6 +648,8 @@
             KeyInfo.Add(0xD1055199767FB373, (7924, "WOW-64xxxpatch12.0.0_Beta", "12.0 max level campaign"));
             KeyInfo.Add(0x9AF82E9600D84D2F, (7925, "WOW-59xxxpatch11.1.0_XPTR", "Lingering Shadows campaign"));
             KeyInfo.Add(0x192CB3A2CEA7F367, (7926, "WOW-59xxxpatch11.1.0_XPTR", ""));
+            KeyInfo.Add(0x2F2E1EF7F9591897, (7943, "WOW-70630patch1.60.1_Retail", ""));
+            KeyInfo.Add(0x0C3B9D5F0A1613A0, (7944, "WOW-70630patch1.60.1_Retail", ""));
             KeyInfo.Add(0x9DC500F50A8BAFA0, (7946, "WOW-6xxxxpatch11.1.X_PTR", "Unknown quests/item set"));
             KeyInfo.Add(0x32196CB4685FAA82, (7958, "WOW-6xxxxpatch11.1.X_PTR", "Stormstout Sha-Warped item set"));
             KeyInfo.Add(0x7FC2952239F631A3, (7960, "WOW-61476patch11.2.0_XPTR", "12.0 pre-order mounts"));
@@ -905,6 +908,7 @@
             KeyInfo.Add(0x570ED145F83E8B7B, (8243, "WOW-67525patch12.0.7_XPTR", "Spring armor"));
             KeyInfo.Add(0x8033CEF7FDE556C9, (8244, "WOW-67525patch12.0.7_XPTR", "BabyFaerieDragon2 battle pet"));
             KeyInfo.Add(0x9D96EBE2096AE3EE, (8246, "WOW-67525patch12.0.7_XPTR", "StormCrowMount_Ink mount"));
+            KeyInfo.Add(0x73B81E8FF6CF1FD4, (8249, "WOW-70630patch1.60.1_Retail", "Unknown icon"));
             KeyInfo.Add(0x4663B3747FE45B3F, (8254, "WOW-69594patch12.1.5_XPTR", "Orweyna vision cinematic"));
             KeyInfo.Add(0x698C227ECAE81223, (8255, "WOW-68317patch5.5.4_ClassicRetail", "Spring Panda mount"));
             KeyInfo.Add(0x9D6DF2962EC08AD0, (8256, "WOW-68317patch5.5.4_ClassicRetail", "BabyFaerieDragon (pink)"));
@@ -932,12 +936,18 @@
             KeyInfo.Add(0x563A10995791F642, (8280, "WOW-68209patch12.1.0_PTR", "Unknown housing exterior"));
             KeyInfo.Add(0x7A67F3392ACC41D2, (8281, "WOW-68209patch12.1.0_PTR", "Unknown housing room(s)"));
             KeyInfo.Add(0x055C2C56039A6E5E, (8282, "WOW-68412patch12.1.0_PTR", "Wearable shark item (CN)"));
+            KeyInfo.Add(0xD2C028CB7AC14D0B, (8283, "WOW-70630patch1.60.1_Retail", "Unknown map"));
             KeyInfo.Add(0x02589DF97D4EB19B, (8284, "WOW-69155patch5.5.4_ClassicRetail", "Tuskarr Fishing Pit toy (CN)"));
             KeyInfo.Add(0xAC95744D4736242E, (8285, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             KeyInfo.Add(0xA1513D5A172E3475, (8286, "WOW-68569patch12.1.0_PTR", "Unknown (BlizzCon?) housing decor/achievement/holiday"));
             KeyInfo.Add(0x5773DC2C3AC2401E, (8287, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
             KeyInfo.Add(0x9B3539FC6D2E0358, (8288, "WOW-68943patch3.80.2_ClassicTitan", "Unknown toy (CN)"));
             KeyInfo.Add(0xB6BE7B4AB73DD862, (8289, "WOW-68569patch12.1.0_PTR", "Veteran Adventurer's Loyal Companion mount"));
+            KeyInfo.Add(0xD1446FC3D23FF42D, (8290, "WOW-70630patch1.60.1_Retail", "Unknown Saber mount(s)"));
+            KeyInfo.Add(0x3D21D85F12FB8BB0, (8291, "WOW-70630patch1.60.1_Retail", "Unknown Mecha Devilsaur mount(s)"));
+            KeyInfo.Add(0xCF29827B0D101373, (8292, "WOW-70630patch1.60.1_Retail", "Unknown Druid Moose mount(s)"));
+            KeyInfo.Add(0xCC3FBB4C861ECD41, (8293, "WOW-70630patch1.60.1_Retail", "Unknown Furbolg pet(s)"));
+            KeyInfo.Add(0x0BCAD6F83A87B9E1, (8294, "WOW-70630patch1.60.1_Retail", "Unknown Ent pet(s)"));
             KeyInfo.Add(0x5DD107CB056D7387, (8295, "WOW-68943patch3.80.2_ClassicTitan", "Unknown item (CN)"));
             KeyInfo.Add(0x1D7AC2060E365E04, (8296, "WOW-68943patch3.80.2_ClassicTitan", "Unknown item (CN)"));
             KeyInfo.Add(0x32C3D093BD861B08, (8297, "WOW-68943patch3.80.2_ClassicTitan", "Unknown mount (CN)"));
@@ -952,6 +962,7 @@
             KeyInfo.Add(0xD3C81185FF9288C5, (8306, "WOW-69155patch5.5.4_ClassicRetail", "Visage of the Damned (CN)"));
             KeyInfo.Add(0x2B4AA57F9CD885F6, (8309, "WOW-69155patch5.5.4_ClassicRetail", "Tuskarr Hermit Crab (CN)"));
             KeyInfo.Add(0xC858831DCC1E875E, (8317, "WOW-70424patch12.1.7_PTR", "Unknown cutscene"));
+            KeyInfo.Add(0x057DC814574BD5B6, (8321, "WOW-70630patch1.60.1_Retail", "Unknown battle pet"));
             KeyInfo.Add(0x46BCA0B39E7864FF, (8322, "WOW-69594patch12.1.5_XPTR", "Tidesage housing exterior/room/decor"));
             KeyInfo.Add(0xEB00B02AC6ADD077, (8323, "WOW-69594patch12.1.5_XPTR", "Unknown decor"));
             KeyInfo.Add(0xB7457365877699FC, (8324, "WOW-69594patch12.1.5_XPTR", "Misha/Huffer creatures"));
@@ -964,7 +975,22 @@
             KeyInfo.Add(0xF0155F33099659A3, (8331, "WOW-69594patch12.1.5_XPTR", "Revendreth Dreadglider mount"));
             KeyInfo.Add(0xA907FA61EBDEEADE, (8332, "WOW-69594patch12.1.5_XPTR", "Zhevraskin rug decor"));
             KeyInfo.Add(0xC8AFF501FE143C56, (8333, "WOW-70424patch12.1.7_PTR", "Unknown mount"));
+            KeyInfo.Add(0x0DA4670DB36FB2A9, (8334, "WOW-70630patch1.60.1_Retail", "Unknown map"));
+            KeyInfo.Add(0xC508E508FE8885A7, (8335, "WOW-70630patch1.60.1_Retail", "Unknown mount"));
+            KeyInfo.Add(0xE7FB635D039786E5, (8336, "WOW-70630patch1.60.1_Retail", "Unknown mount"));
+            KeyInfo.Add(0x39862674CB78D0CD, (8337, "WOW-70630patch1.60.1_Retail", "Unknown item set"));
+            KeyInfo.Add(0xD14A84AAF3DFA283, (8338, "WOW-70630patch1.60.1_Retail", "Unknown item"));
+            KeyInfo.Add(0xA25F88CB0FDA1966, (8339, "WOW-70630patch1.60.1_Retail", "Unknown item"));
+            KeyInfo.Add(0x1C43CC2976172D0C, (8340, "WOW-70630patch1.60.1_Retail", "Unknown mount"));
+            KeyInfo.Add(0x5699DB626E0CD467, (8341, "WOW-70630patch1.60.1_Retail", "Unknown item"));
+            KeyInfo.Add(0xD731877A6452D7E6, (8342, "WOW-70630patch1.60.1_Retail", "Unknown pet"));
+            KeyInfo.Add(0xDEFE949FF04343D4, (8343, "WOW-70630patch1.60.1_Retail", "Unknown item"));
+            KeyInfo.Add(0xB83B85D7FADE4F73, (8344, "WOW-70630patch1.60.1_Retail", "Unknown toy"));
+            KeyInfo.Add(0xDA0E7785727A0A65, (8345, "WOW-70630patch1.60.1_Retail", "Unknown item"));
+            KeyInfo.Add(0xA7C8C4C5D242A816, (8347, "WOW-70630patch1.60.1_Retail", "Unknown icon"));
             KeyInfo.Add(0x5EE5B3AF68885483, (8351, "WOW-70424patch12.1.7_PTR", "Unknown housing exterior(s)/room(s)"));
+            KeyInfo.Add(0x42A3244EEEC79997, (8353, "WOW-70630patch1.60.1_Retail", "Unknown Faerie Dragon pet"));
+            KeyInfo.Add(0x3146BA4C4ECDBFAB, (8356, "WOW-70630patch1.60.1_Retail", "Unknown character service"));
             KeyInfo.Add(0x3A62BE1F745D1C85, (8357, "WOW-70424patch12.1.7_PTR", "Unknown battle pet"));
             KeyInfo.Add(0xA9CFF4EE72295C8D, (8358, "WOW-70424patch12.1.7_PTR", "Unknown mount"));
             KeyInfo.Add(0xC2A09E2420A68F7E, (8359, "WOW-70424patch12.1.7_PTR", "Unknown mount"));
@@ -973,6 +999,9 @@
             KeyInfo.Add(0xE0D4C636DE128EF9, (8362, "WOW-70424patch12.1.7_PTR", "Unknown model"));
             KeyInfo.Add(0x6254B5F8923C7713, (8364, "WOW-70424patch12.1.7_PTR", "Unknown housing exterior/decor"));
             KeyInfo.Add(0x374D2EDD0B74D04C, (8365, "WOW-70424patch12.1.7_PTR", "Unknown housing exterior/decor"));
+            KeyInfo.Add(0xCE85D44AAA89B1A5, (8366, "WOW-70630patch1.60.1_Retail", "Unknown Murloc pet"));
+            KeyInfo.Add(0x4A65D29877A83715, (8367, "WOW-70630patch1.60.1_Retail", "Unknown Ancient Protector pet"));
+            KeyInfo.Add(0x630ED39C028F266B, (8368, "WOW-70630patch1.60.1_Retail", "Unknown item set"));
             // ID? FDC778C58B2FE080 Golden Ashened Cataclysm mount
         }
 

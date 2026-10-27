@@ -6,7 +6,7 @@
 - Updated emscripten version used to compile modelviewer from 3.1.30 (2023) to 6.0.13 (latest).
 - Updated TACTSharp so WTL can now open local files while WoW is running (still not recommended).
 - Updated columns in DBC diffs to fall back to default column rendering instead of just foreign keys.
-- Updated TACT key metadata for 12.1.5.
+- Updated TACT key metadata for 12.1.5 and an initial pass on 1.60's first proper Retail build.
 - Updated TACT key page with file counts for each key and text colors to highlight key descriptions/availability.
 - Updated automatic naming to hopefully keep M2 names better in sync and be less spammy with WMO texture names.
 - Updated DBCD to pick up on an improvement with how some hotfixes are handled for encrypted content.
