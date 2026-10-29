@@ -1,5 +1,5 @@
-0.10.0 (xx-10-2026)
-- Added builds for ARM64 MacOS, I can't test these so they are experimental at best.
+0.9.10 (30-10-2026)
+- Added builds for ARM64 MacOS, I can't test these so they are experimental at best. Let me know if they work!
 - Added base movement speed setting to modelviewer settings.
 - Added debug symbols to the modelviewer to hopefully start catching crashes.
 - Added lookups to contenthash lookup modal for easier identification of unknown contenthashes.
