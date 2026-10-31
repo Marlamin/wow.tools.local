@@ -1,3 +1,6 @@
+0.10.0 (xx-11-2026)
+- Updated VO naming page to hide unavailable/empty VO files.
+
 0.9.10 (29-10-2026)
 - Added builds for ARM64 MacOS, I can't test these so they are experimental at best. Let me know if they work!
 - Added base movement speed setting to modelviewer settings.

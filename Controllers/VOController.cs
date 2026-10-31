@@ -227,6 +227,21 @@ namespace wow.tools.local.Controllers
                     if (!CASC.AvailableFDIDs.Contains((int)voFileDataID) || CASC.EncryptionStatuses.TryGetValue((int)voFileDataID, out var status) && status == CASC.EncryptionStatus.EncryptedUnknownKey)
                         isAvailable = false;
 
+                    var contentHashes = CASC.GetCKeysAndFlagsByFDID((int)voFileDataID);
+                    if (contentHashes.Count != 0)
+                    {
+                        var preferredKey = CASC.GetPreferredCKey(contentHashes);
+                        if (preferredKey == null || Convert.ToHexStringLower(preferredKey) == "de6135861a6cacfe176830f18f597c3e")
+                            isAvailable = false;
+                    }
+                    else
+                    {
+                        isAvailable = false;
+                    }
+                  
+                    if (!isAvailable)
+                        continue;
+
                     voFiles.Add(new VOFile()
                     {
                         fileDataID = voFileDataID,
