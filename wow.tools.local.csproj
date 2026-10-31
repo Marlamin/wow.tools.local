@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <!-- Trimming -->
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>partial</TrimMode>
     <PublishSingleFile>true</PublishSingleFile>
