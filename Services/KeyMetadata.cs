@@ -964,13 +964,13 @@
             KeyInfo.Add(0xC858831DCC1E875E, (8317, "WOW-70424patch12.1.7_PTR", "Unknown cutscene"));
             KeyInfo.Add(0x057DC814574BD5B6, (8321, "WOW-70630patch1.60.1_Retail", "Unknown battle pet"));
             KeyInfo.Add(0x46BCA0B39E7864FF, (8322, "WOW-69594patch12.1.5_XPTR", "Tidesage housing exterior/room/decor"));
-            KeyInfo.Add(0xEB00B02AC6ADD077, (8323, "WOW-69594patch12.1.5_XPTR", "Unknown decor"));
+            KeyInfo.Add(0xEB00B02AC6ADD077, (8323, "WOW-69594patch12.1.5_XPTR", "D&D Chest decor"));
             KeyInfo.Add(0xB7457365877699FC, (8324, "WOW-69594patch12.1.5_XPTR", "Misha/Huffer creatures"));
             KeyInfo.Add(0xD1A4D57C5E64F80B, (8325, "WOW-69594patch12.1.5_XPTR", ""));
-            KeyInfo.Add(0xBF5A860131BB05F2, (8326, "WOW-69594patch12.1.5_XPTR", "Unknown mount"));
-            KeyInfo.Add(0xE2C8A2697707F59C, (8327, "WOW-69594patch12.1.5_XPTR", "Unknown toy"));
+            KeyInfo.Add(0xBF5A860131BB05F2, (8326, "WOW-69594patch12.1.5_XPTR", "D&D mount"));
+            KeyInfo.Add(0xE2C8A2697707F59C, (8327, "WOW-69594patch12.1.5_XPTR", "D&D toy"));
             KeyInfo.Add(0x05FA08A8F5F1FEA9, (8328, "WOW-69594patch12.1.5_XPTR", "Rexxar transmog set"));
-            KeyInfo.Add(0x979CF71A22917498, (8329, "WOW-69594patch12.1.5_XPTR", "Unknown battle pets (3x)"));
+            KeyInfo.Add(0x979CF71A22917498, (8329, "WOW-69594patch12.1.5_XPTR", "D&D battle pet"));
             KeyInfo.Add(0xDAC5AA105D0C1B67, (8330, "WOW-69594patch12.1.5_XPTR", "Grrloc mount"));
             KeyInfo.Add(0xF0155F33099659A3, (8331, "WOW-69594patch12.1.5_XPTR", "Revendreth Dreadglider mount"));
             KeyInfo.Add(0xA907FA61EBDEEADE, (8332, "WOW-69594patch12.1.5_XPTR", "Zhevraskin rug decor"));
