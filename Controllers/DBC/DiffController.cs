@@ -81,7 +81,7 @@ namespace wow.tools.Local.Controllers
             var dbc2 = (IDictionary)await dbcManager.GetOrLoad(name, build2, useHotfixesFor2);
 
             var comparer = new DBComparer(dbc1, dbc2);
-            WoWToolsDiffResult diff = (WoWToolsDiffResult)comparer.Diff(DiffType.WoWTools);
+            WoWToolsDiffResult diff = (WoWToolsDiffResult)comparer.Diff();
 
             lock (diffLock)
             {
