@@ -292,13 +292,15 @@ namespace wow.tools.local.Services
 
                     int fdidInt = (int)fdid;
 
-                    lock (EncryptedFDIDs)
+                    if ((entries[0].contentFlags & RootInstance.ContentFlags.Encrypted) != 0)
                     {
-                        if (EncryptedFDIDs.ContainsKey(fdidInt))
-                            return;
+                        lock (EncryptedFDIDs)
+                        {
+                            if (EncryptedFDIDs.ContainsKey(fdidInt))
+                                return;
 
-                        if ((entries[0].contentFlags & RootInstance.ContentFlags.Encrypted) != 0)
                             EncryptedFDIDs.TryAdd(fdidInt, new List<ulong>());
+                        }
                     }
 
                     try
@@ -308,7 +310,7 @@ namespace wow.tools.local.Services
                         if (eKeys != false)
                         {
                             lock (chashLock)
-                                CHashToSize.TryAdd(Convert.ToHexStringLower(cKey.ToArray()), (uint)eKeys.DecodedFileSize);
+                                CHashToSize.TryAdd(Convert.ToHexStringLower(cKey), (uint)eKeys.DecodedFileSize);
 
                             var eSpec = buildInstance.Encoding.GetESpec(eKeys[0]);
                             var matches = eKeyRegex().Matches(eSpec.eSpec);
@@ -442,16 +444,7 @@ namespace wow.tools.local.Services
         public static Stream? GetFileByEKey(MD5 EKey, long decodedSize)
         {
             if (IsTACTSharpInit)
-            {
-                var (offset, size, archiveIndex) = buildInstance!.GroupIndex!.GetIndexInfo(EKey);
-                byte[] fileBytes;
-                if (offset == -1)
-                    fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(EKey), 0, (ulong)decodedSize, true);
-                else
-                    fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(EKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, (ulong)decodedSize, true);
-
-                return new MemoryStream(fileBytes);
-            }
+                return new MemoryStream(buildInstance!.OpenFileByEKey(EKey));
             else
                 return null;
         }
@@ -540,44 +533,16 @@ namespace wow.tools.local.Services
                             preferredEntry = rootEntries.First();
                     }
 
-                    /*
-                    Console.WriteLine(filedataid);
-                    foreach (var entry in rootEntries)
-                    {
-                        if(Convert.ToHexString(entry.md5) == Convert.ToHexString(preferredEntry.md5))
-                            Console.WriteLine(" [X] " + entry.fileDataID + " " + Convert.ToHexString(entry.md5) + " " + entry.contentFlags + " " + entry.localeFlags);
-                        else
-                            Console.WriteLine(" [ ] " + entry.fileDataID + " " + Convert.ToHexString(entry.md5) + " " + entry.contentFlags + " " + entry.localeFlags);
-                    }
-                    */
-
-                    var fileEKeys = buildInstance.Encoding!.FindContentKey(preferredEntry.md5);
-                    if (fileEKeys == false)
-                        throw new Exception("EKey not found in encoding");
-
-                    var eKey = fileEKeys[0];
-
-                    var (offset, size, archiveIndex) = buildInstance!.GroupIndex!.GetIndexInfo(eKey);
-                    byte[] fileBytes = null;
+                    byte[]? fileBytes = null;
 
                     try
                     {
-                        if (offset == -1)
-                            fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
-                        else
-                            fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
+                        fileBytes = buildInstance.OpenFileByCKey(preferredEntry.md5);
                     }
                     catch (Exception e)
                     {
                         if (e.Message == "Invalid BLTE header")
-                        {
-                            buildInstance.cdn.InvalidateCache("data", Convert.ToHexStringLower(eKey));
-
-                            if (offset == -1)
-                                fileBytes = buildInstance.cdn.GetFile("data", Convert.ToHexStringLower(eKey), 0, fileEKeys.DecodedFileSize, true);
-                            else
-                                fileBytes = buildInstance.cdn.GetFileFromArchive(Convert.ToHexStringLower(eKey), buildInstance.CDNConfig!.Values["archives"][archiveIndex], offset, size, fileEKeys.DecodedFileSize, true);
-                        }
+                            fileBytes = buildInstance.OpenFileByCKey(preferredEntry.md5);
                     }
 
                     if (fileBytes == null)
@@ -646,9 +611,7 @@ namespace wow.tools.local.Services
         public static bool DB2Exists(string filename)
         {
             if (Listfile.DB2Map.TryGetValue(filename.ToLower(), out int fileDataID))
-            {
                 return FileExists((uint)fileDataID);
-            }
 
             return false;
         }

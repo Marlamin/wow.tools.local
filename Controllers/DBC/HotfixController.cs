@@ -31,7 +31,7 @@ namespace wow.tools.local.Controllers
 
             if (SQLiteDB.hotfixDBConn.State != System.Data.ConnectionState.Open)
                 SQLiteDB.hotfixDBConn.Open();
-          
+
             // Filtering/searching
             var where = " ";
 
@@ -48,7 +48,7 @@ namespace wow.tools.local.Controllers
             {
                 var conditions = new List<string>();
 
-                if(!string.IsNullOrWhiteSpace(pushIDFilter))
+                if (!string.IsNullOrWhiteSpace(pushIDFilter))
                 {
                     conditions.Add("pushID = @pushID");
                     parameters.Add(("@pushID", pushIDFilter));
@@ -69,7 +69,7 @@ namespace wow.tools.local.Controllers
                 if (!string.IsNullOrWhiteSpace(buildFilter))
                 {
                     var splitBuild = buildFilter.Split('.');
-                    if(splitBuild.Length == 4 && int.TryParse(splitBuild[3], out var buildNumber))
+                    if (splitBuild.Length == 4 && int.TryParse(splitBuild[3], out var buildNumber))
                     {
                         conditions.Add("build = @build");
                         parameters.Add(("@build", buildNumber.ToString()));
@@ -88,7 +88,7 @@ namespace wow.tools.local.Controllers
                     parameters.Add(("@firstdetected", $"%{firstSeenFilter}%"));
                 }
 
-                if(parameters.Count > 0)
+                if (parameters.Count > 0)
                 {
                     where = " WHERE ";
                     where += string.Join(" AND ", conditions);
@@ -97,7 +97,7 @@ namespace wow.tools.local.Controllers
 
             // Ordering support
             var orderBy = " ORDER BY firstdetected DESC, pushID DESC, tableName DESC, recordID DESC";
-            if(Request.Query.ContainsKey("order[0][column]") && Request.Query.ContainsKey("order[0][dir]"))
+            if (Request.Query.ContainsKey("order[0][column]") && Request.Query.ContainsKey("order[0][dir]"))
             {
                 var colIndex = int.Parse(Request.Query["order[0][column]"]!);
 
@@ -136,7 +136,7 @@ namespace wow.tools.local.Controllers
             using var filteredCmd = SQLiteDB.hotfixDBConn.CreateCommand();
             filteredCmd.CommandText = filteredHotfixesSQL;
 
-            foreach(var (paramName, paramValue) in parameters)
+            foreach (var (paramName, paramValue) in parameters)
                 filteredCmd.Parameters.AddWithValue(paramName, paramValue);
 
             var filteredHotfixes = (long)filteredCmd.ExecuteScalar()!;
@@ -150,7 +150,7 @@ namespace wow.tools.local.Controllers
             cmd.Parameters.AddWithValue("@start", startRecords);
             cmd.Parameters.AddWithValue("@length", numRecords);
 
-            foreach(var (paramName, paramValue) in parameters)
+            foreach (var (paramName, paramValue) in parameters)
                 cmd.Parameters.AddWithValue(paramName, paramValue);
 
             using var reader = cmd.ExecuteReader();

@@ -251,12 +251,12 @@ namespace wow.tools.local.Controllers
 
         [Route("updateTACTKeys")]
         [HttpGet]
-        public bool UpdateTACTKeys()
+        public async Task<bool> UpdateTACTKeys()
         {
             if (SettingsManager.ReadOnly)
                 return false;
 
-            WTLKeyService.LoadKeys(true);
+            await WTLKeyService.LoadKeys(true);
             return true;
         }
 
@@ -2046,7 +2046,7 @@ namespace wow.tools.local.Controllers
                     }
 
                     var json = JsonSerializer.Serialize(blsReader.shaderFile, options);
-              
+
                     return json;
                 case "gfat":
                     var gfatReader = new GFATReader();

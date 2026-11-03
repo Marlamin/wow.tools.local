@@ -5,9 +5,9 @@ namespace wow.tools.local.Providers
 {
     public static class GameTableProvider
     {
-        private static Dictionary<string, Dictionary<int, MultByILVLRow>> combatRatingMultiByILVL;
-        private static Dictionary<string, Dictionary<int, MultByILVLRow>> staminaMultiByILVL;
-        private static Dictionary<string, Dictionary<int, SpellScalingRow>> spellScalingByLVL;
+        private static Dictionary<string, Dictionary<int, MultByILVLRow>> combatRatingMultiByILVL = [];
+        private static Dictionary<string, Dictionary<int, MultByILVLRow>> staminaMultiByILVL = [];
+        private static Dictionary<string, Dictionary<int, SpellScalingRow>> spellScalingByLVL = [];
 
         public struct MultByILVLRow
         {
@@ -39,12 +39,6 @@ namespace wow.tools.local.Providers
             public double Health;
             public double DamageReplaceStat;
             public double DamageSecondary;
-        }
-
-        static GameTableProvider()
-        {
-            combatRatingMultiByILVL = new Dictionary<string, Dictionary<int, MultByILVLRow>>();
-            staminaMultiByILVL = new Dictionary<string, Dictionary<int, MultByILVLRow>>();
         }
 
         public static MultByILVLRow GetStaminaMultByILVLRow(int itemLevel, string build)

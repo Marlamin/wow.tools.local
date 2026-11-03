@@ -190,7 +190,7 @@ namespace wow.tools.local.Controllers
 
                     lock (addedInLock)
                     {
-                        if (!AddedInCache.TryGetValue(result.Key, out addedIn))
+                        if (!AddedInCache.TryGetValue(result.Key, out addedIn!))
                         {
                             addedIn = SQLiteDB.GetFileVersions(result.Key)[0].buildName;
                             AddedInCache[result.Key] = addedIn;

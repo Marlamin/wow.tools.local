@@ -68,7 +68,7 @@
             return true;
         }
 
-        public static bool LoadKeys(bool forceRedownload = false)
+        public static async Task<bool> LoadKeys(bool forceRedownload = false)
         {
             if (KnownKeys.Count > 0 || forceRedownload)
                 KnownKeys.Clear();
@@ -100,7 +100,7 @@
             }
 
             if (CASC.IsTACTSharpInit)
-                LoadKeys();
+                await LoadKeys();
 
             // If there are known statuses, make sure to reload.
             if (CASC.EncryptionStatuses.Count > 0)

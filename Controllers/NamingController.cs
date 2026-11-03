@@ -13,7 +13,7 @@ namespace wow.tools.local.Controllers
     [ApiController]
     public class NamingController : Controller
     {
-        private readonly DBCManager dbcManager;
+        private readonly DBCManager? dbcManager;
 
         public NamingController(IDBCManager dbcManager, IDBDProvider dbdProvider, IDBCProvider dbcProvider)
         {
@@ -210,7 +210,7 @@ namespace wow.tools.local.Controllers
 
         [HttpPost]
         [Route("start")]
-        public string Start()
+        public async Task<string> Start()
         {
             if (SettingsManager.ReadOnly)
                 return "";
@@ -281,7 +281,7 @@ namespace wow.tools.local.Controllers
                         break;
                     case "M2":
                         var goDIDToFDID = new Dictionary<uint, uint>();
-                        var goDisplayInfoDB = dbcManager.GetOrLoad("GameObjectDisplayInfo", CASC.BuildName, true).Result;
+                        var goDisplayInfoDB = dbcManager!.GetOrLoad("GameObjectDisplayInfo", CASC.BuildName, true).Result;
                         foreach (var goDisplayInfo in goDisplayInfoDB.Values)
                         {
                             goDIDToFDID.Add(uint.Parse(goDisplayInfo["ID"].ToString()!), uint.Parse(goDisplayInfo["FileDataID"].ToString()!));
@@ -417,7 +417,7 @@ namespace wow.tools.local.Controllers
 
                         try
                         {
-                            var creatureXDIDB = dbcManager.GetOrLoad("CreatureXDisplayInfo", CASC.BuildName).Result;
+                            var creatureXDIDB = dbcManager!.GetOrLoad("CreatureXDisplayInfo", CASC.BuildName).Result;
                             if (creatureXDIDB.AvailableColumns.Contains("CreatureDisplayInfoID") && creatureXDIDB.AvailableColumns.Contains("CreatureID"))
                             {
                                 foreach (var creatureXDisplayInfo in creatureXDIDB.Values)
@@ -561,7 +561,7 @@ namespace wow.tools.local.Controllers
 
                             try
                             {
-                                var broadcastTextDB = dbcManager.GetOrLoad("BroadcastText", buildName, true).Result;
+                                var broadcastTextDB = dbcManager!.GetOrLoad("BroadcastText", buildName, true).Result;
 
                                 if (broadcastTextDB.AvailableColumns.Contains("Text_lang") && broadcastTextDB.AvailableColumns.Contains("Text1_lang") && broadcastTextDB.AvailableColumns.Contains("SoundKitID"))
                                 {
@@ -590,7 +590,7 @@ namespace wow.tools.local.Controllers
                         Namer.NameWWF();
                         break;
                     case "ContentHashes":
-                        Listfile.LoadContentHashes();
+                        await Listfile.LoadContentHashes();
                         var knownHashes = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Keys.ToHashSet();
                         var knownNames = WoWNamingLib.Namers.ContentHashNamer.knownHashes.Values.ToHashSet();
 

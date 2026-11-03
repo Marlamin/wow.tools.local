@@ -35,7 +35,7 @@ namespace wow.tools.local.Controllers
             {
                 allTags = allTags.Where(tag =>
                     tag.Name.Contains(search!, StringComparison.OrdinalIgnoreCase) ||
-                    tag.Key.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    tag.Key.Contains(search!, StringComparison.OrdinalIgnoreCase) ||
                     tag.Category.Contains(search!, StringComparison.OrdinalIgnoreCase)
                 ).ToList();
             }

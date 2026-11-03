@@ -19,24 +19,24 @@ namespace wow.tools.local.Services
 
         class WagoBuild
         {
-            public string product { get; set; }
-            public string version { get; set; }
-            public string created_at { get; set; }
-            public string build_config { get; set; }
-            public string product_config { get; set; }
-            public string cdn_config { get; set; }
+            public required string product { get; set; }
+            public required string version { get; set; }
+            public required string created_at { get; set; }
+            public required string build_config { get; set; }
+            public required string product_config { get; set; }
+            public required string cdn_config { get; set; }
             public bool is_bgdl { get; set; }
         }
 
         public class BuildMetaData
         {
-            public string product { get; set; }
-            public string buildConfig { get; set; }
-            public string cdnConfig { get; set; }
-            public string productConfig { get; set; }
-            public string version { get; set; }
-            public int build { get; set; }
-            public string firstSeen { get; set; }
+            public required string product { get; set; }
+            public required string buildConfig { get; set; }
+            public required string cdnConfig { get; set; }
+            public required string productConfig { get; set; }
+            public required string version { get; set; }
+            public required int build { get; set; }
+            public required string firstSeen { get; set; }
         }
 
         static SQLiteDB()

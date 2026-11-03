@@ -150,7 +150,7 @@ namespace wow.tools.local.Controllers
             {
                 var splitVersion = availableBuild.version.Split(".");
 
-                if(splitVersion.Length < 4)
+                if (splitVersion.Length < 4)
                     continue;
 
                 var patch = splitVersion[0] + "." + splitVersion[1] + "." + splitVersion[2];

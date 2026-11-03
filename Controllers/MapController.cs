@@ -323,7 +323,7 @@ namespace wow.tools.local.Controllers
                         if (!allMapTextureNs.TryGetValue("world/maptextures/" + directory + "/" + directory + "_" + y.ToString().PadLeft(2, '0') + "_" + x.ToString().PadLeft(2, '0') + "_n.blp", out mapTile.mapTextureN))
                             mapTile.mapTextureN = 0;
 
-                        if(!allWaterDirs.TryGetValue("world/liquidflow/" + directory + "/" + directory + "_" + y.ToString() + "_" + x.ToString() + ".blp", out mapTile.liquidFlow))
+                        if (!allWaterDirs.TryGetValue("world/liquidflow/" + directory + "/" + directory + "_" + y.ToString() + "_" + x.ToString() + ".blp", out mapTile.liquidFlow))
                             mapTile.liquidFlow = 0;
 
                         mask.Add(mapTile);

@@ -7,8 +7,8 @@ namespace wow.tools.local.Providers
     public class EnumProvider : IEnumProvider
     {
         private FilesystemEnumProvider? filesystemEnumProvider = null;
-        public List<MappingDefinition> Mappings { get; private set; }
-        public Dictionary<string, EnumDefinition> EnumDefinitions { get; private set; }
+        public List<MappingDefinition> Mappings { get; private set; } = [];
+        public Dictionary<string, EnumDefinition> EnumDefinitions { get; private set; } = [];
         public bool isUsingBDBD = false;
 
         public EnumProvider()

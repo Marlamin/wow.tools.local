@@ -5,7 +5,7 @@ namespace wow.tools.local.Services
 {
     public static class TagService
     {
-        private static Repository TagRepo;
+        private static Repository? TagRepo;
         private static bool Enabled = false;
 
         static TagService()
@@ -27,7 +27,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return [];
 
-            return TagRepo.GetTags();
+            return TagRepo!.GetTags();
         }
 
         public static List<WTLTag> GetTagsByFileDataID(int fdid)
@@ -35,7 +35,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return [];
 
-            var tagsByFDID = TagRepo.GetTagsByFileDataID(fdid);
+            var tagsByFDID = TagRepo!.GetTagsByFileDataID(fdid);
             if (tagsByFDID.Count > 0)
             {
                 // We have to do this because tuple types don't get output properly
@@ -57,7 +57,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return new List<int>();
 
-            return TagRepo.GetFileDataIDsByTag(tagKey).Select(x => x.FileDataID).ToList();
+            return TagRepo!.GetFileDataIDsByTag(tagKey).Select(x => x.FileDataID).ToList();
         }
 
         public static List<int> GetFileDataIDsByTagAndValue(string tagKey, string tagValue)
@@ -65,7 +65,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return new List<int>();
 
-            return TagRepo.GetFileDataIDsByTagAndValue(tagKey, tagValue);
+            return TagRepo!.GetFileDataIDsByTagAndValue(tagKey, tagValue);
         }
 
         public static void AddOrUpdateTag(string name, string key, string description, string type, string source, string category, bool allowMultiple, string status)
@@ -73,7 +73,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return;
 
-            TagRepo.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple, status);
+            TagRepo!.AddOrUpdateTag(name, key, description, type, source, category, allowMultiple, status);
         }
 
         public static void DeleteTag(string key)
@@ -81,7 +81,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return;
 
-            TagRepo.DeleteTag(key);
+            TagRepo!.DeleteTag(key);
         }
 
         public static void AddOrUpdateTagOption(string tagKey, string name, string description, string aliases)
@@ -89,7 +89,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return;
 
-            TagRepo.AddOrUpdateTagOption(tagKey, name, description, aliases);
+            TagRepo!.AddOrUpdateTagOption(tagKey, name, description, aliases);
         }
 
         public static void RemoveTagOption(string tagKey, string name)
@@ -97,7 +97,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return;
 
-            TagRepo.DeleteTagOption(tagKey, name);
+            TagRepo!.DeleteTagOption(tagKey, name);
         }
 
         public static void AddTagToFDID(int fileDataID, string tagKey, string tagValue)
@@ -105,7 +105,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return;
 
-            TagRepo.AddTagToFDID(fileDataID, tagKey, tagValue);
+            TagRepo!.AddTagToFDID(fileDataID, tagKey, tagValue);
         }
 
         public static void RemoveTagFromFDID(int fileDataID, string tagKey, string tagValue)
@@ -113,7 +113,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return;
 
-            TagRepo.RemoveTagFromFDID(fileDataID, tagKey, tagValue);
+            TagRepo!.RemoveTagFromFDID(fileDataID, tagKey, tagValue);
         }
 
         public static bool RequiresSavingStep()
@@ -121,7 +121,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return false;
 
-            return TagRepo.RequiresSavingStep();
+            return TagRepo!.RequiresSavingStep();
         }
 
         public static bool HasUnsavedChanges()
@@ -129,7 +129,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return false;
 
-            return TagRepo.HasUnsavedChanges();
+            return TagRepo!.HasUnsavedChanges();
         }
 
         public static void ReloadRepo()
@@ -137,7 +137,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return;
 
-            TagRepo.Load();
+            TagRepo!.Load();
         }
 
         public static void SaveRepo()
@@ -145,7 +145,7 @@ namespace wow.tools.local.Services
             if (!Enabled)
                 return;
 
-            TagRepo.Save();
+            TagRepo!.Save();
         }
     }
 

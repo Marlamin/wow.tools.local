@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Web;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
 using WoWFormatLib.FileProviders;
@@ -20,7 +16,7 @@ namespace wow.tools.local.Controllers
 
         private BLS GetShader(uint fileDataID, string api = "", string build = "", string overrideCKey = "")
         {
-            if(shaderCache.TryGetValue((fileDataID, api), out BLS cachedShader))
+            if (shaderCache.TryGetValue((fileDataID, api), out BLS cachedShader))
                 return cachedShader;
 
             if (string.IsNullOrWhiteSpace(build))

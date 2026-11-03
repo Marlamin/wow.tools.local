@@ -238,7 +238,7 @@ namespace wow.tools.local.Controllers
                     {
                         isAvailable = false;
                     }
-                  
+
                     if (!isAvailable)
                         continue;
 
