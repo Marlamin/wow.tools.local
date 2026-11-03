@@ -4,6 +4,7 @@ using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
+using wow.tools.local.Utils;
 using WoWFormatLib.FileReaders;
 using WoWNamingLib;
 
@@ -106,7 +107,7 @@ namespace wow.tools.local.Controllers
                 return "";
 
             var compiledPackage = Namer.GetSceneScriptCompiledDebug(pid);
-            return JsonSerializer.Serialize(compiledPackage);
+            return JsonSerializer.Serialize(compiledPackage, WTLJsonSettings.Options);
         }
 
         [HttpGet]

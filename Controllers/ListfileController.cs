@@ -6,6 +6,7 @@ using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
+using wow.tools.local.Utils;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 
@@ -474,8 +475,7 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            var jsonOptions = new JsonSerializerOptions() { IncludeFields = true };
-            return Json(versionList.Select(kvp => (kvp.Key, kvp.Value)).OrderByDescending(x => x.Key).ToList(), jsonOptions);
+            return Json(versionList.Select(kvp => (kvp.Key, kvp.Value)).OrderByDescending(x => x.Key).ToList(), WTLJsonSettings.Options);
         }
 
         [HttpGet("db2/builds")]

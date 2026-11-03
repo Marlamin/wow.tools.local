@@ -186,13 +186,7 @@ namespace wow.tools.local.Controllers
             if (newKeysFound)
                 CASC.RefreshEncryptionStatus();
 
-            var jsonProperties = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                IncludeFields = true,
-            };
-
-            return JsonSerializer.Serialize(keyInfos.OrderBy(x => x.ID), jsonProperties);
+            return JsonSerializer.Serialize(keyInfos.OrderBy(x => x.ID), WTLJsonSettings.Options);
         }
 
         [Route("moreinfo")]

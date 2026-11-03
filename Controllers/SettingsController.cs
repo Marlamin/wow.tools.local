@@ -51,9 +51,6 @@ namespace wow.tools.local.Controllers
             if (SettingsManager.ReadOnly)
                 return Forbid();
 
-            if (value == null)
-                return BadRequest("Value for setting " + key + " cannot be null.");
-
             var (isValid, message) = SettingsManager.ValidateSetting(key, value);
             if (isValid)
             {

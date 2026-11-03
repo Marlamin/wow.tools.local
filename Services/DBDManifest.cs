@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using wow.tools.local.Utils;
 
 namespace wow.tools.local.Services
 {
@@ -59,7 +60,7 @@ namespace wow.tools.local.Services
                 return;
             }
 
-            var manifest = JsonSerializer.Deserialize<List<ManifestEntry>>(File.ReadAllText(manifestLocation));
+            var manifest = JsonSerializer.Deserialize<List<ManifestEntry>>(File.ReadAllText(manifestLocation), WTLJsonSettings.Options);
 
             DB2Map.Clear();
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Services;
+using wow.tools.local.Utils;
 
 namespace wow.tools.local.Controllers
 {
@@ -219,7 +220,7 @@ namespace wow.tools.local.Controllers
 
             });
 
-            return Json(results);
+            return Json(results, WTLJsonSettings.Options);
         }
     }
 }

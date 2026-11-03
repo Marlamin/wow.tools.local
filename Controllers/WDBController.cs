@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using wow.tools.local.Services;
+using wow.tools.local.Utils;
 using WoWFormatLib.FileReaders;
 
 namespace wow.tools.local.Controllers
@@ -93,9 +94,9 @@ namespace wow.tools.local.Controllers
             //var questWDB = WDBReader.Read("C:\\World of Warcraft\\_beta_\\Cache\\WDB\\enUS\\questcache.wdb", CASC.BuildName);
 
             if (id == 0)
-                return JsonSerializer.Serialize(questWDB.entries);
+                return JsonSerializer.Serialize(questWDB.entries, WTLJsonSettings.Options);
             else
-                return JsonSerializer.Serialize(questWDB.entries.Where(x => x.Key == id));
+                return JsonSerializer.Serialize(questWDB.entries.Where(x => x.Key == id), WTLJsonSettings.Options);
         }
 
 
@@ -112,9 +113,9 @@ namespace wow.tools.local.Controllers
             if (format == "json")
             {
                 if (id == 0)
-                    return JsonSerializer.Serialize(creatureWDB.entries);
+                    return JsonSerializer.Serialize(creatureWDB.entries, WTLJsonSettings.Options);
                 else
-                    return JsonSerializer.Serialize(creatureWDB.entries.Where(x => x.Key == id));
+                    return JsonSerializer.Serialize(creatureWDB.entries.Where(x => x.Key == id), WTLJsonSettings.Options);
             }
             else
             {

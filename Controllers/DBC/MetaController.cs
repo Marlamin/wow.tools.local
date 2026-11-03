@@ -4,6 +4,7 @@ using DBDefsLib.Constants;
 using DBDefsLib.Structs;
 using Microsoft.AspNetCore.Mvc;
 using wow.tools.local.Providers;
+using wow.tools.local.Utils;
 
 namespace wow.tools.local.Controllers.DBC
 {
@@ -29,13 +30,7 @@ namespace wow.tools.local.Controllers.DBC
         {
             var mappings = string.IsNullOrEmpty(tableName)
                 ? enumProvider.Mappings
-                : enumProvider.Mappings.Where(x => x.tableName.ToLower() == tableName.ToLower()).ToList();
-
-            var jsonOptions = new System.Text.Json.JsonSerializerOptions
-            {
-                WriteIndented = true,
-                IncludeFields = true
-            };
+                : enumProvider.Mappings.Where(x => x.tableName.Equals(tableName, StringComparison.OrdinalIgnoreCase)).ToList();
 
             return new JsonResult(mappings.Select(m =>
             {
@@ -70,19 +65,13 @@ namespace wow.tools.local.Controllers.DBC
 
                 return new MappingWithEntries(m.meta, m.tableName, m.columnName, m.arrIndex,
                     m.conditionalTable, m.conditionalColumn, m.conditionalValue, entries);
-            }).ToList(), jsonOptions);
+            }).ToList(), WTLJsonSettings.Options);
         }
 
         [Route("getMeta")]
         [HttpGet]
         public async Task<ActionResult> GetMeta(string tableName, string columnName)
         {
-            var jsonOptions = new System.Text.Json.JsonSerializerOptions
-            {
-                WriteIndented = true,
-                IncludeFields = true
-            };
-
             int? arrayIndex = null;
 
             if (columnName.Contains('['))
@@ -95,7 +84,7 @@ namespace wow.tools.local.Controllers.DBC
             }
 
             Console.WriteLine($"Requesting Table: {tableName} and Column: {columnName} (Array: {arrayIndex})");
-            return new JsonResult(enumProvider.GetEnumDefinition(tableName, columnName, arrayIndex), jsonOptions);
+            return new JsonResult(enumProvider.GetEnumDefinition(tableName, columnName, arrayIndex), WTLJsonSettings.Options);
         }
     }
 

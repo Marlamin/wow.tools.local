@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using TACTSharp;
+using wow.tools.local.Utils;
 
 namespace wow.tools.local
 {
@@ -145,12 +146,12 @@ namespace wow.tools.local
                 Environment.CurrentDirectory = appDir;
 
             var configPath = Path.Combine(Environment.CurrentDirectory, "config.json");
-            dynamic newConfigJson = new System.Dynamic.ExpandoObject();
-            newConfigJson.config = new Dictionary<string, string>();
-            foreach (var setting in GetPersistentSettings())
-                newConfigJson.config[setting.Key] = setting.Value;
+            var newConfigJson = new
+            {
+                config = GetPersistentSettings().ToDictionary(setting => setting.Key, setting => setting.Value)
+            };
 
-            string json = System.Text.Json.JsonSerializer.Serialize(newConfigJson, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            string json = System.Text.Json.JsonSerializer.Serialize(newConfigJson, WTLJsonSettings.Options);
             File.WriteAllText(configPath, json);
         }
 
@@ -257,7 +258,7 @@ namespace wow.tools.local
                 WoWFolder = string.Empty; // reset if the detected folder is invalid
         }
 
-        public static (bool, string) ValidateSetting(string key, string value)
+        public static (bool, string) ValidateSetting(string key, string? value)
         {
             switch (key)
             {
@@ -277,7 +278,7 @@ namespace wow.tools.local
                     var validLocales = new[] { "deDE", "enUS", "enGB", "ruRU", "zhCN", "zhTW", "enTW", "esES", "esMX", "frFR", "itIT", "koKR", "ptBR", "ptPT" };
                     if (validLocales.Contains(value))
                     {
-                        SetLocale(value);
+                        SetLocale(value!);
                         return (true, string.Empty);
                     }
                     else

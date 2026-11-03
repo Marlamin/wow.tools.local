@@ -4,6 +4,7 @@ using NetVips;
 using System.Text.Json;
 using wow.tools.local.Managers;
 using wow.tools.local.Services;
+using wow.tools.local.Utils;
 using WoWFormatLib.Structs.ADT;
 
 namespace wow.tools.local.Controllers
@@ -278,12 +279,7 @@ namespace wow.tools.local.Controllers
                 seenMaps.Add(mapName);
             }
 
-            var jsonOptions = new JsonSerializerOptions
-            {
-                IncludeFields = true
-            };
-
-            return Json(list, jsonOptions);
+            return Json(list, WTLJsonSettings.Options);
         }
 
         // Slower but gives the full state for all layers in one go
@@ -644,8 +640,7 @@ namespace wow.tools.local.Controllers
         [HttpGet]
         public ActionResult GetWDTMaskPuzzle(string mapID, string directory, uint wdtFileDataID)
         {
-            var jsonOptions = new JsonSerializerOptions() { IncludeFields = true };
-            return Json(PuzzleCacheMask(mapID, directory, wdtFileDataID), jsonOptions);
+            return Json(PuzzleCacheMask(mapID, directory, wdtFileDataID), WTLJsonSettings.Options);
         }
 
         private static readonly int[] right = new[] { 0, 0, 0, 255 };

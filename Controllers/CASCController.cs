@@ -12,6 +12,7 @@ using System.Web;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
 using wow.tools.local.Services;
+using wow.tools.local.Utils;
 using WoWFormatLib.FileProviders;
 using WoWFormatLib.FileReaders;
 using WoWFormatLib.Structs.WDT;
@@ -102,14 +103,7 @@ namespace wow.tools.local.Controllers
                 }
             }
 
-            var jsonSerializerSettings = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                IncludeFields = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            };
-
-            return Json(hashesWithUsages, jsonSerializerSettings);
+            return Json(hashesWithUsages, WTLJsonSettings.Options);
         }
 
         [Route("dumpInstall")]
@@ -700,11 +694,6 @@ namespace wow.tools.local.Controllers
                 Modified = Array.Empty<DiffEntry>()
             };
 
-            var jsonOptions = new JsonSerializerOptions()
-            {
-                IncludeFields = true
-            };
-
             if (BuildDiffCache.Get(from, to, out ApiDiff diff))
             {
                 if (type == "normal")
@@ -715,7 +704,7 @@ namespace wow.tools.local.Controllers
                         modified = diff.Modified.Count(),
                         removed = diff.Removed.Count(),
                         data = diff.All.ToArray()
-                    }, jsonOptions);
+                    }, WTLJsonSettings.Options);
                 }
                 else
                 {
@@ -913,7 +902,7 @@ namespace wow.tools.local.Controllers
                 modified = modifiedDiffEntries.Length,
                 removed = removedDiffEntries.Length,
                 data = allEntries
-            }, jsonOptions);
+            }, WTLJsonSettings.Options);
         }
 
         [Route("samehashes")]
@@ -1917,13 +1906,6 @@ namespace wow.tools.local.Controllers
 
             FileProvider.SetDefaultBuild(build);
 
-            var options = new JsonSerializerOptions
-            {
-                Converters = { new JsonStringEnumConverter() },
-                WriteIndented = true,
-                IncludeFields = true
-            };
-
             switch (!string.IsNullOrEmpty(overrideType) ? overrideType : fileType)
             {
                 // TODO: Tuple conversion for System.Text.JSON
@@ -1934,15 +1916,15 @@ namespace wow.tools.local.Controllers
                 case "dat":
                     var datReader = new DATReader();
                     var dat = datReader.LoadDAT(fileDataID);
-                    return JsonSerializer.Serialize(dat, options);
+                    return JsonSerializer.Serialize(dat, WTLJsonSettings.Options);
                 case "wdl":
                     var wdlReader = new WDLReader();
                     wdlReader.LoadWDL(fileDataID);
-                    return JsonSerializer.Serialize(wdlReader.wdlfile, options);
+                    return JsonSerializer.Serialize(wdlReader.wdlfile, WTLJsonSettings.Options);
                 case "tex":
                     var texReader = new TEXReader();
                     var tex = texReader.LoadTEX(fileDataID);
-                    return JsonSerializer.Serialize(tex, options);
+                    return JsonSerializer.Serialize(tex, WTLJsonSettings.Options);
                 case "wmo":
                     var wmoReader = new WMOReader();
                     var wmo = wmoReader.LoadWMO(fileDataID);
@@ -1962,7 +1944,7 @@ namespace wow.tools.local.Controllers
                             wmo.group[i].mogp.materialInfo = [];
                         }
                     }
-                    return JsonSerializer.Serialize(wmo, options);
+                    return JsonSerializer.Serialize(wmo, WTLJsonSettings.Options);
                 case "adt":
                     var adtReader = new ADTReader();
 
@@ -1997,7 +1979,7 @@ namespace wow.tools.local.Controllers
                         }
                     }
 
-                    return JsonSerializer.Serialize(adtReader.adtfile, options);
+                    return JsonSerializer.Serialize(adtReader.adtfile, WTLJsonSettings.Options);
                 case "m2":
                     var m2Reader = new M2Reader();
                     m2Reader.LoadM2(fileDataID);
@@ -2012,11 +1994,11 @@ namespace wow.tools.local.Controllers
                             m2Reader.model.skins[i].properties = [];
                         }
                     }
-                    return JsonSerializer.Serialize(m2Reader.model, options);
+                    return JsonSerializer.Serialize(m2Reader.model, WTLJsonSettings.Options);
                 case "m3":
                     var m3Reader = new M3Reader();
                     m3Reader.LoadM3(fileDataID);
-                    return JsonSerializer.Serialize(m3Reader.model, options);
+                    return JsonSerializer.Serialize(m3Reader.model, WTLJsonSettings.Options);
                 case "bls":
                     var blsReader = new BLSReader();
 
@@ -2037,7 +2019,7 @@ namespace wow.tools.local.Controllers
                             if (!string.IsNullOrEmpty(overrideCKey))
                                 notBLS = notBLSReader.LoadGFAT(Convert.FromHexString(overrideCKey));
 
-                            return JsonSerializer.Serialize(notBLS, options);
+                            return JsonSerializer.Serialize(notBLS, WTLJsonSettings.Options);
                         }
                         else
                         {
@@ -2045,7 +2027,7 @@ namespace wow.tools.local.Controllers
                         }
                     }
 
-                    var json = JsonSerializer.Serialize(blsReader.shaderFile, options);
+                    var json = JsonSerializer.Serialize(blsReader.shaderFile, WTLJsonSettings.Options);
 
                     return json;
                 case "gfat":
@@ -2055,7 +2037,7 @@ namespace wow.tools.local.Controllers
                     if (!string.IsNullOrEmpty(overrideCKey))
                         gfat = gfatReader.LoadGFAT(Convert.FromHexString(overrideCKey));
 
-                    return JsonSerializer.Serialize(gfat, options);
+                    return JsonSerializer.Serialize(gfat, WTLJsonSettings.Options);
                 default:
                     throw new Exception("Unsupported file type");
             }

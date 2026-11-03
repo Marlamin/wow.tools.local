@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using wow.tools.local.Managers;
+using wow.tools.local.Utils;
 using static wow.tools.local.Services.Linker;
 
 namespace wow.tools.local.Services
@@ -120,7 +121,7 @@ namespace wow.tools.local.Services
                         client.DefaultRequestHeaders.Add("User-Agent", "wow.tools.local");
                         var response = client.GetAsync("https://wago.tools/api/builds").Result;
                         var json = response.Content.ReadAsStringAsync().Result;
-                        var wagoBuilds = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<WagoBuild>>>(json);
+                        var wagoBuilds = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<WagoBuild>>>(json, WTLJsonSettings.Options);
                         if (wagoBuilds == null)
                         {
                             Console.WriteLine("Failed to parse Wago builds JSON response.");

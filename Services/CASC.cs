@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using TACTSharp;
 using wow.tools.local.Managers;
 using wow.tools.local.Providers;
+using wow.tools.local.Utils;
 using static TACTSharp.RootInstance;
 
 namespace wow.tools.local.Services
@@ -816,12 +817,7 @@ namespace wow.tools.local.Services
                 Console.WriteLine(Path.GetFileNameWithoutExtension(manifest));
             }
 
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-
-            File.WriteAllText("versionHistory.json", JsonSerializer.Serialize(VersionHistory, options));
+            File.WriteAllText("versionHistory.json", JsonSerializer.Serialize(VersionHistory, WTLJsonSettings.Options));
 
             return true;
         }
@@ -834,7 +830,7 @@ namespace wow.tools.local.Services
                 return false;
             }
 
-            VersionHistory = JsonSerializer.Deserialize<Dictionary<int, List<Version>>>(File.ReadAllText("versionHistory.json")) ?? [];
+            VersionHistory = JsonSerializer.Deserialize<Dictionary<int, List<Version>>>(File.ReadAllText("versionHistory.json"), WTLJsonSettings.Options) ?? [];
 
             return true;
         }
