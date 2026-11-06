@@ -26,12 +26,12 @@ function loadMappings(tableName = "", build = "") {
         .then(data => {
             data.forEach(entry => {
                 let tableColumnKey = `${entry.tableName.toLowerCase()}.${entry.columnName}`;
-                if (entry.arrIndex !== null) {
+                if (entry.arrIndex !== undefined) {
                     tableColumnKey += `[${entry.arrIndex}]`;
                 }
 
                 const isConditional = entry.conditionalTable && entry.conditionalColumn;
-                if (entry.meta === 0) {         // Flags
+                if (entry.meta === "FLAGS") {         // Flags
                     if (isConditional) {
                         if (!window.conditionalFlags.has(tableColumnKey)) {
                             window.conditionalFlags.set(tableColumnKey, []);
@@ -42,7 +42,7 @@ function loadMappings(tableName = "", build = "") {
                         window.flagMap.set(tableColumnKey, entry.entries);
                     }
 
-                } else if (entry.meta === 1) {  // Enum
+                } else if (entry.meta === "ENUM") {  // Enum
                     if (isConditional) {
                         if (!window.conditionalEnums.has(tableColumnKey)) {
                             window.conditionalEnums.set(tableColumnKey, []);
@@ -52,10 +52,12 @@ function loadMappings(tableName = "", build = "") {
                     } else {
                         window.enumMap.set(tableColumnKey, entry.entries);
                     }
-                } else if (entry.meta === 2) {  // Color
+                } else if (entry.meta === "COLOR") {  // Color
                     window.colorFields.push(tableColumnKey);
-                } else if (entry.meta === 3) {  // Date
+                } else if (entry.meta === "DATE") {  // Date
                     window.dateFields.push(tableColumnKey);
+                } else {
+                    console.log("Unhandled DBD meta type: " + entry.meta);
                 }
             });
         });
