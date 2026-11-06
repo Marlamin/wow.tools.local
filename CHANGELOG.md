@@ -1,4 +1,5 @@
 0.10.0 (xx-11-2026)
+- Added WoW Forever (Retail) to downloadable hotfix list (by @renanthera).
 - Updated VO naming page to hide unavailable/empty VO files.
 - Updated DBDiffer library which also replaced Newtonsoft.Json with System.Text.Json/removed unused code.
 - Updated TACT key metadata.
