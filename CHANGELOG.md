@@ -1,5 +1,6 @@
 0.10.0 (xx-11-2026)
 - Added WoW Forever (Retail) to downloadable hotfix list (by @renanthera).
+- Added soundkit naming for RTPC/more spell sound types.
 - Updated automatic soundkit naming to be much faster.
 - Updated VO naming page to hide unavailable/empty VO files.
 - Updated DBDiffer library which also replaced Newtonsoft.Json with System.Text.Json/removed unused code.
