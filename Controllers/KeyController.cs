@@ -145,7 +145,6 @@ namespace wow.tools.local.Controllers
 
                                 if (bin.BaseStream.Position != bin.BaseStream.Length)
                                 {
-
                                     var extraTableHash = bin.ReadUInt32();
                                     if (extraTableHash == 0xDF2F53CF)
                                     {
