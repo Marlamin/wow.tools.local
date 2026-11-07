@@ -19,6 +19,7 @@ namespace wow.tools.local
             {
                 // this will override the config.json values if the relevant command line flags are present
                 SettingsManager.ParseCommandLineArguments(args);
+                SettingsManager.ApplyProxy();
 
                 CASC.InitTACT(SettingsManager.WoWFolder, SettingsManager.WoWProduct);
             }
