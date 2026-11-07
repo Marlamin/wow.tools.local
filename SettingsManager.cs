@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Net;
+using System.Runtime.InteropServices;
 using TACTSharp;
 using wow.tools.local.Utils;
 
@@ -40,6 +41,7 @@ namespace wow.tools.local
             {"bnetClientID", new WTLSetting { Key = "bnetClientID", Value = string.Empty, Description = "Battle.net Web API client ID (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
             {"bnetClientSecret", new WTLSetting { Key = "bnetClientSecret", Value = string.Empty, Description = "Battle.net Web API client secret (used for file naming only).", Type = "string", DefaultValue = string.Empty }},
             {"useWago", new WTLSetting { Key = "useWago", Value = "true", Description = "Whether to use wago.tools to load older versions of specific files, loads the build in TACTSharp if disabled.", Type = "bool", DefaultValue = "true" } },
+            {"proxy", new WTLSetting { Key = "proxy", Value = string.Empty, Description = "Proxy used for all outgoing HTTP(S) requests, e.g. http://host:port, socks5://host:port or http://user:pass@host:port. If empty, the .NET defaults are used (HTTP_PROXY/HTTPS_PROXY/ALL_PROXY environment variables, on Windows also the system proxy). Set to 'none' to never use a proxy, even if one is set in the environment. Requires a restart.", Type = "string", DefaultValue = string.Empty }},
             {"useTACTChannels", new WTLSetting { Key = "useTACTChannels", Value = "false", Description = "Whether to use TACTChannels for version retrieval.", Type = "bool", DefaultValue = "false" }},
         };
 
@@ -61,6 +63,7 @@ namespace wow.tools.local
         public static string DefaultFilesSearch { get => Settings["defaultFilesSearch"].Value; set => Settings["defaultFilesSearch"].Value = value; }
         public static string TagRepo { get => Settings["tagRepo"].Value; set => Settings["tagRepo"].Value = value; }
         public static string BnetClientID { get => Settings["bnetClientID"].Value; set => Settings["bnetClientID"].Value = value; }
+        public static string Proxy { get => Settings["proxy"].Value; set => Settings["proxy"].Value = value; }
         public static string BnetClientSecret { get => Settings["bnetClientSecret"].Value; set => Settings["bnetClientSecret"].Value = value; }
 
         // Bools
@@ -135,6 +138,36 @@ namespace wow.tools.local
 
             // After loading settings, always save them to ensure the config.json is valid and up-to-date (when e.g. settings are added/removed).
             SaveSettings();
+        }
+
+        // Sets the proxy every HttpClient created without an explicit handler (including the ones in TACTSharp) falls back to.
+        public static void ApplyProxy()
+        {
+            if (string.IsNullOrWhiteSpace(Proxy))
+                return;
+
+            if (Proxy.Equals("none", StringComparison.OrdinalIgnoreCase))
+            {
+                HttpClient.DefaultProxy = new WebProxy();
+                return;
+            }
+
+            if (!Uri.TryCreate(Proxy, UriKind.Absolute, out var proxyUri))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid proxy setting '" + Proxy + "', ignoring it.");
+                Console.ResetColor();
+                return;
+            }
+
+            var webProxy = new WebProxy(proxyUri, true);
+            if (!string.IsNullOrEmpty(proxyUri.UserInfo))
+            {
+                var userInfo = proxyUri.UserInfo.Split(':', 2);
+                webProxy.Credentials = new NetworkCredential(Uri.UnescapeDataString(userInfo[0]), userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty);
+            }
+
+            HttpClient.DefaultProxy = webProxy;
         }
 
         public static void SaveSettings()
@@ -322,6 +355,13 @@ namespace wow.tools.local
                         }
                         return (true, string.Empty);
                     }
+                case "proxy":
+                    if (string.IsNullOrEmpty(value) || value.Equals("none", StringComparison.OrdinalIgnoreCase))
+                        return (true, string.Empty);
+                    else if (Uri.TryCreate(value, UriKind.Absolute, out var proxyURIResult) && new[] { "http", "https", "socks4", "socks4a", "socks5", "socks5h" }.Contains(proxyURIResult.Scheme))
+                        return (true, string.Empty);
+                    else
+                        return (false, "Invalid proxy (must be e.g. http://host:port, socks5://host:port or 'none')");
                 case "dbcFolder":
                 case "manifestFolder":
                 case "extractionDir":
