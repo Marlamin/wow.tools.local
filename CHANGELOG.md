@@ -1,5 +1,6 @@
 0.10.0 (xx-11-2026)
 - Added WoW Forever (Retail) to downloadable hotfix list (by @renanthera).
+- Added setting for specifying a proxy server for outgoing HTTP(S) requests (by @Dramacydal).
 - Added soundkit naming for RTPC/more spell sound types.
 - Updated to .NET 11 (including all first-party dependencies).
 - Updated automatic soundkit naming to be much faster.
