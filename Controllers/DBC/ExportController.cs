@@ -148,7 +148,7 @@ namespace wow.tools.Local.Controllers
 
                             var storage = await GetStorage(cleanName, build, useHotfixes, locale);
 
-                            using (var exportStream = new MemoryStream(await GenerateCSVStream(storage, DefaultParameters, newLinesInStrings)))
+                            using (var exportStream = new ReadOnlyMemoryStream(await GenerateCSVStream(storage, DefaultParameters, newLinesInStrings)))
                             {
                                 var entryname = cleanName + ".csv";
                                 var entry = archive.CreateEntry(entryname);

@@ -445,7 +445,7 @@ namespace wow.tools.local.Services
         public static Stream? GetFileByEKey(MD5 EKey, long decodedSize)
         {
             if (IsTACTSharpInit)
-                return new MemoryStream(buildInstance!.OpenFileByEKey(EKey));
+                return new ReadOnlyMemoryStream(buildInstance!.OpenFileByEKey(EKey));
             else
                 return null;
         }
@@ -549,7 +549,7 @@ namespace wow.tools.local.Services
                     if (fileBytes == null)
                         throw new Exception("Failed to retrieve file after 2 attempts");
 
-                    return new MemoryStream(fileBytes);
+                    return new ReadOnlyMemoryStream(fileBytes);
                 }
                 else
                 {
@@ -580,7 +580,7 @@ namespace wow.tools.local.Services
                         else
                         {
                             var buildInstance = BuildManager.GetBuildByVersion(build);
-                            using (var ms = new MemoryStream(buildInstance.OpenFileByFDID(filedataid)))
+                            using (var ms = new ReadOnlyMemoryStream(buildInstance.OpenFileByFDID(filedataid)))
                             using (var fs = new FileStream("temp/" + build + "/" + filedataid, FileMode.Create))
                             {
                                 ms.CopyTo(fs);

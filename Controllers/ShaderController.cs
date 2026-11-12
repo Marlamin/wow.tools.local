@@ -103,7 +103,7 @@ namespace wow.tools.local.Controllers
 
             var permutationBytes = shader.decompressedShaders[permutation];
 
-            using (var stream = new MemoryStream(permutationBytes))
+            using (var stream = new ReadOnlyMemoryStream(permutationBytes))
             {
                 var hex = new StringBuilder();
                 var ascii = new StringBuilder();

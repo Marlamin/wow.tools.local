@@ -332,7 +332,7 @@ namespace wow.tools.local.Controllers
                             {
                                 uint build = 0;
 
-                                using (var ms = new MemoryStream(System.IO.File.ReadAllBytes(gobjectCacheFile)))
+                                using (var ms = new ReadOnlyMemoryStream(System.IO.File.ReadAllBytes(gobjectCacheFile)))
                                 using (var bin = new BinaryReader(ms))
                                 {
                                     bin.ReadUInt32();
@@ -485,7 +485,7 @@ namespace wow.tools.local.Controllers
                             {
                                 uint build = 0;
 
-                                using (var ms = new MemoryStream(System.IO.File.ReadAllBytes(creatureCacheFile)))
+                                using (var ms = new ReadOnlyMemoryStream(System.IO.File.ReadAllBytes(creatureCacheFile)))
                                 using (var bin = new BinaryReader(ms))
                                 {
                                     bin.ReadUInt32();

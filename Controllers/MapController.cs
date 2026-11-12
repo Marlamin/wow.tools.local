@@ -69,7 +69,7 @@ namespace wow.tools.local.Controllers
                     {
                         case ADTChunks.MCNK:
                             var mcnkData = bin.ReadBytes((int)chunkSize);
-                            using (var mcnkMS = new MemoryStream(mcnkData))
+                            using (var mcnkMS = new ReadOnlyMemoryStream(mcnkData))
                             using (var mcnkBin = new BinaryReader(mcnkMS))
                             {
                                 mcnkBin.ReadBytes(128); // mcnk header
@@ -179,8 +179,7 @@ namespace wow.tools.local.Controllers
                 if (output == "raw")
                 {
                     byte[] adtRawPixels = adtImage.WriteToMemory<byte>();
-                    var adtms = new MemoryStream();
-                    adtms.Write(adtRawPixels);
+                    var adtms = new ReadOnlyMemoryStream(adtRawPixels);
                     adtms.Position = 0;
                     return new FileStreamResult(adtms, "application/octet-stream");
                 }
@@ -217,8 +216,7 @@ namespace wow.tools.local.Controllers
 
             byte[] rawPixels = sortedImage.WriteToMemory<byte>();
 
-            var ms = new MemoryStream();
-            ms.Write(rawPixels);
+            var ms = new ReadOnlyMemoryStream(rawPixels);
             ms.Position = 0;
             return new FileStreamResult(ms, "application/octet-stream");
         }

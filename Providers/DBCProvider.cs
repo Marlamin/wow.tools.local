@@ -103,11 +103,11 @@ namespace wow.tools.local.Providers
 
                     // Try DB2
                     if (Listfile.DB2Map.TryGetValue(fullFileName.ToLower(), out int fileDataID) && buildInstance.Root!.FileExists((uint)fileDataID))
-                        return new MemoryStream(buildInstance.OpenFileByFDID((uint)fileDataID));
+                        return new ReadOnlyMemoryStream(buildInstance.OpenFileByFDID((uint)fileDataID));
 
                     // Try DBC
                     if (Listfile.DB2Map.TryGetValue(Path.ChangeExtension(fullFileName, ".dbc").ToLower(), out fileDataID) && buildInstance.Root!.FileExists((uint)fileDataID))
-                        return new MemoryStream(buildInstance.OpenFileByFDID((uint)fileDataID));
+                        return new ReadOnlyMemoryStream(buildInstance.OpenFileByFDID((uint)fileDataID));
 
                 }
                 catch (Exception ex)

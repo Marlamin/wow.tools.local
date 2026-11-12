@@ -71,13 +71,10 @@ namespace wow.tools.local.Controllers
             {
                 if (CASC.TryGetEKeysByCKey(new MD5(Convert.FromHexString(contenthash)), out var eKey))
                 {
-                    using (var ms = new MemoryStream())
+                    return new FileStreamResult(CASC.GetFileByEKey(eKey.Keys[0], eKey.Size)!, "application/octet-stream")
                     {
-                        return new FileStreamResult(CASC.GetFileByEKey(eKey.Keys[0], eKey.Size)!, "application/octet-stream")
-                        {
-                            FileDownloadName = filename
-                        };
-                    }
+                        FileDownloadName = filename
+                    };
                 }
             }
             catch (Exception e)

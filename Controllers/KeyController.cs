@@ -85,7 +85,7 @@ namespace wow.tools.local.Controllers
                         if (hotfix.dataSize == 0) continue;
                         if (hotfix.tableHash == 0x021826BB)
                         {
-                            using (var ms = new MemoryStream(hotfix.data))
+                            using (var ms = new ReadOnlyMemoryStream(hotfix.data))
                             using (var bin = new BinaryReader(ms))
                             {
                                 bin.ReadCString(); // Text_lang
@@ -131,7 +131,7 @@ namespace wow.tools.local.Controllers
 
                         if (hotfix.tableHash == 0x021826BB)
                         {
-                            using (var ms = new MemoryStream(hotfix.data))
+                            using (var ms = new ReadOnlyMemoryStream(hotfix.data))
                             using (var bin = new BinaryReader(ms))
                             {
                                 bin.ReadCString(); // Text_lang
