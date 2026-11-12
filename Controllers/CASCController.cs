@@ -128,7 +128,6 @@ namespace wow.tools.local.Controllers
                             }
 
                             fileStream.CopyTo(ms);
-                            ms.Position = 0;
 
                             System.IO.File.WriteAllBytes(Path.Combine(outputDir, Path.GetFileName(fileName)), ms.ToArray());
                         }
