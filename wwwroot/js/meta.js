@@ -6,12 +6,7 @@ window.conditionalFKs = new Map();
 window.conditionalEnums = new Map();
 window.conditionalFlags = new Map();
 
-// Load the mappings if it hasn't been loaded yet
-window.onload = _ => {
-    loadMappings();
-};
-
-function loadMappings(tableName = "", build = "") {
+async function loadMappings(tableName = "", build = "", reset = false) {
     var url = "/dbc/meta/getMappings";
 
     if (tableName != "") {
@@ -21,7 +16,17 @@ function loadMappings(tableName = "", build = "") {
         }
     }
 
-    fetch(url)
+    if (reset) {
+        window.flagMap = new Map();
+        window.enumMap = new Map();
+        window.colorFields = [];
+        window.dateFields = [];
+        window.conditionalFKs = new Map();
+        window.conditionalEnums = new Map();
+        window.conditionalFlags = new Map();
+    }
+
+    await fetch(url)
         .then(res => res.json())
         .then(data => {
             data.forEach(entry => {

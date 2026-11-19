@@ -96,7 +96,7 @@
     <script type="text/javascript" src="/js/files.js"></script>
 
     <script type='text/javascript'>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             var Settings = {
                 localBuildName: "",
                 embed: false
@@ -106,6 +106,8 @@
                 const response = await fetch("/casc/buildname");
                 Settings.localBuildName = await response.text();
             })();
+
+            await loadMappings();
 
             const urlParams = new URLSearchParams(window.location.search);
             const isEmbed = urlParams.get('embed');
@@ -441,6 +443,6 @@
         }
     </script>
     <script src="/js/meta.js"></script>
-    <script src="/js/dbc.js?v=1636490343"></script>
-    <script src="/js/diff_match_patch.js?v=1558192175"></script>
+    <script src="/js/dbc.js"></script>
+    <script src="/js/diff_match_patch.js"></script>
 </body>

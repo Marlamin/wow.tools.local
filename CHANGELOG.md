@@ -8,6 +8,8 @@
 - Updated DBDiffer library which also replaced Newtonsoft.Json with System.Text.Json/removed unused code.
 - Updated TACTSharp to pick up on fix for upstream TACT channel changes.
 - Updated TACT key metadata.
+- Fixed DB2 flags/enums not always being loaded before DB2 tables were.
+- Fixed DB2 flags/enums not reloading on DBD cache clear.
 - Removed Wowhead Looter support for VO naming (was already disabled).
 
 0.9.10 (29-10-2026)

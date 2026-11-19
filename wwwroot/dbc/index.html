@@ -329,6 +329,8 @@
             const response2 = await fetch("/dbc/clearCache");
             console.log(await response2.text());
 
+            await loadMappings("", "", true);
+
             loadTable();
 
             button.innerHTML = "<i class='fa fa-refresh'></i> Clear DB2/DBC/DBD cache";
@@ -345,6 +347,7 @@
             const response = await fetch("/dbc/updateDefs");
             console.log(await response.text());
 
+            await loadMappings("", "", true);
             loadTable();
 
             button.innerHTML = "<i class='fa fa-refresh'></i> Update WoWDBDefs & clear cache";
@@ -1490,6 +1493,7 @@
 
         (async function () {
             await loadURLParams();
+            await loadMappings();
             refreshFiles();
             refreshVersions();
             loadTable();
