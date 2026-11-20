@@ -11,6 +11,7 @@
 - Fixed automatic sound file naming not taking file type into consideration (.mp3s got named as .ogg).
 - Fixed DB2 flags/enums not always being loaded before DB2 tables were.
 - Fixed DB2 flags/enums not reloading on DBD cache clear.
+- Disabled automatic naming for empty minimap/maptextures as it kept overwriting proper names.
 - Removed Wowhead Looter support for VO naming (was already disabled).
 
 0.9.10 (29-10-2026)
