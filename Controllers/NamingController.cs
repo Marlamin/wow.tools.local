@@ -49,6 +49,7 @@ namespace wow.tools.local.Controllers
                 Namer.SetGetExpansionFunction(SQLiteDB.GetFirstVersionNumberByFileDataID);
                 Namer.SetSetCreatureNameForFDIDFunction(SQLiteDB.SetCreatureNameForFDID);
                 Namer.SetGetCreatureNameByDisplayIDFunction(SQLiteDB.GetCreatureNameByDisplayID);
+                Namer.SetGetTypeForFDIDFunction(Listfile.GetTypeForFDID);
                 Namer.MergeLookups(Listfile.LookupMap);
 
                 // We need to read the listfile again here for now because the WTL listfile is unaware of files not in the build.

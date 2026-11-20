@@ -780,5 +780,12 @@ namespace wow.tools.local.Services
             }
             return results.ToDictionary();
         }
+
+        public static string GetTypeForFDID(int fileDataID)
+        {
+            if (Types.TryGetValue(fileDataID, out var type))
+                return type;
+            return "unk";
+        }
     }
 }
