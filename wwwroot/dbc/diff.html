@@ -107,8 +107,6 @@
                 Settings.localBuildName = await response.text();
             })();
 
-            await loadMappings();
-
             const urlParams = new URLSearchParams(window.location.search);
             const isEmbed = urlParams.get('embed');
             if (isEmbed != undefined && isEmbed == "1") {
@@ -122,6 +120,8 @@
                 updateComparehref(urlParams.get('dbc'), urlParams.get('old'), urlParams.get('new'));
                 updateToDBChref(urlParams.get('dbc'), urlParams.get('new'));
             }
+
+            await loadMappings();
 
             const currentDBC = urlParams.get('dbc');
             if (currentDBC != undefined) {
